@@ -21,11 +21,11 @@ dependencies:
   shared_preferences: ^2.0.13
   fluttertoast: ^8.0.9
   connectivity_plus: ^2.2.1
-  intl: ^0.18.0
+  intl: 
   pin_code_fields: ^7.4.0
   paged_vertical_calendar: ^1.0.6
   circular_profile_avatar: ^2.0.5
-  image_picker: "0.8.4+1"
+  image_picker: "1.0.7"
   dotted_border: ^2.0.0+2
   flutter_rating_bar: ^4.0.0
   google_maps_flutter: ^2.1.5
@@ -33,12 +33,12 @@ dependencies:
   share_plus: ^4.0.4
   google_sign_in: ^5.4.0
   firebase_auth: ^4.8.0
-  firebase_core: ^2.15.1
+  firebase_core: ^2.25.4
   intl_phone_field: ^3.1.0
   http: ^0.13.4
   geolocator: ^9.0.1
   permission_handler: ^10.0.0
-  table_calendar: ^3.0.6
+  table_calendar: 
   textfield_search: ^0.10.0
   mask_text_input_formatter: ^2.3.0
   date_format: ^2.0.6
@@ -46,7 +46,7 @@ dependencies:
   flutter_google_places: ^0.3.0
   location: ^4.3.0
   geocoding: ^2.0.2
-  flutter_facebook_auth: ^4.4.0+1
+  flutter_facebook_auth: ^5.0.0
   cloud_firestore: ^4.9.0
   firebase_storage: ^11.2.6
   cached_network_image: ^3.2.1

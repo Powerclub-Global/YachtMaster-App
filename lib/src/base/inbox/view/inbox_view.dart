@@ -37,7 +37,7 @@ class _InboxViewState extends State<InboxView> {
       body: Column(crossAxisAlignment: CrossAxisAlignment.start,
         children: [
         h6,
-       Container(width: Get.width*.7,
+       Container(width: double.infinity,
          padding: EdgeInsets.only(left: Get.width*.04),
          child: Row(children: List.generate(2, (index) {
            return tabs(tabsList[index],index);

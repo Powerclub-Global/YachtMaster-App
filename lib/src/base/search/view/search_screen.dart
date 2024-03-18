@@ -660,7 +660,6 @@ class _SearchScreenState extends State<SearchScreen> {
                     else
                       Column(
                         children: [
-
                           if (yachtVm.allCharters.isNotEmpty/* &&
                               yachtVm.allCharters.where((element) => homeVm.allBookings.where((bookin) => bookin.charterFleetDetail?.id==element.id).toList().length>=(bookingVm.appUrlModel?.superhostminimumbookings??0)).toList().isNotEmpty*/)...[
                             GeneralWidgets.seeAllWidget(context, "charters",

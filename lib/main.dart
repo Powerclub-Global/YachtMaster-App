@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
-
 import 'package:bot_toast/bot_toast.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -127,6 +127,7 @@ main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();
+
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   const AndroidInitializationSettings initializationSettingsAndroid =
@@ -138,6 +139,7 @@ main() async {
     requestAlertPermission: false,
     onDidReceiveLocalNotification: onDidReceiveLocalNotification,
   );
+  await FirebaseMessaging.instance.getAPNSToken().then((value) => print(value));
   final LinuxInitializationSettings initializationSettingsLinux =
       LinuxInitializationSettings(defaultActionName: 'Open notification');
   final InitializationSettings initializationSettings = InitializationSettings(
@@ -149,6 +151,7 @@ main() async {
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
   final storage = await HydratedStorage.build(
       storageDirectory: await getApplicationDocumentsDirectory());
+  print("Here hu mai bhai apn token get kar raha !!!!!!!!!!!!!!!");
   HydratedBlocOverrides.runZoned(
       () => runApp(MultiProvider(providers: [
             ChangeNotifierProvider(create: (_) => LandingVm()),
@@ -170,16 +173,20 @@ String? publishableKey;
 String? secretKey;
 Future<FirebaseRemoteConfig> setupRemoteConfig() async {
   final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
+  print("fetch kar rha bro .....hahahaha");
   await remoteConfig.setConfigSettings(RemoteConfigSettings(
     fetchTimeout: const Duration(minutes: 10),
     minimumFetchInterval: const Duration(hours: 1),
   ));
+  print("kyaa error yahan hai");
   await remoteConfig.fetchAndActivate();
+  print("yaan phir yahan hai");
+
   publishableKey = remoteConfig.getString("publishable_key");
   secretKey = remoteConfig.getString("secret_key");
   print("THIS IS SECRET $publishableKey");
   Stripe.merchantIdentifier = 'any string works';
-  Stripe.publishableKey = publishableKey??"";
+  Stripe.publishableKey = publishableKey ?? "";
   await Stripe.instance.applySettings();
   RemoteConfigValue(null, ValueSource.valueStatic);
   return remoteConfig;

@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "634115072396-593oj377bt8718rl21dt3v9eg7vtjidd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.assorttech.yacht_master",
+            "certificate_hash": "9a252a7eb1ec68847abf4a2f04e9346c0ad15bdf"
+          }
+        },
+        {
           "client_id": "634115072396-909r1kam7g6705p7cb5eqmoeot18nmev.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -51,6 +59,14 @@
           "android_info": {
             "package_name": "com.assorttech.yacht_master",
             "certificate_hash": "46da93a95ba2971caec0177652820cf5e61d3b89"
+          }
+        },
+        {
+          "client_id": "634115072396-slgbhaiu6lba2gop8u57d163vb9fn39j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.assorttech.yacht_master",
+            "certificate_hash": "ee0d2952406c9c28797bc43e84fe9e272e1c812b"
           }
         },
         {

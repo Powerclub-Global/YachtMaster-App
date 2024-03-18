@@ -3,6 +3,7 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -25,8 +26,6 @@ import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
 import 'package:yacht_master/src/base/widgets/exit_sheet.dart';
 import 'package:yacht_master/utils/zbot_toast.dart';
 
-
-
 class BaseView extends StatefulWidget {
   static String route = "/baseViewScreen";
   const BaseView({Key? key}) : super(key: key);
@@ -42,13 +41,12 @@ class _BaseViewState extends State<BaseView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       ZBotToast.loadingShow();
-      var bookingsVm=Provider.of<BookingsVm>(Get.context!,listen: false);
+      var bookingsVm = Provider.of<BookingsVm>(Get.context!, listen: false);
 
       await bookingsVm.fetchAppUrls();
-      if(bookingsVm.appUrlModel?.is_enable_permission_dialog==true)
-        {
-          await takePhotosNotificationsPermissions();
-        }
+      if (bookingsVm.appUrlModel?.is_enable_permission_dialog == true) {
+        await takePhotosNotificationsPermissions();
+      }
       var baseVm = Provider.of<BaseVm>(context, listen: false);
       var authVm = Provider.of<AuthVm>(context, listen: false);
       await baseVm.fetchData();
@@ -57,14 +55,14 @@ class _BaseViewState extends State<BaseView> {
       baseVm.isHome = true;
       baseVm.update();
       ZBotToast.loadingClose();
-
     });
+
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer2<AuthVm, BaseVm>(builder: (context, authVm, provider, _) {
-     log("___ISSOCIALLOGIN:${authVm.userModel?.isSocialLogin}");
+      log("___ISSOCIALLOGIN:${authVm.userModel?.isSocialLogin}");
       return WillPopScope(
         onWillPop: () async {
           Get.bottomSheet(
@@ -96,8 +94,6 @@ class _BaseViewState extends State<BaseView> {
                 FloatingActionButtonLocation.centerDocked,
             floatingActionButton: GestureDetector(
                 onTap: () async {
-
-
                   provider.isHome = true;
                   provider.selectedPage = -1;
                   provider.update();
@@ -126,75 +122,79 @@ class _BaseViewState extends State<BaseView> {
 
   Widget bottomTabs(int index, String img, BaseVm vm) {
     return Expanded(
-      child: Consumer<SettingsVm>(
-        builder: (context, settingsVm,_) {
-          return GestureDetector(
-            onTap: () {
-              vm.selectedPage = index;
-              vm.update();
-            },
-            child: Padding(
-              padding: EdgeInsets.only(
-                  left:index == 1 && settingsVm.selectedLang == 2? Get.width * .09 : index == 2 && settingsVm.selectedLang != 2? Get.width * .09 : 0,
-                  right:index == 2 && settingsVm.selectedLang == 2?9.w: index == 1 && settingsVm.selectedLang != 2? Get.width * .09 : 0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (vm.selectedPage == index)
-                    Image.asset(
-                      R.images.indicator,
-                      height: Get.height * .007,
-                    )
-                  else
-                    SizedBox(height: Get.height * .007),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: Get.height * .025,
-                      bottom: Get.height * .025,
-                    ),
-                    child: vm.selectedPage == index
-                        ? ShaderMask(
-                            shaderCallback: (bounds) {
-                              return LinearGradient(colors: [
-                                R.colors.gradMud,
-                                R.colors.gradMudLight
-                              ]).createShader(bounds);
-                            },
-                            blendMode: BlendMode.srcATop,
-                            child: Image.asset(
-                              img,
-                              height:Get.height * .03,
-                            ))
-                        : Image.asset(
+      child: Consumer<SettingsVm>(builder: (context, settingsVm, _) {
+        return InkWell(
+          onTap: () {
+            vm.selectedPage = index;
+            vm.update();
+          },
+          child: Padding(
+            padding: EdgeInsets.only(
+                left: index == 1 && settingsVm.selectedLang == 2
+                    ? Get.width * .09
+                    : index == 2 && settingsVm.selectedLang != 2
+                        ? Get.width * .09
+                        : 0,
+                right: index == 2 && settingsVm.selectedLang == 2
+                    ? 9.w
+                    : index == 1 && settingsVm.selectedLang != 2
+                        ? Get.width * .09
+                        : 0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (vm.selectedPage == index)
+                  Image.asset(
+                    R.images.indicator,
+                    height: Get.height * .007,
+                  )
+                else
+                  SizedBox(height: Get.height * .007),
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: Get.height * .025,
+                    bottom: Get.height * .025,
+                  ),
+                  child: vm.selectedPage == index
+                      ? ShaderMask(
+                          shaderCallback: (bounds) {
+                            return LinearGradient(colors: [
+                              R.colors.gradMud,
+                              R.colors.gradMudLight
+                            ]).createShader(bounds);
+                          },
+                          blendMode: BlendMode.srcATop,
+                          child: Image.asset(
                             img,
                             height: Get.height * .03,
-                      color:index==0? R.colors.charcoalColor:null,
-
-                          ),
-                  ),
-                ],
-              ),
+                          ))
+                      : Image.asset(
+                          img,
+                          height: Get.height * .03,
+                          color: index == 0 ? R.colors.charcoalColor : null,
+                        ),
+                ),
+              ],
             ),
-          );
-        }
-      ),
+          ),
+        );
+      }),
     );
   }
-   takePhotosNotificationsPermissions() async {
+
+  takePhotosNotificationsPermissions() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-   bool? isNotificationAllowed=false;
-    bool? isGalleryAllowed=false;
-    isNotificationAllowed= prefs.getBool("isNotificationAllowed");
-    isGalleryAllowed= prefs.getBool("isGalleryAllowed");
+    bool? isNotificationAllowed = false;
+    bool? isGalleryAllowed = false;
+    isNotificationAllowed = prefs.getBool("isNotificationAllowed");
+    isGalleryAllowed = prefs.getBool("isGalleryAllowed");
     log("SHARED_________${isNotificationAllowed}___${isGalleryAllowed}");
-    if(isNotificationAllowed==false || isNotificationAllowed==null)
-      {
-        await   checkPermissionNotifications();
-      }
-    if(isGalleryAllowed==false || isGalleryAllowed==null)
-      {
-        await   checkPermissionPhotos();
-      }
+    if (isNotificationAllowed == false || isNotificationAllowed == null) {
+      await checkPermissionNotifications();
+    }
+    if (isGalleryAllowed == false || isGalleryAllowed == null) {
+      await checkPermissionPhotos();
+    }
   }
 
   checkPermissionNotifications() async {
@@ -209,7 +209,7 @@ class _BaseViewState extends State<BaseView> {
             builder: (BuildContext context) {
               return CupertinoAlertDialog(
                 title: Text('Allow Notifications'),
-                content:Text('Allow Permission for notifications？'),
+                content: Text('Allow Permission for notifications？'),
                 actions: [
                   CupertinoButton(
                     child: Center(
@@ -220,8 +220,9 @@ class _BaseViewState extends State<BaseView> {
                     ),
                     onPressed: () async {
                       await Permission.notification.request();
-                      SharedPreferences prefs = await SharedPreferences.getInstance();
-                      prefs.setBool("isNotificationAllowed",true);
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setBool("isNotificationAllowed", true);
                       Navigator.pop(context);
                     },
                   ),
@@ -234,7 +235,8 @@ class _BaseViewState extends State<BaseView> {
                     },
                   ),
                 ],
-              );});
+              );
+            });
         break;
       case PermissionStatus.granted:
         log("+++++++++++++++++++++Permission granted");
@@ -254,8 +256,9 @@ class _BaseViewState extends State<BaseView> {
                     ),
                     onPressed: () async {
                       await Permission.notification.request();
-                      SharedPreferences prefs = await SharedPreferences.getInstance();
-                      prefs.setBool("isNotificationAllowed",true);
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setBool("isNotificationAllowed", true);
                       Navigator.pop(context);
                     },
                   ),
@@ -268,7 +271,8 @@ class _BaseViewState extends State<BaseView> {
                     },
                   ),
                 ],
-              );});
+              );
+            });
         break;
       case PermissionStatus.permanentlyDenied:
         log("+++++++++++++++++++++permanently denied");
@@ -277,7 +281,7 @@ class _BaseViewState extends State<BaseView> {
             builder: (BuildContext context) {
               return CupertinoAlertDialog(
                 title: Text('Allow Permissions'),
-                content:Text('Allow Permission for notifications？'),
+                content: Text('Allow Permission for notifications？'),
                 actions: [
                   CupertinoButton(
                     child: Center(
@@ -288,8 +292,9 @@ class _BaseViewState extends State<BaseView> {
                     ),
                     onPressed: () async {
                       await Permission.notification.request();
-                      SharedPreferences prefs = await SharedPreferences.getInstance();
-                      prefs.setBool("isNotificationAllowed",true);
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setBool("isNotificationAllowed", true);
                       Navigator.pop(context);
                     },
                   ),
@@ -302,7 +307,8 @@ class _BaseViewState extends State<BaseView> {
                     },
                   ),
                 ],
-              );});
+              );
+            });
         break;
       case PermissionStatus.restricted:
         openAppSettings();
@@ -320,6 +326,7 @@ class _BaseViewState extends State<BaseView> {
         }
     }
   }
+
   checkPermissionPhotos() async {
     var status = await Permission.photos.status;
     debugPrint(status.toString());
@@ -331,7 +338,7 @@ class _BaseViewState extends State<BaseView> {
             builder: (BuildContext context) {
               return CupertinoAlertDialog(
                 title: Text('Allow Access to Photos'),
-                content:Text('Allow Permission to access photo/gallery？'),
+                content: Text('Allow Permission to access photo/gallery？'),
                 actions: [
                   CupertinoButton(
                     child: Center(
@@ -342,8 +349,9 @@ class _BaseViewState extends State<BaseView> {
                     ),
                     onPressed: () async {
                       await Permission.photos.request();
-                      SharedPreferences prefs = await SharedPreferences.getInstance();
-                      prefs.setBool("isGalleryAllowed",true);
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setBool("isGalleryAllowed", true);
                       Navigator.pop(context);
                     },
                   ),
@@ -356,7 +364,8 @@ class _BaseViewState extends State<BaseView> {
                     },
                   ),
                 ],
-              );});
+              );
+            });
         break;
       case PermissionStatus.granted:
         log("+++++++++++++++++++++Permission granted");
@@ -376,8 +385,9 @@ class _BaseViewState extends State<BaseView> {
                     ),
                     onPressed: () async {
                       await Permission.photos.request();
-                      SharedPreferences prefs = await SharedPreferences.getInstance();
-                      prefs.setBool("isGalleryAllowed",true);
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setBool("isGalleryAllowed", true);
                       Navigator.pop(context);
                     },
                   ),
@@ -390,7 +400,8 @@ class _BaseViewState extends State<BaseView> {
                     },
                   ),
                 ],
-              );});
+              );
+            });
         break;
       case PermissionStatus.permanentlyDenied:
         log("+++++++++++++++++++++permanently denied");
@@ -399,7 +410,7 @@ class _BaseViewState extends State<BaseView> {
             builder: (BuildContext context) {
               return CupertinoAlertDialog(
                 title: Text('Allow Access to Photos'),
-                content:Text('Allow Permission to access photo/gallery？'),
+                content: Text('Allow Permission to access photo/gallery？'),
                 actions: [
                   CupertinoButton(
                     child: Center(
@@ -410,8 +421,9 @@ class _BaseViewState extends State<BaseView> {
                     ),
                     onPressed: () async {
                       await Permission.notification.request();
-                      SharedPreferences prefs = await SharedPreferences.getInstance();
-                      prefs.setBool("isGalleryAllowed",true);
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setBool("isGalleryAllowed", true);
                       Navigator.pop(context);
                     },
                   ),
@@ -424,7 +436,8 @@ class _BaseViewState extends State<BaseView> {
                     },
                   ),
                 ],
-              );});
+              );
+            });
         break;
       case PermissionStatus.restricted:
         openAppSettings();
@@ -442,5 +455,4 @@ class _BaseViewState extends State<BaseView> {
         }
     }
   }
-
 }

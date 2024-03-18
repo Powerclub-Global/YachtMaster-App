@@ -221,17 +221,13 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
                       ),
                     ),
                     h3,
-                    Row(
-                      children: [
-                        Text(
+                    Text(
                           "${getTranslated(context, "price_detail")}",
                           style: R.textStyle.helvetica().copyWith(
                               color: Colors.white,
                               fontSize: 15.sp,
                               fontWeight: FontWeight.bold),
                         ),
-                      ],
-                    ),
                     h3,
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

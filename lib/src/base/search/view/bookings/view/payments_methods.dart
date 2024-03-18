@@ -568,7 +568,6 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                   GestureDetector(
                     onTap: () async {
                       startLoader();
-
                       await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
                       stopLoader();
                     },
@@ -644,7 +643,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
         provider.update();
         switch (index) {
           case 0:
-            provider.bookingsModel.paymentDetail?.paymentMethod=PaymentMethodEnum.card.index;
+            provider.bookingsModel.paymentDetail?.paymentMethod = PaymentMethodEnum.card.index;
             provider.update();
             // await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
             // Get.toNamed(AddCreditCard.route);

@@ -28,8 +28,8 @@ class DatePickerCalendar extends StatefulWidget {
   final CharterModel? charter;
   final bool? isReserve;
   final ValueChanged<bool>? onDateSelect;
-   const DatePickerCalendar(
-      this.charter, this.type, this.selectedDates, this.isFilter,this.isReserve , this.onDateSelect);
+  const DatePickerCalendar(this.charter, this.type, this.selectedDates,
+      this.isFilter, this.isReserve, this.onDateSelect);
 
   @override
   DatePickerCalendarState createState() => DatePickerCalendarState();
@@ -79,11 +79,12 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
         log("______________________SELECTED:${pro.selectedBookingDays}");
         await widget.charter!.availability!.dates!
             .asyncForEach((element) async {
-          if(DateTime.now().difference(element.toDate()).inHours < 24 && DateFormat("MM-dd-yyyy").format(DateTime.now()) != DateFormat("MM-dd-yyyy").format(element.toDate()))
-            {
-              print("ADDING ${element.toDate().toString()}");
-              pro.charterAvailableDates?.add(element.toDate());
-            }
+          if (DateTime.now().difference(element.toDate()).inHours < 24 &&
+              DateFormat("MM-dd-yyyy").format(DateTime.now()) !=
+                  DateFormat("MM-dd-yyyy").format(element.toDate())) {
+            print("ADDING ${element.toDate().toString()}");
+            pro.charterAvailableDates?.add(element.toDate());
+          }
         });
         List<String> days = now.allDaysOfMonth();
         days.forEach((e) {
@@ -93,10 +94,19 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
             return true;
           }).toList();
 
-          if(pro.charterAvailableDates?.where((element) => element.difference(DateFormat("MMMM dd,yyyy").parse(e)).inDays!=0).isNotEmpty==true && widget.isReserve==false)
-          {
-            pro.charterAvailableDates?.where((element) => element.isAfter(DateTime.now())).forEach((i) {
-              if(!unAvailableDates.contains(i)){
+          if (pro.charterAvailableDates
+                      ?.where((element) =>
+                          element
+                              .difference(DateFormat("MMMM dd,yyyy").parse(e))
+                              .inDays !=
+                          0)
+                      .isNotEmpty ==
+                  true &&
+              widget.isReserve == false) {
+            pro.charterAvailableDates
+                ?.where((element) => element.isAfter(DateTime.now()))
+                .forEach((i) {
+              if (!unAvailableDates.contains(i)) {
                 unAvailableDates.add(i);
               }
             });
@@ -164,14 +174,14 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
                   fontSize: Get.width * .045,
                   color: R.colors.whiteColor,
                   fontWeight: FontWeight.bold)),
-          firstDay: kFirstDay,
+          firstDay: DateTime.now(),
           lastDay: kLastDay,
-          focusedDay: _focusedDay,
+          focusedDay: DateTime.now(),
           calendarFormat: _calendarFormat,
+          currentDay: DateTime.now(),
           startingDayOfWeek: StartingDayOfWeek.monday,
           calendarBuilders: CalendarBuilders(
             defaultBuilder: (context, day, focusedDay) {
-
               for (DateTime d in bookedDates) {
                 if (day.day == d.day &&
                     day.month == d.month &&
@@ -288,7 +298,8 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
                       .inDays >=
                   0) {
             // log("_____________PARSE ${DateFormat("yyyy-MM-dd").format(DateFormat("MMMM dd,yyyy").parse(element))}");
-            if (widget.isReserve==false && /*!bookedDates
+            if (widget.isReserve ==
+                    false && /*!bookedDates
                     .map((e) => DateFormat("yyyy-MM-dd").format(e))
                     .toList()
                     .contains(DateFormat("yyyy-MM-dd")
@@ -302,32 +313,34 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
               //   pro.selectedBookingDays
               //       ?.add(DateFormat("MMMM dd,yyyy").parse(element));
               // } else {
-                pro.selectedBookingDays?.clear();
-                pro.selectedBookingDays
-                    ?.add(DateFormat("MMMM dd,yyyy").parse(element));
-                DateTimePickerServices.selectedStartDate = DateFormat("MMMM dd,yyyy").parse(element);
-                widget.onDateSelect!(true);
+              pro.selectedBookingDays?.clear();
+              pro.selectedBookingDays
+                  ?.add(DateFormat("MMMM dd,yyyy").parse(element));
+              DateTimePickerServices.selectedStartDate =
+                  DateFormat("MMMM dd,yyyy").parse(element);
+              widget.onDateSelect!(true);
               // }
-            }
-            else if (widget.isReserve==true && !bookedDates
-                .map((e) => DateFormat("yyyy-MM-dd").format(e))
-                .toList()
-                .contains(DateFormat("yyyy-MM-dd")
-                .format(DateFormat("MMMM dd,yyyy").parse(element))) &&
+            } else if (widget.isReserve == true &&
+                !bookedDates
+                    .map((e) => DateFormat("yyyy-MM-dd").format(e))
+                    .toList()
+                    .contains(DateFormat("yyyy-MM-dd")
+                        .format(DateFormat("MMMM dd,yyyy").parse(element))) &&
                 !unAvailableDates
                     .map((e) => DateFormat("yyyy-MM-dd").format(e))
                     .toList()
                     .contains(DateFormat("yyyy-MM-dd")
-                    .format(DateFormat("MMMM dd,yyyy").parse(element)))){
+                        .format(DateFormat("MMMM dd,yyyy").parse(element)))) {
               // if (widget.type == 2) {
               //   pro.selectedBookingDays
               //       ?.add(DateFormat("MMMM dd,yyyy").parse(element));
               // } else {
-                pro.selectedBookingDays?.clear();
-                pro.selectedBookingDays
-                    ?.add(DateFormat("MMMM dd,yyyy").parse(element));
-                DateTimePickerServices.selectedStartDate = DateFormat("MMMM dd,yyyy").parse(element);
-                widget.onDateSelect!(true);
+              pro.selectedBookingDays?.clear();
+              pro.selectedBookingDays
+                  ?.add(DateFormat("MMMM dd,yyyy").parse(element));
+              DateTimePickerServices.selectedStartDate =
+                  DateFormat("MMMM dd,yyyy").parse(element);
+              widget.onDateSelect!(true);
               // }
             }
           }
