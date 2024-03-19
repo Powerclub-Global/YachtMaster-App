@@ -239,8 +239,6 @@ class StripeService {
     request.bodyFields = {
       'amount': amount,
       'currency': currency,
-      'payment_method_types[]': 'card',
-      'payment_method': 'pm_card_visa'
     };
     request.headers.addAll(headers);
     print("about to make request");
