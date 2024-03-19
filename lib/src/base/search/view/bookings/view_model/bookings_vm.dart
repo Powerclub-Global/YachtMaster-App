@@ -647,6 +647,7 @@ class BookingsVm extends ChangeNotifier {
       double splitAmount,
       double userPaidAmount,
       double amountToPay) async {
+    print("Starting payments now");
     StripeService stripe = StripeService();
     // CardDetails _card = CardDetails(
     //     number: creditCardModel.cardNum,
@@ -672,6 +673,8 @@ class BookingsVm extends ChangeNotifier {
           onPaymentSuccess: () async {
             bookingsModel.paymentDetail?.paymentIntents ??= [];
             bookingsModel.paymentDetail?.paymentIntents?.add(intents);
+            print("I am here and i am logging success of this payment");
+            log("I am here and i am logging success of this payment");
             await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
                 splitAmount, userPaidAmount, amountToPay);
           },
@@ -685,6 +688,8 @@ class BookingsVm extends ChangeNotifier {
                 userId: context.read<AuthVm>().userModel?.uid);
           },
           onError: (error) {
+            print("Payment error is thereee and nowwwww lets ");
+            print(error);
             ZBotToast.loadingClose();
             ZBotToast.showToastError(message: 'Error: $error');
           });
@@ -707,6 +712,7 @@ class BookingsVm extends ChangeNotifier {
       double splitAmount,
       double userPaidAmount,
       double finalPaidAmount) async {
+    print("Your payment was success");
     var baseVm = Provider.of<BaseVm>(context, listen: false);
     var homeVm = Provider.of<HomeVm>(context, listen: false);
     var authVm = Provider.of<AuthVm>(context, listen: false);
@@ -733,6 +739,7 @@ class BookingsVm extends ChangeNotifier {
         : Timestamp.now().millisecondsSinceEpoch.toString();
 
     if (isCompletePayment == true) {
+      print("Your payment was success less");
       completePaymentFunction(screenShotUrl, context);
     } else {
       bookingsModel.bookingStatus = BookingStatus.ongoing.index;

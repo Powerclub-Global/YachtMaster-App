@@ -29,10 +29,10 @@ class StripeService {
     bool? isSubscription = true,
     bool? isCardAvailable = true,
   }) async {
-    try{
+    try {
       Map<String, dynamic>? customer;
       final currentCustomer =
-      await getCustomers(secretKey: secretKey, customerID: customerID);
+          await getCustomers(secretKey: secretKey, customerID: customerID);
       if (currentCustomer != null) {
         customer = currentCustomer;
         getCustomerID!(customer['id']);
@@ -72,10 +72,13 @@ class StripeService {
         // 5. call API to create subscription
 
         var subscription = await createSubscription(
-            priceID: priceID!, customerId: customer?['id'], secretKey: secretKey);
+            priceID: priceID!,
+            customerId: customer?['id'],
+            secretKey: secretKey);
         // log(subscription?["id"]);
         getSubscriptionID!(subscription?["id"]);
         if (subscription?['status'] == 'active') {
+          print(5);
           onPaymentSuccess();
         } else {
           var invoice = await getInvoice(
@@ -88,9 +91,10 @@ class StripeService {
                   setupFutureUsage: PaymentIntentsFutureUsage.OffSession),
               data: PaymentMethodParams.card(
                   paymentMethodData:
-                  PaymentMethodData(billingDetails: billingDetails)));
+                      PaymentMethodData(billingDetails: billingDetails)));
           if (confirm.status == PaymentIntentsStatus.Succeeded) {
             paymentDetails!(confirm);
+            print(4);
             onPaymentSuccess();
           }
         }
@@ -101,6 +105,7 @@ class StripeService {
           currency: 'usd', // mocked data
           secretKey: secretKey,
         );
+
         log("____MAP:${paymentIntentResult}");
         if (paymentIntentResult?['error'] != null) {
           // Error during creating or confirming Intent
@@ -112,25 +117,26 @@ class StripeService {
         if (!isCardAvailable) {
           var intent = await createSetupIntent(
               secretKey: secretKey, customerId: customer?['id']);
+          print("Bhai bout to start payment sheet");
           await Stripe.instance.initPaymentSheet(
               paymentSheetParameters: SetupPaymentSheetParameters(
-                // customerEphemeralKeySecret:,
-                  setupIntentClientSecret: intent?["client_secret"],
                   customerId: customerID,
-                  // allowsDelayedPaymentMethods: true,
-                  // paymentIntentClientSecret:
-                  //     paymentIntentResult?['client_secret'],
-                  // customFlow: true,
-                  style: ThemeMode.light,
-                  applePay:PaymentSheetApplePay(merchantCountryCode: 'US'),
+                  paymentIntentClientSecret:
+                      paymentIntentResult?['client_secret'],
+                  style: ThemeMode.dark,
+                  applePay: PaymentSheetApplePay(merchantCountryCode: 'US'),
                   merchantDisplayName: "Yacht Master"));
 
-          await Stripe.instance.presentPaymentSheet();
-          await Stripe.instance.confirmPaymentSheetPayment();
+          await Stripe.instance.presentPaymentSheet().then((value) =>
+              {print("Printing status now ........"), onPaymentSuccess()});
+
           final paymentIntent = await Stripe.instance
               .handleNextAction(paymentIntentResult?['client_secret']);
+
+          // await Stripe.instance.confirmPaymentSheetPayment();
+
           if (paymentIntent.status == PaymentIntentsStatus.Succeeded) {
-            onPaymentSuccess();
+            print(1);
           } else {
             ZBotToast.showToastError(
                 message: getTranslated(Get.context!, "payment_failed"));
@@ -138,6 +144,7 @@ class StripeService {
         } else {
           if (paymentIntentResult?['client_secret'] != null &&
               paymentIntentResult?['status'] == "succeeded") {
+            print(2);
             onPaymentSuccess();
             return;
           }
@@ -152,16 +159,17 @@ class StripeService {
               // 5. Call API to confirm payment
               final confirm = await Stripe.instance.confirmPayment(
                   paymentIntentClientSecret:
-                  paymentIntentResult?['client_secret'],
+                      paymentIntentResult?['client_secret'],
                   options: const PaymentMethodOptions(
                     setupFutureUsage: PaymentIntentsFutureUsage.OffSession,
                   ),
                   data: PaymentMethodParams.card(
                       paymentMethodData:
-                      PaymentMethodData(billingDetails: billingDetails)));
+                          PaymentMethodData(billingDetails: billingDetails)));
               if (confirm.status == PaymentIntentsStatus.Succeeded) {
                 log("____PAYMENT METHOD ID:${confirm.paymentMethodId}___${customerID}");
                 paymentDetails!(confirm);
+                print(3);
                 onPaymentSuccess();
               }
             } else {
@@ -172,7 +180,7 @@ class StripeService {
           }
         }
       }
-    }catch(e){
+    } catch (e) {
       log(e.toString());
       ZBotToast.loadingClose();
     }
@@ -235,10 +243,13 @@ class StripeService {
       'payment_method': 'pm_card_visa'
     };
     request.headers.addAll(headers);
+    print("about to make request");
     http.StreamedResponse response = await request.send();
-
+    print("request made");
+    print(response.statusCode);
     if (response.statusCode == 200) {
       result = await response.stream.bytesToString();
+      print(jsonDecode(result));
       return jsonDecode(result);
     } else {
       log("${response.reasonPhrase}");
