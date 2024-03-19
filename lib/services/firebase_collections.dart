@@ -8,7 +8,8 @@ class FbCollections {
   static CollectionReference chartersOffers = db.collection('charters_offers');
   static CollectionReference bookings = db.collection('bookings');
   static CollectionReference chatHeads = db.collection('chat_heads');
-  static CollectionReference neighborhoodSuppport = db.collection('neighborhood_suppport');
+  static CollectionReference neighborhoodSuppport =
+      db.collection('neighborhood_suppport');
   static CollectionReference appFeedBack = db.collection('app_feedback');
   static CollectionReference content = db.collection('content');
   static CollectionReference settings = db.collection('settings');
@@ -22,6 +23,6 @@ class FbCollections {
   static CollectionReference bookingReviews = db.collection('booking_reviews');
   static CollectionReference appSocialLinks = db.collection('app_social_links');
   static CollectionReference adminChat = db.collection("admin_chat");
-  static CollectionReference message(id) => db.collection("admin_chat").doc(id).collection("messages");
-
+  static CollectionReference message(id) =>
+      db.collection("admin_chat").doc(id).collection("messages");
 }
