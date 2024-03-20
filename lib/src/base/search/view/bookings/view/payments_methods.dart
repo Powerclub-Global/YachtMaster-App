@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -9,6 +8,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:pay/pay.dart' as pay;
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:yacht_master/constant/enums.dart';
@@ -37,6 +37,13 @@ class PaymentMethods extends StatefulWidget {
   @override
   _PaymentMethodsState createState() => _PaymentMethodsState();
 }
+const _paymentItems = [
+pay.PaymentItem(
+label: 'Jessy Artman',
+amount: '1.0',
+status: pay.PaymentItemStatus.final_price,
+)
+];
 
 class _PaymentMethodsState extends State<PaymentMethods> {
   bool isDeposit = false;
@@ -431,11 +438,52 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                     children: [
                       paymentMethods(provider, "credit_or_debit_card", R.images.credit, 0),
                       if(Platform.isIOS)...[ h2,
-                      paymentMethods(provider, "apple_pay", R.images.apple, 1)],
+                                  pay.ApplePayButton(
+              paymentItems: _paymentItems,
+              style: pay.ApplePayButtonStyle.black,
+              type: pay.ApplePayButtonType.buy,
+              width: 200,
+              height: 50,
+              margin: const EdgeInsets.only(top: 15.0),
+              onPaymentResult: (value) {
+                print(value);
+              },
+              onError: (error) {
+                print(error);
+              },
+              loadingIndicator: const Center(
+                child: CircularProgressIndicator(),
+              ), 
+              paymentConfiguration: pay.PaymentConfiguration.fromJsonString('''{
+  "provider": "apple_pay",
+  "data": {
+    "merchantIdentifier": "merchant.com.yatchmaster.app", 
+    "displayName": "Jessy Artman",
+    "merchantCapabilities": [
+      "3DS",
+      "debit",
+      "credit"
+    ],
+    "supportedNetworks": [
+      "amex",
+      "visa",
+      "discover",
+      "masterCard"
+    ],
+    "countryCode": "FR", // Country code
+    "currencyCode": "EUR", // Currency code
+    "requiredBillingContactFields": null, 
+    "requiredShippingContactFields": null
+  }
+}'''),
+            ),
+                      ],
                       h2,
                       paymentMethods(provider, "crypto_currency", R.images.crypto, 2),
                       h2,
-                      paymentMethods(provider, "pay_with_wallet", R.images.link, 3),
+                      paymentMethods(provider, "crypto_currency_usdt", R.images.crypto, 3),
+                      h2,
+                      paymentMethods(provider, "pay_with_wallet", R.images.link, 4),
                     ],
                   )
                 else
@@ -659,14 +707,25 @@ class _PaymentMethodsState extends State<PaymentMethods> {
             break;
           case 2:
             {
-              Get.toNamed(PayWithCrypto.route, arguments: {
+                  Get.toNamed(PayWithCrypto.route, arguments: {
                 "isCompletePayment": isCompletePayment,
                 "userPaidAmount": userPaidAmount,
-                "splitAmount": splitAmount
+                "splitAmount": splitAmount,
+                "isBitcoin": true
               });
             }
             break;
           case 3:
+                  {
+              Get.toNamed(PayWithCrypto.route, arguments: {
+                "isCompletePayment": isCompletePayment,
+                "userPaidAmount": userPaidAmount,
+                "splitAmount": splitAmount,
+                "isBitcoin": false
+              });
+            }
+            break;
+          case 4:
             Get.toNamed(PayWithWallet.route);
         }
         provider.update();

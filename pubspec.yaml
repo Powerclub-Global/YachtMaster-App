@@ -75,6 +75,7 @@ dependencies:
   sign_in_with_apple: "4.3.0"
   keyboard_actions: ^4.2.0
   time_picker_spinner: ^0.0.1
+  pay: ^2.0.0
 
 
 

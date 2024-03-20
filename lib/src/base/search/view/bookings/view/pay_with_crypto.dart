@@ -37,20 +37,16 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
   bool? isCompletePayment = false;
   double splitAmount = 0.0;
   double userPaidAmount = 0.0;
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      var args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
-      splitAmount = args["splitAmount"];
-      userPaidAmount = args["userPaidAmount"];
-      isCompletePayment = args["isCompletePayment"];
-    });
-  }
+  late bool isBitcoin;
 
   @override
   Widget build(BuildContext context) {
+          var args =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+      splitAmount = args["splitAmount"];
+      userPaidAmount = args["userPaidAmount"];
+      isCompletePayment = args["isCompletePayment"];
+      isBitcoin = args["isBitcoin"];
     return Consumer<BookingsVm>(builder: (context, provider, _) {
       log("___________${provider.appUrlModel?.adminCryptoEmail}");
       return ModalProgressHUD(
@@ -60,152 +56,187 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
         ),
         child: Scaffold(
           backgroundColor: R.colors.black,
-          appBar: GeneralAppBar.simpleAppBar(context, "${getTranslated(context, "crypto_currency")?.split("(").first}"),
-          body: Padding(
-            padding: EdgeInsets.symmetric(horizontal: Get.width * .05, vertical: Get.height * .02),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  getTranslated(context, "payment_through_crypto") ?? "",
-                  style: R.textStyle.helveticaBold().copyWith(color: Colors.white),
-                ),
-                h2,
-                Text(
-                  AppDummyData.bitcoinDetail,
-                  style: R.textStyle.helvetica().copyWith(height: 1.5, color: Colors.white, fontSize: 10.sp),
-                ),
-                h3,
-                Text(
-                  getTranslated(context, "account_details") ?? "",
-                  style: R.textStyle.helveticaBold().copyWith(color: Colors.white),
-                ),
-                h2,
-                Container(
-                  width: Get.width,
-                  decoration: AppDecorations.buttonDecoration(R.colors.blackDull, 12),
-                  padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 5.w),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child:Align(
-                          alignment: Alignment.centerLeft,
-                          child: Image.asset(
-                            R.images.crypto,
-                            scale: 5.5,
-                          ),
-                        ),
-                      ),
-                      w2,
-                      Flexible(flex: 8,
-                        child: Text(
-                          provider.appUrlModel?.adminCryptoEmail ?? "",
-                          style: R.textStyle.helvetica().copyWith(color: R.colors.whiteDull, fontSize: 10.sp),
-                        ),
-                      ),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: GestureDetector(
-                            onTap: () {
-                              Clipboard.setData(
-                                  ClipboardData(text:provider.appUrlModel?.adminCryptoEmail??""));
-                              Helper.inSnackBar("Copied",
-                                  "Your text has been copied",R.colors.themeMud);
-                            },
-                            child: Icon(
-                              Icons.content_copy,
-                              color: R.colors.whiteColor,
-                              size: 20,
+          appBar: GeneralAppBar.simpleAppBar(context,
+              "${getTranslated(context, isBitcoin ? "crypto_currency" : "crypto_currency_usdt")?.split("(").first}"),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: Get.width * .05, vertical: Get.height * .02),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    getTranslated(context, "payment_through_crypto") ?? "",
+                    style:
+                        R.textStyle.helveticaBold().copyWith(color: Colors.white),
+                  ),
+                  h2,
+                  Text(
+                    AppDummyData.bitcoinDetail,
+                    style: R.textStyle.helvetica().copyWith(
+                        height: 1.5, color: Colors.white, fontSize: 10.sp),
+                  ),
+                  h3,
+                  Text(
+                    getTranslated(context, "account_details") ?? "",
+                    style:
+                        R.textStyle.helveticaBold().copyWith(color: Colors.white),
+                  ),
+                  h2,
+                  Container(
+                    width: Get.width,
+                    decoration:
+                        AppDecorations.buttonDecoration(R.colors.blackDull, 12),
+                    padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 5.w),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Image.asset(
+                              R.images.crypto,
+                              scale: 5.5,
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                h3,
-                Text(
-                  getTranslated(context, "payment_detail") ?? "",
-                  style: R.textStyle.helveticaBold().copyWith(color: Colors.white),
-                ),
-                h2,
-                Container(
-                  width: Get.width,
-                  decoration: AppDecorations.buttonDecoration(R.colors.blackDull, 12),
-                  padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 5.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        getTranslated(context, "submit_screen_shot_of_your_payment") ?? "",
-                        style: R.textStyle.helveticaBold().copyWith(color: R.colors.whiteDull, fontSize: 12.sp),
-                      ),
-                      h2,
-                      Row(
-                        children: [
-                          Expanded(
+                        w2,
+                        Flexible(
+                          flex: 8,
+                          child: Text(
+                            provider.appUrlModel?.adminCryptoEmail ?? "",
+                            style: R.textStyle.helvetica().copyWith(
+                                color: R.colors.whiteDull, fontSize: 10.sp),
+                          ),
+                        ),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerRight,
                             child: GestureDetector(
-                              onTap: () async {
-                                FilePickerResult? result = await FilePicker.platform.pickFiles(
-                                  type: FileType.custom,
-                                  allowedExtensions: ["png", "jpg", "jpeg"],
-                                );
-                                if (result != null) {
-                                  File file = File(result.files.single.path.toString());
-                                  String fileName = result.files.single.name;
-                                  final x = (await File(file.path).readAsBytes()).length;
-                                  if ((x / (1024 * 1024)) <= 15) {
-                                    setState(() {
-                                      screenShot = DocumentModel(
-                                          fileName, file.path.split(".").last, file, filesize(x), x / (1024 * 1024));
-                                    });
-                                  } else {
-                                    Helper.inSnackBar(
-                                        "Error", "Maximum size of file should be 15 MB", R.colors.themeMud);
-                                  }
-
-                                  log("______________________NAME:${screenShot?.fileName}____EXT:${screenShot?.ext}________Size:${filesize(x)}____SIZE:${x / (1024 * 1024)}");
-                                } else {
-                                  // User canceled the picker
-                                }
+                              onTap: () {
+                                Clipboard.setData(ClipboardData(
+                                    text:
+                                        provider.appUrlModel?.adminCryptoEmail ??
+                                            ""));
+                                Helper.inSnackBar(
+                                    "Copied",
+                                    "Your text has been copied",
+                                    R.colors.themeMud);
                               },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 5.w),
-                                decoration: AppDecorations.buttonDecoration(R.colors.whiteDull, 25),
-                                child: Text(
-                                  getTranslated(context, "choose_file") ?? "",
-                                  style:
-                                      R.textStyle.helveticaBold().copyWith(color: R.colors.blackDull, fontSize: 11.sp),
-                                ),
+                              child: Icon(
+                                Icons.content_copy,
+                                color: R.colors.whiteColor,
+                                size: 20,
                               ),
                             ),
                           ),
-                          w3,
-                          Expanded(
-                            child: Text(
-                              screenShot?.fileName != null
-                                  ? screenShot?.fileName ?? ""
-                                  : getTranslated(context, "no_file_chosen") ?? "",
-                              style: R.textStyle.helvetica().copyWith(color: R.colors.whiteDull, fontSize: 10.sp),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                  h3,
+                  Text(
+                    getTranslated(context, "payment_detail") ?? "",
+                    style:
+                        R.textStyle.helveticaBold().copyWith(color: Colors.white),
+                  ),
+                  h2,
+                  Container(
+                    width: Get.width,
+                    decoration:
+                        AppDecorations.buttonDecoration(R.colors.blackDull, 12),
+                    padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 5.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          getTranslated(context,
+                                  "submit_screen_shot_of_your_payment") ??
+                              "",
+                          style: R.textStyle.helveticaBold().copyWith(
+                              color: R.colors.whiteDull, fontSize: 12.sp),
+                        ),
+                        h2,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  FilePickerResult? result =
+                                      await FilePicker.platform.pickFiles(
+                                    type: FileType.custom,
+                                    allowedExtensions: ["png", "jpg", "jpeg"],
+                                  );
+                                  if (result != null) {
+                                    File file =
+                                        File(result.files.single.path.toString());
+                                    String fileName = result.files.single.name;
+                                    final x =
+                                        (await File(file.path).readAsBytes())
+                                            .length;
+                                    if ((x / (1024 * 1024)) <= 15) {
+                                      setState(() {
+                                        screenShot = DocumentModel(
+                                            fileName,
+                                            file.path.split(".").last,
+                                            file,
+                                            filesize(x),
+                                            x / (1024 * 1024));
+                                      });
+                                    } else {
+                                      Helper.inSnackBar(
+                                          "Error",
+                                          "Maximum size of file should be 15 MB",
+                                          R.colors.themeMud);
+                                    }
+            
+                                    log("______________________NAME:${screenShot?.fileName}____EXT:${screenShot?.ext}________Size:${filesize(x)}____SIZE:${x / (1024 * 1024)}");
+                                  } else {
+                                    // User canceled the picker
+                                  }
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 1.5.h, horizontal: 5.w),
+                                  decoration: AppDecorations.buttonDecoration(
+                                      R.colors.whiteDull, 25),
+                                  child: Text(
+                                    getTranslated(context, "choose_file") ?? "",
+                                    style: R.textStyle.helveticaBold().copyWith(
+                                        color: R.colors.blackDull,
+                                        fontSize: 11.sp),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            w3,
+                            Expanded(
+                              child: Text(
+                                screenShot?.fileName != null
+                                    ? screenShot?.fileName ?? ""
+                                    : getTranslated(context, "no_file_chosen") ??
+                                        "",
+                                style: R.textStyle.helvetica().copyWith(
+                                    color: R.colors.whiteDull, fontSize: 10.sp),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           bottomNavigationBar: GestureDetector(
             onTap: () async {
               if (screenShot != null) {
                 startLoader();
-                String screenShotUrl =
-                    await ImagePickerServices().uploadSingleImage(screenShot!.file, bucketName: "CryptoReceipt");
+                String screenShotUrl = await ImagePickerServices()
+                    .uploadSingleImage(screenShot!.file,
+                        bucketName: "CryptoReceipt");
                 await provider.onClickPaymentMethods(
                   screenShotUrl,
                   context,
@@ -215,7 +246,8 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                 );
                 stopLoader();
               } else {
-                Helper.inSnackBar("Error", "Please upload screenshot", R.colors.themeMud);
+                Helper.inSnackBar(
+                    "Error", "Please upload screenshot", R.colors.themeMud);
               }
             },
             child: Container(
@@ -226,9 +258,10 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
               child: Center(
                 child: Text(
                   "${getTranslated(context, "pay_now")?.toUpperCase()}",
-                  style: R.textStyle
-                      .helvetica()
-                      .copyWith(color: R.colors.black, fontSize: 12.sp, fontWeight: FontWeight.bold),
+                  style: R.textStyle.helvetica().copyWith(
+                      color: R.colors.black,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
             ),

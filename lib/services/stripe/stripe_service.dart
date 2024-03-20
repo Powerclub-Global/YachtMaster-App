@@ -245,7 +245,7 @@ class StripeService {
     http.StreamedResponse response = await request.send();
     print("request made");
     print(response.statusCode);
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200) {                 
       result = await response.stream.bytesToString();
       print(jsonDecode(result));
       return jsonDecode(result);

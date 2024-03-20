@@ -184,6 +184,7 @@
   "credit_or_debit_card": "Credit or Debit Card",
   "apple_pay": "Apple Pay",
   "crypto_currency": "Bitcoin",
+  "crypto_currency_usdt": "USDT Tether",
   "cancellation_policy":"Cancellation Policy",
   "cancellation_options":"Cancellation Option",
   "this_reservation_is_non_refundable": "This reservation is Non_Refundable. All Bookings are Final",
