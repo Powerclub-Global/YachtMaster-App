@@ -29,11 +29,12 @@ class SocialSignup extends StatefulWidget {
 
 class _SocialSignupState extends State<SocialSignup> {
   final formKey = GlobalKey<FormState>();
+
   FocusNode phoneNumFn = FocusNode();
   TextEditingController phoneNumController = TextEditingController();
   String countryCode = "US";
   User? user;
-  bool isApple=false;
+  bool isApple = false;
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as Map;
@@ -42,7 +43,9 @@ class _SocialSignupState extends State<SocialSignup> {
     return Consumer<AuthVm>(builder: (context, provider, _) {
       return ModalProgressHUD(
         inAsyncCall: provider.isLoading,
-        progressIndicator:   SpinKitPulse(color: R.colors.themeMud,),
+        progressIndicator: SpinKitPulse(
+          color: R.colors.themeMud,
+        ),
         child: GestureDetector(
           onTap: () {
             Helper.focusOut(context);
@@ -65,125 +68,137 @@ class _SocialSignupState extends State<SocialSignup> {
             body: Form(
               key: formKey,
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              child: Column(
-                children: [
-                  Image.asset(
-                    R.images.logo,
-                    scale: 3,
-                  ),
-                  h5,
-                  Text(
-                    getTranslated(context, "sign_up") ?? "",
-                    style: R.textStyle
-                        .helvetica()
-                        .copyWith(color: R.colors.whiteColor, fontSize: 17.sp),
-                  ),
-                  h1P5,
-                  SizedBox(
-                    width: Get.width * .8,
-                    child: Text(
-                      getTranslated(context,
-                              "please_provide_your_phone_number_because_it_is_required") ??
-                          "",
-                      style: R.textStyle.helvetica().copyWith(
-                            color: R.colors.whiteColor,
-                            fontSize: 13.sp,
-                          ),
-                      textAlign: TextAlign.center,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Image.asset(
+                      R.images.logo,
+                      scale: 3,
                     ),
-                  ),
-                  h4,
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 23.sp),
-                    child: Column(
-                      children: [
-                        label(getTranslated(context, "phone_num",) ?? ""),
-                        h0P5,
-                        KeyboardActions(
-                          config: buildConfigDone(context, phoneNumFn,
-                              nextFocus: FocusNode(), isDone: true),
-                          disableScroll: true,
-                          autoScroll: false,
-                          child: IntlPhoneField(
-                            controller: phoneNumController,
-                            focusNode: phoneNumFn,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
-                            textInputAction: TextInputAction.next,
-                            style: R.textStyle.helvetica().copyWith(
-                                color: R.colors.charcoalColor, fontSize: 10.sp),
-                            decoration: AppDecorations.suffixTextField(
-                                "0000000000000",
-                                R.textStyle.helvetica().copyWith(
+                    h5,
+                    Text(
+                      getTranslated(context, "sign_up") ?? "",
+                      style: R.textStyle.helvetica().copyWith(
+                          color: R.colors.whiteColor, fontSize: 17.sp),
+                    ),
+                    h1P5,
+                    SizedBox(
+                      width: Get.width * .8,
+                      child: Text(
+                        getTranslated(context,
+                                "please_provide_your_phone_number_because_it_is_required") ??
+                            "",
+                        style: R.textStyle.helvetica().copyWith(
+                              color: R.colors.whiteColor,
+                              fontSize: 13.sp,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    h4,
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 23.sp),
+                      child: Column(
+                        children: [
+                          label(getTranslated(
+                                context,
+                                "phone_num",
+                              ) ??
+                              ""),
+                          h0P5,
+                          KeyboardActions(
+                            config: buildConfigDone(context, phoneNumFn,
+                                nextFocus: FocusNode(), isDone: true),
+                            disableScroll: true,
+                            autoScroll: false,
+                            child: IntlPhoneField(
+                              controller: phoneNumController,
+                              focusNode: phoneNumFn,
+                              autovalidateMode:
+                                  AutovalidateMode.onUserInteraction,
+                              textInputAction: TextInputAction.next,
+                              style: R.textStyle.helvetica().copyWith(
+                                  color: R.colors.charcoalColor,
+                                  fontSize: 10.sp),
+                              decoration: AppDecorations.suffixTextField(
+                                  "0000000000000",
+                                  R.textStyle.helvetica().copyWith(
+                                        color: phoneNumFn.hasFocus
+                                            ? R.colors.themeMud
+                                            : R.colors.charcoalColor,
+                                        fontSize: 10.sp,
+                                      ),
+                                  Image.asset(R.images.phone,
+                                      scale: 14,
+                                      color: phoneNumFn.hasFocus
+                                          ? R.colors.themeMud
+                                          : R.colors.charcoalColor)),
+                              initialCountryCode: countryCode,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp("[0-9]"))
+                              ],
+                              dropdownTextStyle: R.textStyle
+                                  .helveticaBold()
+                                  .copyWith(
                                       color: phoneNumFn.hasFocus
                                           ? R.colors.themeMud
                                           : R.colors.charcoalColor,
-                                      fontSize: 10.sp,
-                                    ),
-                                Image.asset(R.images.phone,
-                                    scale: 14,
-                                    color: phoneNumFn.hasFocus
-                                        ? R.colors.themeMud
-                                        : R.colors.charcoalColor)),
-                            initialCountryCode: countryCode,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp("[0-9]"))
-                            ],
-                            dropdownTextStyle: R.textStyle
-                                .helveticaBold()
-                                .copyWith(
-                                    color: phoneNumFn.hasFocus
-                                        ? R.colors.themeMud
-                                        : R.colors.charcoalColor,
-                                    fontSize: 10.sp),
-                            flagsButtonPadding:
-                                EdgeInsets.symmetric(horizontal: 4.w),
-                            showDropdownIcon: false,
-                            showCountryFlag: false,
-                            onChanged: (phone) {
-                              setState(() {
-                                countryCode = phone.countryCode;
-                              });
-                              log("_______________$countryCode{}");
-                              print(phone.completeNumber);
-                            },
-                            onCountryChanged: (phone) {
-                              setState(() {
-                                countryCode = phone.code;
-                              });
-                              log("_______________$countryCode");
-                              // print(phone.completeNumber);
-                            },
-                            onSubmitted: (value) {
-                              setState(() {});
-                            },
-                          ),
-                        ),
-                        h9,
-                        GestureDetector(
-                          onTap: () async {
-                            if (formKey.currentState!.validate()) {
-                              await provider.onClickSocialSignup(user,countryCode.trim(),phoneNumController.text.trim(),true,isApple:isApple);
-                            }
-                          },
-                          child: Container(
-                            height: Get.height * .06,
-                            decoration:
-                                AppDecorations.gradientButton(radius: 30),
-                            child: Center(
-                              child: Text(
-                                "${getTranslated(context, "sign_up")?.toUpperCase()}",
-                                style: R.textStyle.helvetica().copyWith(
-                                    color: R.colors.black,
-                                    fontSize: 12.sp,
-                                    fontWeight: FontWeight.bold),
-                              ),
+                                      fontSize: 10.sp),
+                              flagsButtonPadding:
+                                  EdgeInsets.symmetric(horizontal: 4.w),
+                              showDropdownIcon: false,
+                              showCountryFlag: false,
+                              onChanged: (phone) {
+                                setState(() {
+                                  countryCode = phone.countryCode;
+                                });
+                                log("_______________$countryCode{}");
+                                print(phone.completeNumber);
+                              },
+                              onCountryChanged: (phone) {
+                                setState(() {
+                                  countryCode = phone.code;
+                                });
+                                log("_______________$countryCode");
+                                // print(phone.completeNumber);
+                              },
+                              onSubmitted: (value) {
+                                setState(() {});
+                              },
                             ),
                           ),
-                        ),
-                      ],
+                                          h9,
+                GestureDetector(
+                  onTap: () async {
+                    if (formKey.currentState!.validate()) {
+                      await provider.onClickSocialSignup(
+                          user,
+                          countryCode.trim(),
+                        phoneNumController.text.trim(),
+                          true,
+                          isApple: isApple);
+                    }
+                  },
+                  child: Container(
+                    height: Get.height * .06,
+                    decoration: AppDecorations.gradientButton(radius: 30),
+                    child: Center(
+                      child: Text(
+                        "${getTranslated(context, "sign_up")?.toUpperCase()}",
+                        style: R.textStyle.helvetica().copyWith(
+                            color: R.colors.black,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  )
-                ],
+                  ),
+                ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
           ),

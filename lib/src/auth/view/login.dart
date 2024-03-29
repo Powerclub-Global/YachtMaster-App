@@ -157,7 +157,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               ZBotToast.loadingShow();
                               await provider.onClickLoginOTP(countryCode.trim(),phoneNumController.text.trim());
 
-
                             }
                           },
                           child: Container(

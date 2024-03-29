@@ -82,8 +82,6 @@ class BaseVm extends ChangeNotifier {
      inboxVm.fetchNotificatoins(),
 
      ]);
-
-
    }
 
 }

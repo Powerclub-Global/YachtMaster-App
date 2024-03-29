@@ -437,8 +437,10 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                   Column(
                     children: [
                       paymentMethods(provider, "credit_or_debit_card", R.images.credit, 0),
-                      if(Platform.isIOS)...[ h2,
-                                  pay.ApplePayButton(
+
+                      if(Platform.isIOS)...[ 
+              h2,
+              pay.ApplePayButton(
               paymentItems: _paymentItems,
               style: pay.ApplePayButtonStyle.black,
               type: pay.ApplePayButtonType.buy,
@@ -470,8 +472,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
       "discover",
       "masterCard"
     ],
-    "countryCode": "FR", // Country code
-    "currencyCode": "EUR", // Currency code
+    "countryCode": "US",
+    "currencyCode": "USD",
     "requiredBillingContactFields": null, 
     "requiredShippingContactFields": null
   }

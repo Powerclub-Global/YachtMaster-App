@@ -92,6 +92,7 @@
   "password": "Password",
   "forgot_password": "Forgot Password?",
   "sign_up": "Sign up",
+  "create_account": "Create Account",
   "sign_in": "Sign in",
   "first_name": "First Name",
   "last_name": "Last Name",
@@ -395,6 +396,7 @@
 
   "enter_service_location": "Enter Service Location",
   "please_provide_your_phone_number_because_it_is_required": "Please provide your phone number because it is required for login.",
+  "please_create_a_username_because_it_is_required": "Please create a username because it is required for login",
   "day_charter_hosted_by_host":"Day Charter Hosted By",
   "mention_all_the_yacht_rules_you_want_to_share_with_others": "Mention all the yacht rules you want to share with others.",
   "mention_all_the_health_and_safety_you_want_to_share_with_others": "Mention all the health and safety you want to share with others.",
