@@ -1,6 +1,8 @@
+import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +23,10 @@ import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_v
 import 'package:yacht_master/src/base/search/view/when_will_be_there.dart';
 import 'package:yacht_master/src/base/search/view/whos_coming.dart';
 import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
+import 'package:yacht_master/src/base/widgets/agreement_sheet.dart';
+import 'package:yacht_master/src/base/widgets/exit_sheet.dart';
 import 'package:yacht_master/src/base/yacht/view/rules_regulations.dart';
+import 'package:yacht_master/src/base/yacht/widgets/congo_bottomSheet.dart';
 import 'package:yacht_master/utils/general_app_bar.dart';
 import 'package:yacht_master/utils/heights_widths.dart';
 import 'package:yacht_master/utils/helper.dart';
@@ -52,41 +57,39 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
   ///0 yes,1 no
   @override
   Widget build(BuildContext context) {
+    var db = FirebaseFirestore.instance;
     var args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
     charter = args["yacht"];
 
     return Consumer<BookingsVm>(builder: (context, provider, _) {
-      price =
-          provider.bookingsModel.durationType == CharterDayType.halfDay.index
-              ? "${charter?.priceFourHours?.toStringAsFixed(1)}"
-              : provider.bookingsModel.durationType == CharterDayType.fullDay.index
-              ? "${charter?.priceHalfDay?.toStringAsFixed(1)}" : "${charter?.priceFullDay?.toStringAsFixed(1)}";
+      price = provider.bookingsModel.durationType ==
+              CharterDayType.halfDay.index
+          ? "${charter?.priceFourHours?.toStringAsFixed(1)}"
+          : provider.bookingsModel.durationType == CharterDayType.fullDay.index
+              ? "${charter?.priceHalfDay?.toStringAsFixed(1)}"
+              : "${charter?.priceFullDay?.toStringAsFixed(1)}";
       if (provider.bookingsModel.durationType ==
               CharterDayType.multiDay.index &&
           provider.bookingsModel.schedule?.dates?.isNotEmpty == true) {
         totalPriceAndServiceFee = (double.parse(price.replaceAll(",", "")) *
                 (provider.bookingsModel.schedule?.dates?.length ?? 0)) +
             provider.serviceFee;
-        grandTotal=double.parse(
-            ((totalPriceAndServiceFee +
-            Helper().calculatePercentage(
-                provider.taxes,
-                totalPriceAndServiceFee) +
-            Helper().calculatePercentage(
-                provider.tips, totalPriceAndServiceFee))
+        grandTotal = double.parse(((totalPriceAndServiceFee +
+                Helper().calculatePercentage(
+                    provider.taxes, totalPriceAndServiceFee) +
+                Helper().calculatePercentage(
+                    provider.tips, totalPriceAndServiceFee))
             .toStringAsFixed(1)));
       } else {
         totalPriceAndServiceFee =
             double.parse(price.replaceAll(",", "")) + provider.serviceFee;
-        grandTotal=double.parse(
-            ((totalPriceAndServiceFee +
+        grandTotal = double.parse(((totalPriceAndServiceFee +
                 Helper().calculatePercentage(
-                    provider.taxes,
-                    totalPriceAndServiceFee) +
+                    provider.taxes, totalPriceAndServiceFee) +
                 Helper().calculatePercentage(
                     provider.tips, totalPriceAndServiceFee))
-                .toStringAsFixed(1)));
+            .toStringAsFixed(1)));
       }
       return ModalProgressHUD(
         inAsyncCall: isLoading,
@@ -94,7 +97,6 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
           color: R.colors.themeMud,
         ),
         child: Consumer<SettingsVm>(builder: (context, settingsVm, _) {
-
           return Scaffold(
             backgroundColor: R.colors.black,
             appBar: GeneralAppBar.simpleAppBar(
@@ -194,7 +196,10 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
                                     provider.bookingsModel.schedule?.dates
                                             ?.length ==
                                         1
-                                ? (provider.bookingsModel.schedule?.dates?.first.toDate() ?? DateTime.now()).formateDateMDY()
+                                ? (provider.bookingsModel.schedule?.dates?.first
+                                            .toDate() ??
+                                        DateTime.now())
+                                    .formateDateMDY()
                                 : "${(provider.bookingsModel.schedule?.dates?.first.toDate() ?? DateTime.now()).formateDateMDY()} - ${(provider.bookingsModel.schedule?.dates?.last.toDate() ?? DateTime.now()).formateDateMDY()}",
                           ),
                           tiles(() {
@@ -222,12 +227,12 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
                     ),
                     h3,
                     Text(
-                          "${getTranslated(context, "price_detail")}",
-                          style: R.textStyle.helvetica().copyWith(
-                              color: Colors.white,
-                              fontSize: 15.sp,
-                              fontWeight: FontWeight.bold),
-                        ),
+                      "${getTranslated(context, "price_detail")}",
+                      style: R.textStyle.helvetica().copyWith(
+                          color: Colors.white,
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.bold),
+                    ),
                     h3,
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -370,13 +375,8 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
                               0,
                               grandTotal.toStringAsFixed(2),
                             ),
-                            payIn(
-                                provider,
-                                "deposit_of_25",
-                                1,
-                                (grandTotal *
-                                        (25 / 100))
-                                    .toStringAsFixed(2)),
+                            payIn(provider, "deposit_of_25", 1,
+                                (grandTotal * (25 / 100)).toStringAsFixed(2)),
                           ])
                         ],
                       ),
@@ -503,8 +503,10 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
                               Get.toNamed(RulesRegulations.route, arguments: {
-                                "title": charter?.yachtRules?.title ?? "Not Added",
-                                "desc": charter?.yachtRules?.description ?? "Not Added",
+                                "title":
+                                    charter?.yachtRules?.title ?? "Not Added",
+                                "desc": charter?.yachtRules?.description ??
+                                    "Not Added",
                                 "appBarTitle":
                                     "${getTranslated(context, "hosts_yacht_rules")}",
                                 "textStyle": R.textStyle.helvetica().copyWith(
@@ -533,8 +535,10 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
                               Get.toNamed(RulesRegulations.route, arguments: {
-                                "title": charter?.healthSafety?.title ?? "Not Added",
-                                "desc": charter?.healthSafety?.description ?? "Not Added",
+                                "title":
+                                    charter?.healthSafety?.title ?? "Not Added",
+                                "desc": charter?.healthSafety?.description ??
+                                    "Not Added",
                                 "appBarTitle": getTranslated(context,
                                         "yacht_masters_health_and_safety_requirements") ??
                                     "",
@@ -556,10 +560,22 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
                     h5,
                     GestureDetector(
                       onTap: () async {
-                        startLoader();
-                        await provider.onClickCharterConfirmPay(
-                            grandTotal, price, isSplit, charter);
-                        stopLoader();
+                        Get.bottomSheet(
+                            AgreementBottomSheet(
+                              isBooking: true,
+                              yesCallBack: () async {
+                                await db
+                                    .collection("users")
+                                    .doc(FirebaseAuth.instance.currentUser?.uid)
+                                    .collection("agreements")
+                                    .add(charter!.toJson());
+                                startLoader();
+                                await provider.onClickCharterConfirmPay(
+                                    grandTotal, price, isSplit, charter);
+                                stopLoader();
+                              },
+                            ),
+                            barrierColor: R.colors.grey.withOpacity(.20));
                       },
                       child: Container(
                         height: Get.height * .065,
@@ -725,14 +741,17 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
               ],
             ),
           ),
-          if (isDivider == false) SizedBox() else Container(
-                  margin: EdgeInsets.only(top: Get.height * .01),
-                  width: Get.width,
-                  child: Divider(
-                    color: R.colors.grey.withOpacity(.30),
-                    thickness: 2,
-                  ),
-                )
+          if (isDivider == false)
+            SizedBox()
+          else
+            Container(
+              margin: EdgeInsets.only(top: Get.height * .01),
+              width: Get.width,
+              child: Divider(
+                color: R.colors.grey.withOpacity(.30),
+                thickness: 2,
+              ),
+            )
         ],
       ),
     );

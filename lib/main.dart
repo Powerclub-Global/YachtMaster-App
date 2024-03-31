@@ -6,6 +6,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -60,6 +61,7 @@ import 'package:yacht_master/src/base/search/view/whos_coming.dart';
 import 'package:yacht_master/src/base/settings/view/about_app.dart';
 import 'package:yacht_master/src/base/settings/view/ask_a_superhost.dart';
 import 'package:yacht_master/src/base/settings/view/become_a_host.dart';
+import 'package:yacht_master/src/base/settings/view/become_verified.dart';
 import 'package:yacht_master/src/base/settings/view/invite_earn/invite_earn.dart';
 import 'package:yacht_master/src/base/settings/view/invite_earn/withdraw_money.dart';
 import 'package:yacht_master/src/base/settings/view/payment_payouts.dart';
@@ -124,7 +126,8 @@ void onDidReceiveNotificationResponse(
 }
 
 bool isLogin = false;
-main() async {
+void main() async {
+  // BindingBase.debugZoneErrorsAreFatal = true;
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();
@@ -348,14 +351,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             return supportedLocales.first;
           },
           debugShowCheckedModeBanner: false,
-          // initialRoute: SplashScreen.route,
           home: Application(
             page: SplashScreen(),
           ),
           getPages: [
-            // GetPage(name: TestingScreen.route, page: () =>  TestingScreen()),
             GetPage(name: InviteAndEarn.route, page: () => InviteAndEarn()),
             GetPage(name: BecomeHost.route, page: () => BecomeHost()),
+            GetPage(name: BecomeVerified.route, page: () => BecomeVerified()),
             GetPage(name: AdminChatView.route, page: () => AdminChatView()),
             GetPage(name: PayWithCrypto.route, page: () => PayWithCrypto()),
             GetPage(name: PayWithWallet.route, page: () => PayWithWallet()),
@@ -389,7 +391,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             GetPage(name: UserProfile.route, page: () => UserProfile()),
             GetPage(name: ChatView.route, page: () => ChatView()),
             GetPage(name: PaymentMethods.route, page: () => PaymentMethods()),
-            // GetPage(name: HostBookings.route, page: () =>  HostBookings()),
             GetPage(name: AddCreditCard.route, page: () => AddCreditCard()),
             GetPage(name: PrivacySharing.route, page: () => PrivacySharing()),
             GetPage(name: HostProfile.route, page: () => HostProfile()),
@@ -417,7 +418,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             GetPage(name: SearchSeeAll.route, page: () => SearchSeeAll()),
             GetPage(name: ViewAllServices.route, page: () => ViewAllServices()),
             GetPage(name: SeeAllHost.route, page: () => SeeAllHost()),
-            // GetPage(name: ViewAllServiceImages.route, page: () =>  ViewAllServiceImages()),
             GetPage(name: SocialSignup.route, page: () => SocialSignup()),
           ],
           title: "YachtMaster App",

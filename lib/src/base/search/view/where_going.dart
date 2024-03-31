@@ -51,7 +51,7 @@ class _WhereGoingState extends State<WhereGoing> {
                 elevation: 0,
                 centerTitle: true,
                 titleSpacing: 0,
-                leading: GestureDetector(
+                leading: InkWell(
                     onTap: () {
                       Get.back();
                     },
@@ -75,9 +75,8 @@ class _WhereGoingState extends State<WhereGoing> {
                         ),
                     decoration: InputDecoration(
                         hintText: getTranslated(context, "search"),
-                        hintStyle: R.textStyle
-                            .helvetica()
-                            .copyWith(color: R.colors.lightGrey, fontSize: 13.sp),
+                        hintStyle: R.textStyle.helvetica().copyWith(
+                            color: R.colors.lightGrey, fontSize: 13.sp),
                         contentPadding: EdgeInsets.symmetric(vertical: 20),
                         prefixIconConstraints: BoxConstraints(
                             maxHeight: 55,
@@ -132,7 +131,9 @@ class _WhereGoingState extends State<WhereGoing> {
                                           .toString()
                                           .contains(provider.searchText))
                                       .first);
-                          context.read<CitiesBloc>().add(SwapCity(provider.recentSearchCities[swapToIndex], swapToIndex));
+                          context.read<CitiesBloc>().add(SwapCity(
+                              provider.recentSearchCities[swapToIndex],
+                              swapToIndex));
                         } else {
                           // provider.recentSearchCities.add(yachtVm.charterCities
                           //     .where((element) => element.removeAllWhitespace
@@ -140,11 +141,12 @@ class _WhereGoingState extends State<WhereGoing> {
                           //         .toString()
                           //         .contains(provider.searchText))
                           //     .first);
-                          context.read<CitiesBloc>().add(AddCity(yachtVm.charterCities
+                          context.read<CitiesBloc>().add(AddCity(yachtVm
+                              .charterCities
                               .where((element) => element.removeAllWhitespace
-                              .toLowerCase()
-                              .toString()
-                              .contains(provider.searchText))
+                                  .toLowerCase()
+                                  .toString()
+                                  .contains(provider.searchText))
                               .first));
                         }
                       }
@@ -155,7 +157,7 @@ class _WhereGoingState extends State<WhereGoing> {
                 ),
               ),
               body: SingleChildScrollView(
-                child: GestureDetector(
+                child: InkWell(
                   onTap: () {
                     Helper.focusOut(context);
                   },
@@ -178,14 +180,15 @@ class _WhereGoingState extends State<WhereGoing> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             h5,
-                            if ( (provider.searchText.isEmpty &&
+                            if ((provider.searchText.isEmpty &&
                                 provider.recentSearchCities.isNotEmpty))
                               Column(
                                 children: [
                                   Row(
                                     children: [
                                       Text(
-                                        getTranslated(context, "recent_search") ??
+                                        getTranslated(
+                                                context, "recent_search") ??
                                             "",
                                         style: R.textStyle.helvetica().copyWith(
                                               color: R.colors.whiteDull,
@@ -211,18 +214,21 @@ class _WhereGoingState extends State<WhereGoing> {
                               )
                             else if (provider.searchText.isNotEmpty &&
                                 yachtVm.charterCities
-                                    .where((element)=>element.removeAllWhitespace
-                                    .toLowerCase()
-                                    .toString()
-                                    .contains(provider.searchText))
-                                    .toList().isNotEmpty)
+                                    .where((element) => element
+                                        .removeAllWhitespace
+                                        .toLowerCase()
+                                        .toString()
+                                        .contains(provider.searchText))
+                                    .toList()
+                                    .isNotEmpty)
                               Column(
                                   children: List.generate(
                                       yachtVm.charterCities
-                                          .where((element)=>element.removeAllWhitespace
-                                          .toLowerCase()
-                                          .toString()
-                                          .contains(provider.searchText))
+                                          .where((element) => element
+                                              .removeAllWhitespace
+                                              .toLowerCase()
+                                              .toString()
+                                              .contains(provider.searchText))
                                           .toList()
                                           .length, (index) {
                                 return cityCard(
@@ -269,7 +275,7 @@ class _WhereGoingState extends State<WhereGoing> {
 
   Widget cityCard(
       String city, int index, SearchVm provider, List<String> list) {
-    return GestureDetector(
+    return InkWell(
       onTap: () {
         if (!provider.recentSearchCities.contains(city)) {
           context.read<CitiesBloc>().add(InsertCity(city, 0));

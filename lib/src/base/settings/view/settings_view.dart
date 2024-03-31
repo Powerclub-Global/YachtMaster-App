@@ -33,6 +33,7 @@ import 'package:yacht_master/src/base/search/model/charter_model.dart';
 import 'package:yacht_master/src/base/settings/model/app_feedback_model.dart';
 import 'package:yacht_master/src/base/settings/view/about_app.dart';
 import 'package:yacht_master/src/base/settings/view/ask_a_superhost.dart';
+import 'package:yacht_master/src/base/settings/view/become_verified.dart';
 import 'package:yacht_master/src/base/settings/view/invite_earn/invite_earn.dart';
 import 'package:yacht_master/src/base/settings/view/payment_payouts.dart';
 import 'package:yacht_master/src/base/settings/view/privacy_policy.dart';
@@ -333,7 +334,22 @@ class _SettingsViewState extends State<SettingsView> {
 
         switch (index) {
           case 0:
-            Get.toNamed(InviteAndEarn.route);
+            var data = await db
+                .collection("users")
+                .doc(FirebaseAuth.instance.currentUser?.uid)
+                .get();
+            var data1 = data.data();
+            int inviteStatus = data1!["invite_status"];
+            print(inviteStatus);
+            if (inviteStatus == 2) {
+              Get.toNamed(InviteAndEarn.route);
+            } else if (inviteStatus == 1) {
+              ZBotToast.showToastError(
+                  message:
+                      "Please wait your request to be verified for earnings in process");
+            } else {
+              Get.toNamed(BecomeVerified.route);
+            }
             break;
           case 1:
             Get.toNamed(PaymentPayouts.route);

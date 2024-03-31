@@ -25,7 +25,8 @@ class UserModel {
       this.isCardSaved = false,
       this.role,
       this.requestStatus,
-      this.isSocialLogin});
+      this.isSocialLogin,
+      this.inviteStatus,});
 
   UserModel.fromJson(dynamic json) {
     uid = json['uid'];
@@ -44,6 +45,7 @@ class UserModel {
     isCardSaved = json['is_card_saved'] ?? false;
     role = UserType.values[json['role'] ?? 0];
     requestStatus = RequestStatus.values[json['request_status'] ?? 0];
+    inviteStatus = json['invite_status'];
     status = UserStatus.values[json['status'] ?? 0];
     hostDocumentUrl = json['host_document_url'];
     isSocialLogin = json['is_social_login'];
@@ -68,6 +70,7 @@ class UserModel {
   UserStatus? status;
   UserType? role;
   RequestStatus? requestStatus;
+  int? inviteStatus;
   var rating;
 
   UserModel copyWith({
@@ -90,6 +93,7 @@ class UserModel {
     String? email,
     UserType? role,
     RequestStatus? requestStatus,
+    int? inviteStatus,
   }) =>
       UserModel(
         uid: uid ?? this.uid,
@@ -111,6 +115,8 @@ class UserModel {
         firstName: firstName ?? this.firstName,
         stripeCustomerID: stripeCustomerID ?? this.stripeCustomerID,
         email: email ?? this.email,
+        inviteStatus: inviteStatus ?? this.inviteStatus,
+
       );
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -133,6 +139,7 @@ class UserModel {
     map['role'] = role?.index ?? 0;
     map['request_status'] = requestStatus?.index ?? 0;
     map['status'] = status?.index;
+    map['invite_status'] = inviteStatus;
     return map;
   }
 }

@@ -36,17 +36,20 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
   bool isLoading = false;
   bool? isCompletePayment = false;
   double splitAmount = 0.0;
-  double userPaidAmount = 0.0;
+  late double converRate;
+  late double userPaidAmount;
   late bool isBitcoin;
 
   @override
   Widget build(BuildContext context) {
-          var args =
-          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
-      splitAmount = args["splitAmount"];
-      userPaidAmount = args["userPaidAmount"];
-      isCompletePayment = args["isCompletePayment"];
-      isBitcoin = args["isBitcoin"];
+    var args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+    splitAmount = args["splitAmount"];
+    userPaidAmount = args["userPaidAmount"];
+    print(userPaidAmount);
+    isCompletePayment = args["isCompletePayment"];
+    isBitcoin = args["isBitcoin"];
+    converRate = args["converRate"];
     return Consumer<BookingsVm>(builder: (context, provider, _) {
       log("___________${provider.appUrlModel?.adminCryptoEmail}");
       return ModalProgressHUD(
@@ -67,8 +70,9 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                 children: [
                   Text(
                     getTranslated(context, "payment_through_crypto") ?? "",
-                    style:
-                        R.textStyle.helveticaBold().copyWith(color: Colors.white),
+                    style: R.textStyle
+                        .helveticaBold()
+                        .copyWith(color: Colors.white),
                   ),
                   h2,
                   Text(
@@ -79,15 +83,17 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                   h3,
                   Text(
                     getTranslated(context, "account_details") ?? "",
-                    style:
-                        R.textStyle.helveticaBold().copyWith(color: Colors.white),
+                    style: R.textStyle
+                        .helveticaBold()
+                        .copyWith(color: Colors.white),
                   ),
                   h2,
                   Container(
                     width: Get.width,
                     decoration:
                         AppDecorations.buttonDecoration(R.colors.blackDull, 12),
-                    padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 5.w),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 2.h, horizontal: 5.w),
                     child: Row(
                       children: [
                         Expanded(
@@ -114,9 +120,61 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                             child: GestureDetector(
                               onTap: () {
                                 Clipboard.setData(ClipboardData(
-                                    text:
-                                        provider.appUrlModel?.adminCryptoEmail ??
-                                            ""));
+                                    text: provider
+                                            .appUrlModel?.adminCryptoEmail ??
+                                        ""));
+                                Helper.inSnackBar(
+                                    "Copied",
+                                    "Your text has been copied",
+                                    R.colors.themeMud);
+                              },
+                              child: Icon(
+                                Icons.content_copy,
+                                color: R.colors.whiteColor,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  h1,
+                  Container(
+                    width: Get.width,
+                    decoration:
+                        AppDecorations.buttonDecoration(R.colors.blackDull, 12),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 2.h, horizontal: 5.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Icon(
+                                Icons.currency_bitcoin,
+                                color: Colors.white,
+                              )),
+                        ),
+                        Flexible(
+                          flex: 8,
+                          child: Text(
+                            "${((userPaidAmount + (userPaidAmount * 0.05)) * converRate).toStringAsPrecision(21)} BTC",
+                            style: R.textStyle.helvetica().copyWith(
+                                color: R.colors.whiteDull, fontSize: 10.sp),
+                          ),
+                        ),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: GestureDetector(
+                              onTap: () {
+                                Clipboard.setData(ClipboardData(
+                                    text: ((userPaidAmount +
+                                                (userPaidAmount * 0.05)) *
+                                            converRate)
+                                        .toStringAsPrecision(21)));
                                 Helper.inSnackBar(
                                     "Copied",
                                     "Your text has been copied",
@@ -136,15 +194,17 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                   h3,
                   Text(
                     getTranslated(context, "payment_detail") ?? "",
-                    style:
-                        R.textStyle.helveticaBold().copyWith(color: Colors.white),
+                    style: R.textStyle
+                        .helveticaBold()
+                        .copyWith(color: Colors.white),
                   ),
                   h2,
                   Container(
                     width: Get.width,
                     decoration:
                         AppDecorations.buttonDecoration(R.colors.blackDull, 12),
-                    padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 5.w),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 2.h, horizontal: 5.w),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -167,8 +227,8 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                                     allowedExtensions: ["png", "jpg", "jpeg"],
                                   );
                                   if (result != null) {
-                                    File file =
-                                        File(result.files.single.path.toString());
+                                    File file = File(
+                                        result.files.single.path.toString());
                                     String fileName = result.files.single.name;
                                     final x =
                                         (await File(file.path).readAsBytes())
@@ -188,7 +248,7 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                                           "Maximum size of file should be 15 MB",
                                           R.colors.themeMud);
                                     }
-            
+
                                     log("______________________NAME:${screenShot?.fileName}____EXT:${screenShot?.ext}________Size:${filesize(x)}____SIZE:${x / (1024 * 1024)}");
                                   } else {
                                     // User canceled the picker
@@ -213,7 +273,8 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                               child: Text(
                                 screenShot?.fileName != null
                                     ? screenShot?.fileName ?? ""
-                                    : getTranslated(context, "no_file_chosen") ??
+                                    : getTranslated(
+                                            context, "no_file_chosen") ??
                                         "",
                                 style: R.textStyle.helvetica().copyWith(
                                     color: R.colors.whiteDull, fontSize: 10.sp),

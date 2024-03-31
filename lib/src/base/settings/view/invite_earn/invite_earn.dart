@@ -8,7 +8,7 @@ import 'package:yacht_master/utils/general_app_bar.dart';
 import 'package:yacht_master/utils/heights_widths.dart';
 
 class InviteAndEarn extends StatefulWidget {
-  static String route="/inviteAndEarn";
+  static String route = "/inviteAndEarn";
   const InviteAndEarn({Key? key}) : super(key: key);
 
   @override
@@ -16,50 +16,67 @@ class InviteAndEarn extends StatefulWidget {
 }
 
 class _InviteAndEarnState extends State<InviteAndEarn> {
-  List<String> tabsList=["invite","earnings"];
-  int selectedTabIndex=0;
+  List<String> tabsList = ["invite", "earnings"];
+  int selectedTabIndex = 0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: GeneralAppBar.simpleAppBar(context, getTranslated(context, "invite_earn")??""),
+      appBar: GeneralAppBar.simpleAppBar(
+          context, getTranslated(context, "invite_earn") ?? ""),
       backgroundColor: R.colors.black,
-      body: Column(crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           h1,
-          Container(width: Get.width*.7,
-            padding: EdgeInsets.only(left: Get.width*.04),
-            child: Row(children: List.generate(2, (index) {
-              return tabs(tabsList[index],index);
-            }),),
+          Container(
+            padding:
+                EdgeInsets.only(left: Get.width * .04, right: Get.width * .04),
+            child: Row(
+              children: List.generate(2, (index) {
+                return tabs(tabsList[index], index);
+              }),
+            ),
           ),
-          if (selectedTabIndex==0) Expanded(child: InviteScreen()) else Expanded(child: StatusScreen())
-
-        ],),
+          if (selectedTabIndex == 0)
+            Expanded(child: InviteScreen())
+          else
+            Expanded(child: StatusScreen())
+        ],
+      ),
     );
   }
-  Widget tabs(String title,int index)
-  {
+
+  Widget tabs(String title, int index) {
     return Expanded(
       child: GestureDetector(
-        onTap: (){
+        onTap: () {
           setState(() {
-            selectedTabIndex=index;
+            selectedTabIndex = index;
           });
         },
-        child: Container(color: Colors.transparent,
+        child: Container(
+          color: Colors.transparent,
           child: Column(
             children: [
-              Text(getTranslated(context, title)??"",style: R.textStyle.helveticaBold().copyWith(
-                color: selectedTabIndex==index?
-                R.colors.yellowDark:R.colors.whiteColor,
-              ),),
-              Divider(color:selectedTabIndex==index?
-              R.colors.yellowDark:R.colors.grey.withOpacity(.40),thickness: 2,height: Get.height*.03,)
+              Text(
+                getTranslated(context, title) ?? "",
+                style: R.textStyle.helveticaBold().copyWith(
+                      color: selectedTabIndex == index
+                          ? R.colors.yellowDark
+                          : R.colors.whiteColor,
+                    ),
+              ),
+              Divider(
+                color: selectedTabIndex == index
+                    ? R.colors.yellowDark
+                    : R.colors.grey.withOpacity(.40),
+                thickness: 2,
+                height: Get.height * .03,
+              )
             ],
           ),
         ),
       ),
     );
   }
-
 }

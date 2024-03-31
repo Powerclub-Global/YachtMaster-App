@@ -23,7 +23,10 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        return ios;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for ios - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -58,20 +61,5 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyA8wiHcK_W_HwT2fH72V3AgrDYt1aivmas',
-    appId: '1:634115072396:android:4f87b4debbfc36dc5536a9',
-    messagingSenderId: '634115072396',
-    projectId: 'yacht-masters',
-    storageBucket: 'yacht-masters.appspot.com',
-  );
-
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyB0RnjWU-zEfUJ8dlvlWJL9PPsIvJhIozk',
-    appId: '1:634115072396:ios:d4be5ffafe3bffba5536a9',
-    messagingSenderId: '634115072396',
-    projectId: 'yacht-masters',
-    storageBucket: 'yacht-masters.appspot.com',
-    androidClientId: '634115072396-593oj377bt8718rl21dt3v9eg7vtjidd.apps.googleusercontent.com',
-    iosClientId: '634115072396-gp45dihu9fn08vaggvif9n4uagkglvrd.apps.googleusercontent.com',
-    iosBundleId: 'com.yatchmaster.app',
   );
 }

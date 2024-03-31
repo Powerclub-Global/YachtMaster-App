@@ -891,7 +891,8 @@ class AuthVm extends ChangeNotifier {
           "role": UserType.user.index,
           "status": UserStatus.active.index,
           "is_social_login": isSocialLogin,
-          "request_status": RequestStatus.notHost.index
+          "request_status": RequestStatus.notHost.index,
+          "invite_status": 0
         });
         WalletModel walletModel = WalletModel(amount: 0.0, uid: user.uid);
         await FbCollections.wallet.doc(user.uid).set(walletModel.toJson());
