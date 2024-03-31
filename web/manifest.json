@@ -1,11 +1,11 @@
 {
-    "name": "yacht_master_app",
-    "short_name": "yacht_master_app",
+    "name": "Yacht Master Admin",
+    "short_name": "Yacht Master Admin",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "What exactly is YachtMaster, and why was it created? This is the Admin Panel of the ULTI. ULTI is a mobile app that connects the user with each other.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

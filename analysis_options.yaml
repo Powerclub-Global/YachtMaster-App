@@ -22,23 +22,6 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
-    camel_case_types: true
-    prefer_const_constructors: false
-    empty_statements: true
-    avoid_unnecessary_containers: true
-    always_put_control_body_on_new_line: true
-    avoid_empty_else: true
-    file_names: true
-    prefer_if_elements_to_conditional_expressions: true
-    prefer_spread_collections: true
-    sized_box_for_whitespace: true
-    use_key_in_widget_constructors: false
-    avoid_function_literals_in_foreach_calls: false
-    avoid_print: false
-    prefer_const_literals_to_create_immutables: false
-    use_decorated_box: true
-
-
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
 

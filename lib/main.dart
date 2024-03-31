@@ -1,88 +1,32 @@
-import 'dart:async';
-import 'dart:developer';
-import 'package:bot_toast/bot_toast.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
+
+import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:responsive_framework/breakpoint.dart';
+import 'package:responsive_framework/max_width_box.dart';
+import 'package:responsive_framework/responsive_breakpoints.dart';
+import 'package:responsive_framework/responsive_framework.dart' as condition;
+import 'package:responsive_framework/responsive_scaled_box.dart';
+import 'package:responsive_framework/responsive_value.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/blocs/bloc_exports.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/services/fmsg_handler.dart';
-import 'package:yacht_master/src/auth/model/user_model.dart';
-import 'package:yacht_master/src/auth/view/create_username.dart';
-import 'package:yacht_master/src/auth/view/login.dart';
-import 'package:yacht_master/src/auth/view/sign_up.dart';
-import 'package:yacht_master/src/auth/view/social_signup.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/admin_chat/view/admin_chat_view.dart';
-import 'package:yacht_master/src/base/admin_chat/vm/admin_chat_vm.dart';
-import 'package:yacht_master/src/base/base_view.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
-import 'package:yacht_master/src/base/favourites/view_model/favourites_vm.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/home/view/help_center.dart';
-import 'package:yacht_master/src/base/home/view/home_screen.dart';
-import 'package:yacht_master/src/base/home/view/previous_bookings.dart';
-import 'package:yacht_master/src/base/inbox/view/chat.dart';
-import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
-import 'package:yacht_master/src/base/profile/view/host_profile.dart';
-import 'package:yacht_master/src/base/profile/view/host_profile_others.dart';
-import 'package:yacht_master/src/base/profile/view/review_screen.dart';
-import 'package:yacht_master/src/base/profile/view/user_profile.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/add_credit_card.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/bookings_detail_customer.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/host_booking_detail.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/pay_with_crypto.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/pay_with_wallet.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/payments_methods.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/split_payment.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/yacht_reserve_payment.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/src/base/search/view/search_screen.dart';
-import 'package:yacht_master/src/base/search/view/search_see_all.dart';
-import 'package:yacht_master/src/base/search/view/see_all_host.dart';
-import 'package:yacht_master/src/base/search/view_model/search_vm.dart';
-import 'package:yacht_master/src/base/search/view/when_will_be_there.dart';
-import 'package:yacht_master/src/base/search/view/what_looking_for.dart';
-import 'package:yacht_master/src/base/search/view/where_going.dart';
-import 'package:yacht_master/src/base/search/view/whos_coming.dart';
-import 'package:yacht_master/src/base/settings/view/about_app.dart';
-import 'package:yacht_master/src/base/settings/view/ask_a_superhost.dart';
-import 'package:yacht_master/src/base/settings/view/become_a_host.dart';
-import 'package:yacht_master/src/base/settings/view/invite_earn/invite_earn.dart';
-import 'package:yacht_master/src/base/settings/view/invite_earn/withdraw_money.dart';
-import 'package:yacht_master/src/base/settings/view/payment_payouts.dart';
-import 'package:yacht_master/src/base/settings/view/privacy_policy.dart';
-import 'package:yacht_master/src/base/settings/view/privacy_sharing.dart';
-import 'package:yacht_master/src/base/settings/view/safety_center.dart';
-import 'package:yacht_master/src/base/settings/view/settings_view.dart';
-import 'package:yacht_master/src/base/settings/view/terms_of_services.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/src/base/yacht/view/add_charter_fleet.dart';
-import 'package:yacht_master/src/base/yacht/view/add_services.dart';
-import 'package:yacht_master/src/base/yacht/view/add_yacht_for_sale.dart';
-import 'package:yacht_master/src/base/yacht/view/define_availibility.dart';
-import 'package:yacht_master/src/base/yacht/view/charter_detail.dart';
-import 'package:yacht_master/src/base/yacht/view/rules_regulations.dart';
-import 'package:yacht_master/src/base/yacht/view/service_detail.dart';
-import 'package:yacht_master/src/base/yacht/view/yacht_detail.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
-import 'package:yacht_master/src/base/yacht/widgets/choose_services.dart';
-import 'package:yacht_master/src/base/yacht/widgets/view_all_services.dart';
-import 'package:yacht_master/src/landing_page/view/splash_view.dart';
-import 'package:yacht_master/src/landing_page/view_model/landing_vm.dart';
-import 'package:yacht_master/utils/no_internet_screen.dart';
+import 'package:yacht_master_admin/resources/resources.dart';
+import 'package:yacht_master_admin/src/auth/vm/auth_vm.dart';
+import 'package:yacht_master_admin/src/dashboard/pages/bookings/view_model/bookings_vm.dart';
+import 'package:yacht_master_admin/src/dashboard/pages/chat/vm/chat_vm.dart';
+import 'package:yacht_master_admin/src/dashboard/pages/feedback/view_model/feedback_vm.dart';
+import 'package:yacht_master_admin/src/dashboard/pages/users/view_model/user_vm.dart';
+import 'package:yacht_master_admin/src/dashboard/pages/settings/vm/settings_vm.dart';
+import 'package:yacht_master_admin/src/dashboard/vm/base_vm.dart';
+import 'package:yacht_master_admin/src/landing_pages/view/splash_view.dart';
+
+import 'src/auth/view/auth_view.dart';
+import 'src/dashboard/view/base_view.dart';
+
 
 void onDidReceiveLocalNotification(
     int id, String? title, String? body, String? payload) async {
@@ -123,26 +67,32 @@ void onDidReceiveNotificationResponse(
   // );
 }
 
-bool isLogin = false;
-main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp();
-
+  await Firebase.initializeApp(
+    options: const FirebaseOptions (
+        apiKey: "AIzaSyAMsdps8YdyQemF6d7bDHydjY98dPpVB0I",
+        authDomain: "yacht-masters.firebaseapp.com",
+        projectId: "yacht-masters",
+        storageBucket: "yacht-masters.appspot.com",
+        messagingSenderId: "634115072396",
+        appId: "1:634115072396:web:81059a7f61d6577a5536a9",
+        measurementId: "G-MFSD0MFPHK"
+    )
+  );
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  FlutterLocalNotificationsPlugin();
   const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/launcher_icon');
+  AndroidInitializationSettings('@mipmap/launcher_icon');
   final DarwinInitializationSettings initializationSettingsDarwin =
-      DarwinInitializationSettings(
+  DarwinInitializationSettings(
     requestSoundPermission: false,
     requestBadgePermission: false,
     requestAlertPermission: false,
     onDidReceiveLocalNotification: onDidReceiveLocalNotification,
   );
-  await FirebaseMessaging.instance.getAPNSToken().then((value) => print(value));
   final LinuxInitializationSettings initializationSettingsLinux =
-      LinuxInitializationSettings(defaultActionName: 'Open notification');
+  LinuxInitializationSettings(defaultActionName: 'Open notification');
   final InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsDarwin,
@@ -150,279 +100,80 @@ main() async {
       linux: initializationSettingsLinux);
   await flutterLocalNotificationsPlugin.initialize(initializationSettings,
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
-  final storage = await HydratedStorage.build(
-      storageDirectory: await getApplicationDocumentsDirectory());
-  HydratedBlocOverrides.runZoned(
-      () => runApp(MultiProvider(providers: [
-            ChangeNotifierProvider(create: (_) => LandingVm()),
-            ChangeNotifierProvider(create: (_) => AuthVm()),
-            ChangeNotifierProvider(create: (_) => SearchVm()),
-            ChangeNotifierProvider(create: (_) => SettingsVm()),
-            ChangeNotifierProvider(create: (_) => BaseVm()),
-            ChangeNotifierProvider(create: (_) => HomeVm()),
-            ChangeNotifierProvider(create: (_) => YachtVm()),
-            ChangeNotifierProvider(create: (_) => InboxVm()),
-            ChangeNotifierProvider(create: (_) => FavouritesVm()),
-            ChangeNotifierProvider(create: (_) => BookingsVm()),
-            ChangeNotifierProvider(create: (_) => AdminChatVM()),
-          ], child: MyApp())),
-      storage: storage);
-}
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => AuthVM()),
+        ChangeNotifierProvider(create: (context) => BaseVm()),
+        ChangeNotifierProvider(create: (context) => UserVM()),
+        ChangeNotifierProvider(create: (context) => SettingsVM()),
+        ChangeNotifierProvider(create: (context) => FeedbackVm()),
+        ChangeNotifierProvider(create: (context) => BookingsVm()),
+        ChangeNotifierProvider(create: (context) => ChatVM()),
 
-String? publishableKey;
-String? secretKey;
-Future<FirebaseRemoteConfig> setupRemoteConfig() async {
-  final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
-  print("fetch kar rha bro .....hahahaha");
-  await remoteConfig.setConfigSettings(RemoteConfigSettings(
-    fetchTimeout: const Duration(minutes: 10),
-    minimumFetchInterval: const Duration(hours: 1),
-  ));
-  print("kyaa error yahan hai");
-  await remoteConfig.fetchAndActivate();
-  print("yaan phir yahan hai");
+      ],
+      child: const MyApp(),
+    ),
+  );}
 
-  publishableKey = remoteConfig.getString("publishable_key");
-  secretKey = remoteConfig.getString("secret_key");
-  print("THIS IS SECRET $publishableKey");
-  Stripe.merchantIdentifier = 'any string works';
-  Stripe.publishableKey = publishableKey ?? "";
-  await Stripe.instance.applySettings();
-  RemoteConfigValue(null, ValueSource.valueStatic);
-  return remoteConfig;
-}
-
-class MyApp extends StatefulWidget {
-  static void setLocale(BuildContext context, Locale locale) {
-    _MyAppState? state = context.findRootAncestorStateOfType<_MyAppState>();
-    state?.setLocale(locale);
-  }
-
-  @override
-  _MyAppState createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  Locale? _locale;
-
-  void setLocale(Locale locale) {
-    setState(() {
-      _locale = locale;
-    });
-  }
-
-  String connectionStatus = 'Unknown';
-  final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> connectivitySubscription;
-
-  initConnectivity() async {
-    ConnectivityResult result = ConnectivityResult.none;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    try {
-      result = await _connectivity.checkConnectivity();
-    } on PlatformException catch (e) {
-      print(e.toString());
-    }
-    if (!mounted) {
-      return null;
-    }
-
-    return _updateConnectionStatus(result);
-  }
-
-  _updateConnectionStatus(ConnectivityResult result) async {
-    switch (result) {
-      case ConnectivityResult.wifi:
-        {}
-        break;
-      case ConnectivityResult.mobile:
-        {}
-        break;
-      case ConnectivityResult.none:
-        {
-          Get.toNamed(NoInternetScreen.route);
-        }
-        setState(() => connectionStatus = result.toString());
-        break;
-      default:
-        break;
-    }
-  }
-
-  void startConnectionStream() {
-    connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
-  }
-
-  @override
-  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    var p = Provider.of<AuthVm>(context, listen: false);
-    log("__________________________STATYE:$state");
-
-    switch (state) {
-      case AppLifecycleState.resumed:
-        log("resumed");
-        if (p.userModel?.uid != null) {
-          p.userModel?.isActiveUser = true;
-          await p.updateUser(p.userModel!);
-        }
-        break;
-      case AppLifecycleState.detached:
-        log("detached");
-        break;
-      case AppLifecycleState.inactive:
-        log("inactive");
-        if (p.userModel?.uid != null) {
-          p.userModel?.isActiveUser = false;
-          await p.updateUser(p.userModel!);
-        }
-        break;
-      case AppLifecycleState.paused:
-        log("paused");
-        break;
-      case AppLifecycleState.hidden:
-        log("hidden");
-        break;
-    }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    connectivitySubscription.cancel();
-  }
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      await setupRemoteConfig();
-      startConnectionStream();
-    });
-    setLocale(const Locale("en"));
-    super.initState();
-  }
-
-  readPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    isLogin = prefs.getBool("loginEmail") ?? false;
-    print(isLogin);
-  }
-
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
-    SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.light),
-    );
     return Sizer(builder: (context, orientation, deviceType) {
-      return BlocProvider(
-        create: (context) => CitiesBloc(),
+      return ResponsiveBreakpoints.builder(
+        breakpoints: [
+
+          const Breakpoint(start: 1250, end: double.infinity, name: '4K'),
+        ],
         child: GetMaterialApp(
-          builder: BotToastInit(),
+          //builder: BotToastInit(),
+          builder: (context, child) {
+            child = BotToastInit()(context, child);
+            child = MaxWidthBox(
+              maxWidth: 100.w,
+              background: Container(color: R.colors.white),
+              child: ResponsiveScaledBox(
+                  width: ResponsiveValue<double>(context, conditionalValues: [
+                    condition.Condition.between(
+                        start: 500, end: 700, value: 1000),
+                    condition.Condition.between(
+                        start: 701, end: 1500, value: 1500),
+                    condition.Condition.between(
+                        start: 1501, end: 5000, value: 2000),
+                  ]).value,
+                  child: child),
+            );
+            return child;
+          },
+          title: "YACHTMASTER",
           navigatorObservers: [BotToastNavigatorObserver()],
-          locale: _locale,
+          scrollBehavior: MyCustomScrollBehavior(),
           fallbackLocale: const Locale('en', 'US'),
-          localizationsDelegates: const [
-            AppLocalization.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
           supportedLocales: const [
             Locale('en', 'US'),
-            Locale('ar', 'SA'),
           ],
-          localeResolutionCallback:
-              (Locale? deviceLocale, Iterable<Locale> supportedLocales) {
-            for (var locale in supportedLocales) {
-              if (locale.languageCode == deviceLocale?.languageCode &&
-                  locale.countryCode == deviceLocale?.countryCode) {
-                return deviceLocale;
-              }
-            }
-            return supportedLocales.first;
-          },
           debugShowCheckedModeBanner: false,
-          // initialRoute: SplashScreen.route,
-          home: Application(
-            page: SplashScreen(),
-          ),
+          initialRoute: SplashView.route,
           getPages: [
-            // GetPage(name: TestingScreen.route, page: () =>  TestingScreen()),
-            GetPage(name: InviteAndEarn.route, page: () => InviteAndEarn()),
-            GetPage(name: BecomeHost.route, page: () => BecomeHost()),
-            GetPage(name: AdminChatView.route, page: () => AdminChatView()),
-            GetPage(name: PayWithCrypto.route, page: () => PayWithCrypto()),
-            GetPage(name: PayWithWallet.route, page: () => PayWithWallet()),
-            GetPage(name: WithdrawMoney.route, page: () => WithdrawMoney()),
-            GetPage(name: CreateUsername.route, page: () => CreateUsername()),
-            GetPage(
-                name: NoInternetScreen.route, page: () => NoInternetScreen()),
-            GetPage(
-                name: HostBookingDetail.route, page: () => HostBookingDetail()),
-            GetPage(name: PaymentPayouts.route, page: () => PaymentPayouts()),
-            GetPage(name: BookingsDetail.route, page: () => BookingsDetail()),
-            GetPage(name: AllBookings.route, page: () => AllBookings()),
-            GetPage(name: SplitPayment.route, page: () => SplitPayment()),
-            GetPage(name: WhosComing.route, page: () => WhosComing()),
-            GetPage(name: WhenWillBeThere.route, page: () => WhenWillBeThere()),
-            GetPage(name: WhatLookingFor.route, page: () => WhatLookingFor()),
-            GetPage(name: WhereGoing.route, page: () => WhereGoing()),
-            GetPage(name: SplashScreen.route, page: () => SplashScreen()),
-            GetPage(name: LoginScreen.route, page: () => LoginScreen()),
-            GetPage(name: SignUpScreen.route, page: () => SignUpScreen()),
-            GetPage(name: SearchScreen.route, page: () => SearchScreen()),
-            GetPage(name: BaseView.route, page: () => BaseView()),
-            GetPage(name: HomeView.route, page: () => HomeView()),
-            GetPage(name: AllBookings.route, page: () => AllBookings()),
-            GetPage(name: HelpCenter.route, page: () => HelpCenter()),
-            GetPage(name: CharterDetail.route, page: () => CharterDetail()),
-            GetPage(
-                name: YachtReservePayment.route,
-                page: () => YachtReservePayment()),
-            GetPage(name: SettingsView.route, page: () => SettingsView()),
-            GetPage(name: UserProfile.route, page: () => UserProfile()),
-            GetPage(name: ChatView.route, page: () => ChatView()),
-            GetPage(name: PaymentMethods.route, page: () => PaymentMethods()),
-            // GetPage(name: HostBookings.route, page: () =>  HostBookings()),
-            GetPage(name: AddCreditCard.route, page: () => AddCreditCard()),
-            GetPage(name: PrivacySharing.route, page: () => PrivacySharing()),
-            GetPage(name: HostProfile.route, page: () => HostProfile()),
-            GetPage(name: AddServices.route, page: () => AddServices()),
-            GetPage(
-                name: AddfeaturedCharters.route,
-                page: () => AddfeaturedCharters()),
-            GetPage(name: ChooseServices.route, page: () => ChooseServices()),
-            GetPage(name: AddYachtForSale.route, page: () => AddYachtForSale()),
-            GetPage(name: AskSuperHost.route, page: () => AskSuperHost()),
-            GetPage(name: PrivacyPolicy.route, page: () => PrivacyPolicy()),
-            GetPage(name: TermsOfServices.route, page: () => TermsOfServices()),
-            GetPage(name: SafetyCenter.route, page: () => SafetyCenter()),
-            GetPage(name: AboutApp.route, page: () => AboutApp()),
-            GetPage(name: ServiceDetail.route, page: () => ServiceDetail()),
-            GetPage(
-                name: RulesRegulations.route, page: () => RulesRegulations()),
-            GetPage(
-                name: HostProfileOthers.route, page: () => HostProfileOthers()),
-            GetPage(name: YachtDetail.route, page: () => YachtDetail()),
-            GetPage(name: ReviewScreen.route, page: () => ReviewScreen()),
-            GetPage(
-                name: DefineAvailibility.route,
-                page: () => DefineAvailibility()),
-            GetPage(name: SearchSeeAll.route, page: () => SearchSeeAll()),
-            GetPage(name: ViewAllServices.route, page: () => ViewAllServices()),
-            GetPage(name: SeeAllHost.route, page: () => SeeAllHost()),
-            // GetPage(name: ViewAllServiceImages.route, page: () =>  ViewAllServiceImages()),
-            GetPage(name: SocialSignup.route, page: () => SocialSignup()),
+            GetPage(name: "/", page: () => const SplashView()),
+            GetPage(name: SplashView.route, page: () => const SplashView()),
+            GetPage(name: AuthView.route, page: () => const AuthView()),
+            GetPage(name: DashboardView.route, page: () => const DashboardView()),
           ],
-          title: "YachtMaster App",
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+          ),
         ),
       );
     });
   }
+}
+
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+  };
 }
