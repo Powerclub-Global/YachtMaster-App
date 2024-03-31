@@ -32,6 +32,7 @@ import 'package:yacht_master/src/base/search/model/charter_model.dart';
 import 'package:yacht_master/src/base/settings/model/app_feedback_model.dart';
 import 'package:yacht_master/src/base/settings/view/about_app.dart';
 import 'package:yacht_master/src/base/settings/view/ask_a_superhost.dart';
+import 'package:yacht_master/src/base/settings/view/become_verified.dart';
 import 'package:yacht_master/src/base/settings/view/invite_earn/invite_earn.dart';
 import 'package:yacht_master/src/base/settings/view/payment_payouts.dart';
 import 'package:yacht_master/src/base/settings/view/privacy_policy.dart';
@@ -65,7 +66,6 @@ class _SettingsViewState extends State<SettingsView> {
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthVm>(builder: (context, authVm, _) {
-
       return Scaffold(
         backgroundColor: R.colors.black,
         body: SingleChildScrollView(
@@ -87,12 +87,19 @@ class _SettingsViewState extends State<SettingsView> {
                               "",
                               radius: 28.sp,
                               child: CachedNetworkImage(
-                                imageUrl:  authVm.userModel?.imageUrl?.isEmpty==true || authVm.userModel?.imageUrl==null?
-                                R.images.dummyDp:authVm.userModel?.imageUrl??"",
+                                imageUrl: authVm.userModel?.imageUrl?.isEmpty ==
+                                            true ||
+                                        authVm.userModel?.imageUrl == null
+                                    ? R.images.dummyDp
+                                    : authVm.userModel?.imageUrl ?? "",
                                 fit: BoxFit.cover,
-                                progressIndicatorBuilder: (context, url, downloadProgress) =>
-                                    SpinKitPulse(color: R.colors.themeMud,),
-                                errorWidget: (context, url, error) => Icon(Icons.error),
+                                progressIndicatorBuilder:
+                                    (context, url, downloadProgress) =>
+                                        SpinKitPulse(
+                                  color: R.colors.themeMud,
+                                ),
+                                errorWidget: (context, url, error) =>
+                                    Icon(Icons.error),
                               ),
                             ),
                             Image.asset(
@@ -123,7 +130,6 @@ class _SettingsViewState extends State<SettingsView> {
                         h2,
                         GestureDetector(
                           onTap: () {
-
                             Get.bottomSheet(EditProfile());
                           },
                           child: Container(
@@ -162,7 +168,8 @@ class _SettingsViewState extends State<SettingsView> {
                   child: Column(
                     children: [
                       tiles(0, "invite_earn", R.images.link),
-                      tiles(1, "payment_status", R.images.credit,isDivider:false),
+                      tiles(1, "payment_status", R.images.credit,
+                          isDivider: false),
                       // tiles(2, "translation", R.images.translate,isDivider:false),
                       // tiles(3, "privacy_and_sharing", R.images.pp,
                       //     isDivider: false),
@@ -184,7 +191,13 @@ class _SettingsViewState extends State<SettingsView> {
                       horizontal: Get.width * .04, vertical: Get.height * .03),
                   child: Column(
                     children: [
-                      tiles(4, context.read<AuthVm>().userModel?.requestStatus==RequestStatus.host ? "host_profile" : "become_a_host", R.images.switchToHost),
+                      tiles(
+                          4,
+                          context.read<AuthVm>().userModel?.requestStatus ==
+                                  RequestStatus.host
+                              ? "host_profile"
+                              : "become_a_host",
+                          R.images.switchToHost),
                       tiles(5, "host_support_center", R.images.ask,
                           isDivider: false),
                     ],
@@ -229,14 +242,22 @@ class _SettingsViewState extends State<SettingsView> {
                   child: Column(
                     children: [
                       tiles(10, "terms_of_services", R.images.shield),
-                      tiles(11, "privacy_policy", R.images.pp, ),
-                      tiles(13, "cancellation_policy", R.images.cancel, ),
-                      tiles(14, "refund_policy", R.images.refund, isDivider: false),
+                      tiles(
+                        11,
+                        "privacy_policy",
+                        R.images.pp,
+                      ),
+                      tiles(
+                        13,
+                        "cancellation_policy",
+                        R.images.cancel,
+                      ),
+                      tiles(14, "refund_policy", R.images.refund,
+                          isDivider: false),
                     ],
                   ),
                 ),
                 h3,
-
                 Container(
                   decoration: BoxDecoration(
                       color: R.colors.blackDull,
@@ -265,12 +286,27 @@ class _SettingsViewState extends State<SettingsView> {
       {bool isDivider = true, bool isShowArrow = true}) {
     return GestureDetector(
       onTap: () async {
-        var settingsVm=Provider.of<SettingsVm>(context,listen: false);
-        var authVm=Provider.of<AuthVm>(context,listen: false);
+        var settingsVm = Provider.of<SettingsVm>(context, listen: false);
+        var authVm = Provider.of<AuthVm>(context, listen: false);
 
         switch (index) {
           case 0:
-            Get.toNamed(InviteAndEarn.route);
+            var data = await db
+                .collection("users")
+                .doc(FirebaseAuth.instance.currentUser?.uid)
+                .get();
+            var data1 = data.data();
+            int inviteStatus = data1!["invite_status"];
+            print(inviteStatus);
+            if (inviteStatus == 2) {
+              Get.toNamed(InviteAndEarn.route);
+            } else if (inviteStatus == 1) {
+              ZBotToast.showToastError(
+                  message:
+                      "Please wait your request to be verified for earnings in process");
+            } else {
+              Get.toNamed(BecomeVerified.route);
+            }
             break;
           case 1:
             Get.toNamed(PaymentPayouts.route);
@@ -284,26 +320,27 @@ class _SettingsViewState extends State<SettingsView> {
           //   break;
           case 4:
             {
-              if(authVm.userModel?.requestStatus==RequestStatus.requestHost)
-                {
-                 ZBotToast.showToastError(message: "Please wait your request to be host in process");
-                }
-              else if(authVm.userModel?.requestStatus==RequestStatus.host){
+              if (authVm.userModel?.requestStatus ==
+                  RequestStatus.requestHost) {
+                ZBotToast.showToastError(
+                    message: "Please wait your request to be host in process");
+              } else if (authVm.userModel?.requestStatus ==
+                  RequestStatus.host) {
                 Get.toNamed(HostProfile.route);
-
-              }
-              else{
+              } else {
                 Get.toNamed(BecomeHost.route);
               }
               break;
             }
           case 5:
             {
-              var InboxPro=Provider.of<InboxVm>(context,listen: false);
-              var yachtVm=Provider.of<YachtVm>(context,listen: false);
-              AdminChatHeadModel? chatHead=await createChatHead(InboxPro,yachtVm);
+              var InboxPro = Provider.of<InboxVm>(context, listen: false);
+              var yachtVm = Provider.of<YachtVm>(context, listen: false);
+              AdminChatHeadModel? chatHead =
+                  await createChatHead(InboxPro, yachtVm);
               setState(() {});
-              Get.toNamed(AdminChatView.route,arguments: {"chatHeadModel":chatHead});
+              Get.toNamed(AdminChatView.route,
+                  arguments: {"chatHeadModel": chatHead});
               // Get.toNamed(HelpCenter.route);
             }
             break;
@@ -317,19 +354,28 @@ class _SettingsViewState extends State<SettingsView> {
             Get.toNamed(HelpCenter.route);
             break;
           case 9:
-            Get.bottomSheet(FeedbackSheet(submitCallBack: (rating,desc) async {
-               String docID=Timestamp.now().millisecondsSinceEpoch.toString();
-              AppFeedbackModel appFeedbackModel=AppFeedbackModel(id:docID,feedback: desc,userId: FirebaseAuth.instance.currentUser?.uid,
-              rating: rating,createdAt: Timestamp.now());
-              try {
-                Get.back();
-                await FbCollections.appFeedBack.doc(docID).set(appFeedbackModel.toJson());
-              } on Exception catch (e) {
-                // TODO
-                debugPrintStack();
-                log(e.toString());
-              }
-            },));
+            Get.bottomSheet(FeedbackSheet(
+              submitCallBack: (rating, desc) async {
+                String docID =
+                    Timestamp.now().millisecondsSinceEpoch.toString();
+                AppFeedbackModel appFeedbackModel = AppFeedbackModel(
+                    id: docID,
+                    feedback: desc,
+                    userId: FirebaseAuth.instance.currentUser?.uid,
+                    rating: rating,
+                    createdAt: Timestamp.now());
+                try {
+                  Get.back();
+                  await FbCollections.appFeedBack
+                      .doc(docID)
+                      .set(appFeedbackModel.toJson());
+                } on Exception catch (e) {
+                  // TODO
+                  debugPrintStack();
+                  log(e.toString());
+                }
+              },
+            ));
             break;
           case 10:
             Get.toNamed(TermsOfServices.route);
@@ -344,47 +390,43 @@ class _SettingsViewState extends State<SettingsView> {
           case 13:
             Get.toNamed(RulesRegulations.route, arguments: {
               "appBarTitle": settingsVm.allContent
-                  .where((element) =>
-              element.type ==
-                  AppContentType
-                      .cancellationPolicy.index)
-                  .first
-                  .title ??
+                      .where((element) =>
+                          element.type ==
+                          AppContentType.cancellationPolicy.index)
+                      .first
+                      .title ??
                   "",
               "title": "",
               "desc": settingsVm.allContent
-                  .where((element) =>
-              element.type ==
-                  AppContentType
-                      .cancellationPolicy.index)
-                  .first
-                  .content ??
+                      .where((element) =>
+                          element.type ==
+                          AppContentType.cancellationPolicy.index)
+                      .first
+                      .content ??
                   "",
-              "textStyle": R.textStyle.helvetica().copyWith(
-                  color: R.colors.whiteDull, fontSize: 14.sp)
+              "textStyle": R.textStyle
+                  .helvetica()
+                  .copyWith(color: R.colors.whiteDull, fontSize: 14.sp)
             });
             break;
           case 14:
             Get.toNamed(RulesRegulations.route, arguments: {
               "appBarTitle": settingsVm.allContent
-                  .where((element) =>
-              element.type ==
-                  AppContentType
-                      .refundPolicy.index)
-                  .first
-                  .title ??
+                      .where((element) =>
+                          element.type == AppContentType.refundPolicy.index)
+                      .first
+                      .title ??
                   "",
               "title": "",
               "desc": settingsVm.allContent
-                  .where((element) =>
-              element.type ==
-                  AppContentType
-                      .refundPolicy.index)
-                  .first
-                  .content ??
+                      .where((element) =>
+                          element.type == AppContentType.refundPolicy.index)
+                      .first
+                      .content ??
                   "",
-              "textStyle": R.textStyle.helvetica().copyWith(
-                  color: R.colors.whiteDull, fontSize: 14.sp)
+              "textStyle": R.textStyle
+                  .helvetica()
+                  .copyWith(color: R.colors.whiteDull, fontSize: 14.sp)
             });
 
             break;
@@ -403,7 +445,6 @@ class _SettingsViewState extends State<SettingsView> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     Image.asset(
                       img,
                       height: Get.height * .015,
@@ -441,10 +482,11 @@ class _SettingsViewState extends State<SettingsView> {
       ),
     );
   }
-  Future<AdminChatHeadModel?> createChatHead(InboxVm chatVm,YachtVm yachtVm) async {
+
+  Future<AdminChatHeadModel?> createChatHead(
+      InboxVm chatVm, YachtVm yachtVm) async {
     AdminChatHeadModel? chatHeadModel;
-    AdminChatHeadModel chatData =
-    AdminChatHeadModel(
+    AdminChatHeadModel chatData = AdminChatHeadModel(
       id: FirebaseAuth.instance.currentUser?.uid,
       createdAt: Timestamp.now(),
       lastMessage: AdminChatModel(
@@ -454,27 +496,35 @@ class _SettingsViewState extends State<SettingsView> {
           chatHeadId: FirebaseAuth.instance.currentUser?.uid,
           type: 0,
           isSeen: false,
-          receiverId:Provider.of<BaseVm>(context,listen: false).allUsers.firstWhereOrNull((element) => element.role==UserType.admin)?.uid??""
-      ),
+          receiverId: Provider.of<BaseVm>(context, listen: false)
+                  .allUsers
+                  .firstWhereOrNull((element) => element.role == UserType.admin)
+                  ?.uid ??
+              ""),
       status: 0,
-      users:[
-        FirebaseAuth.instance.currentUser?.uid??"",
-        Provider.of<BaseVm>(context,listen: false).allUsers.firstWhereOrNull((element) => element.role==UserType.admin)?.uid??""
+      users: [
+        FirebaseAuth.instance.currentUser?.uid ?? "",
+        Provider.of<BaseVm>(context, listen: false)
+                .allUsers
+                .firstWhereOrNull((element) => element.role == UserType.admin)
+                ?.uid ??
+            ""
       ],
     );
-    chatHeadModel=  await createChatHeadDoc(chatData);
-    setState(() {
-
-    });
+    chatHeadModel = await createChatHeadDoc(chatData);
+    setState(() {});
     return chatHeadModel;
   }
-  Future<AdminChatHeadModel?> createChatHeadDoc(AdminChatHeadModel chatData) async {
+
+  Future<AdminChatHeadModel?> createChatHeadDoc(
+      AdminChatHeadModel chatData) async {
     AdminChatHeadModel? chatHeadModel;
     try {
-      DocumentSnapshot doc = await FbCollections.adminChat.doc(chatData.id).get();
+      DocumentSnapshot doc =
+          await FbCollections.adminChat.doc(chatData.id).get();
 
       if (doc.data() == null) {
-        chatHeadModel=AdminChatHeadModel(
+        chatHeadModel = AdminChatHeadModel(
           createdAt: Timestamp.now(),
           id: FirebaseAuth.instance.currentUser?.uid,
           lastMessage: AdminChatModel(
@@ -484,24 +534,29 @@ class _SettingsViewState extends State<SettingsView> {
               chatHeadId: FirebaseAuth.instance.currentUser?.uid,
               type: 0,
               isSeen: false,
-              receiverId:Provider.of<BaseVm>(context,listen: false).allUsers.firstWhereOrNull((element) => element.role==UserType.admin)?.uid??""
-          ),
+              receiverId: Provider.of<BaseVm>(context, listen: false)
+                      .allUsers
+                      .firstWhereOrNull(
+                          (element) => element.role == UserType.admin)
+                      ?.uid ??
+                  ""),
           status: 0,
-          users:[
-            FirebaseAuth.instance.currentUser?.uid??"",
-            Provider.of<BaseVm>(context,listen: false).allUsers.firstWhereOrNull((element) => element.role==UserType.admin)?.uid??""
+          users: [
+            FirebaseAuth.instance.currentUser?.uid ?? "",
+            Provider.of<BaseVm>(context, listen: false)
+                    .allUsers
+                    .firstWhereOrNull(
+                        (element) => element.role == UserType.admin)
+                    ?.uid ??
+                ""
           ],
         );
+      } else {
+        chatHeadModel = AdminChatHeadModel.fromJson(doc.data());
       }
-      else{
-
-
-      chatHeadModel = AdminChatHeadModel.fromJson(doc.data());}
-
     } catch (e) {
       log(e.toString());
     }
     return chatHeadModel;
   }
-
 }

@@ -33,10 +33,13 @@ class _SureBottomSheetState extends State<SureBottomSheet> {
         mainAxisSize: MainAxisSize.min,
         children: [
           h1,
-          Image.asset(R.images.sure,scale: 4,),
+          Image.asset(
+            R.images.sure,
+            scale: 4,
+          ),
           h3,
           Text(
-           widget.title??"",
+            widget.title ?? "",
             textAlign: TextAlign.center,
             style: R.textStyle
                 .helveticaBold()
@@ -44,36 +47,37 @@ class _SureBottomSheetState extends State<SureBottomSheet> {
           ),
           h2,
           SizedBox(
-            width: Get.width*.65,
+            width: Get.width * .65,
             child: Text(
-              widget.subTitle??"",
+              widget.subTitle ?? "",
               textAlign: TextAlign.center,
-              style: R.textStyle
-                  .helveticaBold()
-                  .copyWith(color: R.colors.whiteColor, fontSize: 11.sp,height: 1.5),
+              style: R.textStyle.helveticaBold().copyWith(
+                  color: R.colors.whiteColor, fontSize: 11.sp, height: 1.5),
             ),
           ),
           h2,
           Row(
             children: [
               Expanded(
-                child:GestureDetector(
-                  onTap: (){
+                child: GestureDetector(
+                  onTap: () {
                     Get.back();
                   },
                   child: Container(
-                    height: Get.height*.055,
-                    width: Get.width*.8,
-                    margin: EdgeInsets.only(bottom: Get.height*.015),
+                    height: Get.height * .055,
+                    width: Get.width * .8,
+                    margin: EdgeInsets.only(bottom: Get.height * .015),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: R.colors.blueGrey
-                    ),
+                        borderRadius: BorderRadius.circular(30),
+                        color: R.colors.blueGrey),
                     child: Center(
-                      child: Text("${getTranslated(context, "no")?.toUpperCase()}",
-                        style: R.textStyle.helvetica().copyWith(color: R.colors.black,
-                            fontSize: 12.sp,fontWeight: FontWeight.bold
-                        ) ,),
+                      child: Text(
+                        "${getTranslated(context, "no")?.toUpperCase()}",
+                        style: R.textStyle.helvetica().copyWith(
+                            color: R.colors.black,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ),
@@ -82,18 +86,21 @@ class _SureBottomSheetState extends State<SureBottomSheet> {
                 width: 2.w,
               ),
               Expanded(
-                child:  GestureDetector(
+                child: GestureDetector(
                   onTap: widget.yesCallBack,
                   child: Container(
-                    height: Get.height*.055,
-                    width: Get.width*.8,
-                    margin: EdgeInsets.only(bottom: Get.height*.015),
+                    height: Get.height * .055,
+                    width: Get.width * .8,
+                    margin: EdgeInsets.only(bottom: Get.height * .015),
                     decoration: AppDecorations.gradientButton(radius: 30),
                     child: Center(
-                      child: Text("${getTranslated(context, "yes")?.toUpperCase()}",
-                        style: R.textStyle.helvetica().copyWith(color: R.colors.black,
-                            fontSize: 12.sp,fontWeight: FontWeight.bold
-                        ) ,),
+                      child: Text(
+                        "${getTranslated(context, "yes")?.toUpperCase()}",
+                        style: R.textStyle.helvetica().copyWith(
+                            color: R.colors.black,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ),
@@ -106,5 +113,3 @@ class _SureBottomSheetState extends State<SureBottomSheet> {
     );
   }
 }
-
-

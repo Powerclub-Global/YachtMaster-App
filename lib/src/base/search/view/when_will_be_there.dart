@@ -204,12 +204,9 @@ class _WhenWillBeThereState extends State<WhenWillBeThere> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: List.generate(
-                                        charterDayList.length,
-                                        (index) {
-                                      return dayTypeTabs(
-                                          charterDayList[index],
-                                          provider,
-                                          index);
+                                        charterDayList.length, (index) {
+                                      return dayTypeTabs(charterDayList[index],
+                                          provider, index);
                                     })),
                               ),
                               h2,
@@ -269,116 +266,99 @@ class _WhenWillBeThereState extends State<WhenWillBeThere> {
                             onTap: () {
                               endTimeCon.clear();
                               startTimeCon.clear();
-                              Get.bottomSheet(TimePickerSheet(
-                                selectedDate: DateTimePickerServices.selectedStartDateTimeDB,
-                                onDateSelect: (selectedTime){
-                                  if(selectedTime != null){
-                                    DateTimePickerServices.startTime = TimeOfDay(hour: selectedTime.hour, minute: selectedTime.minute,);
-                                    startTime2Con.text = DateFormat("hh:mm a").format(DateTime(
-                                        DateTimePickerServices.selectedStartDate.year,
-                                        DateTimePickerServices.selectedStartDate.month,
-                                        DateTimePickerServices.selectedStartDate.day,
-                                        DateTimePickerServices.startTime.hour,
-                                        DateTimePickerServices.startTime.minute));
-                                    DateTimePickerServices.selectedStartDateTime = DateTime(
-                                        DateTimePickerServices.selectedStartDate.year,
-                                        DateTimePickerServices.selectedStartDate.month,
-                                        DateTimePickerServices.selectedStartDate.day,
-                                        DateTimePickerServices.startTime.hour,
-                                        DateTimePickerServices.startTime.minute);
-                                    DateTimePickerServices.selectedStartDateTimeDB = DateTime(
-                                        DateTimePickerServices.selectedStartDate.year,
-                                        DateTimePickerServices.selectedStartDate.month,
-                                        DateTimePickerServices.selectedStartDate.day,
-                                        DateTimePickerServices.startTime.hour,
-                                        DateTimePickerServices.startTime.minute);
-                                    if (startTime2Con.text.isNotEmpty) {
-                                      startTimeCon.text =
-                                          DateFormat("dd/MM/yyyy hh:mm a").format(
-                                              DateTimePickerServices
-                                                  .selectedStartDateTimeDB);
-                                      if (selectedTab == 0) {
-                                        DateTimePickerServices
-                                            .selectedEndDateTimeDB =
-                                            DateTimePickerServices
-                                                .selectedStartDateTimeDB
-                                                .add(Duration(hours: 4));
-                                        endTimeCon.text =
-                                            DateFormat("dd/MM/yyyy hh:mm a").format(
+                              Get.bottomSheet(
+                                  TimePickerSheet(
+                                    selectedDate: DateTimePickerServices
+                                        .selectedStartDateTimeDB,
+                                    onDateSelect: (selectedTime) {
+                                      if (selectedTime != null) {
+                                        DateTimePickerServices.startTime =
+                                            TimeOfDay(
+                                          hour: selectedTime.hour,
+                                          minute: selectedTime.minute,
+                                        );
+                                        startTime2Con.text =
+                                            DateFormat("hh:mm a").format(
+                                                DateTime(
+                                                    DateTimePickerServices
+                                                        .selectedStartDate.year,
+                                                    DateTimePickerServices
+                                                        .selectedStartDate
+                                                        .month,
+                                                    DateTimePickerServices
+                                                        .selectedStartDate.day,
+                                                    DateTimePickerServices
+                                                        .startTime.hour,
+                                                    DateTimePickerServices
+                                                        .startTime.minute));
+                                        DateTimePickerServices.selectedStartDateTime =
+                                            DateTime(
                                                 DateTimePickerServices
-                                                    .selectedEndDateTimeDB);
-                                      } else if (selectedTab == 1) {
-                                        DateTimePickerServices
-                                            .selectedEndDateTimeDB =
-                                            DateTimePickerServices
-                                                .selectedStartDateTimeDB
-                                                .add(Duration(hours: 8));
-                                        endTimeCon.text =
-                                            DateFormat("dd/MM/yyyy hh:mm a").format(
+                                                    .selectedStartDate.year,
                                                 DateTimePickerServices
-                                                    .selectedEndDateTimeDB);
-                                      } else if (selectedTab == 2) {
-                                        DateTimePickerServices
-                                            .selectedEndDateTimeDB =
-                                            DateTimePickerServices
-                                                .selectedStartDateTimeDB
-                                                .add(Duration(hours: 24));
-                                        endTimeCon.text =
-                                            DateFormat("dd/MM/yyyy hh:mm a").format(
+                                                    .selectedStartDate.month,
                                                 DateTimePickerServices
+                                                    .selectedStartDate.day,
+                                                DateTimePickerServices
+                                                    .startTime.hour,
+                                                DateTimePickerServices
+                                                    .startTime.minute);
+                                        DateTimePickerServices
+                                                .selectedStartDateTimeDB =
+                                            DateTime(
+                                                DateTimePickerServices
+                                                    .selectedStartDate.year,
+                                                DateTimePickerServices
+                                                    .selectedStartDate.month,
+                                                DateTimePickerServices
+                                                    .selectedStartDate.day,
+                                                DateTimePickerServices
+                                                    .startTime.hour,
+                                                DateTimePickerServices
+                                                    .startTime.minute);
+                                        if (startTime2Con.text.isNotEmpty) {
+                                          startTimeCon.text =
+                                              DateFormat("dd/MM/yyyy hh:mm a")
+                                                  .format(DateTimePickerServices
+                                                      .selectedStartDateTimeDB);
+                                          if (selectedTab == 0) {
+                                            DateTimePickerServices
+                                                    .selectedEndDateTimeDB =
+                                                DateTimePickerServices
+                                                    .selectedStartDateTimeDB
+                                                    .add(Duration(hours: 4));
+                                            endTimeCon.text = DateFormat(
+                                                    "dd/MM/yyyy hh:mm a")
+                                                .format(DateTimePickerServices
                                                     .selectedEndDateTimeDB);
+                                          } else if (selectedTab == 1) {
+                                            DateTimePickerServices
+                                                    .selectedEndDateTimeDB =
+                                                DateTimePickerServices
+                                                    .selectedStartDateTimeDB
+                                                    .add(Duration(hours: 8));
+                                            endTimeCon.text = DateFormat(
+                                                    "dd/MM/yyyy hh:mm a")
+                                                .format(DateTimePickerServices
+                                                    .selectedEndDateTimeDB);
+                                          } else if (selectedTab == 2) {
+                                            DateTimePickerServices
+                                                    .selectedEndDateTimeDB =
+                                                DateTimePickerServices
+                                                    .selectedStartDateTimeDB
+                                                    .add(Duration(hours: 24));
+                                            endTimeCon.text = DateFormat(
+                                                    "dd/MM/yyyy hh:mm a")
+                                                .format(DateTimePickerServices
+                                                    .selectedEndDateTimeDB);
+                                          }
+                                          setState(() {});
+                                        }
                                       }
-                                      setState(() {});
-                                    }
-                                  }
-                                },
-                              ),isDismissible: false,enableDrag: false);
-
-                              // DateTimePickerServices.selectStartTimeFunction(
-                              //         context,
-                              //         startTime2Con,
-                              //         DateTimePickerServices
-                              //             .selectedStartDateTimeDB)
-                              //     .then((value) {
-                              //   if (startTime2Con.text.isNotEmpty) {
-                              //     startTimeCon.text =
-                              //         DateFormat("dd/MM/yyyy hh:mm a").format(
-                              //             DateTimePickerServices
-                              //                 .selectedStartDateTimeDB);
-                              //     if (selectedTab == 0) {
-                              //       DateTimePickerServices
-                              //               .selectedEndDateTimeDB =
-                              //           DateTimePickerServices
-                              //               .selectedStartDateTimeDB
-                              //               .add(Duration(hours: 4));
-                              //       endTimeCon.text =
-                              //           DateFormat("dd/MM/yyyy hh:mm a").format(
-                              //               DateTimePickerServices
-                              //                   .selectedEndDateTimeDB);
-                              //     } else if (selectedTab == 1) {
-                              //       DateTimePickerServices
-                              //               .selectedEndDateTimeDB =
-                              //           DateTimePickerServices
-                              //               .selectedStartDateTimeDB
-                              //               .add(Duration(hours: 8));
-                              //       endTimeCon.text =
-                              //           DateFormat("dd/MM/yyyy hh:mm a").format(
-                              //               DateTimePickerServices
-                              //                   .selectedEndDateTimeDB);
-                              //     } else if (selectedTab == 2) {
-                              //       DateTimePickerServices
-                              //               .selectedEndDateTimeDB =
-                              //           DateTimePickerServices
-                              //               .selectedStartDateTimeDB
-                              //               .add(Duration(hours: 24));
-                              //       endTimeCon.text =
-                              //           DateFormat("dd/MM/yyyy hh:mm a").format(
-                              //               DateTimePickerServices
-                              //                   .selectedEndDateTimeDB);
-                              //     }
-                              //     setState(() {});
-                              //   }
-                              // });
+                                    },
+                                  ),
+                                  isDismissible: false,
+                                  enableDrag: false);
                             },
                             onFieldSubmitted: (a) {
                               setState(() {
@@ -404,238 +384,6 @@ class _WhenWillBeThereState extends State<WhenWillBeThere> {
                               style: R.textStyle.helvetica().copyWith(
                                   color: R.colors.whiteColor, fontSize: 12.sp),
                             ),
-                          // if (isReserve == true && isSelectTime == false)
-                          //   Column(
-                          //     children: [
-                          //       h2,
-                          //       label(
-                          //           getTranslated(context, "start_time") ?? "",
-                          //           fs: 14),
-                          //       h1P5,
-                          //       TextFormField(
-                          //         textAlignVertical: TextAlignVertical.center,
-                          //         focusNode: startTimeFn,
-                          //         readOnly: true,
-                          //         keyboardType: TextInputType.datetime,
-                          //         inputFormatters: [
-                          //           FilteringTextInputFormatter(
-                          //               RegExp("[0-9:]"),
-                          //               allow: true)
-                          //         ],
-                          //         autovalidateMode:
-                          //             AutovalidateMode.onUserInteraction,
-                          //         textInputAction: TextInputAction.next,
-                          //         onChanged: (v) {
-                          //           setState(() {});
-                          //         },
-                          //         onTap: () {
-                          //           endTimeCon.clear();
-                          //           bookingsVm.selectTime(
-                          //             true,
-                          //             startTimeCon.text.isNotEmpty
-                          //                 ? DateFormat.jm()
-                          //                     .parse(startTimeCon.text)
-                          //                 : bookingsVm.time,
-                          //             startTimeCon,
-                          //             endTimeCon,
-                          //           );
-                          //         },
-                          //         onFieldSubmitted: (a) {
-                          //           setState(() {
-                          //             FocusScope.of(Get.context!)
-                          //                 .requestFocus(endTimeFn);
-                          //           });
-                          //         },
-                          //         controller: startTimeCon,
-                          //         validator: (val) =>
-                          //             FieldValidator.validateEmpty(val ?? ""),
-                          //         decoration: AppDecorations.suffixTextField(
-                          //             "start_time",
-                          //             R.textStyle.helvetica().copyWith(
-                          //                 color: startTimeFn.hasFocus
-                          //                     ? R.colors.themeMud
-                          //                     : R.colors.charcoalColor,
-                          //                 fontSize: 10.sp),
-                          //             SizedBox()),
-                          //       ),
-                          //     ],
-                          //   )
-                          // else
-                          //   Column(
-                          //     children: [
-                          //       h2,
-                          //       label(
-                          //           getTranslated(context, "start_time") ?? "",
-                          //           fs: 14),
-                          //       h1P5,
-                          //       if (provider.selectedCharterDayType?.type ==
-                          //           CharterDayType.halfDay.index)
-                          //         SingleChildScrollView(
-                          //           scrollDirection: Axis.horizontal,
-                          //           child: Row(
-                          //             children: List.generate(
-                          //                 charter?.availability?.halfDaySlots
-                          //                         ?.length ??
-                          //                     0, (index) {
-                          //               String start = charter?.availability
-                          //                       ?.halfDaySlots?[index].start ??
-                          //                   "0";
-                          //               String end = charter?.availability
-                          //                       ?.halfDaySlots?[index].end ??
-                          //                   "0";
-                          //               return timeDurationTabs(
-                          //                   provider, start, end, index);
-                          //             }),
-                          //           ),
-                          //         )
-                          //       else if (provider
-                          //               .selectedCharterDayType?.type ==
-                          //           CharterDayType.fullDay.index)
-                          //         SingleChildScrollView(
-                          //           scrollDirection: Axis.horizontal,
-                          //           child: Row(
-                          //             mainAxisAlignment:
-                          //                 MainAxisAlignment.start,
-                          //             children: List.generate(
-                          //                 charter?.availability?.fullDaySlots
-                          //                         ?.length ??
-                          //                     0, (index) {
-                          //               String start = charter?.availability
-                          //                       ?.fullDaySlots?[index].start ??
-                          //                   "0";
-                          //               String end = charter?.availability
-                          //                       ?.fullDaySlots?[index].end ??
-                          //                   "0";
-                          //               return timeDurationTabs(
-                          //                   provider, start, end, index);
-                          //             }),
-                          //           ),
-                          //         )
-                          //       else
-                          //         Row(
-                          //           crossAxisAlignment:
-                          //               CrossAxisAlignment.start,
-                          //           children: [
-                          //             Expanded(
-                          //               child: TextFormField(
-                          //                 textAlignVertical:
-                          //                     TextAlignVertical.center,
-                          //                 focusNode: startTimeFn,
-                          //                 readOnly: true,
-                          //                 keyboardType: TextInputType.datetime,
-                          //                 inputFormatters: [
-                          //                   FilteringTextInputFormatter(
-                          //                       RegExp("[0-9:]"),
-                          //                       allow: true)
-                          //                 ],
-                          //                 autovalidateMode: AutovalidateMode
-                          //                     .onUserInteraction,
-                          //                 textInputAction: TextInputAction.next,
-                          //                 onChanged: (v) {
-                          //                   setState(() {});
-                          //                 },
-                          //                 onTap: () {
-                          //                   endTimeCon.clear();
-                          //                   bookingsVm.selectTime(
-                          //                     true,
-                          //                     startTimeCon.text.isNotEmpty
-                          //                         ? DateFormat.jm()
-                          //                             .parse(startTimeCon.text)
-                          //                         : bookingsVm.time,
-                          //                     startTimeCon,
-                          //                     endTimeCon,
-                          //                   );
-                          //                 },
-                          //                 onFieldSubmitted: (a) {
-                          //                   setState(() {
-                          //                     FocusScope.of(Get.context!)
-                          //                         .requestFocus(endTimeFn);
-                          //                   });
-                          //                 },
-                          //                 controller: startTimeCon,
-                          //                 validator: (val) =>
-                          //                     FieldValidator.validateEmpty(
-                          //                         val ?? ""),
-                          //                 decoration:
-                          //                     AppDecorations.suffixTextField(
-                          //                         "start_time",
-                          //                         R
-                          //                             .textStyle
-                          //                             .helvetica()
-                          //                             .copyWith(
-                          //                                 color: startTimeFn
-                          //                                         .hasFocus
-                          //                                     ? R.colors
-                          //                                         .themeMud
-                          //                                     : R.colors
-                          //                                         .charcoalColor,
-                          //                                 fontSize: 10.sp),
-                          //                         SizedBox()),
-                          //               ),
-                          //             ),
-                          //             w2,
-                          //             Expanded(
-                          //               child: TextFormField(
-                          //                 textAlignVertical:
-                          //                     TextAlignVertical.center,
-                          //                 focusNode: endTimeFn,
-                          //                 readOnly: true,
-                          //                 keyboardType: TextInputType.datetime,
-                          //                 autovalidateMode: AutovalidateMode
-                          //                     .onUserInteraction,
-                          //                 textInputAction: TextInputAction.done,
-                          //                 inputFormatters: [
-                          //                   FilteringTextInputFormatter(
-                          //                       RegExp("[0-9:]"),
-                          //                       allow: true)
-                          //                 ],
-                          //                 onChanged: (v) {
-                          //                   setState(() {});
-                          //                 },
-                          //                 onTap: () {
-                          //                   bookingsVm.selectTime(
-                          //                       false,
-                          //                       endTimeCon.text.isEmpty
-                          //                           ? DateFormat.jm()
-                          //                               .parse(
-                          //                                   startTimeCon.text)
-                          //                               .add(Duration(
-                          //                                   minutes: 60))
-                          //                           : DateFormat.jm()
-                          //                               .parse(endTimeCon.text),
-                          //                       startTimeCon,
-                          //                       endTimeCon);
-                          //                 },
-                          //                 onFieldSubmitted: (a) {
-                          //                   setState(() {
-                          //                     Helper.focusOut(context);
-                          //                   });
-                          //                 },
-                          //                 controller: endTimeCon,
-                          //                 validator: (val) =>
-                          //                     FieldValidator.validateEmpty(
-                          //                         val ?? ""),
-                          //                 decoration:
-                          //                     AppDecorations.suffixTextField(
-                          //                         "end_time",
-                          //                         R
-                          //                             .textStyle
-                          //                             .helvetica()
-                          //                             .copyWith(
-                          //                                 color: startTimeFn
-                          //                                         .hasFocus
-                          //                                     ? R.colors
-                          //                                         .themeMud
-                          //                                     : R.colors
-                          //                                         .charcoalColor,
-                          //                                 fontSize: 10.sp),
-                          //                         SizedBox()),
-                          //               ),
-                          //             ),
-                          //           ],
-                          //         ),
-                          //     ],
-                          //   ),
                           h3P5,
                           Center(
                             child: GestureDetector(
@@ -643,7 +391,7 @@ class _WhenWillBeThereState extends State<WhenWillBeThere> {
                                 if (formKey.currentState!.validate()) {
                                   // startLoader();
                                   bool check = checkAvailability();
-                                  if(check){
+                                  if (check) {
                                     print("CAN DO BOOKING");
                                     await bookingsVm.onClickWhenWillBeThere(
                                         city,
@@ -654,8 +402,9 @@ class _WhenWillBeThereState extends State<WhenWillBeThere> {
                                         startTimeCon,
                                         endTimeCon,
                                         context);
-                                  }else{
-                                    Get.dialog(BookingsDialog(charter: charter!));
+                                  } else {
+                                    Get.dialog(
+                                        BookingsDialog(charter: charter!));
                                   }
                                   // stopLoader();
                                 }
@@ -855,29 +604,37 @@ class _WhenWillBeThereState extends State<WhenWillBeThere> {
     bool proceed = false;
     bool isFirst = true;
     var homeVm = Provider.of<HomeVm>(context, listen: false);
-    if(homeVm.allBookings
-        .where((element) => element.charterFleetDetail?.id == charter?.id && element.bookingStatus == 0).toList().isEmpty){
+    if (homeVm.allBookings
+        .where((element) =>
+            element.charterFleetDetail?.id == charter?.id &&
+            element.bookingStatus == 0)
+        .toList()
+        .isEmpty) {
       proceed = true;
       return proceed;
-    }else{
+    } else {
       homeVm.allBookings
-          .where((element) => element.charterFleetDetail?.id == charter?.id && element.bookingStatus == 0)
+          .where((element) =>
+              element.charterFleetDetail?.id == charter?.id &&
+              element.bookingStatus == 0)
           .forEach((element) {
         if ((!(DateTimePickerServices.selectedStartDateTimeDB.isBetween(
-            element.schedule!.dates!.first.toDate(),
-            element.schedule!.dates!.last.toDate()) ??
-            true) &&
-            !(DateTimePickerServices.selectedEndDateTimeDB.isBetween(
-                element.schedule!.dates!.first.toDate(),
-                element.schedule!.dates!.last.toDate()) ??
-                true)) || (!(element.schedule!.dates!.first.toDate().isBetween(
-            DateTimePickerServices.selectedStartDateTimeDB,
-            DateTimePickerServices.selectedEndDateTimeDB) ??
-            true) && !(element.schedule!.dates!.last.toDate().isBetween(
-            DateTimePickerServices.selectedStartDateTimeDB,
-            DateTimePickerServices.selectedEndDateTimeDB) ??
-            true))) {
-          if(isFirst) {
+                        element.schedule!.dates!.first.toDate(),
+                        element.schedule!.dates!.last.toDate()) ??
+                    true) &&
+                !(DateTimePickerServices.selectedEndDateTimeDB.isBetween(
+                        element.schedule!.dates!.first.toDate(),
+                        element.schedule!.dates!.last.toDate()) ??
+                    true)) ||
+            (!(element.schedule!.dates!.first.toDate().isBetween(
+                        DateTimePickerServices.selectedStartDateTimeDB,
+                        DateTimePickerServices.selectedEndDateTimeDB) ??
+                    true) &&
+                !(element.schedule!.dates!.last.toDate().isBetween(
+                        DateTimePickerServices.selectedStartDateTimeDB,
+                        DateTimePickerServices.selectedEndDateTimeDB) ??
+                    true))) {
+          if (isFirst) {
             proceed = true;
           }
         } else {

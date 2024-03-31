@@ -35,18 +35,18 @@ import '../../inbox/view_model/inbox_vm.dart';
 import '../../search/view/bookings/model/document_model.dart';
 import '../../yacht/view_model/yacht_vm.dart';
 
-class BecomeHost extends StatefulWidget {
-  static String route = "/becomeHost";
+class BecomeVerified extends StatefulWidget {
+  static String route = "/becomeVerified";
   bool isHost;
-  BecomeHost({
+  BecomeVerified({
     this.isHost = true,
   });
 
   @override
-  _BecomeHostState createState() => _BecomeHostState();
+  _BecomeVerifiedState createState() => _BecomeVerifiedState();
 }
 
-class _BecomeHostState extends State<BecomeHost> {
+class _BecomeVerifiedState extends State<BecomeVerified> {
   List<String> tabsList = ["invite", "earnings"];
   int selectedTabIndex = 0;
   DocumentModel? screenShot;
@@ -55,8 +55,7 @@ class _BecomeHostState extends State<BecomeHost> {
   Widget build(BuildContext context) {
     log("____FILE:${context.read<BookingsVm>().appUrlModel?.hostPolicies}");
     return Scaffold(
-      appBar: GeneralAppBar.simpleAppBar(
-          context, getTranslated(context, "become_a_host") ?? ""),
+      appBar: GeneralAppBar.simpleAppBar(context, "Document Verification"),
       backgroundColor: R.colors.black,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -69,7 +68,7 @@ class _BecomeHostState extends State<BecomeHost> {
           ),
           h4,
           Text(
-            getTranslated(context, "request_host_access") ?? "",
+            "Request Payouts",
             style: R.textStyle
                 .helveticaBold()
                 .copyWith(color: Colors.white, fontSize: 16.sp),
@@ -78,7 +77,7 @@ class _BecomeHostState extends State<BecomeHost> {
           SizedBox(
             width: Get.width * .85,
             child: Text(
-              "In order to receive payouts greater than \$400 per calendar year Yacht Master App must collect a 1099 Tax form as mandated by the federal Tax Commission.\n\nPlease complete and Submit your 1099 Tax from to request host access.",
+              "In order to receive payouts greater than \$400 per calendar year Yacht Master App must collect a 1099 Tax form as mandated by the federal Tax Commission.\n\nPlease complete and Submit your 1099 Tax from to request payout access.",
               style: R.textStyle.helvetica().copyWith(
                   fontWeight: FontWeight.w600,
                   height: 1.5,
@@ -241,30 +240,16 @@ class _BecomeHostState extends State<BecomeHost> {
                     message:
                         "Please upload the required document mentioned in the Host Policy");
               } else {
-                Get.bottomSheet(
-                    AgreementBottomSheet(
-                      isBooking: false,
-                      yesCallBack: () async {
-                        await db
-                            .collection("users")
-                            .doc(FirebaseAuth.instance.currentUser?.uid)
-                            .collection("agreements")
-                            .doc("host")
-                            .set({"time": DateTime.now()});
-                        AuthVm vm = Provider.of(context, listen: false);
-                        String imageUrl =
-                            await vm.uploadHostDocument(screenShot?.file);
-                        vm.userModel?.requestStatus = RequestStatus.requestHost;
-                        vm.userModel?.hostDocumentUrl = imageUrl;
-                        vm.update();
-                        await vm.updateUser(vm.userModel ?? UserModel());
-                        ZBotToast.showToastSuccess(
-                            message:
-                                "Request has been sent to admin.Please wait for the approval!");
-                        Get.back();
-                      },
-                    ),
-                    barrierColor: R.colors.grey.withOpacity(.20));
+                AuthVm vm = Provider.of(context, listen: false);
+                String imageUrl = await vm.uploadHostDocument(screenShot?.file);
+                vm.userModel?.inviteStatus = 1;
+                vm.userModel?.hostDocumentUrl = imageUrl;
+                vm.update();
+                await vm.updateUser(vm.userModel ?? UserModel());
+                ZBotToast.showToastSuccess(
+                    message:
+                        "Request has been sent to admin.Please wait for the approval!");
+                Get.back();
               }
               ZBotToast.loadingClose();
             },

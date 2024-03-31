@@ -107,6 +107,7 @@ class BookingsVm extends ChangeNotifier {
       currentTime: currentTime,
       locale: LocaleType.en,
       onConfirm: (selectedTime) {
+        log(selectedTime.toString());
         time = selectedTime;
         log("+++++++++++++${time.hour}");
         setTimes(time, isStartTime, startCon, endCon);
@@ -339,25 +340,20 @@ class BookingsVm extends ChangeNotifier {
       if (provider.selectedBookingDays?.isEmpty == true ||
           provider.selectedBookingDays == null) {
         Helper.inSnackBar("Error", "Please select date", R.colors.themeMud);
-      } /*else if (provider.selectedCharterDayType?.type == CharterDayType.multiDay.index &&
-          provider.selectedBookingDays?.length == 1) {
-        Helper.inSnackBar("Error", "Please select multiple days for multi day charter", R.colors.themeMud);
-      } */
-      else {
+      } else {
         bookingsModel.schedule = BookingScheduleModel(dates: []);
         selectedPaymentMethod = -1;
         bookingsModel.durationType = provider.selectedCharterDayType?.type;
-        // bookingsModel.multiDays=provider.selectedBookingDays?.length;
-        // provider.selectedBookingDays?.forEach((element) {
-        //   bookingsModel.schedule?.dates?.add(Timestamp.fromDate(element));
-        // });
         bookingsModel.schedule?.dates = [
           Timestamp.fromDate(DateTimePickerServices.selectedStartDateTimeDB),
           Timestamp.fromDate(DateTimePickerServices.selectedEndDateTimeDB),
         ];
         bookingsModel.schedule?.startTime = startTimeCon.text;
+        startTime = DateTime.parse(startTimeCon.text);
+        log(startTime.toString());
         if (provider.selectedCharterDayType?.type ==
             CharterDayType.halfDay.index) {
+          //log(startTimeCon);
           DateTime endTime = startTime!.add(Duration(hours: 4));
           endTimeCon.text = DateFormat('hh:mm a').format(endTime);
           bookingsModel.schedule?.endTime = endTimeCon.text;
@@ -413,13 +409,6 @@ class BookingsVm extends ChangeNotifier {
         ];
         update();
         log("____________END DATE:${bookingsModel.schedule?.dates?.length}");
-
-        // if (provider.selectedCharterDayType?.type == CharterDayType.multiDay.index) {
-        //   print("STAGE 1");
-        //   bookingsModel.schedule?.startTime = startTimeCon.text;
-        //   bookingsModel.schedule?.endTime = endTimeCon.text;
-        //   update();
-        // } else {
         print("STAGE 2 ${startTimeCon.text}");
         provider.selectedBookingTime = TimeSlotModel(
             DateFormat("hh:mm a")
