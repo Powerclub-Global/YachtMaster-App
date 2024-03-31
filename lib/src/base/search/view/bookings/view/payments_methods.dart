@@ -30,7 +30,6 @@ import 'package:yacht_master/utils/general_app_bar.dart';
 import 'package:yacht_master/utils/heights_widths.dart';
 import 'package:yacht_master/utils/helper.dart';
 
-
 class PaymentMethods extends StatefulWidget {
   static String route = "/paymentMethods";
 
@@ -39,12 +38,13 @@ class PaymentMethods extends StatefulWidget {
   @override
   _PaymentMethodsState createState() => _PaymentMethodsState();
 }
+
 const _paymentItems = [
-pay.PaymentItem(
-label: 'Jessy Artman',
-amount: '1.0',
-status: pay.PaymentItemStatus.final_price,
-)
+  pay.PaymentItem(
+    label: 'Jessy Artman',
+    amount: '1.0',
+    status: pay.PaymentItemStatus.final_price,
+  )
 ];
 
 class _PaymentMethodsState extends State<PaymentMethods> {
@@ -67,7 +67,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<BookingsVm, HomeVm>(builder: (context, provider, homeVm, _) {
+    return Consumer2<BookingsVm, HomeVm>(
+        builder: (context, provider, homeVm, _) {
       log("_____key:${publishableKey}");
       return ModalProgressHUD(
         inAsyncCall: isLoading,
@@ -76,18 +77,23 @@ class _PaymentMethodsState extends State<PaymentMethods> {
         ),
         child: Scaffold(
           backgroundColor: R.colors.black,
-          appBar: GeneralAppBar.simpleAppBar(context, getTranslated(context, "payment_method") ?? ""),
+          appBar: GeneralAppBar.simpleAppBar(
+              context, getTranslated(context, "payment_method") ?? ""),
           body: Padding(
             padding: EdgeInsets.symmetric(horizontal: Get.width * .05),
             child: Column(
               children: [
                 h1P5,
                 Container(
-                  decoration: BoxDecoration(color: R.colors.blackDull, borderRadius: BorderRadius.circular(12)),
-                  padding: EdgeInsets.symmetric(horizontal: Get.width * .05, vertical: Get.height * .02),
+                  decoration: BoxDecoration(
+                      color: R.colors.blackDull,
+                      borderRadius: BorderRadius.circular(12)),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: Get.width * .05, vertical: Get.height * .02),
                   child: Column(
                     children: [
-                      if (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index)
+                      if (provider.bookingsModel.paymentDetail?.payInType ==
+                          PayType.deposit.index)
                         Padding(
                           padding: EdgeInsets.only(bottom: 2.h),
                           child: Row(
@@ -95,8 +101,9 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                             children: [
                               Text(
                                 "25% Deposit",
-                                style:
-                                    R.textStyle.helveticaBold().copyWith(color: R.colors.whiteColor, fontSize: 14.5.sp),
+                                style: R.textStyle.helveticaBold().copyWith(
+                                    color: R.colors.whiteColor,
+                                    fontSize: 14.5.sp),
                               ),
                               Text(
                                 "\$${Helper.numberFormatter(double.parse((userPaidAmount * (25 / 100)).toStringAsFixed(1)))}",
@@ -115,7 +122,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                         children: [
                           Text(
                             getTranslated(context, "total_amount") ?? "",
-                            style: R.textStyle.helvetica().copyWith(color: R.colors.whiteColor, fontSize: 14.sp),
+                            style: R.textStyle.helvetica().copyWith(
+                                color: R.colors.whiteColor, fontSize: 14.sp),
                           ),
                           Text(
                             "\$${Helper.numberFormatter(double.parse(userPaidAmount.toStringAsFixed(2)))}",
@@ -126,8 +134,12 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                           ),
                         ],
                       ),
-                      if ((splitPerson != null && removeSign(splitPerson?.payWithWallet) != "0.0") ||
-                          provider.bookingsModel.paymentDetail?.payWithWallet.toStringAsFixed(1) != "0.0")
+                      if ((splitPerson != null &&
+                              removeSign(splitPerson?.payWithWallet) !=
+                                  "0.0") ||
+                          provider.bookingsModel.paymentDetail?.payWithWallet
+                                  .toStringAsFixed(1) !=
+                              "0.0")
                         Column(
                           children: [
                             Divider(
@@ -139,11 +151,16 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  getTranslated(context, "paid_with_wallet") ?? "",
-                                  style: R.textStyle.helvetica().copyWith(color: R.colors.whiteColor, fontSize: 14.sp),
+                                  getTranslated(context, "paid_with_wallet") ??
+                                      "",
+                                  style: R.textStyle.helvetica().copyWith(
+                                      color: R.colors.whiteColor,
+                                      fontSize: 14.sp),
                                 ),
                                 Text(
-                                  provider.bookingsModel.paymentDetail?.isSplit == true &&
+                                  provider.bookingsModel.paymentDetail
+                                                  ?.isSplit ==
+                                              true &&
                                           splitPerson?.payWithWallet != null
                                       ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.payWithWallet)))}"
                                       : "\$${Helper.numberFormatter(double.parse(removeSign(provider.bookingsModel.paymentDetail?.payWithWallet)))}",
@@ -163,26 +180,53 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  getTranslated(context, "remaining_amount") ?? "",
-                                  style: R.textStyle.helvetica().copyWith(color: R.colors.whiteColor, fontSize: 14.sp),
+                                  getTranslated(context, "remaining_amount") ??
+                                      "",
+                                  style: R.textStyle.helvetica().copyWith(
+                                      color: R.colors.whiteColor,
+                                      fontSize: 14.sp),
                                 ),
                                 Text(
-                                  provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                          provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index
+                                  provider.bookingsModel.paymentDetail
+                                                  ?.isSplit ==
+                                              true &&
+                                          provider.bookingsModel.paymentDetail
+                                                  ?.payInType ==
+                                              PayType.fullPay.index
                                       ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingAmount)))}"
-                                      : provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                              provider.bookingsModel.paymentDetail?.payInType ==
+                                      : provider.bookingsModel.paymentDetail
+                                                      ?.isSplit ==
+                                                  true &&
+                                              provider
+                                                      .bookingsModel
+                                                      .paymentDetail
+                                                      ?.payInType ==
                                                   PayType.deposit.index &&
-                                              splitPerson?.depositStatus == DepositStatus.nothingPaid.index
+                                              splitPerson?.depositStatus ==
+                                                  DepositStatus
+                                                      .nothingPaid.index
                                           ? "\$${Helper.numberFormatter(double.parse(removeSign((splitPerson?.remainingDeposit - splitPerson?.payWithWallet))))}"
-                                          : provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                                  provider.bookingsModel.paymentDetail?.payInType ==
+                                          : provider.bookingsModel.paymentDetail
+                                                          ?.isSplit ==
+                                                      true &&
+                                                  provider
+                                                          .bookingsModel
+                                                          .paymentDetail
+                                                          ?.payInType ==
                                                       PayType.deposit.index &&
                                                   isCompletePayment == true
                                               ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingAmount)))}"
-                                              : provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                                      provider.bookingsModel.paymentDetail?.payInType ==
-                                                          PayType.deposit.index &&
+                                              : provider
+                                                              .bookingsModel
+                                                              .paymentDetail
+                                                              ?.isSplit ==
+                                                          true &&
+                                                      provider
+                                                              .bookingsModel
+                                                              .paymentDetail
+                                                              ?.payInType ==
+                                                          PayType
+                                                              .deposit.index &&
                                                       isCompletePayment == false
                                                   ? "\$${Helper.numberFormatter(double.parse((splitPerson?.remainingAmount - splitPerson?.payWithWallet).toStringAsFixed(1)))}"
                                                   : "\$${Helper.numberFormatter(double.parse(removeSign(provider.bookingsModel.paymentDetail?.remainingAmount)))}",
@@ -208,67 +252,105 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                     children: [
                       Text(
                         getTranslated(context, "pay_with") ?? "",
-                        style: R.textStyle
-                            .helvetica()
-                            .copyWith(color: R.colors.whiteColor, fontWeight: FontWeight.bold, fontSize: 15.sp),
+                        style: R.textStyle.helvetica().copyWith(
+                            color: R.colors.whiteColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15.sp),
                       ),
-                      if ((provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index &&
-                              removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) == "0.0") ||
-                          ((provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                  splitPerson?.paymentMethod == PaymentMethodEnum.wallet.index &&
-                                  splitPerson?.depositStatus == DepositStatus.twentyFivePaid.index) &&
-                              removeSign(splitPerson?.amount) == removeSign(splitPerson?.payWithWallet)))
+                      if ((provider.bookingsModel.paymentDetail
+                                      ?.paymentMethod ==
+                                  PaymentMethodEnum.wallet.index &&
+                              removeSign(provider.bookingsModel.paymentDetail
+                                      ?.remainingAmount) ==
+                                  "0.0") ||
+                          ((provider.bookingsModel.paymentDetail?.isSplit ==
+                                      true &&
+                                  splitPerson?.paymentMethod ==
+                                      PaymentMethodEnum.wallet.index &&
+                                  splitPerson?.depositStatus ==
+                                      DepositStatus.twentyFivePaid.index) &&
+                              removeSign(splitPerson?.amount) ==
+                                  removeSign(splitPerson?.payWithWallet)))
                         SizedBox()
-                      else if ((provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
-                              provider.bookingsModel.paymentDetail?.isSplit == false &&
-                              provider.bookingsModel.paymentDetail?.remainingAmount != null &&
-                              provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index &&
-                              removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) != "0.0") ||
+                      else if ((provider.bookingsModel.paymentDetail?.payInType ==
+                                  PayType.fullPay.index &&
+                              provider.bookingsModel.paymentDetail?.isSplit ==
+                                  false &&
+                              provider.bookingsModel.paymentDetail?.remainingAmount !=
+                                  null &&
+                              provider.bookingsModel.paymentDetail?.paymentMethod ==
+                                  PaymentMethodEnum.wallet.index &&
+                              removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) !=
+                                  "0.0") ||
                           (provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
-                              provider.bookingsModel.paymentDetail?.isSplit == true &&
-                              provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index &&
+                              provider.bookingsModel.paymentDetail?.isSplit ==
+                                  true &&
+                              provider.bookingsModel.paymentDetail?.paymentMethod ==
+                                  PaymentMethodEnum.wallet.index &&
                               removeSign(provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingAmount) !=
                                   "0.0") ||
                           (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
-                              provider.bookingsModel.paymentDetail?.isSplit == true &&
+                              provider.bookingsModel.paymentDetail?.isSplit ==
+                                  true &&
                               removeSign(provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingDeposit) !=
                                   "0.0" &&
-                              provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index) ||
-                          (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
+                              provider.bookingsModel.paymentDetail?.paymentMethod ==
+                                  PaymentMethodEnum.wallet.index) ||
+                          (provider.bookingsModel.paymentDetail?.payInType ==
+                                  PayType.deposit.index &&
                               provider.bookingsModel.paymentDetail?.isSplit == true &&
-                              provider.bookingsModel.paymentDetail?.splitPayment?.first.depositStatus ==
-                                  DepositStatus.twentyFivePaid.index &&
-                              removeSign(provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingAmount) !=
-                                  "0.0" &&
+                              provider.bookingsModel.paymentDetail?.splitPayment?.first.depositStatus == DepositStatus.twentyFivePaid.index &&
+                              removeSign(provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingAmount) != "0.0" &&
                               provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index) ||
-                          (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
-                              provider.bookingsModel.paymentDetail?.isSplit == false &&
-                              provider.bookingsModel.paymentDetail?.paymentStatus !=
-                                  PaymentStatus.confirmBooking.index &&
-                              provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index) ||
+                          (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index && provider.bookingsModel.paymentDetail?.isSplit == false && provider.bookingsModel.paymentDetail?.paymentStatus != PaymentStatus.confirmBooking.index && provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index) ||
                           (provider.bookingsModel.paymentDetail?.paymentMethod == -1))
                         SizedBox()
                       else
                         GestureDetector(
                             onTap: () {
                               provider.creditCardModel.cardNum = "";
-                              provider.bookingsModel.paymentDetail?.paymentMethod = -1;
+                              provider.bookingsModel.paymentDetail
+                                  ?.paymentMethod = -1;
                               if (isCompletePayment == false) {
-                                provider.bookingsModel.paymentDetail?.paidAmount =
-                                    provider.bookingsModel.paymentDetail?.paidAmount -
-                                        provider.bookingsModel.paymentDetail?.payWithWallet;
-                                provider.bookingsModel.paymentDetail?.remainingAmount =
-                                    provider.bookingsModel.paymentDetail?.remainingAmount +
-                                        provider.bookingsModel.paymentDetail?.payWithWallet;
-                                provider.bookingsModel.paymentDetail?.payWithWallet = 0.0;
-                                if (provider.bookingsModel.paymentDetail?.isSplit == true) {
-                                  provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingAmount =
-                                      provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingAmount +
-                                          provider.bookingsModel.paymentDetail?.splitPayment?.first.payWithWallet;
-                                  provider.bookingsModel.paymentDetail?.splitPayment?.first.amount =
-                                      provider.bookingsModel.paymentDetail?.splitPayment?.first.amount +
-                                          provider.bookingsModel.paymentDetail?.splitPayment?.first.payWithWallet;
-                                  provider.bookingsModel.paymentDetail?.splitPayment?.first.payWithWallet = 0.0;
+                                provider.bookingsModel.paymentDetail
+                                    ?.paidAmount = provider.bookingsModel
+                                        .paymentDetail?.paidAmount -
+                                    provider.bookingsModel.paymentDetail
+                                        ?.payWithWallet;
+                                provider.bookingsModel.paymentDetail
+                                    ?.remainingAmount = provider.bookingsModel
+                                        .paymentDetail?.remainingAmount +
+                                    provider.bookingsModel.paymentDetail
+                                        ?.payWithWallet;
+                                provider.bookingsModel.paymentDetail
+                                    ?.payWithWallet = 0.0;
+                                if (provider
+                                        .bookingsModel.paymentDetail?.isSplit ==
+                                    true) {
+                                  provider
+                                      .bookingsModel
+                                      .paymentDetail
+                                      ?.splitPayment
+                                      ?.first
+                                      .remainingAmount = provider
+                                          .bookingsModel
+                                          .paymentDetail
+                                          ?.splitPayment
+                                          ?.first
+                                          .remainingAmount +
+                                      provider.bookingsModel.paymentDetail
+                                          ?.splitPayment?.first.payWithWallet;
+                                  provider.bookingsModel.paymentDetail
+                                      ?.splitPayment?.first.amount = provider
+                                          .bookingsModel
+                                          .paymentDetail
+                                          ?.splitPayment
+                                          ?.first
+                                          .amount +
+                                      provider.bookingsModel.paymentDetail
+                                          ?.splitPayment?.first.payWithWallet;
+                                  provider.bookingsModel.paymentDetail
+                                      ?.splitPayment?.first.payWithWallet = 0.0;
 
                                   provider.update();
                                 }
@@ -283,26 +365,41 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                   ),
                 ),
                 h2,
-                if ((provider.bookingsModel.paymentDetail?.remainingAmount != null &&
-                        removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) == "0.0") ||
+                if ((provider.bookingsModel.paymentDetail?.remainingAmount !=
+                            null &&
+                        removeSign(provider.bookingsModel.paymentDetail
+                                ?.remainingAmount) ==
+                            "0.0") ||
                     (provider.bookingsModel.paymentDetail?.isSplit == true &&
-                            splitPerson?.paymentMethod == PaymentMethodEnum.wallet.index &&
-                            splitPerson?.depositStatus == DepositStatus.nothingPaid.index) &&
-                        removeSign(splitPerson?.remainingDeposit) == removeSign(splitPerson?.payWithWallet))
+                            splitPerson?.paymentMethod ==
+                                PaymentMethodEnum.wallet.index &&
+                            splitPerson?.depositStatus ==
+                                DepositStatus.nothingPaid.index) &&
+                        removeSign(splitPerson?.remainingDeposit) ==
+                            removeSign(splitPerson?.payWithWallet))
                   Container(
-                    decoration: BoxDecoration(color: R.colors.blackDull, borderRadius: BorderRadius.circular(12)),
-                    padding: EdgeInsets.symmetric(horizontal: Get.width * .05, vertical: Get.height * .02),
+                    decoration: BoxDecoration(
+                        color: R.colors.blackDull,
+                        borderRadius: BorderRadius.circular(12)),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: Get.width * .05,
+                        vertical: Get.height * .02),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
                             Image.asset(
-                              provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.appStore.index
+                              provider.bookingsModel.paymentDetail
+                                          ?.paymentMethod ==
+                                      PaymentMethodEnum.appStore.index
                                   ? R.images.apple
-                                  : provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.crypto.index
+                                  : provider.bookingsModel.paymentDetail
+                                              ?.paymentMethod ==
+                                          PaymentMethodEnum.crypto.index
                                       ? R.images.crypto
-                                      : provider.bookingsModel.paymentDetail?.paymentMethod ==
+                                      : provider.bookingsModel.paymentDetail
+                                                  ?.paymentMethod ==
                                               PaymentMethodEnum.wallet.index
                                           ? R.images.link
                                           : R.images.credit,
@@ -310,54 +407,68 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                             ),
                             w2,
                             Text(
-                              provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.appStore.index
+                              provider.bookingsModel.paymentDetail
+                                          ?.paymentMethod ==
+                                      PaymentMethodEnum.appStore.index
                                   ? getTranslated(context, "apple_pay") ?? ""
-                                  :
-                              provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.crypto.index
-                                      ? getTranslated(context, "crypto_currency") ?? ""
-                                      : provider.bookingsModel.paymentDetail?.paymentMethod ==
+                                  : provider.bookingsModel.paymentDetail
+                                              ?.paymentMethod ==
+                                          PaymentMethodEnum.crypto.index
+                                      ? getTranslated(
+                                              context, "crypto_currency") ??
+                                          ""
+                                      : provider.bookingsModel.paymentDetail
+                                                  ?.paymentMethod ==
                                               PaymentMethodEnum.wallet.index
-                                          ? getTranslated(context, "pay_with_wallet") ?? ""
-                                          : (provider.creditCardModel.cardNum ?? "").obsecureCardNum(),
+                                          ? getTranslated(
+                                                  context, "pay_with_wallet") ??
+                                              ""
+                                          : (provider.creditCardModel.cardNum ??
+                                                  "")
+                                              .obsecureCardNum(),
                               style: R.textStyle.helveticaBold().copyWith(
                                   color: R.colors.whiteColor,
-                                  fontSize:
-                                      provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.card.index
-                                          ? 14.5.sp
-                                          : 10.sp),
+                                  fontSize: provider.bookingsModel.paymentDetail
+                                              ?.paymentMethod ==
+                                          PaymentMethodEnum.card.index
+                                      ? 14.5.sp
+                                      : 10.sp),
                             ),
                           ],
                         ),
                         if (isCompletePayment == true)
                           Text(
                             provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                    provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index
+                                    provider.bookingsModel.paymentDetail?.payInType ==
+                                        PayType.fullPay.index
                                 ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingAmount)))}"
                                 : ((provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                            splitPerson?.paymentMethod == PaymentMethodEnum.wallet.index &&
-                                            splitPerson?.depositStatus == DepositStatus.twentyFivePaid.index) &&
-                                        removeSign(splitPerson?.amount) == removeSign(splitPerson?.payWithWallet))
+                                            splitPerson?.paymentMethod ==
+                                                PaymentMethodEnum
+                                                    .wallet.index &&
+                                            splitPerson?.depositStatus ==
+                                                DepositStatus
+                                                    .twentyFivePaid.index) &&
+                                        removeSign(splitPerson?.amount) ==
+                                            removeSign(
+                                                splitPerson?.payWithWallet))
                                     ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.amount)))}"
-                                    : ((provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                                splitPerson?.paymentMethod == PaymentMethodEnum.wallet.index &&
-                                                splitPerson?.depositStatus == DepositStatus.nothingPaid.index) &&
+                                    : ((provider.bookingsModel.paymentDetail?.isSplit == true && splitPerson?.paymentMethod == PaymentMethodEnum.wallet.index && splitPerson?.depositStatus == DepositStatus.nothingPaid.index) &&
                                             removeSign(splitPerson?.remainingDeposit) ==
-                                                removeSign(splitPerson?.payWithWallet))
+                                                removeSign(
+                                                    splitPerson?.payWithWallet))
                                         ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingDeposit)))}"
                                         : provider.bookingsModel.paymentDetail?.isSplit == true &&
                                                 provider.bookingsModel.paymentDetail?.payInType ==
                                                     PayType.deposit.index &&
-                                                splitPerson?.depositStatus == DepositStatus.nothingPaid.index
+                                                splitPerson?.depositStatus ==
+                                                    DepositStatus
+                                                        .nothingPaid.index
                                             ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingDeposit - splitPerson?.payWithWallet)))}"
                                             : provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                                    provider.bookingsModel.paymentDetail?.payInType ==
-                                                        PayType.deposit.index
+                                                    provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index
                                                 ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingAmount)))}"
-                                                : provider.bookingsModel.paymentDetail?.paymentMethod ==
-                                                            PaymentMethodEnum.wallet.index &&
-                                                        removeSign(provider
-                                                                .bookingsModel.paymentDetail?.remainingAmount) ==
-                                                            "0.0"
+                                                : provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index && removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) == "0.0"
                                                     ? "\$${Helper.numberFormatter(double.parse(provider.bookingsModel.paymentDetail?.paidAmount.toStringAsFixed(1)))}"
                                                     : "\$${Helper.numberFormatter(double.parse(removeSign(provider.bookingsModel.paymentDetail?.remainingAmount)))}",
                             style: R.textStyle.helveticaBold().copyWith(
@@ -368,37 +479,38 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                         else
                           Text(
                             provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                    provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index
+                                    provider.bookingsModel.paymentDetail?.payInType ==
+                                        PayType.fullPay.index
                                 ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingAmount)))}"
                                 : ((provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                            splitPerson?.paymentMethod == PaymentMethodEnum.wallet.index &&
-                                            splitPerson?.depositStatus == DepositStatus.twentyFivePaid.index) &&
-                                        removeSign(splitPerson?.amount) == removeSign(splitPerson?.payWithWallet))
+                                            splitPerson?.paymentMethod ==
+                                                PaymentMethodEnum
+                                                    .wallet.index &&
+                                            splitPerson?.depositStatus ==
+                                                DepositStatus
+                                                    .twentyFivePaid.index) &&
+                                        removeSign(splitPerson?.amount) ==
+                                            removeSign(
+                                                splitPerson?.payWithWallet))
                                     ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.amount)))}"
-                                    : ((provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                                splitPerson?.paymentMethod == PaymentMethodEnum.wallet.index &&
-                                                splitPerson?.depositStatus == DepositStatus.nothingPaid.index) &&
+                                    : ((provider.bookingsModel.paymentDetail?.isSplit == true && splitPerson?.paymentMethod == PaymentMethodEnum.wallet.index && splitPerson?.depositStatus == DepositStatus.nothingPaid.index) &&
                                             removeSign(splitPerson?.remainingDeposit) ==
-                                                removeSign(splitPerson?.payWithWallet))
+                                                removeSign(
+                                                    splitPerson?.payWithWallet))
                                         ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingDeposit)))}"
                                         : provider.bookingsModel.paymentDetail?.isSplit == true &&
                                                 provider.bookingsModel.paymentDetail?.payInType ==
                                                     PayType.deposit.index &&
-                                                splitPerson?.depositStatus == DepositStatus.nothingPaid.index
+                                                splitPerson?.depositStatus ==
+                                                    DepositStatus
+                                                        .nothingPaid.index
                                             ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingDeposit - splitPerson?.payWithWallet)))}"
                                             : provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                                    provider.bookingsModel.paymentDetail?.payInType ==
-                                                        PayType.deposit.index
+                                                    provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index
                                                 ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingAmount - splitPerson?.payWithWallet)))}"
-                                                : provider.bookingsModel.paymentDetail?.paymentMethod ==
-                                                            PaymentMethodEnum.wallet.index &&
-                                                        removeSign(provider
-                                                                .bookingsModel.paymentDetail?.remainingAmount) ==
-                                                            "0.0"
+                                                : provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index && removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) == "0.0"
                                                     ? "\$${Helper.numberFormatter(double.parse(removeSign(provider.bookingsModel.paymentDetail?.paidAmount)))}"
-                                                    : provider.bookingsModel.paymentDetail?.payInType ==
-                                                                PayType.deposit.index &&
-                                                            provider.bookingsModel.paymentDetail?.isSplit == false
+                                                    : provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index && provider.bookingsModel.paymentDetail?.isSplit == false
                                                         ? "\$${Helper.numberFormatter(double.parse(removeSign((percentOfAmount(provider.bookingsModel.priceDetaill?.totalPrice ?? 0.0, 25) - provider.bookingsModel.paymentDetail?.payWithWallet))))}"
                                                         : "\$${Helper.numberFormatter(double.parse(removeSign(provider.bookingsModel.paymentDetail?.remainingAmount)))}",
                             style: R.textStyle.helveticaBold().copyWith(
@@ -410,27 +522,34 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                     ),
                   )
                 else if ((provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
-                        provider.bookingsModel.paymentDetail?.isSplit == false &&
-                        provider.bookingsModel.paymentDetail?.remainingAmount != null &&
-                        provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index &&
-                        removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) != "0.0") ||
+                        provider.bookingsModel.paymentDetail?.isSplit ==
+                            false &&
+                        provider.bookingsModel.paymentDetail?.remainingAmount !=
+                            null &&
+                        provider.bookingsModel.paymentDetail?.paymentMethod ==
+                            PaymentMethodEnum.wallet.index &&
+                        removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) !=
+                            "0.0") ||
                     (provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
                         provider.bookingsModel.paymentDetail?.isSplit == true &&
-                        provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index &&
+                        provider.bookingsModel.paymentDetail?.paymentMethod ==
+                            PaymentMethodEnum.wallet.index &&
                         removeSign(provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingAmount) !=
                             "0.0") ||
                     (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
                         provider.bookingsModel.paymentDetail?.isSplit == true &&
                         provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingDeposit.toStringAsFixed(1) !=
                             "0.0" &&
-                        provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index) ||
+                        provider.bookingsModel.paymentDetail?.paymentMethod ==
+                            PaymentMethodEnum.wallet.index) ||
                     (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
                         provider.bookingsModel.paymentDetail?.isSplit == true &&
                         provider.bookingsModel.paymentDetail?.splitPayment?.first.depositStatus ==
                             DepositStatus.twentyFivePaid.index &&
                         removeSign(provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingAmount) !=
                             "0.0" &&
-                        provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index) ||
+                        provider.bookingsModel.paymentDetail?.paymentMethod ==
+                            PaymentMethodEnum.wallet.index) ||
                     (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
                         provider.bookingsModel.paymentDetail?.isSplit == false &&
                         provider.bookingsModel.paymentDetail?.paymentStatus != PaymentStatus.confirmBooking.index &&
@@ -438,25 +557,28 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                     (provider.bookingsModel.paymentDetail?.paymentMethod == -1))
                   Column(
                     children: [
-                      paymentMethods(provider, "credit_or_debit_card", R.images.credit, 0),
-                      if(Platform.isIOS)...[ h2,
-                                  pay.ApplePayButton(
-              paymentItems: _paymentItems,
-              style: pay.ApplePayButtonStyle.black,
-              type: pay.ApplePayButtonType.buy,
-              width: 200,
-              height: 50,
-              margin: const EdgeInsets.only(top: 15.0),
-              onPaymentResult: (value) {
-                print(value);
-              },
-              onError: (error) {
-                print(error);
-              },
-              loadingIndicator: const Center(
-                child: CircularProgressIndicator(),
-              ), 
-              paymentConfiguration: pay.PaymentConfiguration.fromJsonString('''{
+                      paymentMethods(
+                          provider, "credit_or_debit_card", R.images.credit, 0),
+                      if (Platform.isIOS) ...[
+                        h2,
+                        pay.ApplePayButton(
+                          paymentItems: _paymentItems,
+                          style: pay.ApplePayButtonStyle.black,
+                          type: pay.ApplePayButtonType.buy,
+                          width: 200,
+                          height: 50,
+                          margin: const EdgeInsets.only(top: 15.0),
+                          onPaymentResult: (value) {
+                            print(value);
+                          },
+                          onError: (error) {
+                            print(error);
+                          },
+                          loadingIndicator: const Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                          paymentConfiguration:
+                              pay.PaymentConfiguration.fromJsonString('''{
   "provider": "apple_pay",
   "data": {
     "merchantIdentifier": "merchant.com.yatchmaster.app", 
@@ -472,37 +594,49 @@ class _PaymentMethodsState extends State<PaymentMethods> {
       "discover",
       "masterCard"
     ],
-    "countryCode": "FR", // Country code
-    "currencyCode": "EUR", // Currency code
+    "countryCode": "US",
+    "currencyCode": "USD",
     "requiredBillingContactFields": null, 
     "requiredShippingContactFields": null
   }
 }'''),
-            ),
+                        ),
                       ],
                       h2,
-                      paymentMethods(provider, "crypto_currency", R.images.crypto, 2),
+                      paymentMethods(
+                          provider, "crypto_currency", R.images.crypto, 2),
                       h2,
-                      paymentMethods(provider, "crypto_currency_usdt", R.images.crypto, 3),
+                      paymentMethods(
+                          provider, "crypto_currency_usdt", R.images.crypto, 3),
                       h2,
-                      paymentMethods(provider, "pay_with_wallet", R.images.link, 4),
+                      paymentMethods(
+                          provider, "pay_with_wallet", R.images.link, 4),
                     ],
                   )
                 else
                   Container(
-                    decoration: BoxDecoration(color: R.colors.blackDull, borderRadius: BorderRadius.circular(12)),
-                    padding: EdgeInsets.symmetric(horizontal: Get.width * .05, vertical: Get.height * .02),
+                    decoration: BoxDecoration(
+                        color: R.colors.blackDull,
+                        borderRadius: BorderRadius.circular(12)),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: Get.width * .05,
+                        vertical: Get.height * .02),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
                             Image.asset(
-                              provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.appStore.index
+                              provider.bookingsModel.paymentDetail
+                                          ?.paymentMethod ==
+                                      PaymentMethodEnum.appStore.index
                                   ? R.images.apple
-                                  : provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.crypto.index
+                                  : provider.bookingsModel.paymentDetail
+                                              ?.paymentMethod ==
+                                          PaymentMethodEnum.crypto.index
                                       ? R.images.crypto
-                                      : provider.bookingsModel.paymentDetail?.paymentMethod ==
+                                      : provider.bookingsModel.paymentDetail
+                                                  ?.paymentMethod ==
                                               PaymentMethodEnum.wallet.index
                                           ? R.images.link
                                           : R.images.credit,
@@ -510,53 +644,68 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                             ),
                             w2,
                             Text(
-                              provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.appStore.index
+                              provider.bookingsModel.paymentDetail
+                                          ?.paymentMethod ==
+                                      PaymentMethodEnum.appStore.index
                                   ? getTranslated(context, "apple_pay") ?? ""
-                                  : provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.crypto.index
-                                      ? getTranslated(context, "crypto_currency") ?? ""
-                                      : provider.bookingsModel.paymentDetail?.paymentMethod ==
+                                  : provider.bookingsModel.paymentDetail
+                                              ?.paymentMethod ==
+                                          PaymentMethodEnum.crypto.index
+                                      ? getTranslated(
+                                              context, "crypto_currency") ??
+                                          ""
+                                      : provider.bookingsModel.paymentDetail
+                                                  ?.paymentMethod ==
                                               PaymentMethodEnum.wallet.index
-                                          ? getTranslated(context, "pay_with_wallet") ?? ""
-                                          : (provider.creditCardModel.cardNum ?? "").obsecureCardNum(),
+                                          ? getTranslated(
+                                                  context, "pay_with_wallet") ??
+                                              ""
+                                          : (provider.creditCardModel.cardNum ??
+                                                  "")
+                                              .obsecureCardNum(),
                               style: R.textStyle.helveticaBold().copyWith(
                                   color: R.colors.whiteColor,
-                                  fontSize:
-                                      provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.card.index
-                                          ? 14.5.sp
-                                          : 10.sp),
+                                  fontSize: provider.bookingsModel.paymentDetail
+                                              ?.paymentMethod ==
+                                          PaymentMethodEnum.card.index
+                                      ? 14.5.sp
+                                      : 10.sp),
                             ),
                           ],
                         ),
                         if (isCompletePayment == true)
                           Text(
                             provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                    provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index
+                                    provider.bookingsModel.paymentDetail?.payInType ==
+                                        PayType.fullPay.index
                                 ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingAmount)))}"
                                 : ((provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                            splitPerson?.paymentMethod == PaymentMethodEnum.wallet.index &&
-                                            splitPerson?.depositStatus == DepositStatus.twentyFivePaid.index) &&
-                                        removeSign(splitPerson?.amount) == removeSign(splitPerson?.payWithWallet))
+                                            splitPerson?.paymentMethod ==
+                                                PaymentMethodEnum
+                                                    .wallet.index &&
+                                            splitPerson?.depositStatus ==
+                                                DepositStatus
+                                                    .twentyFivePaid.index) &&
+                                        removeSign(splitPerson?.amount) ==
+                                            removeSign(
+                                                splitPerson?.payWithWallet))
                                     ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.amount)))}"
-                                    : ((provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                                splitPerson?.paymentMethod == PaymentMethodEnum.wallet.index &&
-                                                splitPerson?.depositStatus == DepositStatus.nothingPaid.index) &&
+                                    : ((provider.bookingsModel.paymentDetail?.isSplit == true && splitPerson?.paymentMethod == PaymentMethodEnum.wallet.index && splitPerson?.depositStatus == DepositStatus.nothingPaid.index) &&
                                             removeSign(splitPerson?.remainingDeposit) ==
-                                                removeSign(splitPerson?.payWithWallet))
+                                                removeSign(
+                                                    splitPerson?.payWithWallet))
                                         ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingDeposit)))}"
                                         : provider.bookingsModel.paymentDetail?.isSplit == true &&
                                                 provider.bookingsModel.paymentDetail?.payInType ==
                                                     PayType.deposit.index &&
-                                                splitPerson?.depositStatus == DepositStatus.nothingPaid.index
+                                                splitPerson?.depositStatus ==
+                                                    DepositStatus
+                                                        .nothingPaid.index
                                             ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingDeposit - splitPerson?.payWithWallet)))}"
                                             : provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                                    provider.bookingsModel.paymentDetail?.payInType ==
-                                                        PayType.deposit.index
+                                                    provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index
                                                 ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingAmount)))}"
-                                                : provider.bookingsModel.paymentDetail?.paymentMethod ==
-                                                            PaymentMethodEnum.wallet.index &&
-                                                        removeSign(provider
-                                                                .bookingsModel.paymentDetail?.remainingAmount) ==
-                                                            "0.0"
+                                                : provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index && removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) == "0.0"
                                                     ? "\$${Helper.numberFormatter(double.parse(provider.bookingsModel.paymentDetail?.paidAmount.toStringAsFixed(1)))}"
                                                     : "\$${Helper.numberFormatter(double.parse(removeSign(provider.bookingsModel.paymentDetail?.remainingAmount)))}",
                             style: R.textStyle.helveticaBold().copyWith(
@@ -567,37 +716,38 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                         else
                           Text(
                             provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                    provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index
+                                    provider.bookingsModel.paymentDetail?.payInType ==
+                                        PayType.fullPay.index
                                 ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingAmount)))}"
                                 : ((provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                            splitPerson?.paymentMethod == PaymentMethodEnum.wallet.index &&
-                                            splitPerson?.depositStatus == DepositStatus.twentyFivePaid.index) &&
-                                        removeSign(splitPerson?.amount) == removeSign(splitPerson?.payWithWallet))
+                                            splitPerson?.paymentMethod ==
+                                                PaymentMethodEnum
+                                                    .wallet.index &&
+                                            splitPerson?.depositStatus ==
+                                                DepositStatus
+                                                    .twentyFivePaid.index) &&
+                                        removeSign(splitPerson?.amount) ==
+                                            removeSign(
+                                                splitPerson?.payWithWallet))
                                     ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.amount)))}"
-                                    : ((provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                                splitPerson?.paymentMethod == PaymentMethodEnum.wallet.index &&
-                                                splitPerson?.depositStatus == DepositStatus.nothingPaid.index) &&
+                                    : ((provider.bookingsModel.paymentDetail?.isSplit == true && splitPerson?.paymentMethod == PaymentMethodEnum.wallet.index && splitPerson?.depositStatus == DepositStatus.nothingPaid.index) &&
                                             removeSign(splitPerson?.remainingDeposit) ==
-                                                removeSign(splitPerson?.payWithWallet))
+                                                removeSign(
+                                                    splitPerson?.payWithWallet))
                                         ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingDeposit)))}"
                                         : provider.bookingsModel.paymentDetail?.isSplit == true &&
                                                 provider.bookingsModel.paymentDetail?.payInType ==
                                                     PayType.deposit.index &&
-                                                splitPerson?.depositStatus == DepositStatus.nothingPaid.index
+                                                splitPerson?.depositStatus ==
+                                                    DepositStatus
+                                                        .nothingPaid.index
                                             ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingDeposit - splitPerson?.payWithWallet)))}"
                                             : provider.bookingsModel.paymentDetail?.isSplit == true &&
-                                                    provider.bookingsModel.paymentDetail?.payInType ==
-                                                        PayType.deposit.index
+                                                    provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index
                                                 ? "\$${Helper.numberFormatter(double.parse(removeSign(splitPerson?.remainingAmount - splitPerson?.payWithWallet)))}"
-                                                : provider.bookingsModel.paymentDetail?.paymentMethod ==
-                                                            PaymentMethodEnum.wallet.index &&
-                                                        removeSign(provider
-                                                                .bookingsModel.paymentDetail?.remainingAmount) ==
-                                                            "0.0"
+                                                : provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index && removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) == "0.0"
                                                     ? "\$${Helper.numberFormatter(double.parse(removeSign(provider.bookingsModel.paymentDetail?.paidAmount)))}"
-                                                    : provider.bookingsModel.paymentDetail?.payInType ==
-                                                                PayType.deposit.index &&
-                                                            provider.bookingsModel.paymentDetail?.isSplit == false
+                                                    : provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index && provider.bookingsModel.paymentDetail?.isSplit == false
                                                         ? "\$${Helper.numberFormatter(double.parse(removeSign((percentOfAmount(provider.bookingsModel.priceDetaill?.totalPrice ?? 0.0, 25) - provider.bookingsModel.paymentDetail?.payWithWallet))))}"
                                                         : "\$${Helper.numberFormatter(double.parse(removeSign(provider.bookingsModel.paymentDetail?.remainingAmount ?? 0)))}",
                             style: R.textStyle.helveticaBold().copyWith(
@@ -609,16 +759,23 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                     ),
                   ),
                 Spacer(),
-                if ((provider.bookingsModel.paymentDetail?.remainingAmount != null &&
-                        removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) == "0.0") ||
+                if ((provider.bookingsModel.paymentDetail?.remainingAmount !=
+                            null &&
+                        removeSign(provider.bookingsModel.paymentDetail
+                                ?.remainingAmount) ==
+                            "0.0") ||
                     ((provider.bookingsModel.paymentDetail?.isSplit == true &&
-                            splitPerson?.paymentMethod == PaymentMethodEnum.wallet.index &&
-                            splitPerson?.depositStatus == DepositStatus.nothingPaid.index) &&
-                        removeSign(splitPerson?.remainingDeposit) == removeSign(splitPerson?.payWithWallet)))
+                            splitPerson?.paymentMethod ==
+                                PaymentMethodEnum.wallet.index &&
+                            splitPerson?.depositStatus ==
+                                DepositStatus.nothingPaid.index) &&
+                        removeSign(splitPerson?.remainingDeposit) ==
+                            removeSign(splitPerson?.payWithWallet)))
                   GestureDetector(
                     onTap: () async {
                       startLoader();
-                      await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
+                      await provider.onClickPaymentMethods("", context,
+                          isCompletePayment, splitAmount, userPaidAmount);
                       stopLoader();
                     },
                     child: Container(
@@ -628,39 +785,54 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                       child: Center(
                         child: Text(
                           "${getTranslated(context, "pay_now")?.toUpperCase()}",
-                          style: R.textStyle
-                              .helvetica()
-                              .copyWith(color: R.colors.black, fontSize: 12.sp, fontWeight: FontWeight.bold),
+                          style: R.textStyle.helvetica().copyWith(
+                              color: R.colors.black,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
                   )
-                else if ((provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
-                        provider.bookingsModel.paymentDetail?.isSplit == false &&
-                        provider.bookingsModel.paymentDetail?.remainingAmount != null &&
-                        provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index &&
-                        removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) != "0.0") ||
+                else if ((provider.bookingsModel.paymentDetail?.payInType ==
+                            PayType.fullPay.index &&
+                        provider.bookingsModel.paymentDetail?.isSplit ==
+                            false &&
+                        provider.bookingsModel.paymentDetail?.remainingAmount !=
+                            null &&
+                        provider.bookingsModel.paymentDetail?.paymentMethod ==
+                            PaymentMethodEnum.wallet.index &&
+                        removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) !=
+                            "0.0") ||
                     (provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
                         provider.bookingsModel.paymentDetail?.isSplit == true &&
-                        provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index &&
+                        provider.bookingsModel.paymentDetail?.paymentMethod ==
+                            PaymentMethodEnum.wallet.index &&
                         removeSign(provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingAmount) !=
                             "0.0") ||
-                    (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
+                    (provider.bookingsModel.paymentDetail?.payInType ==
+                            PayType.deposit.index &&
                         provider.bookingsModel.paymentDetail?.isSplit == true &&
                         removeSign(provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingDeposit) !=
                             "0.0" &&
-                        provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index) ||
-                    (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
-                        provider.bookingsModel.paymentDetail?.isSplit == false &&
-                        provider.bookingsModel.paymentDetail?.paymentStatus != PaymentStatus.confirmBooking.index &&
-                        provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index) ||
+                        provider.bookingsModel.paymentDetail?.paymentMethod ==
+                            PaymentMethodEnum.wallet.index) ||
+                    (provider.bookingsModel.paymentDetail?.payInType ==
+                            PayType.deposit.index &&
+                        provider.bookingsModel.paymentDetail?.isSplit ==
+                            false &&
+                        provider.bookingsModel.paymentDetail?.paymentStatus !=
+                            PaymentStatus.confirmBooking.index &&
+                        provider.bookingsModel.paymentDetail?.paymentMethod ==
+                            PaymentMethodEnum.wallet.index) ||
                     (provider.bookingsModel.paymentDetail?.paymentMethod == -1))
                   SizedBox()
                 else
                   GestureDetector(
                     onTap: () async {
+                      print("Here I am about to pay now");
                       startLoader();
-                      await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
+                      await provider.onClickPaymentMethods("", context,
+                          isCompletePayment, splitAmount, userPaidAmount);
                       stopLoader();
                     },
                     child: Container(
@@ -670,9 +842,10 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                       child: Center(
                         child: Text(
                           "${getTranslated(context, "pay_now")?.toUpperCase()}",
-                          style: R.textStyle
-                              .helvetica()
-                              .copyWith(color: R.colors.black, fontSize: 12.sp, fontWeight: FontWeight.bold),
+                          style: R.textStyle.helvetica().copyWith(
+                              color: R.colors.black,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
@@ -686,14 +859,16 @@ class _PaymentMethodsState extends State<PaymentMethods> {
     });
   }
 
-  Widget paymentMethods(BookingsVm provider, String title, String img, int index) {
+  Widget paymentMethods(
+      BookingsVm provider, String title, String img, int index) {
     return GestureDetector(
       onTap: () async {
         provider.selectedPaymentMethod = index;
         provider.update();
         switch (index) {
           case 0:
-            provider.bookingsModel.paymentDetail?.paymentMethod = PaymentMethodEnum.card.index;
+            provider.bookingsModel.paymentDetail?.paymentMethod =
+                PaymentMethodEnum.card.index;
             provider.update();
             // await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
             // Get.toNamed(AddCreditCard.route);
@@ -702,7 +877,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
             {
               Get.bottomSheet(AppleStoreSheet(
                 callBack: () async {
-                  await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
+                  await provider.onClickPaymentMethods("", context,
+                      isCompletePayment, splitAmount, userPaidAmount);
                 },
               ), barrierColor: Colors.grey.withOpacity(.20));
             }
@@ -720,6 +896,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
               Map<String, dynamic> data = await json.decode(response.body);
                   Get.toNamed(PayWithCrypto.route, arguments: {
                 "converRate": data['rate'],
+              Get.toNamed(PayWithCrypto.route, arguments: {
                 "isCompletePayment": isCompletePayment,
                 "userPaidAmount": userPaidAmount,
                 "splitAmount": splitAmount,
@@ -728,7 +905,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
             }
             break;
           case 3:
-                  {
+            {
               Get.toNamed(PayWithCrypto.route, arguments: {
                 "converRate": 0.00,
                 "isCompletePayment": isCompletePayment,
@@ -744,8 +921,10 @@ class _PaymentMethodsState extends State<PaymentMethods> {
         provider.update();
       },
       child: Container(
-        decoration: BoxDecoration(color: R.colors.blackDull, borderRadius: BorderRadius.circular(12)),
-        padding: EdgeInsets.symmetric(horizontal: Get.width * .05, vertical: Get.height * .02),
+        decoration: BoxDecoration(
+            color: R.colors.blackDull, borderRadius: BorderRadius.circular(12)),
+        padding: EdgeInsets.symmetric(
+            horizontal: Get.width * .05, vertical: Get.height * .02),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -781,63 +960,71 @@ class _PaymentMethodsState extends State<PaymentMethods> {
     setState(() {});
   }
 
-  Future<void> stripeConfig()
-  async {
+  Future<void> stripeConfig() async {
     try {
       Stripe.publishableKey = publishableKey ?? "";
       Stripe.merchantIdentifier = 'merchant.flutter.stripe.test';
       Stripe.urlScheme = 'flutterstripe';
-      await Stripe.instance.applySettings().whenComplete(() => setInitialBookingData());
-    }  catch (e) {
+      await Stripe.instance
+          .applySettings()
+          .whenComplete(() => setInitialBookingData());
+    } catch (e) {
       log(e.toString());
     }
   }
-  void setInitialBookingData()
-  {
+
+  void setInitialBookingData() {
     var bookingVm = Provider.of<BookingsVm>(context, listen: false);
-    var args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+    var args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
     isDeposit = args["isDeposit"];
     bookingsModel = args["bookingsModel"];
     isCompletePayment = args["isCompletePayment"];
     bookingVm.selectedPaymentMethod = -1;
     if (bookingVm.bookingsModel.paymentDetail?.isSplit == true) {
       splitPerson = bookingVm.bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) => element.userUid == FirebaseAuth.instance.currentUser?.uid)
+          ?.where((element) =>
+              element.userUid == FirebaseAuth.instance.currentUser?.uid)
           .first;
       splitPerson?.payWithWallet = splitPerson?.payWithWallet ?? 0.0;
     }
     if (isCompletePayment == true) {
       bookingVm.bookingsModel = bookingsModel ?? BookingsModel();
-      bookingVm.creditCardModel.cardNum = bookingVm.bookingsModel.paymentDetail?.currentUserCardNum;
-      bookingVm.selectedPaymentMethod = bookingVm.bookingsModel.paymentDetail?.paymentMethod ?? -1;
+      bookingVm.creditCardModel.cardNum =
+          bookingVm.bookingsModel.paymentDetail?.currentUserCardNum;
+      bookingVm.selectedPaymentMethod =
+          bookingVm.bookingsModel.paymentDetail?.paymentMethod ?? -1;
 
       if (bookingVm.bookingsModel.paymentDetail?.isSplit == true) {
         bookingVm.bookingsModel.paymentDetail?.paymentMethod = -1;
         splitPerson = bookingVm.bookingsModel.paymentDetail?.splitPayment
-            ?.where((element) => element.userUid == FirebaseAuth.instance.currentUser?.uid)
+            ?.where((element) =>
+                element.userUid == FirebaseAuth.instance.currentUser?.uid)
             .toList()
             .first;
         bookingVm.selectedPaymentMethod = splitPerson?.paymentMethod ?? -1;
         bookingVm.creditCardModel.cardNum = splitPerson?.currentUserCardNum;
       }
       bookingVm.update();
-    }
-    else {
-      bookingsModel?.paymentDetail?.remainingAmount = bookingsModel?.priceDetaill?.totalPrice;
+    } else {
+      bookingsModel?.paymentDetail?.remainingAmount =
+          bookingsModel?.priceDetaill?.totalPrice;
     }
     if (bookingsModel?.paymentDetail?.isSplit == true &&
         bookingsModel?.paymentDetail?.splitPayment?.isNotEmpty == true) {
       splitAmount = splitPerson?.amount ?? 0.0;
-      if (removeSign(splitPerson?.remainingAmount) == "0.0" && isCompletePayment == false) {
+      if (removeSign(splitPerson?.remainingAmount) == "0.0" &&
+          isCompletePayment == false) {
         splitPerson?.remainingAmount = splitPerson?.amount;
       }
-    }
-    else {
+    } else {
       splitAmount = bookingsModel?.priceDetaill?.totalPrice ?? 0.0;
     }
     userPaidAmount = bookingsModel?.priceDetaill?.totalPrice ?? 0.0;
-    bookingsModel?.paymentDetail?.paidAmount = bookingVm.bookingsModel.paymentDetail?.paidAmount ?? 0.0;
-    bookingsModel?.paymentDetail?.payWithWallet = bookingVm.bookingsModel.paymentDetail?.payWithWallet ?? 0.0;
+    bookingsModel?.paymentDetail?.paidAmount =
+        bookingVm.bookingsModel.paymentDetail?.paidAmount ?? 0.0;
+    bookingsModel?.paymentDetail?.payWithWallet =
+        bookingVm.bookingsModel.paymentDetail?.payWithWallet ?? 0.0;
     setState(() {});
   }
   // Future<void> getCards()

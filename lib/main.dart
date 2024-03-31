@@ -21,6 +21,7 @@ import 'package:yacht_master/blocs/bloc_exports.dart';
 import 'package:yacht_master/localization/app_localization.dart';
 import 'package:yacht_master/services/fmsg_handler.dart';
 import 'package:yacht_master/src/auth/model/user_model.dart';
+import 'package:yacht_master/src/auth/view/create_username.dart';
 import 'package:yacht_master/src/auth/view/login.dart';
 import 'package:yacht_master/src/auth/view/sign_up.dart';
 import 'package:yacht_master/src/auth/view/social_signup.dart';
@@ -154,7 +155,6 @@ void main() async {
       onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
   final storage = await HydratedStorage.build(
       storageDirectory: await getApplicationDocumentsDirectory());
-  print("Here hu mai bhai apn token get kar raha !!!!!!!!!!!!!!!");
   HydratedBlocOverrides.runZoned(
       () => runApp(MultiProvider(providers: [
             ChangeNotifierProvider(create: (_) => LandingVm()),
@@ -362,6 +362,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             GetPage(name: PayWithCrypto.route, page: () => PayWithCrypto()),
             GetPage(name: PayWithWallet.route, page: () => PayWithWallet()),
             GetPage(name: WithdrawMoney.route, page: () => WithdrawMoney()),
+            GetPage(name: CreateUsername.route, page: () => CreateUsername()),
             GetPage(
                 name: NoInternetScreen.route, page: () => NoInternetScreen()),
             GetPage(

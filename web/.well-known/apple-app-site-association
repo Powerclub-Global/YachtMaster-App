@@ -1,0 +1,11 @@
+{
+  "applinks": {
+      "apps": [],
+      "details": [
+      {
+        "appID": "BXZSYN5WSG.com.yatchmaster.app",
+        "paths": ["*"]
+      }
+    ]
+  }
+}

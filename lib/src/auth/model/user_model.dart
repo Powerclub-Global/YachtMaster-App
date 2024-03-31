@@ -4,34 +4,35 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:yacht_master/constant/enums.dart';
 
 class UserModel {
-  UserModel({
-    this.uid,
-    this.fcm,
-    this.number,
-    this.dialCode,
-    this.imageUrl,
-    this.lastName,
-    this.createdAt,
-    this.phoneNumber,
-    this.firstName,
-    this.stripeCustomerID,
-    this.isActiveUser,
-    this.isFav = false,
-    this.rating = 0.0,
-    this.status,
-    this.hostDocumentUrl,
-    this.email,
-    this.isCardSaved = false,
-    this.role,
-    this.requestStatus,
-    this.isSocialLogin,
-    this.inviteStatus,
-  });
+  UserModel(
+      {this.uid,
+      this.fcm,
+      this.number,
+      this.dialCode,
+      this.imageUrl,
+      this.lastName,
+      this.createdAt,
+      this.phoneNumber,
+      this.username,
+      this.firstName,
+      this.stripeCustomerID,
+      this.isActiveUser,
+      this.isFav = false,
+      this.rating = 0.0,
+      this.status,
+      this.hostDocumentUrl,
+      this.email,
+      this.isCardSaved = false,
+      this.role,
+      this.requestStatus,
+      this.isSocialLogin,
+      this.inviteStatus,});
 
   UserModel.fromJson(dynamic json) {
     uid = json['uid'];
     fcm = json['fcm'];
     number = json['number'];
+    username = json['username'];
     isActiveUser = json['isActiveUser'] ?? true;
     dialCode = json['dial_code'];
     imageUrl = json['image_url'];
@@ -51,6 +52,7 @@ class UserModel {
   }
   String? uid;
   String? fcm;
+  String? username;
   String? number;
   String? dialCode;
   String? imageUrl;
@@ -70,11 +72,13 @@ class UserModel {
   RequestStatus? requestStatus;
   int? inviteStatus;
   var rating;
+
   UserModel copyWith({
     String? uid,
     String? fcm,
     String? number,
     String? dialCode,
+    String? username,
     String? imageUrl,
     String? hostDocumentUrl,
     String? lastName,
@@ -94,6 +98,7 @@ class UserModel {
       UserModel(
         uid: uid ?? this.uid,
         fcm: fcm ?? this.fcm,
+        username: username ?? this.username,
         isCardSaved: isCardSaved ?? this.isCardSaved,
         isSocialLogin: isSocialLogin ?? this.isSocialLogin,
         isActiveUser: isActiveUser ?? this.isActiveUser,
@@ -111,10 +116,12 @@ class UserModel {
         stripeCustomerID: stripeCustomerID ?? this.stripeCustomerID,
         email: email ?? this.email,
         inviteStatus: inviteStatus ?? this.inviteStatus,
+
       );
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['uid'] = uid;
+    map["username"] = username;
     map['is_card_saved'] = isCardSaved;
     map['is_social_login'] = isSocialLogin;
     map['host_document_url'] = hostDocumentUrl;

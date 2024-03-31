@@ -710,7 +710,6 @@ class BookingsVm extends ChangeNotifier {
     DocumentSnapshot charter = await FbCollections.charterFleet
         .doc(bookingsModel.charterFleetDetail?.id)
         .get();
-
     if (bookingsModel.paymentDetail?.isSplit == true) {
       splitPerson = bookingsModel.paymentDetail?.splitPayment
           ?.where((element) =>

@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -52,11 +49,17 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyA8wiHcK_W_HwT2fH72V3AgrDYt1aivmas',
-    appId: '1:634115072396:android:4f3cdf3826df28515536a9',
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyAMsdps8YdyQemF6d7bDHydjY98dPpVB0I',
+    appId: '1:634115072396:web:81059a7f61d6577a5536a9',
     messagingSenderId: '634115072396',
     projectId: 'yacht-masters',
+    authDomain: 'yacht-masters.firebaseapp.com',
     storageBucket: 'yacht-masters.appspot.com',
+    measurementId: 'G-MFSD0MFPHK',
+  );
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyA8wiHcK_W_HwT2fH72V3AgrDYt1aivmas',
   );
 }

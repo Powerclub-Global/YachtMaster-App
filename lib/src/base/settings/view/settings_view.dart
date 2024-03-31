@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -45,6 +46,7 @@ import 'package:yacht_master/src/base/settings/widgets/logout_sheet.dart';
 import 'package:yacht_master/src/base/settings/widgets/translate_bottomsheet.dart';
 import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
 import 'package:yacht_master/utils/heights_widths.dart';
+import 'package:yacht_master/utils/helper.dart';
 import 'package:yacht_master/utils/zbot_toast.dart';
 
 import '../../../../constant/enums.dart';
@@ -115,7 +117,48 @@ class _SettingsViewState extends State<SettingsView> {
                               .helveticaBold()
                               .copyWith(color: R.colors.whiteColor),
                         ),
-                        h0P7,
+                        h2,
+                        Container(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Color.fromARGB(48, 158, 158, 158)),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8.0, vertical: 5),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  authVm.userModel?.username ?? "",
+                                  style: R.textStyle
+                                      .helveticaBold()
+                                      .copyWith(color: R.colors.whiteColor),
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                IconButton(
+                                    onPressed: () async {
+                                      await Clipboard.setData(ClipboardData(
+                                          text: authVm.userModel?.username ??
+                                              ""));
+                                      Helper.inSnackBar(
+                                          "Copied",
+                                          "Your text has been copied",
+                                          R.colors.themeMud);
+                                    },
+                                    icon: Icon(
+                                      Icons.copy,
+                                      size: 24,
+                                    ))
+                              ],
+                            ),
+                          ),
+                        ),
+                        h3,
                         Text(
                           authVm.userModel?.email ?? "",
                           style: R.textStyle.helveticaBold().copyWith(

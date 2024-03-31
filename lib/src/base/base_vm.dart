@@ -71,19 +71,17 @@ class BaseVm extends ChangeNotifier {
      await Future.wait([
      bookingsVm.fetchTaxes(),
      yachtVm.fetchCharterOffers(),
-       fetchAllUsers(),
+    fetchAllUsers(),
      bookingsVm.fetchAppUrls(),
      settingsVm.fetchContent(),
      yachtVm.fetchServices(),
      yachtVm.fetchUserFavourites(),
      yachtVm.fetchCharters(),
      yachtVm.fetchYachts(),
-       homeVm.fetchAllBookings(),
+     homeVm.fetchAllBookings(),
      inboxVm.fetchNotificatoins(),
 
      ]);
-
-
    }
 
 }

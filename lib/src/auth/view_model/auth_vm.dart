@@ -18,6 +18,7 @@ import 'package:yacht_master/constant/enums.dart';
 import 'package:yacht_master/services/firebase_collections.dart';
 import 'package:yacht_master/services/image_picker_services.dart';
 import 'package:yacht_master/src/auth/model/user_model.dart';
+import 'package:yacht_master/src/auth/view/create_username.dart';
 import 'package:yacht_master/src/auth/view/social_signup.dart';
 import 'package:yacht_master/src/base/base_view.dart';
 import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
@@ -25,7 +26,6 @@ import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
 import 'package:yacht_master/src/base/search/view/bookings/model/wallet_model.dart';
 import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
 import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
-
 import '../../../resources/resources.dart';
 import '../../../services/apple_service.dart';
 import '../../../utils/helper.dart';
@@ -35,6 +35,7 @@ import 'package:yacht_master/utils/zbot_toast.dart';
 
 class AuthVm extends ChangeNotifier {
   bool isLoading = false;
+  bool usernameIsAvailable = true;
   UserModel? userModel;
   String? appleUserName;
   String? appleUserEmail;
@@ -43,10 +44,37 @@ class AuthVm extends ChangeNotifier {
 
   final GoogleSignIn googleSignIn = GoogleSignIn();
   FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseFirestore db = FirebaseFirestore.instance;
   StreamSubscription<List<WalletModel>>? walletStream;
   startLoader() {
     isLoading = true;
     notifyListeners();
+  }
+
+  Future<void> isUsernameAvailable(String username) async {
+    if (username.length > 5) {
+      await db
+          .collection("users")
+          .where("username", isEqualTo: username)
+          .get()
+          .then(
+        (QuerySnapshot doc) {
+          print(doc.docs);
+          if (doc.docs.isEmpty) {
+            print("Should Change to true ");
+            usernameIsAvailable = true;
+          } else {
+            print("Should Change to false inner ");
+            usernameIsAvailable = false;
+          }
+          notifyListeners();
+        },
+      );
+    } else {
+      print("Should Change to false outer ");
+      usernameIsAvailable = false;
+      notifyListeners();
+    }
   }
 
   stopLoader() {
@@ -182,7 +210,7 @@ class AuthVm extends ChangeNotifier {
     } else {
       startLoader();
       log("____USER display name:${user?.displayName}");
-
+      print("Starting registration");
       await registerUserGoogle(
           user!, countryCode, phoneNumController, isSocialLogin,
           isApple: isApple);
@@ -280,7 +308,8 @@ class AuthVm extends ChangeNotifier {
       accessToken: googleSignInAuthentication.accessToken,
       idToken: googleSignInAuthentication.idToken,
     );
-
+    print("printing ID token");
+    print(googleSignInAuthentication.idToken);
     UserCredential authResult = await auth.signInWithCredential(credential);
 
     User? user = authResult.user;
@@ -306,44 +335,49 @@ class AuthVm extends ChangeNotifier {
       User user, String countryCode, String number, bool isSocialLogin,
       {bool isApple = false}) async {
     try {
+      print("About to verify phone number");
+
       await auth.verifyPhoneNumber(
           phoneNumber: "${countryCode} ${number}",
           timeout: const Duration(seconds: 60),
           verificationCompleted: (AuthCredential authCredential) async {
             UserCredential? userCredential =
                 await linkPhoneNumber(authCredential);
+            print(userCredential);
+            print("bool for user creds");
             if (userCredential != null) {
               log("____USER:${user.displayName}");
-              await setSignupUserData(
-                      user,
-                      countryCode,
-                      number,
-                      isApple ? appleUserEmail ?? "" : user.email!,
-                      isApple
-                          ? appleUserName ?? ""
-                          : user.displayName?.contains(" ") == true
-                              ? user.displayName?.split(" ").first ?? ""
-                              : user.displayName ?? "",
-                      user.displayName?.contains(" ") == true
-                          ? user.displayName?.split(" ").last ?? ""
-                          : "",
-                      isSocialLogin)
-                  .then((value) async {
-                log("///////////////////////////CODE VERIFIED");
+              print("Verification completed");
+              // await setSignupUserData(
+              //         user,
+              //         countryCode,
+              //         number,
+              //         isApple ? appleUserEmail ?? "" : user.email!,
+              //         isApple
+              //             ? appleUserName ?? ""
+              //             : user.displayName?.contains(" ") == true
+              //                 ? user.displayName?.split(" ").first ?? ""
+              //                 : user.displayName ?? "",
+              //         user.displayName?.contains(" ") == true
+              //             ? user.displayName?.split(" ").last ?? ""
+              //             : "",
+              //         isSocialLogin)
+              //     .then((value) async {
+              //   log("///////////////////////////CODE VERIFIED");
 
-                await fetchUser();
-                if (userModel?.status == UserStatus.blocked) {
-                  GoogleSignIn().signOut();
-                  FirebaseAuth.instance.signOut();
-                  Fluttertoast.showToast(msg: "You have been blocked by admin");
-                } else {
-                  userModel?.fcm = Constants.fcmToken;
-                  // userModel?.isActiveUser = true;
-                  await updateUser(userModel);
-                  ZBotToast.loadingClose();
-                  Get.offAllNamed(BaseView.route);
-                }
-              });
+              //   await fetchUser();
+              //   if (userModel?.status == UserStatus.blocked) {
+              //     GoogleSignIn().signOut();
+              //     FirebaseAuth.instance.signOut();
+              //     Fluttertoast.showToast(msg: "You have been blocked by admin");
+              //   } else {
+              //     userModel?.fcm = Constants.fcmToken;
+              //     // userModel?.isActiveUser = true;
+              //     await updateUser(userModel);
+              //     ZBotToast.loadingClose();
+              //     Get.offAllNamed(BaseView.route);
+              //   }
+              // });
             }
           },
           verificationFailed: (authException) {
@@ -415,6 +449,45 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
+  addUsernameFinishSignUp(User user, String countryCode, String number,
+      bool isApple, bool isSocialLogin, String username) async {
+    await setSignupUserData(
+            user,
+            countryCode,
+            number,
+            isApple ? appleUserEmail ?? "" : user.email!,
+            isApple
+                ? appleUserName ?? ""
+                : user.displayName?.contains(" ") == true
+                    ? user.displayName?.split(" ").first ?? ""
+                    : user.displayName ?? "",
+            user.displayName?.contains(" ") == true
+                ? user.displayName?.split(" ").last ?? ""
+                : "",
+            isSocialLogin,
+            username)
+        .then((value) async {
+      log("///////////////////////////CODE VERIFIED");
+
+      await fetchUser();
+      print("I am here now user is fetched ");
+      if (userModel?.status == UserStatus.blocked) {
+        GoogleSignIn().signOut();
+        FirebaseAuth.instance.signOut();
+        Fluttertoast.showToast(msg: "You have been blocked by admin");
+      } else {
+        userModel?.fcm = Constants.fcmToken;
+        // userModel?.isActiveUser = true;
+        print("Helllo about to update user model after fetching and a;; ");
+        print(userModel!.toJson());
+        await updateUser(userModel);
+        ZBotToast.loadingClose();
+
+        Get.offAllNamed(BaseView.route);
+      }
+    });
+  }
+
   verifySignUpOtpGoogle(User user, String countryCode, String verificationId,
       String number, String code,
       {bool isApple = false, bool isSocialLogin = false}) async {
@@ -428,35 +501,15 @@ class AuthVm extends ChangeNotifier {
     await linkPhoneNumber(_credential).then((cred) async {
       log("___CRED:${cred}___USER:${user}");
       if (cred != null) {
-        await setSignupUserData(
-                user,
-                countryCode,
-                number,
-                isApple ? appleUserEmail ?? "" : user.email!,
-                isApple
-                    ? appleUserName ?? ""
-                    : user.displayName?.contains(" ") == true
-                        ? user.displayName?.split(" ").first ?? ""
-                        : user.displayName ?? "",
-                user.displayName?.contains(" ") == true
-                    ? user.displayName?.split(" ").last ?? ""
-                    : "",
-                isSocialLogin)
-            .then((value) async {
-          log("///////////////////////////CODE VERIFIED");
-
-          await fetchUser();
-          if (userModel?.status == UserStatus.blocked) {
-            GoogleSignIn().signOut();
-            FirebaseAuth.instance.signOut();
-            Fluttertoast.showToast(msg: "You have been blocked by admin");
-          } else {
-            userModel?.fcm = Constants.fcmToken;
-            // userModel?.isActiveUser = true;
-            await updateUser(userModel);
-            ZBotToast.loadingClose();
-            Get.offAllNamed(BaseView.route);
-          }
+        // PLEASEEEEE MAKE SURE TO EDIT THIS IN NEAR FUTURE
+        // *******************************************************************************************************
+        // IMPORTANT VERY VERY
+        // print("Now here --- hahahahahaha");
+        Get.offNamed(CreateUsername.route, arguments: {
+          "user": user,
+          "isApple": isApple,
+          "phoneNo": number,
+          "countryCode": countryCode
         });
       }
     }).catchError((e) {
@@ -505,6 +558,7 @@ class AuthVm extends ChangeNotifier {
                 .signInWithCredential(authCredential)
                 .then((result) async {
               if (result.user != null) {
+                print("About to fetch User");
                 await fetchUser();
                 Future.delayed(Duration(seconds: 2), () async {
                   if (userModel?.status == UserStatus.blocked) {
@@ -515,6 +569,8 @@ class AuthVm extends ChangeNotifier {
                   } else {
                     userModel?.fcm = Constants.fcmToken;
                     // userModel?.isActiveUser = true;
+                    print("Updating user info");
+                    print(userModel!.toJson());
                     await updateUser(userModel);
                     ZBotToast.loadingClose();
                     Get.offAllNamed(BaseView.route);
@@ -565,9 +621,11 @@ class AuthVm extends ChangeNotifier {
           },
           codeSent: (String verificationId, [int? forceResendingToken]) {
             log("___________CODE SENT:");
+            print("I am here code is sent");
             Get.dialog(
                 OTP("${countryCode} ${number}", false, (otpCode) async {
                   stopLoader();
+                  print("about to verify otp");
                   await verifyOtp(
                       "", verificationId, countryCode, number, otpCode);
                 }, () async {
@@ -613,8 +671,12 @@ class AuthVm extends ChangeNotifier {
                 .signInWithCredential(authCredential)
                 .then((result) async {
               if (result.user != null) {
+                // PLEASEEEEE MAKE SURE TO EDIT THIS IN NEAR FUTURE
+                // *******************************************************************************************************
+                // IMPORTANT VERY VERY
+
                 await setSignupUserData(result.user!, countryCode, num, email,
-                    firstName, lastName, isSocialLogin);
+                    firstName, lastName, isSocialLogin, "DUMMY");
 
                 Get.offAllNamed(BaseView.route);
               }
@@ -708,9 +770,13 @@ class AuthVm extends ChangeNotifier {
           verificationId: verificationId, smsCode: code);
       log("////////////////////////CRED${_credential}");
       await auth.signInWithCredential(_credential).then((result) async {
+        // PLEASEEEEE MAKE SURE TO EDIT THIS IN NEAR FUTURE
+        // *******************************************************************************************************
+        // IMPORTANT VERY VERY
+
         if (result.user != null) {
           await setSignupUserData(result.user!, countryCode, num, email,
-                  firstName, lastName, isSocialLogin)
+                  firstName, lastName, isSocialLogin, "Dummy")
               .then((value) async {
             log("///////////////////////////CODE VERIFIED:${FirebaseAuth.instance.currentUser!.uid}");
             Get.offAllNamed(
@@ -744,17 +810,15 @@ class AuthVm extends ChangeNotifier {
       String number, String code) async {
     try {
       startLoader();
-
       FirebaseAuth auth = FirebaseAuth.instance;
       AuthCredential _credential;
+      print("starting verification");
       log("////////////////////////VERIF ID${verificationId}");
       _credential = PhoneAuthProvider.credential(
           verificationId: verificationId, smsCode: code);
       log("////////////////////////CRED${_credential}");
-
       await auth.signInWithCredential(_credential).then((result) async {
         if (result.user != null) {
-          await fetchUser();
           Future.delayed(Duration(seconds: 2), () async {
             if (userModel?.status == UserStatus.blocked) {
               GoogleSignIn().signOut();
@@ -764,6 +828,9 @@ class AuthVm extends ChangeNotifier {
               userModel?.fcm = Constants.fcmToken;
               // userModel?.isActiveUser = true;
               await updateUser(userModel);
+              print("Otp verified now fetching user after updating user modal");
+
+              await fetchUser();
               ZBotToast.loadingClose();
               Get.offAllNamed(BaseView.route);
             }
@@ -798,6 +865,7 @@ class AuthVm extends ChangeNotifier {
     String firstName,
     String lastName,
     bool isSocialLogin,
+    String username,
   ) async {
     try {
       bool isUserExist = false;
@@ -806,8 +874,11 @@ class AuthVm extends ChangeNotifier {
       log("/////////////////////////Current user in db:${isUserExist}................aut:${auth.currentUser}");
 
       if (isUserExist == false) {
+        print("I am here about to add it lessgoooo");
+        print(username);
         await FbCollections.user.doc(user.uid).set({
           "uid": user.uid,
+          "username": username,
           "created_at": Timestamp.now(),
           "email": email.replaceAll(' ', ''),
           "number": number,
@@ -961,16 +1032,21 @@ class AuthVm extends ChangeNotifier {
   Future<void> fetchUser() async {
     try {
       log("___HERE IN STREAM:${FirebaseAuth.instance.currentUser?.uid}");
+      print(FirebaseAuth.instance.currentUser?.uid);
 
       var ref = FbCollections.user
           .doc(FirebaseAuth.instance.currentUser?.uid)
           .snapshots()
           .asBroadcastStream();
-
+      print("about to listen to stream");
       currentUserStream ??
           ref.listen((event) async {
             if (event != null) {
+              print("Putting values fetched into usermodel structure");
+              print(event.data());
               userModel = UserModel.fromJson(event.data());
+              print("values put hogyi hai nothing to worry");
+              print(userModel!.toJson());
               if (userModel?.status == UserStatus.blocked) {
                 Get.offAllNamed(LoginScreen.route);
                 await logoutUser(isUpdateUser: false);
@@ -978,7 +1054,9 @@ class AuthVm extends ChangeNotifier {
               }
             }
           });
-      log("User Data here:${userModel?.toJson()}");
+      await Future.delayed(Duration(seconds: 2));
+      print("ab toh wapis jaane wale hai");
+      print(userModel!.toJson());
       getUserWallet();
       notifyListeners();
     } on Exception catch (e) {
