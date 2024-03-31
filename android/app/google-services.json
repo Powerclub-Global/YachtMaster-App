@@ -109,6 +109,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "634115072396-e6f39k676k0ghm8k2n9oum2iscj34c60.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.assorttech.yacht_master.M4",
+            "certificate_hash": "86432684b3876e55082404b492aab02ad2df4d6b"
+          }
+        },
+        {
           "client_id": "634115072396-671tjtmlmolsph92qn3futgiv3167vvi.apps.googleusercontent.com",
           "client_type": 3
         }
