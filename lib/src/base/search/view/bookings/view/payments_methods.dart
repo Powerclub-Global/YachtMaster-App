@@ -567,7 +567,9 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                           height: 50,
                           margin: const EdgeInsets.only(top: 15.0),
                           onPaymentResult: (value) {
+                            print("payment was success");
                             print(value);
+
                           },
                           onError: (error) {
                             print(error);
@@ -579,8 +581,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                               pay.PaymentConfiguration.fromJsonString('''{
   "provider": "apple_pay",
   "data": {
-    "merchantIdentifier": "merchant.com.yatchmaster.app", 
-    "displayName": "Jessy Artman",
+    "merchantIdentifier": "merchant.com.yachtmaster.app", 
+    "displayName": "Yacht Master",
     "merchantCapabilities": [
       "3DS",
       "debit",
@@ -594,8 +596,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
     ],
     "countryCode": "US",
     "currencyCode": "USD",
-    "requiredBillingContactFields": null, 
-    "requiredShippingContactFields": null
+    "requiredBillingContactFields": [], 
+    "requiredShippingContactFields": []
   }
 }'''),
                         ),
