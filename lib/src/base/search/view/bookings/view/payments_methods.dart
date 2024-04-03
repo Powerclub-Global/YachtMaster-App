@@ -585,8 +585,6 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                             StripeService stripe = StripeService();
                             final token = await Stripe.instance.createApplePayToken(value);
                             print(value);
-<<<<<<< HEAD
-=======
                             final paymentIntentResult =
                                 await stripe.createPaymentIntents(
                               amount: "100",
@@ -615,7 +613,6 @@ class _PaymentMethodsState extends State<PaymentMethods> {
 
                             await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
 
->>>>>>> 4d88c4a1fe48c1a8ea75f481c2d03bc5378e2e61
                           },
                           onError: (error) {
                             print(error);
