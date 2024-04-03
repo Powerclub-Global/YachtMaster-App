@@ -49,6 +49,7 @@ class UserModel {
     status = UserStatus.values[json['status'] ?? 0];
     hostDocumentUrl = json['host_document_url'];
     isSocialLogin = json['is_social_login'];
+    inviteStatus = json['invite_status'];
   }
   String? uid;
   String? fcm;

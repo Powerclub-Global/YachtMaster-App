@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
+import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -569,7 +571,6 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                           onPaymentResult: (value) {
                             print("payment was success");
                             print(value);
-
                           },
                           onError: (error) {
                             print(error);
@@ -885,7 +886,17 @@ class _PaymentMethodsState extends State<PaymentMethods> {
             break;
           case 2:
             {
+              var response = await http.get(
+                Uri.parse('https://rest.coinapi.io/v1/exchangerate/USD/BTC'),
+                headers: {
+                  HttpHeaders.authorizationHeader:
+                      'D07A3A3B-7641-4158-B7F5-81A6FD8B3265',
+                },
+              );
+
+              Map<String, dynamic> data = await json.decode(response.body);
               Get.toNamed(PayWithCrypto.route, arguments: {
+                "converRate": data['rate'],
                 "isCompletePayment": isCompletePayment,
                 "userPaidAmount": userPaidAmount,
                 "splitAmount": splitAmount,
@@ -896,6 +907,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
           case 3:
             {
               Get.toNamed(PayWithCrypto.route, arguments: {
+                "converRate": 1.0,
                 "isCompletePayment": isCompletePayment,
                 "userPaidAmount": userPaidAmount,
                 "splitAmount": splitAmount,

@@ -146,6 +146,53 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:634115072396:android:43b8e241fe802d2b5536a9",
+        "android_client_info": {
+          "package_name": "com.assorttech.yacht_master.m4"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "634115072396-gt7v0ucf2qi34krllv3rtfat860th2hc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.assorttech.yacht_master.m4",
+            "certificate_hash": "86432684b3876e55082404b492aab02ad2df4d6b"
+          }
+        },
+        {
+          "client_id": "634115072396-671tjtmlmolsph92qn3futgiv3167vvi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8wiHcK_W_HwT2fH72V3AgrDYt1aivmas"
+        },
+        {
+          "current_key": "AIzaSyBld67glqRVj5t7ls0UEysCE2K5iMrVFDY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "634115072396-671tjtmlmolsph92qn3futgiv3167vvi.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "634115072396-0m1ak1a04pql1126mkcq0c6j2cc2h1u5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.yachtmaster.app"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"
