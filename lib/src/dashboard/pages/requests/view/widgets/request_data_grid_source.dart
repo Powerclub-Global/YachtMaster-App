@@ -235,7 +235,8 @@ class RequestDataGridSource extends DataGridSource {
                     model.uid ?? "",
                     model.requestStatus?.index ?? 0,
                     model.fcm ?? "",
-                    "Your Become a Host request has been rejected");
+                    "Your Become a Host request has been rejected",
+                    model.email!);
                 break;
               case 1:
                 model.requestStatus = RequestStatus.host;
@@ -243,7 +244,8 @@ class RequestDataGridSource extends DataGridSource {
                     model.uid ?? "",
                     model.requestStatus?.index ?? 2,
                     model.fcm ?? "",
-                    "Your Become a Host request has been accepted");
+                    "Your Become a Host request has been accepted",
+                    model.email!);
                 break;
             }
             await vm.getAllUsers();
@@ -352,8 +354,15 @@ class RequestDataGridSource extends DataGridSource {
   }
 
   Future<void> updateStatus(
-      String id, int status, String userFCM, String desc) async {
+      String id, int status, String userFCM, String desc, String email) async {
     try {
+      await FBCollections.mail.add({
+        "to": [email],
+        "message": {
+          "subject": "Request to become a host",
+          "text": desc,
+        }
+      });
       await FBCollections.users.doc(id).update({"request_status": status});
       await NotificationService.sendNotification(
           fcmToken: userFCM, title: "Become a Host", body: desc);

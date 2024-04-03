@@ -229,13 +229,21 @@ class InvitesDataGridSource extends DataGridSource {
             switch (val) {
               case 0:
                 model.inviteStatus = 0;
-                await updateInviteStatus(model.uid ?? "", 0, model.fcm ?? "",
-                    "Your request to get Payouts has been rejected");
+                await updateInviteStatus(
+                    model.uid ?? "",
+                    0,
+                    model.fcm ?? "",
+                    "Your request to get Payouts has been rejected",
+                    model.email!);
                 break;
               case 1:
                 model.inviteStatus = 2;
-                await updateInviteStatus(model.uid ?? "", 2, model.fcm ?? "",
-                    "Your request to recieve Payouts has been accepted");
+                await updateInviteStatus(
+                    model.uid ?? "",
+                    2,
+                    model.fcm ?? "",
+                    "Your request to recieve Payouts has been accepted",
+                    model.email!);
                 break;
             }
             await vm.getAllUsers();
@@ -343,8 +351,15 @@ class InvitesDataGridSource extends DataGridSource {
   }
 
   Future<void> updateInviteStatus(
-      String id, int status, String userFCM, String desc) async {
+      String id, int status, String userFCM, String desc, String email) async {
     try {
+      await FBCollections.mail.add({
+        "to": [email],
+        "message": {
+          "subject": "Request to become a host",
+          "text": desc,
+        }
+      });
       await FBCollections.users.doc(id).update({"invite_status": status});
       await NotificationService.sendNotification(
           fcmToken: userFCM,
