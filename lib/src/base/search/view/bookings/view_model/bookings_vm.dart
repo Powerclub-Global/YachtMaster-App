@@ -620,8 +620,8 @@ class BookingsVm extends ChangeNotifier {
         await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
             splitAmount, userPaidAmount, finalPaidAmount);
       } else if (selectedPaymentMethod == PaymentMethodEnum.appStore.index) {
-        Helper.inSnackBar(
-            "Error", "Payment method not available", R.colors.themeMud);
+        await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
+            splitAmount, userPaidAmount, finalPaidAmount);
       } else if (selectedPaymentMethod == PaymentMethodEnum.wallet.index) {
         Helper.inSnackBar(
             "Error", "Payment method not available", R.colors.themeMud);
