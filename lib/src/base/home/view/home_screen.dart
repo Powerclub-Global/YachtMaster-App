@@ -29,7 +29,6 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-
   @override
   Widget build(BuildContext context) {
     return Consumer<HomeVm>(builder: (context, provider, _) {
@@ -66,7 +65,6 @@ class _HomeViewState extends State<HomeView> {
                                         height: 168.sp)),
                                 GestureDetector(
                                   onTap: () {
-
                                     Get.toNamed(WhereGoing.route);
                                   },
                                   child: Container(
@@ -97,26 +95,42 @@ class _HomeViewState extends State<HomeView> {
                 ),
               ];
             },
-            body: provider.allBookings.where((element) =>  element.createdBy==FirebaseAuth.instance.currentUser!.uid || element.hostUserUid==FirebaseAuth.instance.currentUser!.uid).toList().isEmpty
+            body: provider.allBookings
+                    .where((element) =>
+                        element.createdBy ==
+                            FirebaseAuth.instance.currentUser!.uid ||
+                        element.hostUserUid ==
+                            FirebaseAuth.instance.currentUser!.uid)
+                    .toList()
+                    .isEmpty
                 ? Padding(
                     padding: EdgeInsets.symmetric(horizontal: Get.width * .03),
                     child: Column(children: [
                       h2,
-                      GeneralWidgets.seeAllWidget(
-                          context, "bookings", onTap: () {
+                      GeneralWidgets.seeAllWidget(context, "bookings",
+                          onTap: () {
                         Get.toNamed(AllBookings.route,
                             arguments: {"isHost": false});
                       },
                           isPadding: false,
-                          isSeeAll:
-                          provider.allBookings.where((element) => element.createdBy==FirebaseAuth.instance.currentUser!.uid || element.hostUserUid==FirebaseAuth.instance.currentUser!.uid).toList().isEmpty ? false : true),
+                          isSeeAll: provider.allBookings
+                                  .where((element) =>
+                                      element.createdBy ==
+                                          FirebaseAuth
+                                              .instance.currentUser!.uid ||
+                                      element.hostUserUid ==
+                                          FirebaseAuth
+                                              .instance.currentUser!.uid)
+                                  .toList()
+                                  .isEmpty
+                              ? false
+                              : true),
                       h2,
                       Expanded(
                         child: EmptyScreen(
                           title: "no_bookings",
                           subtitle: "no_bookings_has_been_completed_yet",
                           img: R.images.emptyBook,
-
                         ),
                       ),
                       h4,
@@ -127,8 +141,7 @@ class _HomeViewState extends State<HomeView> {
                         child: Row(
                           children: [
                             Text(
-                               "${getTranslated(
-                                   context, "do_not_see_a_past_booking")}",
+                              "${getTranslated(context, "do_not_see_a_past_booking")}",
                               style: R.textStyle.helveticaBold().copyWith(
                                   color: Colors.white, fontSize: 12.sp),
                             ),
@@ -153,35 +166,68 @@ class _HomeViewState extends State<HomeView> {
                           h2,
                           GeneralWidgets.seeAllWidget(
                               context, "recent_bookings", onTap: () {
-                                log("_____here");
+                            log("_____here");
                             Get.toNamed(AllBookings.route,
                                 arguments: {"isHost": false});
                           },
                               isPadding: false,
-                              isSeeAll: provider.allBookings.where((element) =>  element.createdBy==FirebaseAuth.instance.currentUser!.uid || element.hostUserUid==FirebaseAuth.instance.currentUser!.uid).toList().isEmpty
+                              isSeeAll: provider.allBookings
+                                      .where((element) =>
+                                          element.createdBy ==
+                                              FirebaseAuth
+                                                  .instance.currentUser!.uid ||
+                                          element.hostUserUid ==
+                                              FirebaseAuth
+                                                  .instance.currentUser!.uid)
+                                      .toList()
+                                      .isEmpty
                                   ? false
                                   : true),
                           h2,
                           Column(
                             children: List.generate(
-                                provider.allBookings.where((element) =>  element.createdBy==FirebaseAuth.instance.currentUser!.uid || element.hostUserUid==FirebaseAuth.instance.currentUser!.uid).toList().length >= 3
+                                provider.allBookings
+                                            .where((element) =>
+                                                element.createdBy ==
+                                                    FirebaseAuth.instance
+                                                        .currentUser!.uid ||
+                                                element.hostUserUid ==
+                                                    FirebaseAuth.instance
+                                                        .currentUser!.uid)
+                                            .toList()
+                                            .length >=
+                                        3
                                     ? 3
-                                    : provider.allBookings.where((element) =>  element.createdBy==FirebaseAuth.instance.currentUser!.uid || element.hostUserUid==FirebaseAuth.instance.currentUser!.uid).toList().length,
-                                (index) {
-                                  BookingsModel booking=provider.allBookings.where((element) =>  element.createdBy==FirebaseAuth.instance.currentUser!.uid || element.hostUserUid==FirebaseAuth.instance.currentUser!.uid).toList()[index];
+                                    : provider.allBookings
+                                        .where((element) =>
+                                            element.createdBy ==
+                                                FirebaseAuth.instance
+                                                    .currentUser!.uid ||
+                                            element.hostUserUid ==
+                                                FirebaseAuth
+                                                    .instance.currentUser!.uid)
+                                        .toList()
+                                        .length, (index) {
+                              BookingsModel booking = provider.allBookings
+                                  .where((element) =>
+                                      element.createdBy ==
+                                          FirebaseAuth
+                                              .instance.currentUser!.uid ||
+                                      element.hostUserUid ==
+                                          FirebaseAuth
+                                              .instance.currentUser!.uid)
+                                  .toList()[index];
                               return GestureDetector(
                                 onTap: () {
                                   log("____here:HOST ID${booking.hostUserUid}______CURRENT:${FirebaseAuth.instance.currentUser?.uid}___CREATEDBY:${booking.createdBy}");
-                                  if(booking.createdBy==FirebaseAuth.instance.currentUser?.uid) {
-                                    Get.toNamed(BookingsDetail.route, arguments: {
-                                    "bookingsModel":booking
-                                  });
-                                  }
-                                  else if(booking.hostUserUid==FirebaseAuth.instance.currentUser?.uid) {
+                                  if (booking.createdBy ==
+                                      FirebaseAuth.instance.currentUser?.uid) {
+                                    Get.toNamed(BookingsDetail.route,
+                                        arguments: {"bookingsModel": booking});
+                                  } else if (booking.hostUserUid ==
+                                      FirebaseAuth.instance.currentUser?.uid) {
                                     Get.toNamed(HostBookingDetail.route,
-                                        arguments: {
-                                          "bookingsModel": booking
-                                        });
+                                        arguments: {"bookingsModel": booking});
                                   }
                                 },
                                 child: BookingsWidget(
@@ -215,8 +261,9 @@ class _HomeViewState extends State<HomeView> {
                                       color: R.colors.themeMud,
                                       decoration: TextDecoration.underline,
                                       fontSize: 12.sp),
-
-                                ),],),
+                                ),
+                              ],
+                            ),
                           ),
                           h7,
                         ],
