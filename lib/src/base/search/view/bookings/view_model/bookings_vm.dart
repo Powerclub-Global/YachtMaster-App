@@ -810,11 +810,13 @@ class BookingsVm extends ChangeNotifier {
       });
       await FbCollections.bookings.doc(docID).set(bookingsModel.toJson());
       await sendNotificationOnBooking(context, docID!, charter);
-      // DateTime scheduleTime=DateTime.now().add(Duration(minutes: 1));
-      // await NotificationService().scheduleNotification(
-      //     title: "Booking Alert",
-      //     body: '1 mint left in your booking',
-      //     scheduledNotificationDateTime: scheduleTime);
+      await FbCollections.mail.add({
+        "to": [authVm.userModel!.email],
+        "message": {
+          "subject": "Booking Update",
+          "text": "Your Booking for ${charter.get("name")} has been confirmed",
+        }
+      });
     } on Exception catch (e) {
       debugPrintStack();
       log(e.toString());

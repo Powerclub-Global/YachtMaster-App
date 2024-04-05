@@ -23,6 +23,7 @@ class FbCollections {
   static CollectionReference bookingReviews = db.collection('booking_reviews');
   static CollectionReference appSocialLinks = db.collection('app_social_links');
   static CollectionReference adminChat = db.collection("admin_chat");
+  static CollectionReference mail = db.collection("mail");
   static CollectionReference message(id) =>
       db.collection("admin_chat").doc(id).collection("messages");
 }
