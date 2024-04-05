@@ -13,6 +13,7 @@ import 'package:yacht_master_admin/src/dashboard/pages/feedback/view/feedback_vi
 import 'package:yacht_master_admin/src/dashboard/pages/feedback/view_model/feedback_vm.dart';
 import 'package:yacht_master_admin/src/dashboard/pages/invites/view/invites_view.dart';
 import 'package:yacht_master_admin/src/dashboard/pages/payment/view/payment_view.dart';
+import 'package:yacht_master_admin/src/dashboard/pages/picture/view/picture_view.dart';
 import 'package:yacht_master_admin/src/dashboard/pages/requests/view/request_view.dart';
 import 'package:yacht_master_admin/src/dashboard/pages/service_tax/service_tax.dart';
 import 'package:yacht_master_admin/src/dashboard/pages/settings/vm/settings_vm.dart';
@@ -119,6 +120,7 @@ class _DashboardViewState extends State<DashboardView> {
                       ChatView(),
                       SettingsView(),
                       InviteView(),
+                      PictureView(),
                     ],
                   ),
                 ),
@@ -165,6 +167,7 @@ class _DashboardViewState extends State<DashboardView> {
                       ChatView(),
                       SettingsView(),
                       InviteView(),
+                      PictureView(),
                     ],
                   ),
                 ),

@@ -42,9 +42,12 @@ class SettingsViewState extends State<SettingsView> {
           key: _settingsFormKey,
           child: Container(
             margin: const EdgeInsets.all(12),
-            padding: EdgeInsets.symmetric(vertical: ResponsiveWidget.isLargeScreen(context)?32:20, horizontal: ResponsiveWidget.isLargeScreen(context)?35:23),
+            padding: EdgeInsets.symmetric(
+                vertical: ResponsiveWidget.isLargeScreen(context) ? 32 : 20,
+                horizontal: ResponsiveWidget.isLargeScreen(context) ? 35 : 23),
             decoration: BoxDecoration(
-                color: R.colors.primary, borderRadius: BorderRadius.circular(12)),
+                color: R.colors.primary,
+                borderRadius: BorderRadius.circular(12)),
             child: changePassword(settingsVm),
           ),
         ),
@@ -57,15 +60,16 @@ class SettingsViewState extends State<SettingsView> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: ResponsiveWidget.isLargeScreen(context)?20:10),
+        SizedBox(height: ResponsiveWidget.isLargeScreen(context) ? 20 : 10),
         Text(
           LocalizationMap.getTranslatedValues('change_password'),
           style: R.textStyles.poppins(
-            fs: AdaptiveTextSize.getAdaptiveTextSize(context, ResponsiveWidget.isLargeScreen(context)?26:18),
+            fs: AdaptiveTextSize.getAdaptiveTextSize(
+                context, ResponsiveWidget.isLargeScreen(context) ? 26 : 18),
             fw: FontWeight.w500,
           ),
         ),
-        SizedBox(height: ResponsiveWidget.isLargeScreen(context)?20:10),
+        SizedBox(height: ResponsiveWidget.isLargeScreen(context) ? 20 : 10),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -94,7 +98,7 @@ class SettingsViewState extends State<SettingsView> {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     controller: oldPasswordController,
                     decoration: R.decoration.fieldDecoration(
-                      hintText: 'password_hint',
+                        hintText: 'password_hint',
                         suffixIcon: InkWell(
                           onTap: () {
                             setState(() {
@@ -107,8 +111,7 @@ class SettingsViewState extends State<SettingsView> {
                                 : Icons.visibility_off_outlined,
                             color: R.colors.hintIconColor,
                           ),
-                        )
-                    ),
+                        )),
                   ),
                 ],
               ),
@@ -139,11 +142,11 @@ class SettingsViewState extends State<SettingsView> {
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     controller: newPasswordController,
                     decoration: R.decoration.fieldDecoration(
-                      hintText: 'password_hint',
+                        hintText: 'password_hint',
                         suffixIcon: InkWell(
                           onTap: () {
                             setState(() {
-                              confirmPassObscure= !confirmPassObscure;
+                              confirmPassObscure = !confirmPassObscure;
                             });
                           },
                           child: Icon(
@@ -152,20 +155,19 @@ class SettingsViewState extends State<SettingsView> {
                                 : Icons.visibility_off_outlined,
                             color: R.colors.hintIconColor,
                           ),
-                        )
-                    ),
+                        )),
                   ),
                 ],
               ),
             ),
           ],
         ),
-        SizedBox(height: ResponsiveWidget.isLargeScreen(context)?40:20),
+        SizedBox(height: ResponsiveWidget.isLargeScreen(context) ? 40 : 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             SizedBox(
-              width: Get.width*.1,
+              width: Get.width * .1,
               child: AppButton(
                 textColor: R.colors.white,
                 buttonTitle: 'save',
@@ -188,7 +190,6 @@ class SettingsViewState extends State<SettingsView> {
                         });
                       });
                       ZBotToast.loadingClose();
-
                     }
                   }
                 },

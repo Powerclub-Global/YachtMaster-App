@@ -19,6 +19,7 @@ import 'package:yacht_master_admin/src/auth/vm/auth_vm.dart';
 import 'package:yacht_master_admin/src/dashboard/pages/bookings/view_model/bookings_vm.dart';
 import 'package:yacht_master_admin/src/dashboard/pages/chat/vm/chat_vm.dart';
 import 'package:yacht_master_admin/src/dashboard/pages/feedback/view_model/feedback_vm.dart';
+import 'package:yacht_master_admin/src/dashboard/pages/picture/vm/picture_vm.dart';
 import 'package:yacht_master_admin/src/dashboard/pages/users/view_model/user_vm.dart';
 import 'package:yacht_master_admin/src/dashboard/pages/settings/vm/settings_vm.dart';
 import 'package:yacht_master_admin/src/dashboard/vm/base_vm.dart';
@@ -26,7 +27,6 @@ import 'package:yacht_master_admin/src/landing_pages/view/splash_view.dart';
 
 import 'src/auth/view/auth_view.dart';
 import 'src/dashboard/view/base_view.dart';
-
 
 void onDidReceiveLocalNotification(
     int id, String? title, String? body, String? payload) async {
@@ -70,29 +70,27 @@ void onDidReceiveNotificationResponse(
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: const FirebaseOptions (
-        apiKey: "AIzaSyAMsdps8YdyQemF6d7bDHydjY98dPpVB0I",
-        authDomain: "yacht-masters.firebaseapp.com",
-        projectId: "yacht-masters",
-        storageBucket: "yacht-masters.appspot.com",
-        messagingSenderId: "634115072396",
-        appId: "1:634115072396:web:81059a7f61d6577a5536a9",
-        measurementId: "G-MFSD0MFPHK"
-    )
-  );
+      options: const FirebaseOptions(
+          apiKey: "AIzaSyAMsdps8YdyQemF6d7bDHydjY98dPpVB0I",
+          authDomain: "yacht-masters.firebaseapp.com",
+          projectId: "yacht-masters",
+          storageBucket: "yacht-masters.appspot.com",
+          messagingSenderId: "634115072396",
+          appId: "1:634115072396:web:81059a7f61d6577a5536a9",
+          measurementId: "G-MFSD0MFPHK"));
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
   const AndroidInitializationSettings initializationSettingsAndroid =
-  AndroidInitializationSettings('@mipmap/launcher_icon');
+      AndroidInitializationSettings('@mipmap/launcher_icon');
   final DarwinInitializationSettings initializationSettingsDarwin =
-  DarwinInitializationSettings(
+      DarwinInitializationSettings(
     requestSoundPermission: false,
     requestBadgePermission: false,
     requestAlertPermission: false,
     onDidReceiveLocalNotification: onDidReceiveLocalNotification,
   );
   final LinuxInitializationSettings initializationSettingsLinux =
-  LinuxInitializationSettings(defaultActionName: 'Open notification');
+      LinuxInitializationSettings(defaultActionName: 'Open notification');
   final InitializationSettings initializationSettings = InitializationSettings(
       android: initializationSettingsAndroid,
       iOS: initializationSettingsDarwin,
@@ -110,11 +108,12 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (context) => FeedbackVm()),
         ChangeNotifierProvider(create: (context) => BookingsVm()),
         ChangeNotifierProvider(create: (context) => ChatVM()),
-
+        ChangeNotifierProvider(create: (context) => PictureVM()),
       ],
       child: const MyApp(),
     ),
-  );}
+  );
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -123,7 +122,6 @@ class MyApp extends StatelessWidget {
     return Sizer(builder: (context, orientation, deviceType) {
       return ResponsiveBreakpoints.builder(
         breakpoints: [
-
           const Breakpoint(start: 1250, end: double.infinity, name: '4K'),
         ],
         child: GetMaterialApp(
@@ -159,7 +157,8 @@ class MyApp extends StatelessWidget {
             GetPage(name: "/", page: () => const SplashView()),
             GetPage(name: SplashView.route, page: () => const SplashView()),
             GetPage(name: AuthView.route, page: () => const AuthView()),
-            GetPage(name: DashboardView.route, page: () => const DashboardView()),
+            GetPage(
+                name: DashboardView.route, page: () => const DashboardView()),
           ],
           theme: ThemeData(
             primarySwatch: Colors.blue,
@@ -173,7 +172,7 @@ class MyApp extends StatelessWidget {
 class MyCustomScrollBehavior extends MaterialScrollBehavior {
   @override
   Set<PointerDeviceKind> get dragDevices => {
-    PointerDeviceKind.touch,
-    PointerDeviceKind.mouse,
-  };
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      };
 }

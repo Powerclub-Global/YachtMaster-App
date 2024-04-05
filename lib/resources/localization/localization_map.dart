@@ -160,6 +160,8 @@ class LocalizationMap {
     "end_date_time": "End Date & Time",
     "payment_verification_requests": "Payment Verification Requests",
     "accepted": "Accepted",
+    "ch_pic": "Change Media on Home Page",
+    "up_save": "Choose and Upload Image",
   };
 
   static String getTranslatedValues(String key) {

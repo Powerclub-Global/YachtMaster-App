@@ -15,4 +15,5 @@ class FBCollections {
   static CollectionReference services = fb.collection("services");
   static CollectionReference message(id) =>
       fb.collection("admin_chat").doc(id).collection("messages");
+  static CollectionReference settings = fb.collection("settings");
 }
