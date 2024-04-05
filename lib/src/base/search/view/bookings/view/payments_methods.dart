@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -18,17 +19,23 @@ import 'package:yacht_master/localization/app_localization.dart';
 import 'package:yacht_master/main.dart';
 import 'package:yacht_master/resources/decorations.dart';
 import 'package:yacht_master/resources/resources.dart';
+import 'package:yacht_master/services/firebase_collections.dart';
+import 'package:yacht_master/services/stripe/stripe_service.dart';
 import 'package:yacht_master/services/time_schedule_service.dart';
+import 'package:yacht_master/src/base/base_view.dart';
 import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
+import 'package:yacht_master/src/base/search/model/stripe_card_model.dart';
 import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
 import 'package:yacht_master/src/base/search/view/bookings/view/add_credit_card.dart';
 import 'package:yacht_master/src/base/search/view/bookings/view/apple_store_sheet.dart';
 import 'package:yacht_master/src/base/search/view/bookings/view/pay_with_crypto.dart';
 import 'package:yacht_master/src/base/search/view/bookings/view/pay_with_wallet.dart';
 import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
+import 'package:yacht_master/src/base/yacht/widgets/congo_bottomSheet.dart';
 import 'package:yacht_master/utils/general_app_bar.dart';
 import 'package:yacht_master/utils/heights_widths.dart';
 import 'package:yacht_master/utils/helper.dart';
+
 
 class PaymentMethods extends StatefulWidget {
   static String route = "/paymentMethods";
@@ -568,9 +575,47 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                           width: 200,
                           height: 50,
                           margin: const EdgeInsets.only(top: 15.0),
-                          onPaymentResult: (value) {
+
+                          onPressed:() {
+                            provider.selectedPaymentMethod=1;
+                          },
+
+                          onPaymentResult: (value) async {
                             print("payment was success");
+                            StripeService stripe = StripeService();
+                            final token = await Stripe.instance.createApplePayToken(value);
                             print(value);
+<<<<<<< HEAD
+=======
+                            final paymentIntentResult =
+                                await stripe.createPaymentIntents(
+                              amount: "100",
+                              currency: 'usd', // mocked data
+                              secretKey: secretKey!,
+                            );
+                             print('Fetched Payment Intent');
+                             //print(value["token"]["data"]);
+                             print('Did that Successfully');
+                            //  print(value["token"]["data"]);
+                            //var token = value[2]["data"];
+                              // print('About to Add Token');
+                              // final tokenJson = Map.castFrom(json.decode(value));
+                            final params = PaymentMethodParams.cardFromToken(
+                                paymentMethodData:
+                                    PaymentMethodDataCardFromToken(
+                                        token: token.id));
+                                      print('About to Make Call to Strip');
+
+                            // Confirm Google pay payment method
+                            await Stripe.instance.confirmPayment(
+                                paymentIntentClientSecret:
+                                paymentIntentResult?['client_secret'],
+                                data: params);
+                                print('Stripe Call Made');
+
+                            await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
+
+>>>>>>> 4d88c4a1fe48c1a8ea75f481c2d03bc5378e2e61
                           },
                           onError: (error) {
                             print(error);
@@ -871,7 +916,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
             provider.bookingsModel.paymentDetail?.paymentMethod =
                 PaymentMethodEnum.card.index;
             provider.update();
-            // await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
+             await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
             // Get.toNamed(AddCreditCard.route);
             break;
           case 1:
