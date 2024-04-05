@@ -85,7 +85,9 @@ class _SearchScreenState extends State<SearchScreen> {
     var yachtVm = Provider.of<YachtVm>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       Reference root = FirebaseStorage.instance.ref();
-      picLink = await root.child("leo.png").getDownloadURL();
+      var globalDoc = await FbCollections.settings.doc("global").get();
+      Map<String, dynamic>? gdData = globalDoc.data() as Map<String, dynamic>?;
+      picLink = gdData!['resURL'];
       setState(() {});
       yachtVm.allCharters
           .where((element) =>
@@ -181,8 +183,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   child: AspectRatio(
                                     aspectRatio: 810 / 293,
                                     child: CachedNetworkImage(
-                                      imageUrl:
-                                          "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExM2hieW55ODl3cXE3dTM2YTdia2QyNXF1dGF4b2pzb3FwN216djVyOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/d8zS7MFwqvV8Lj82GX/giphy.gif",
+                                      imageUrl: picLink ?? "",
                                       fit: BoxFit.cover,
                                       progressIndicatorBuilder:
                                           (context, url, downloadProgress) =>
