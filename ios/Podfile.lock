@@ -1203,7 +1203,7 @@ PODS:
     - StripeUICore (= 23.18.3)
   - StripeUICore (23.18.3):
     - StripeCore (= 23.18.3)
-  - SwiftyGif (5.4.4)
+  - SwiftyGif (5.4.5)
   - Toast (4.1.0)
   - url_launcher_ios (0.0.1):
     - Flutter
@@ -1384,7 +1384,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   abseil: ebec4f56469dd7ce9ab08683c0319a68aa0ad86e
   AppAuth: a13994980c1ec792f7e2e665acd4d4aa6be43240
-  audio_session: 4f3e461722055d21515cf3261b64c973c062f345
+  audio_session: 088d2483ebd1dc43f51d253d4a1c517d9a2e7207
   BoringSSL-GRPC: 1e2348957acdbcad360b80a264a90799984b2ba6
   cloud_firestore: 97e80651e196c32554cedcd31858b9615ac8a704
   connectivity_plus: 413a8857dd5d9f1c399a39130850d02fe0feaf7e
@@ -1415,7 +1415,7 @@ SPEC CHECKSUMS:
   FirebaseRemoteConfig: e1b992a94d3674dddbcaf5d0d31a0312156ceb1c
   FirebaseSharedSwift: c92645b392db3c41a83a0aa967de16f8bad25568
   FirebaseStorage: bc7bddc743548a89cfb896843a77cf4bdde2c231
-  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_email_sender: 02d7443217d8c41483223627972bfdc09f74276b
   flutter_facebook_auth: 42016bec1574eabf69bc2fe4311e8cd55813d352
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
@@ -1461,7 +1461,7 @@ SPEC CHECKSUMS:
   StripePaymentSheet: c8d25d4133476c6238d3cc932fb8219bb5ea49c0
   StripePaymentsUI: c12de264eda974d91e43a769f53a6c6afc9a1715
   StripeUICore: 090c4fe916d039616ce8f8de30392f4aeb33dd16
-  SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
+  SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   Toast: ec33c32b8688982cecc6348adeae667c1b9938da
   url_launcher_ios: bbd758c6e7f9fd7b5b1d4cde34d2b95fcce5e812
   video_player_avfoundation: 02011213dab73ae3687df27ce441fbbcc82b5579
@@ -1470,4 +1470,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: d48720e6339c976f4f56ecd71ad3a57cf4e13082
 
-COCOAPODS: 1.14.3
+COCOAPODS: 1.15.2

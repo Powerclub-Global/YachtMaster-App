@@ -29,6 +29,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>yachtmasterapp.com</string>
 				<string>com.googleusercontent.apps.634115072396-0m1ak1a04pql1126mkcq0c6j2cc2h1u5</string>
 				<string>app-1-634115072396-ios-f497e701fa1240ff5536a9</string>
 			</array>
@@ -38,6 +39,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MinimumOSVersion</key>
@@ -57,6 +60,8 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This permission is required to upload images for the yacht and charter</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>FlutterDeepLinkingEnabled</key>
 	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
