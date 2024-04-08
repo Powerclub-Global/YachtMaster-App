@@ -18,17 +18,24 @@ class BookingsModel {
 
   BookingsModel.fromJson(dynamic json) {
     totalGuest = json['total_guest'];
-    charterFleetDetail =
-        json['charter_fleet_detail'] != null ? CharterFleetDetail.fromJson(json['charter_fleet_detail']) : null;
-    paymentDetail = json['payment_detail'] != null ? PaymentDetail.fromJson(json['payment_detail']) : null;
-    schedule = json['schedule '] != null ? BookingScheduleModel.fromJson(json['schedule ']) : null;
+    charterFleetDetail = json['charter_fleet_detail'] != null
+        ? CharterFleetDetail.fromJson(json['charter_fleet_detail'])
+        : null;
+    paymentDetail = json['payment_detail'] != null
+        ? PaymentDetail.fromJson(json['payment_detail'])
+        : null;
+    schedule = json['schedule '] != null
+        ? BookingScheduleModel.fromJson(json['schedule '])
+        : null;
     durationType = json['duration_type'];
     createdAt = json['created_at'];
     bookingStatus = json['booking_status'];
     id = json['id'];
     createdBy = json['created_by'];
     hostUserUid = json['host_user_uid'];
-    priceDetaill = json['price_detaill'] != null ? PriceDetaill.fromJson(json['price_detaill']) : null;
+    priceDetaill = json['price_detaill'] != null
+        ? PriceDetaill.fromJson(json['price_detaill'])
+        : null;
   }
   int? totalGuest;
   CharterFleetDetail? charterFleetDetail;
@@ -446,4 +453,3 @@ class PaymentIntents {
     return map;
   }
 }
-

@@ -809,12 +809,255 @@ class BookingsVm extends ChangeNotifier {
         "is_card_saved": isSaveThisCard,
       });
       await FbCollections.bookings.doc(docID).set(bookingsModel.toJson());
+      DocumentSnapshot hostDoc =
+          await FbCollections.user.doc(charter.get("created_by")).get();
+      UserModel hostUser = UserModel.fromJson(hostDoc.data());
       await sendNotificationOnBooking(context, docID!, charter);
+      // print(charter.get("images")[0]);
+      // print(charter.get("location")["adress"]);
+      // print(DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate()));
+      // // print(bookingsModel.schedule!.startTime);
+      // print(bookingsModel.totalGuest);
+      await FbCollections.mail.add({
+        "to": [hostUser.email],
+        "message": {
+          "subject": "Booking Update",
+          "text": "Your Booking for ${charter.get("name")} has been confirmed",
+          "html": '''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixing Gmail’s dark mode issues with CSS Blend Modes</title>
+    <style>
+        u + .body .gmail-blend-screen { background:#000; mix-blend-mode:screen; }
+        u + .body .gmail-blend-difference { background:#000; mix-blend-mode:difference; }
+        p{
+          color: #ffffff;
+        }
+        h5{
+          color: #ffffff;
+        }
+        h1 {
+          font-size: 60px;
+          border-bottom: 3px solid #ffd700;
+          color: #ffffff;
+        }
+        .bg-complementary {
+          background-color: #ffd700;
+        }
+        body {
+          padding: 20px;
+          background-color: #000000;
+          color: #ffffff;
+        }
+        .container {
+          padding: 20px;
+        }
+        .golden-container {
+          padding: 10px;
+          box-sizing: border-box;
+          margin-bottom: 20px;
+          border: 3px solid #ffd700;
+          border-radius: 10px;
+          background-color: transparent;
+          display: grid;
+        }
+        .image-container {
+          padding: 0;
+        }
+        .image-container img {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+        .text-container {
+          padding: 10px;
+        }
+        .text-container h3 {
+          padding-bottom: 1px;
+          color: #ffffff;
+        }
+        h3{
+          border-bottom: 2px solid #ffd700;
+          width: 35%;
+        }
+    </style>
+</head>
+<body class="body">
+    <div style="background:#000; color:#fff;">
+        <div class="gmail-blend-screen">
+            <div class="gmail-blend-difference">
+                <html>
+                  <head>
+                    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+                    
+                  </head>
+                  <body>
+                    <div class="container">
+                      <div class="card my-10">
+                        <div class="card-body">
+                          <h1 class="h3 mb-1">Booking Details</h1>
+                          <h5 class="text-teal-700" style="margin-top: 0;">Here are the Details of your latest booking on the YachtMaster App</h5>
+                          <div class="space-y-3">
+                            <div class="bg-complementary rounded golden-container">
+                              <div class="image-container">
+                                <img src="${charter.get("images")[0]}" alt="Yacht Image">
+                              </div>
+                              <div class="text-container" >
+                                <h3 class="text-lg font-semibold mb-1">${charter.get("name")}</h3>
+                                <p>${charter.get("location")["adress"]}</p>
+                              </div>
+                            </div>
+                            <div class="bg-complementary rounded golden-container">
+                              <div class="text-container">
+                                <h3 class="text-lg font-semibold mb-1">Renter Details</h3>
+                                <p><strong>Name:</strong> ${authVm.userModel!.firstName} ${authVm.userModel!.lastName}</p>
+                                <p><strong>Email ID:</strong> ${authVm.userModel!.email}</p>
+                                <p><strong>Phone Number:</strong> ${authVm.userModel!.phoneNumber}</p>
+                              </div>
+                            </div>
+                            <div class="bg-complementary rounded golden-container">
+                              <div class="text-container">
+                                <h3 class="text-lg font-semibold mb-1">Booking Information</h3>
+                                <p><strong>Start Date and Time:</strong> ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate())} ${bookingsModel.schedule!.startTime}</p>
+                                <p><strong>End Date and Time:</strong> ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![1].toDate())} ${bookingsModel.schedule!.endTime}</p>
+                                <p><strong>Number of Guests:</strong> ${bookingsModel.totalGuest}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </body>
+                </html>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+''',
+        }
+      });
       await FbCollections.mail.add({
         "to": [authVm.userModel!.email],
         "message": {
           "subject": "Booking Update",
           "text": "Your Booking for ${charter.get("name")} has been confirmed",
+          "html": '''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixing Gmail’s dark mode issues with CSS Blend Modes</title>
+    <style>
+        u + .body .gmail-blend-screen { background:#000; mix-blend-mode:screen; }
+        u + .body .gmail-blend-difference { background:#000; mix-blend-mode:difference; }
+        p{
+          color: #ffffff;
+        }
+        h5{
+          color: #ffffff;
+        }
+        h1 {
+          font-size: 60px;
+          border-bottom: 3px solid #ffd700;
+          color: #ffffff;
+        }
+        .bg-complementary {
+          background-color: #ffd700;
+        }
+        body {
+          padding: 20px;
+          background-color: #000000;
+          color: #ffffff;
+        }
+        .container {
+          padding: 20px;
+        }
+        .golden-container {
+          padding: 10px;
+          box-sizing: border-box;
+          margin-bottom: 20px;
+          border: 3px solid #ffd700;
+          border-radius: 10px;
+          background-color: transparent;
+          display: grid;
+        }
+        .image-container {
+          padding: 0;
+        }
+        .image-container img {
+          width: 100%;
+          height: auto;
+          display: block;
+        }
+        .text-container {
+          padding: 10px;
+        }
+        .text-container h3 {
+          padding-bottom: 1px;
+          color: #ffffff;
+        }
+        h3{
+          border-bottom: 2px solid #ffd700;
+          width: 35%;
+        }
+    </style>
+</head>
+<body class="body">
+    <div style="background:#000; color:#fff;">
+        <div class="gmail-blend-screen">
+            <div class="gmail-blend-difference">
+                <html>
+                  <head>
+                    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+                    
+                  </head>
+                  <body>
+                    <div class="container">
+                      <div class="card my-10">
+                        <div class="card-body">
+                          <h1 class="h3 mb-1">Booking Details</h1>
+                          <h5 class="text-teal-700" style="margin-top: 0;">Here are the Details of your latest booking on the YachtMaster App</h5>
+                          <div class="space-y-3">
+                            <div class="bg-complementary rounded golden-container">
+                              <div class="image-container">
+                                <img src="${charter.get("images")[0]}" alt="Yacht Image">
+                              </div>
+                              <div class="text-container" >
+                                <h3 class="text-lg font-semibold mb-1">${charter.get("name")}</h3>
+                                <p>${charter.get("location")["adress"]}</p>
+                              </div>
+                            </div>
+                            <div class="bg-complementary rounded golden-container">
+                              <div class="text-container">
+                                <h3 class="text-lg font-semibold mb-1">Host Details</h3>
+                                <p><strong>Name:</strong> ${hostUser.firstName} ${hostUser.lastName}</p>
+                                <p><strong>Email ID:</strong> ${hostUser.email}</p>
+                                <p><strong>Phone Number:</strong> ${hostUser.phoneNumber}</p>
+                              </div>
+                            </div>
+                            <div class="bg-complementary rounded golden-container">
+                              <div class="text-container">
+                                <h3 class="text-lg font-semibold mb-1">Booking Information</h3>
+                                <p><strong>Start Date and Time:</strong> ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate())} ${bookingsModel.schedule!.startTime}</p>
+                                <p><strong>End Date and Time:</strong> ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![1].toDate())} ${bookingsModel.schedule!.endTime}</p>
+                                <p><strong>Number of Guests:</strong> ${bookingsModel.totalGuest}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </body>
+                </html>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+''',
         }
       });
     } on Exception catch (e) {
