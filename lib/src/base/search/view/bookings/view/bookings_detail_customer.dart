@@ -79,7 +79,6 @@ class _BookingsDetailState extends State<BookingsDetail> {
   @override
   Widget build(BuildContext context) {
     return Consumer<BookingsVm>(builder: (context, provider, _) {
-
       return Scaffold(
           backgroundColor: R.colors.black,
           appBar: GeneralAppBar.simpleAppBar(
@@ -94,10 +93,12 @@ class _BookingsDetailState extends State<BookingsDetail> {
                   builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
                     if (!snapshot.hasData) {
                       return SizedBox();
-                    }else if (snapshot.connectionState==ConnectionState.waiting) {
-                      return SpinKitPulse(color: R.colors.themeMud,);
-                    }
-                    else {
+                    } else if (snapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return SpinKitPulse(
+                        color: R.colors.themeMud,
+                      );
+                    } else {
                       CharterModel charterModel =
                           CharterModel.fromJson(snapshot.data?.data());
                       return Column(
@@ -109,8 +110,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                               Container(
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
-                                    color: R.colors.whiteColor
-                                ),
+                                    color: R.colors.whiteColor),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
                                   child: CachedNetworkImage(
@@ -121,7 +121,9 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                     fit: BoxFit.cover,
                                     progressIndicatorBuilder:
                                         (context, url, downloadProgress) =>
-                                            SpinKitPulse(color: R.colors.themeMud,),
+                                            SpinKitPulse(
+                                      color: R.colors.themeMud,
+                                    ),
                                     errorWidget: (context, url, error) =>
                                         Icon(Icons.error),
                                   ),
@@ -162,12 +164,13 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                       }),
                                   h0P5,
                                   SizedBox(
-                                    width: Get.width*.5,
+                                    width: Get.width * .5,
                                     child: Text(
-                                      charterModel.location?.adress ?? "",
+                                      " ${charterModel.location?.adress}\n Dock No: ${charterModel.location?.dockno}  Slip No: ${charterModel.location?.slipno}",
                                       style: R.textStyle.helvetica().copyWith(
                                           color: R.colors.whiteDull,
-                                          fontSize: 11.sp),maxLines: 2,
+                                          fontSize: 11.sp),
+                                      maxLines: 2,
                                     ),
                                   ),
                                 ],
@@ -185,16 +188,21 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                 vertical: Get.height * .02),
                             child: FutureBuilder(
                                 future: FbCollections.user
-                                    .doc(bookingsModel?.createdBy)
+                                    .doc(charterModel.createdBy)
                                     .get(),
                                 builder: (context,
                                     AsyncSnapshot<DocumentSnapshot>
                                         userSnapshot) {
                                   if (!userSnapshot.hasData) {
                                     return SizedBox();
-                                  } else if (userSnapshot.connectionState==ConnectionState.waiting) {
-                                    return Center(child: SpinKitPulse(color: R.colors.themeMud,),);
-                                  }else {
+                                  } else if (userSnapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return Center(
+                                      child: SpinKitPulse(
+                                        color: R.colors.themeMud,
+                                      ),
+                                    );
+                                  } else {
                                     UserModel bookingUser = UserModel.fromJson(
                                         userSnapshot.data?.data());
                                     return Column(
@@ -202,7 +210,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "Renter Details",
+                                          "Host Details",
                                           style: R.textStyle
                                               .helveticaBold()
                                               .copyWith(
@@ -251,13 +259,73 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                 vertical: Get.height * .02),
                             child: Column(
                               children: [
+                                tiles("marina_address",
+                                    charterModel.location!.adress ?? ""),
+                                tiles("dock_no",
+                                    charterModel.location!.dockno ?? ""),
+                                tiles("slip_no",
+                                    charterModel.location!.slipno ?? "",
+                                    isDivider: false),
+                              ],
+                            ),
+                          ),
+                          h2,
+                          Container(
+                            decoration: BoxDecoration(
+                                color: R.colors.blackDull,
+                                borderRadius: BorderRadius.circular(12)),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: Get.width * .03,
+                                vertical: Get.height * .02),
+                            child: Column(
+                              children: [
                                 tiles(
-                                  "start_date_time", DateFormat("dd/MM/yyyy hh:mm a").format((bookingsModel?.schedule?.dates?.first.toDate() ?? DateTime.now())),
+                                  "start_date_time",
+                                  DateFormat("dd/MM/yyyy hh:mm a").format(
+                                      (bookingsModel?.schedule?.dates?.first
+                                              .toDate() ??
+                                          DateTime.now())),
                                 ),
-                                tiles("end_date_time",
-                                    DateFormat("dd/MM/yyyy hh:mm a").format((bookingsModel?.schedule?.dates?.last.toDate() ?? DateTime.now()))),
+                                tiles(
+                                    "end_date_time",
+                                    DateFormat("dd/MM/yyyy hh:mm a").format(
+                                        (bookingsModel?.schedule?.dates?.last
+                                                .toDate() ??
+                                            DateTime.now()))),
                                 tiles("guests", "${bookingsModel?.totalGuest}",
                                     isDivider: false),
+                              ],
+                            ),
+                          ),
+                          h2,
+                          Container(
+                            width: Get.width,
+                            decoration: BoxDecoration(
+                                color: R.colors.blackDull,
+                                borderRadius: BorderRadius.circular(12)),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: Get.width * .03,
+                                vertical: Get.height * .02),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  charterModel
+                                          .boardingInstructions?.title ??
+                                      "",
+                                  style: R.textStyle.helveticaBold().copyWith(
+                                      color: R.colors.whiteColor,
+                                      fontSize: 14.sp),
+                                ),
+                                h1P5,
+                                Text(
+                                  charterModel
+                                          .boardingInstructions?.description ??
+                                      "",
+                                  style: R.textStyle.helveticaBold().copyWith(
+                                      color: R.colors.whiteDull,
+                                      fontSize: 12.sp),
+                                ),
                               ],
                             ),
                           ),
@@ -308,62 +376,67 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  bookingsModel?.paymentDetail
-                                                              ?.payInType ==
-                                                          PayType.fullPay.index
-                                                      ? "Fully Pay"
-                                                      : "25% Deposit",
-                                                  style: R.textStyle
-                                                      .helveticaBold()
-                                                      .copyWith(
-                                                          color: R.colors
-                                                              .whiteColor,
-                                                          fontSize: 10.sp,
-                                                          height: 1.5),
-                                                ),
-                                                Text(
-                                                  " with ",
-                                                  style: R.textStyle
-                                                      .helvetica()
-                                                      .copyWith(
-                                                          color: R.colors
-                                                              .whiteColor,
-                                                          fontSize: 10.sp,
-                                                          height: 1.5),
-                                                ),
-                                                Text(
-                                                  bookingsModel?.paymentDetail
-                                                      ?.paymentMethod ==
-                                                      PaymentMethodEnum
-                                                          .wallet.index
-                                                      ? "Wallet":
-                                                  bookingsModel?.paymentDetail
-                                                              ?.paymentMethod ==
-                                                          PaymentMethodEnum
-                                                              .card.index
-                                                      ? "Credit Card"
-                                                      : bookingsModel
-                                                                  ?.paymentDetail
-                                                                  ?.paymentMethod ==
-                                                              PaymentMethodEnum
-                                                                  .appStore
-                                                                  .index
-                                                          ? "Apple Pay"
-                                                          : "Crypto Currency",
-                                                  style: R.textStyle
-                                                      .helvetica()
-                                                      .copyWith(
-                                                          color: R.colors
-                                                              .whiteColor,
-                                                          fontSize: 10.sp,
-                                                          height: 1.5),
-                                                ),
-                                              ],
+                                            SingleChildScrollView(
+                                              scrollDirection: Axis.horizontal,
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    bookingsModel?.paymentDetail
+                                                                ?.payInType ==
+                                                            PayType
+                                                                .fullPay.index
+                                                        ? "Fully Pay"
+                                                        : "25% Deposit",
+                                                    style: R.textStyle
+                                                        .helveticaBold()
+                                                        .copyWith(
+                                                            color: R.colors
+                                                                .whiteColor,
+                                                            fontSize: 10.sp,
+                                                            height: 1.5),
+                                                  ),
+                                                  Text(
+                                                    " with ",
+                                                    style: R.textStyle
+                                                        .helvetica()
+                                                        .copyWith(
+                                                            color: R.colors
+                                                                .whiteColor,
+                                                            fontSize: 10.sp,
+                                                            height: 1.5),
+                                                  ),
+                                                  Text(
+                                                    bookingsModel?.paymentDetail
+                                                                ?.paymentMethod ==
+                                                            PaymentMethodEnum
+                                                                .wallet.index
+                                                        ? "Wallet"
+                                                        : bookingsModel
+                                                                    ?.paymentDetail
+                                                                    ?.paymentMethod ==
+                                                                PaymentMethodEnum
+                                                                    .card.index
+                                                            ? "Credit Card"
+                                                            : bookingsModel
+                                                                        ?.paymentDetail
+                                                                        ?.paymentMethod ==
+                                                                    PaymentMethodEnum
+                                                                        .appStore
+                                                                        .index
+                                                                ? "Apple Pay"
+                                                                : "Crypto Currency",
+                                                    style: R.textStyle
+                                                        .helvetica()
+                                                        .copyWith(
+                                                            color: R.colors
+                                                                .whiteColor,
+                                                            fontSize: 10.sp,
+                                                            height: 1.5),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                             h0P7,
                                             if (bookingsModel?.paymentDetail
@@ -372,10 +445,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                               SizedBox()
                                             else
                                               Text(
-                                                "${(bookingsModel
-                                                    ?.paymentDetail
-                                                    ?.currentUserCardNum ??
-                                                    "").obsecureCardNum()}",
+                                                "${(bookingsModel?.paymentDetail?.currentUserCardNum ?? "").obsecureCardNum()}",
                                                 style: R.textStyle
                                                     .helveticaBold()
                                                     .copyWith(
@@ -527,10 +597,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                               Expanded(
                                                 flex: 2,
                                                 child: Text(
-                                                  ((bookingsModel?.paymentDetail?.payInType ==
-                                                                  PayType
-                                                                      .deposit
-                                                                      .index &&
+                                                  ((bookingsModel?.paymentDetail?.payInType == PayType.deposit.index &&
                                                               bookingsModel?.paymentDetail?.splitPayment?[index].depositStatus ==
                                                                   DepositStatus
                                                                       .nothingPaid
@@ -541,7 +608,8 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                                                   PayType
                                                                       .fullPay
                                                                       .index &&
-                                                              bookingsModel?.paymentDetail?.splitPayment?[index].remainingAmount.toStringAsFixed(1) != "0.0"
+                                                              bookingsModel?.paymentDetail?.splitPayment?[index].remainingAmount.toStringAsFixed(1) !=
+                                                                  "0.0"
                                                       // && bookingsModel?.bookingStatus==BookingStatus.canceled.index
                                                       )
                                                       ? "-"
@@ -590,8 +658,8 @@ class _BookingsDetailState extends State<BookingsDetail> {
                             ),
                           h2,
                           if (bookingsModel?.paymentDetail?.remainingAmount
-                                      .toStringAsFixed(1) ==
-                                  "0.0" )
+                                  .toStringAsFixed(1) ==
+                              "0.0")
                             SizedBox()
                           else
                             bookingsModel?.paymentDetail?.splitPayment
@@ -615,7 +683,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                         "0.0"
                                 ? SizedBox()
                                 : Container(
-                                  alignment: Alignment.center,
+                                    alignment: Alignment.center,
                                     decoration: BoxDecoration(
                                         color: R.colors.blackDull,
                                         borderRadius:
@@ -623,98 +691,89 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                     padding: EdgeInsets.symmetric(
                                         horizontal: Get.width * .05,
                                         vertical: Get.height * .02),
-                                    child:bookingsModel?.bookingStatus==BookingStatus.canceled.index &&
-                                        bookingsModel?.paymentDetail?.remainingAmount.toStringAsFixed(1)=="0.0"?
-                                    Text(
-                                      "Cancelled By Host",
-                                      style: R.textStyle
-                                          .helveticaBold()
-                                          .copyWith(
-                                          color: R.colors.deleteColor,
-                                          fontSize: 14.sp),
-                                    ):
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          "Remaining Payment",
-                                          style: R.textStyle
-                                              .helveticaBold()
-                                              .copyWith(
-                                                  color: R.colors.whiteColor,
-                                                  fontSize: 14.sp),
-                                        ),
-                                        Text(
-
-                                          bookingsModel?.paymentDetail?.isSplit == true &&
-                                                  bookingsModel?.paymentDetail?.payInType ==
-                                                      PayType.fullPay.index &&
-                                                  firstSlpliter?.paymentStatus ==
-                                                      PaymentStatus
-                                                          .payInAppOrCash.index
-                                              ? "\$${Helper.numberFormatter(double.parse(removeSign(firstSlpliter?.remainingAmount)))}"
-                                              : bookingsModel?.paymentDetail?.isSplit == true &&
-                                                      bookingsModel
-                                                              ?.paymentDetail
-                                                              ?.payInType ==
-                                                          PayType
-                                                              .deposit.index &&
-                                                      firstSlpliter
-                                                              ?.depositStatus ==
-                                                          DepositStatus.nothingPaid
-                                                              .index
-                                                  ? "\$${Helper.numberFormatter(double.parse(removeSign(firstSlpliter?.remainingDeposit)))}"
-                                                  : bookingsModel
-                                                                  ?.paymentDetail
-                                                                  ?.isSplit ==
-                                                              true &&
-                                                          bookingsModel
-                                                                  ?.paymentDetail
-                                                                  ?.payInType ==
-                                                              PayType.deposit
-                                                                  .index &&
-                                                          firstSlpliter
-                                                                  ?.depositStatus ==
-                                                              DepositStatus
-                                                                  .twentyFivePaid
-                                                                  .index
-                                                      ? "\$${Helper.numberFormatter(double.parse(removeSign(firstSlpliter?.remainingAmount)))}":
-                                          bookingsModel
-                                              ?.paymentDetail
-                                              ?.isSplit ==
-                                              true &&
-                                              bookingsModel
-                                                  ?.paymentDetail
-                                                  ?.payInType ==
-                                                  PayType.deposit
-                                                      .index &&
-                                              firstSlpliter
-                                                  ?.depositStatus ==
-                                                  DepositStatus
-                                                      .fullPaid
-                                                      .index
-                                              ? "\$${Helper.numberFormatter(double.parse(removeSign(firstSlpliter?.remainingAmount)))}"
-                                                      : bookingsModel?.paymentDetail
-                                                                      ?.isSplit ==
-                                                                  true &&
-                                                              bookingsModel
-                                                                      ?.paymentDetail
-                                                                      ?.payInType ==
-                                                                  PayType
-                                                                      .fullPay
-                                                                      .index
-                                                          ? "\$${Helper.numberFormatter(double.parse(removeSign(firstSlpliter?.remainingAmount)))}"
-                                                          : "\$${Helper.numberFormatter(double.parse(removeSign(bookingsModel?.paymentDetail?.remainingAmount)))}",
-                                          style: R.textStyle
-                                              .helveticaBold()
-                                              .copyWith(
-                                                color: R.colors.yellowDark,
-                                                fontSize: 15.sp,
+                                    child: bookingsModel?.bookingStatus ==
+                                                BookingStatus.canceled.index &&
+                                            bookingsModel?.paymentDetail
+                                                    ?.remainingAmount
+                                                    .toStringAsFixed(1) ==
+                                                "0.0"
+                                        ? Text(
+                                            "Cancelled By Host",
+                                            style: R.textStyle
+                                                .helveticaBold()
+                                                .copyWith(
+                                                    color: R.colors.deleteColor,
+                                                    fontSize: 14.sp),
+                                          )
+                                        : Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                "Remaining Payment",
+                                                style: R.textStyle
+                                                    .helveticaBold()
+                                                    .copyWith(
+                                                        color:
+                                                            R.colors.whiteColor,
+                                                        fontSize: 14.sp),
                                               ),
-                                        ),
-                                      ],
-                                    ),
+                                              Text(
+                                                bookingsModel?.paymentDetail?.isSplit == true &&
+                                                        bookingsModel
+                                                                ?.paymentDetail
+                                                                ?.payInType ==
+                                                            PayType.fullPay
+                                                                .index &&
+                                                        firstSlpliter?.paymentStatus ==
+                                                            PaymentStatus
+                                                                .payInAppOrCash
+                                                                .index
+                                                    ? "\$${Helper.numberFormatter(double.parse(removeSign(firstSlpliter?.remainingAmount)))}"
+                                                    : bookingsModel?.paymentDetail?.isSplit == true &&
+                                                            bookingsModel
+                                                                    ?.paymentDetail
+                                                                    ?.payInType ==
+                                                                PayType.deposit
+                                                                    .index &&
+                                                            firstSlpliter?.depositStatus ==
+                                                                DepositStatus
+                                                                    .nothingPaid
+                                                                    .index
+                                                        ? "\$${Helper.numberFormatter(double.parse(removeSign(firstSlpliter?.remainingDeposit)))}"
+                                                        : bookingsModel?.paymentDetail?.isSplit == true &&
+                                                                bookingsModel
+                                                                        ?.paymentDetail
+                                                                        ?.payInType ==
+                                                                    PayType
+                                                                        .deposit
+                                                                        .index &&
+                                                                firstSlpliter?.depositStatus ==
+                                                                    DepositStatus
+                                                                        .twentyFivePaid
+                                                                        .index
+                                                            ? "\$${Helper.numberFormatter(double.parse(removeSign(firstSlpliter?.remainingAmount)))}"
+                                                            : bookingsModel?.paymentDetail?.isSplit == true &&
+                                                                    bookingsModel?.paymentDetail?.payInType ==
+                                                                        PayType
+                                                                            .deposit
+                                                                            .index &&
+                                                                    firstSlpliter?.depositStatus ==
+                                                                        DepositStatus.fullPaid.index
+                                                                ? "\$${Helper.numberFormatter(double.parse(removeSign(firstSlpliter?.remainingAmount)))}"
+                                                                : bookingsModel?.paymentDetail?.isSplit == true && bookingsModel?.paymentDetail?.payInType == PayType.fullPay.index
+                                                                    ? "\$${Helper.numberFormatter(double.parse(removeSign(firstSlpliter?.remainingAmount)))}"
+                                                                    : "\$${Helper.numberFormatter(double.parse(removeSign(bookingsModel?.paymentDetail?.remainingAmount)))}",
+                                                style: R.textStyle
+                                                    .helveticaBold()
+                                                    .copyWith(
+                                                      color:
+                                                          R.colors.yellowDark,
+                                                      fontSize: 15.sp,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
                                   ),
                           h4,
                           h4,
@@ -725,10 +784,9 @@ class _BookingsDetailState extends State<BookingsDetail> {
             ),
           ),
           bottomNavigationBar: Container(
-            margin: EdgeInsets.symmetric(horizontal: 4.w,vertical: 1.h),
+            margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
             child: ((bookingsModel?.paymentDetail?.isSplit == true &&
-                        removeSign(firstSlpliter?.remainingAmount) ==
-                            "0.0" &&
+                        removeSign(firstSlpliter?.remainingAmount) == "0.0" &&
                         bookingsModel?.bookingStatus ==
                             BookingStatus.ongoing.index &&
                         firstSlpliter?.paymentType != -1 &&
@@ -753,7 +811,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                         (bookingsModel?.paymentDetail?.isSplit == true &&
                             bookingsModel?.paymentDetail?.payInType ==
                                 PayType.deposit.index &&
-                            removeSign(firstSlpliter?.remainingDeposit)==
+                            removeSign(firstSlpliter?.remainingDeposit) ==
                                 "0.0" &&
                             removeSign(firstSlpliter?.remainingAmount) !=
                                 "0.0" &&
@@ -775,41 +833,178 @@ class _BookingsDetailState extends State<BookingsDetail> {
                             Expanded(
                               child: GestureDetector(
                                 onTap: () async {
-                                  var baseVm = Provider.of<BaseVm>(context, listen: false);
-                                  var authVm = Provider.of<AuthVm>(context, listen: false);
-                                  if(bookingsModel?.paymentDetail?.isSplit==true)
-                                  {
-                                    if(bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.depositStatus==DepositStatus.nothingPaid.index)
-                                    {
-                                      bookingsModel?.paymentDetail?.paidAmount=bookingsModel?.paymentDetail?.paidAmount+bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.remainingDeposit;
-                                      bookingsModel?.paymentDetail?.remainingAmount=bookingsModel?.paymentDetail?.remainingAmount-bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.remainingDeposit;
+                                  var baseVm = Provider.of<BaseVm>(context,
+                                      listen: false);
+                                  var authVm = Provider.of<AuthVm>(context,
+                                      listen: false);
+                                  if (bookingsModel?.paymentDetail?.isSplit ==
+                                      true) {
+                                    if (bookingsModel
+                                            ?.paymentDetail?.splitPayment
+                                            ?.where((element) =>
+                                                element.userUid ==
+                                                FirebaseAuth
+                                                    .instance.currentUser?.uid)
+                                            .first
+                                            .depositStatus ==
+                                        DepositStatus.nothingPaid.index) {
+                                      bookingsModel?.paymentDetail?.paidAmount =
+                                          bookingsModel
+                                                  ?.paymentDetail?.paidAmount +
+                                              bookingsModel
+                                                  ?.paymentDetail?.splitPayment
+                                                  ?.where((element) =>
+                                                      element.userUid ==
+                                                      FirebaseAuth.instance
+                                                          .currentUser?.uid)
+                                                  .first
+                                                  .remainingDeposit;
+                                      bookingsModel?.paymentDetail
+                                          ?.remainingAmount = bookingsModel
+                                              ?.paymentDetail?.remainingAmount -
+                                          bookingsModel
+                                              ?.paymentDetail?.splitPayment
+                                              ?.where((element) =>
+                                                  element.userUid ==
+                                                  FirebaseAuth.instance
+                                                      .currentUser?.uid)
+                                              .first
+                                              .remainingDeposit;
+                                    } else if (bookingsModel
+                                            ?.paymentDetail?.splitPayment
+                                            ?.where((element) =>
+                                                element.userUid ==
+                                                FirebaseAuth
+                                                    .instance.currentUser?.uid)
+                                            .first
+                                            .depositStatus ==
+                                        DepositStatus.twentyFivePaid.index) {
+                                      bookingsModel?.paymentDetail?.paidAmount =
+                                          bookingsModel
+                                                  ?.paymentDetail?.paidAmount +
+                                              bookingsModel
+                                                  ?.paymentDetail?.splitPayment
+                                                  ?.where((element) =>
+                                                      element.userUid ==
+                                                      FirebaseAuth.instance
+                                                          .currentUser?.uid)
+                                                  .first
+                                                  .remainingAmount;
+                                      bookingsModel?.paymentDetail
+                                          ?.remainingAmount = bookingsModel
+                                              ?.paymentDetail?.remainingAmount -
+                                          bookingsModel
+                                              ?.paymentDetail?.splitPayment
+                                              ?.where((element) =>
+                                                  element.userUid ==
+                                                  FirebaseAuth.instance
+                                                      .currentUser?.uid)
+                                              .first
+                                              .remainingAmount;
                                     }
-                                    else if(bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.depositStatus==DepositStatus.twentyFivePaid.index)
-                                    {
-                                      bookingsModel?.paymentDetail?.paidAmount=bookingsModel?.paymentDetail?.paidAmount+bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.remainingAmount;
-                                      bookingsModel?.paymentDetail?.remainingAmount=bookingsModel?.paymentDetail?.remainingAmount-bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.remainingAmount;
-                                    }
-                                    bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.paymentType=PaymentType.payCash.index;
-                                    bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.amount=
-                                    bookingsModel?.paymentDetail?.payInType==PayType.fullPay.index?
-                                    bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.amount:
-                                    bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.depositStatus==DepositStatus.nothingPaid.index?
-                                    bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.remainingDeposit:
-                                    bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.amount + bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.remainingAmount;
-                                    bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.remainingAmount=
-                                    bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.depositStatus==DepositStatus.twentyFivePaid.index?0.0:bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.remainingAmount;
-                                    bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.remainingDeposit=0.0;
-                                    bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.depositStatus=
-                                    bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.depositStatus==DepositStatus.twentyFivePaid.index?
-                                    DepositStatus.fullPaid.index:
-                                    DepositStatus.twentyFivePaid.index;
-                                    bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid==FirebaseAuth.instance.currentUser?.uid).first.paymentStatus=PaymentStatus.payInAppOrCash.index;
-                                  }
-                                  else {
-                                    bookingsModel?.paymentDetail?.paymentType=PaymentType.payCash.index;
-                                    bookingsModel?.paymentDetail?.paidAmount=bookingsModel?.paymentDetail?.paidAmount+bookingsModel?.paymentDetail?.remainingAmount;
-                                    bookingsModel?.paymentDetail?.remainingAmount=0.0;
-                                    bookingsModel?.paymentDetail?.paymentStatus=PaymentStatus.payInAppOrCash.index;
+                                    bookingsModel?.paymentDetail?.splitPayment
+                                            ?.where((element) =>
+                                                element.userUid ==
+                                                FirebaseAuth
+                                                    .instance.currentUser?.uid)
+                                            .first
+                                            .paymentType =
+                                        PaymentType.payCash.index;
+                                    bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid == FirebaseAuth.instance.currentUser?.uid).first.amount = bookingsModel
+                                                ?.paymentDetail?.payInType ==
+                                            PayType.fullPay.index
+                                        ? bookingsModel?.paymentDetail?.splitPayment
+                                            ?.where((element) =>
+                                                element.userUid ==
+                                                FirebaseAuth
+                                                    .instance.currentUser?.uid)
+                                            .first
+                                            .amount
+                                        : bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid == FirebaseAuth.instance.currentUser?.uid).first.depositStatus ==
+                                                DepositStatus.nothingPaid.index
+                                            ? bookingsModel
+                                                ?.paymentDetail?.splitPayment
+                                                ?.where((element) =>
+                                                    element.userUid ==
+                                                    FirebaseAuth.instance
+                                                        .currentUser?.uid)
+                                                .first
+                                                .remainingDeposit
+                                            : bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid == FirebaseAuth.instance.currentUser?.uid).first.amount +
+                                                bookingsModel?.paymentDetail
+                                                    ?.splitPayment
+                                                    ?.where((element) => element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                                                    .first
+                                                    .remainingAmount;
+                                    bookingsModel?.paymentDetail?.splitPayment
+                                        ?.where((element) =>
+                                            element.userUid ==
+                                            FirebaseAuth
+                                                .instance.currentUser?.uid)
+                                        .first
+                                        .remainingAmount = bookingsModel
+                                                ?.paymentDetail?.splitPayment
+                                                ?.where((element) =>
+                                                    element.userUid ==
+                                                    FirebaseAuth.instance
+                                                        .currentUser?.uid)
+                                                .first
+                                                .depositStatus ==
+                                            DepositStatus.twentyFivePaid.index
+                                        ? 0.0
+                                        : bookingsModel
+                                            ?.paymentDetail?.splitPayment
+                                            ?.where((element) =>
+                                                element.userUid ==
+                                                FirebaseAuth
+                                                    .instance.currentUser?.uid)
+                                            .first
+                                            .remainingAmount;
+                                    bookingsModel?.paymentDetail?.splitPayment
+                                        ?.where((element) =>
+                                            element.userUid ==
+                                            FirebaseAuth
+                                                .instance.currentUser?.uid)
+                                        .first
+                                        .remainingDeposit = 0.0;
+                                    bookingsModel?.paymentDetail?.splitPayment
+                                        ?.where((element) =>
+                                            element.userUid ==
+                                            FirebaseAuth
+                                                .instance.currentUser?.uid)
+                                        .first
+                                        .depositStatus = bookingsModel
+                                                ?.paymentDetail?.splitPayment
+                                                ?.where((element) =>
+                                                    element.userUid ==
+                                                    FirebaseAuth.instance
+                                                        .currentUser?.uid)
+                                                .first
+                                                .depositStatus ==
+                                            DepositStatus.twentyFivePaid.index
+                                        ? DepositStatus.fullPaid.index
+                                        : DepositStatus.twentyFivePaid.index;
+                                    bookingsModel?.paymentDetail?.splitPayment
+                                            ?.where((element) =>
+                                                element.userUid ==
+                                                FirebaseAuth
+                                                    .instance.currentUser?.uid)
+                                            .first
+                                            .paymentStatus =
+                                        PaymentStatus.payInAppOrCash.index;
+                                  } else {
+                                    bookingsModel?.paymentDetail?.paymentType =
+                                        PaymentType.payCash.index;
+                                    bookingsModel?.paymentDetail?.paidAmount =
+                                        bookingsModel
+                                                ?.paymentDetail?.paidAmount +
+                                            bookingsModel?.paymentDetail
+                                                ?.remainingAmount;
+                                    bookingsModel
+                                        ?.paymentDetail?.remainingAmount = 0.0;
+                                    bookingsModel
+                                            ?.paymentDetail?.paymentStatus =
+                                        PaymentStatus.payInAppOrCash.index;
                                   }
                                   baseVm.selectedPage = -1;
                                   baseVm.isHome = true;
@@ -817,19 +1012,21 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                   try {
                                     log("}}}}}}}}}}}}}}}}}}}${bookingsModel?.id}");
 
-                                    await FbCollections.bookings.doc(bookingsModel?.id).set(bookingsModel?.toJson());
+                                    await FbCollections.bookings
+                                        .doc(bookingsModel?.id)
+                                        .set(bookingsModel?.toJson());
                                   } on Exception catch (e) {
                                     // TODO
                                     debugPrintStack();
                                     log(e.toString());
                                   }
                                   Get.bottomSheet(Congoratulations(
-                                      getTranslated(context, "your_booking_has_been_confirmed_successfully_crypto") ??
+                                      getTranslated(context,
+                                              "your_booking_has_been_confirmed_successfully_crypto") ??
                                           "", () {
                                     Timer(Duration(seconds: 2), () async {
                                       await authVm.cancleStreams();
                                       Get.offAllNamed(BaseView.route);
-
                                     });
                                   }));
                                 },
@@ -885,9 +1082,12 @@ class _BookingsDetailState extends State<BookingsDetail> {
                         ),
                       )
                     : ((bookingsModel?.paymentDetail?.isSplit == true &&
-                            bookingsModel?.paymentDetail?.payInType == PayType.deposit.index &&
-                            removeSign(firstSlpliter?.remainingDeposit) != "0.0" &&
-                            bookingsModel?.bookingStatus == BookingStatus.ongoing.index))
+                            bookingsModel?.paymentDetail?.payInType ==
+                                PayType.deposit.index &&
+                            removeSign(firstSlpliter?.remainingDeposit) !=
+                                "0.0" &&
+                            bookingsModel?.bookingStatus ==
+                                BookingStatus.ongoing.index))
                         ? GestureDetector(
                             onTap: () {
                               provider.update();
@@ -918,83 +1118,94 @@ class _BookingsDetailState extends State<BookingsDetail> {
                               ),
                             ),
                           )
-                        : ((firstSlpliter?.paymentStatus == PaymentStatus.giveRating.index &&
-                bookingsModel?.bookingStatus == BookingStatus.completed.index) || (
-                bookingsModel?.paymentDetail?.paymentStatus==PaymentStatus.giveRating.index &&
-                bookingsModel?.paymentDetail?.isSplit==false &&
-                bookingsModel?.bookingStatus == BookingStatus.completed.index))
+                        : ((firstSlpliter?.paymentStatus ==
+                                        PaymentStatus.giveRating.index &&
+                                    bookingsModel?.bookingStatus ==
+                                        BookingStatus.completed.index) ||
+                                (bookingsModel?.paymentDetail?.paymentStatus ==
+                                        PaymentStatus.giveRating.index &&
+                                    bookingsModel?.paymentDetail?.isSplit == false &&
+                                    bookingsModel?.bookingStatus == BookingStatus.completed.index))
                             ? GestureDetector(
-                              onTap: () {
-                                Get.bottomSheet(FeedbackSheet(
-                                  submitCallBack: (rat, desc) async {
-                                    log("____________RATING:${rat}____:${desc}____${bookingsModel?.id}");
-                                    firstSlpliter?.paymentStatus=PaymentStatus.ratingDone.index;
-                                    if (bookingsModel
-                                        ?.paymentDetail
-                                        ?.splitPayment
-                                        ?.every((element) =>
-                                        element.paymentStatus ==
-                                            PaymentStatus
-                                                .ratingDone
-                                                .index ) ==
-                                        true)
-                                      {
-                                        bookingsModel?.paymentDetail?.paymentStatus=PaymentStatus.ratingDone.index;
+                                onTap: () {
+                                  Get.bottomSheet(FeedbackSheet(
+                                    submitCallBack: (rat, desc) async {
+                                      log("____________RATING:${rat}____:${desc}____${bookingsModel?.id}");
+                                      firstSlpliter?.paymentStatus =
+                                          PaymentStatus.ratingDone.index;
+                                      if (bookingsModel
+                                              ?.paymentDetail?.splitPayment
+                                              ?.every((element) =>
+                                                  element.paymentStatus ==
+                                                  PaymentStatus
+                                                      .ratingDone.index) ==
+                                          true) {
+                                        bookingsModel
+                                                ?.paymentDetail?.paymentStatus =
+                                            PaymentStatus.ratingDone.index;
                                       }
-                                    setState(() {});
-                                    String docId = Timestamp.now()
-                                        .millisecondsSinceEpoch
-                                        .toString();
-                                    ReviewModel reviewModel = ReviewModel(
-                                      bookingId: bookingsModel?.id,
-                                      userId:FirebaseAuth.instance.currentUser?.uid,
-                                      rating: rat,
-                                      description: desc,
-                                      createdAt: Timestamp.now(),
-                                      charterFleetDetail:
-                                      CharterFleetDetail(id: bookingsModel?.charterFleetDetail?.id,location: bookingsModel?.charterFleetDetail?.location,
-                                        name: bookingsModel?.charterFleetDetail?.name,image:bookingsModel?.charterFleetDetail?.image),
-                                      id: docId,
-                                      hostId: bookingsModel?.hostUserUid,
-                                    );
-                                    try {
-                                      await FbCollections.bookings
-                                          .doc(bookingsModel?.id)
-                                          .set(bookingsModel?.toJson());
-                                      await FbCollections.bookingReviews
-                                          .doc(docId)
-                                          .set(reviewModel.toJson());
-                                    } on Exception catch (e) {
-                                      // TODO
-                                      debugPrintStack();
-                                      log(e.toString());
-                                    }
-                                    Get.back();
-                                    Get.back();
-                                    Helper.inSnackBar(
-                                        "Success",
-                                        "Submitted successfully",
-                                        R.colors.themeMud);
-                                  },
-                                ));
-                              },
-                              child: Container(
-                                height: Get.height * .055,
-                                width: Get.width * .8,
-                                margin: EdgeInsets.symmetric(horizontal: 4.w,vertical: 1.h),
-                                decoration: AppDecorations.gradientButton(
-                                    radius: 30),
-                                child: Center(
-                                  child: Text(
-                                    "GIVE RATING",
-                                    style: R.textStyle.helvetica().copyWith(
-                                        color: R.colors.black,
-                                        fontSize: 12.sp,
-                                        fontWeight: FontWeight.bold),
+                                      setState(() {});
+                                      String docId = Timestamp.now()
+                                          .millisecondsSinceEpoch
+                                          .toString();
+                                      ReviewModel reviewModel = ReviewModel(
+                                        bookingId: bookingsModel?.id,
+                                        userId: FirebaseAuth
+                                            .instance.currentUser?.uid,
+                                        rating: rat,
+                                        description: desc,
+                                        createdAt: Timestamp.now(),
+                                        charterFleetDetail: CharterFleetDetail(
+                                            id: bookingsModel
+                                                ?.charterFleetDetail?.id,
+                                            location: bookingsModel
+                                                ?.charterFleetDetail?.location,
+                                            name: bookingsModel
+                                                ?.charterFleetDetail?.name,
+                                            image: bookingsModel
+                                                ?.charterFleetDetail?.image),
+                                        id: docId,
+                                        hostId: bookingsModel?.hostUserUid,
+                                      );
+                                      try {
+                                        await FbCollections.bookings
+                                            .doc(bookingsModel?.id)
+                                            .set(bookingsModel?.toJson());
+                                        await FbCollections.bookingReviews
+                                            .doc(docId)
+                                            .set(reviewModel.toJson());
+                                      } on Exception catch (e) {
+                                        // TODO
+                                        debugPrintStack();
+                                        log(e.toString());
+                                      }
+                                      Get.back();
+                                      Get.back();
+                                      Helper.inSnackBar(
+                                          "Success",
+                                          "Submitted successfully",
+                                          R.colors.themeMud);
+                                    },
+                                  ));
+                                },
+                                child: Container(
+                                  height: Get.height * .055,
+                                  width: Get.width * .8,
+                                  margin: EdgeInsets.symmetric(
+                                      horizontal: 4.w, vertical: 1.h),
+                                  decoration:
+                                      AppDecorations.gradientButton(radius: 30),
+                                  child: Center(
+                                    child: Text(
+                                      "GIVE RATING",
+                                      style: R.textStyle.helvetica().copyWith(
+                                          color: R.colors.black,
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.bold),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
+                              )
                             : SizedBox(),
           ));
     });

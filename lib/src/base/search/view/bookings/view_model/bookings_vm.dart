@@ -619,6 +619,9 @@ class BookingsVm extends ChangeNotifier {
       } else if (selectedPaymentMethod == PaymentMethodEnum.crypto.index) {
         await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
             splitAmount, userPaidAmount, finalPaidAmount);
+      } else if (selectedPaymentMethod == PaymentMethodEnum.usdt.index) {
+        await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
+            splitAmount, userPaidAmount, finalPaidAmount);
       } else if (selectedPaymentMethod == PaymentMethodEnum.appStore.index) {
         await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
             splitAmount, userPaidAmount, finalPaidAmount);
@@ -813,11 +816,6 @@ class BookingsVm extends ChangeNotifier {
           await FbCollections.user.doc(charter.get("created_by")).get();
       UserModel hostUser = UserModel.fromJson(hostDoc.data());
       await sendNotificationOnBooking(context, docID!, charter);
-      // print(charter.get("images")[0]);
-      // print(charter.get("location")["adress"]);
-      // print(DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate()));
-      // // print(bookingsModel.schedule!.startTime);
-      // print(bookingsModel.totalGuest);
       await FbCollections.mail.add({
         "to": [hostUser.email],
         "message": {
@@ -828,7 +826,6 @@ class BookingsVm extends ChangeNotifier {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fixing Gmail’s dark mode issues with CSS Blend Modes</title>
     <style>
         u + .body .gmail-blend-screen { background:#000; mix-blend-mode:screen; }
         u + .body .gmail-blend-difference { background:#000; mix-blend-mode:difference; }
@@ -882,6 +879,29 @@ class BookingsVm extends ChangeNotifier {
           border-bottom: 2px solid #ffd700;
           width: 35%;
         }
+        @media (prefers-color-scheme: dark) {
+          body, .body {
+              background-color: #000;
+              color: #fff;
+          }
+
+          p, h5, h1, .text-container h3 {
+              color: #fff; /* Text color for dark mode */
+          }
+
+          u + .body .gmail-blend-screen { background:#000; mix-blend-mode:screen; }
+          u + .body .gmail-blend-difference { background:#000; mix-blend-mode:difference; }
+      }
+
+      /* Light mode styles */
+      @media (prefers-color-scheme: light) {
+          body, .body {
+              background-color: #fff; /* Light mode background */
+              color: #000; /* Light mode text color */
+          }
+
+          /* Adjust blend modes or remove them as necessary for light mode */
+      }
     </style>
 </head>
 <body class="body">
@@ -949,7 +969,6 @@ class BookingsVm extends ChangeNotifier {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fixing Gmail’s dark mode issues with CSS Blend Modes</title>
     <style>
         u + .body .gmail-blend-screen { background:#000; mix-blend-mode:screen; }
         u + .body .gmail-blend-difference { background:#000; mix-blend-mode:difference; }
@@ -1003,6 +1022,29 @@ class BookingsVm extends ChangeNotifier {
           border-bottom: 2px solid #ffd700;
           width: 35%;
         }
+        @media (prefers-color-scheme: dark) {
+          body, .body {
+              background-color: #000;
+              color: #fff;
+          }
+
+          p, h5, h1, .text-container h3 {
+              color: #fff; /* Text color for dark mode */
+          }
+
+          u + .body .gmail-blend-screen { background:#000; mix-blend-mode:screen; }
+          u + .body .gmail-blend-difference { background:#000; mix-blend-mode:difference; }
+      }
+
+      /* Light mode styles */
+      @media (prefers-color-scheme: light) {
+          body, .body {
+              background-color: #fff; /* Light mode background */
+              color: #000; /* Light mode text color */
+          }
+
+          /* Adjust blend modes or remove them as necessary for light mode */
+      }
     </style>
 </head>
 <body class="body">

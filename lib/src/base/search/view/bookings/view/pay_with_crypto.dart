@@ -76,7 +76,9 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                   ),
                   h2,
                   Text(
-                    AppDummyData.bitcoinDetail,
+                    isBitcoin
+                        ? AppDummyData.bitcoinDetail
+                        : AppDummyData.usdtDetail,
                     style: R.textStyle.helvetica().copyWith(
                         height: 1.5, color: Colors.white, fontSize: 10.sp),
                   ),
@@ -109,7 +111,9 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                         Flexible(
                           flex: 8,
                           child: Text(
-                            provider.appUrlModel?.adminCryptoEmail ?? "",
+                            isBitcoin
+                                ? (provider.appUrlModel?.adminCryptoEmail ?? "")
+                                : (provider.appUrlModel?.adminUsdtEmail ?? ""),
                             style: R.textStyle.helvetica().copyWith(
                                 color: R.colors.whiteDull, fontSize: 10.sp),
                           ),
@@ -120,9 +124,13 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                             child: GestureDetector(
                               onTap: () {
                                 Clipboard.setData(ClipboardData(
-                                    text: provider
-                                            .appUrlModel?.adminCryptoEmail ??
-                                        ""));
+                                    text: isBitcoin
+                                        ? (provider.appUrlModel
+                                                ?.adminCryptoEmail ??
+                                            "")
+                                        : (provider
+                                                .appUrlModel?.adminUsdtEmail ??
+                                            "")));
                                 Helper.inSnackBar(
                                     "Copied",
                                     "Your text has been copied",
