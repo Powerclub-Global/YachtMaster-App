@@ -2,7 +2,6 @@
 
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:filesize/filesize.dart';
 import 'package:flutter/material.dart';
@@ -168,7 +167,7 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                         Flexible(
                           flex: 8,
                           child: Text(
-                            "${((userPaidAmount + (userPaidAmount * 0.05)) * converRate).toStringAsPrecision(21)} BTC",
+                            "${isBitcoin ? ((userPaidAmount + (userPaidAmount * 0.05)) * converRate).toStringAsPrecision(21) : userPaidAmount.toStringAsFixed(2)} ${isBitcoin ? 'BTC' : 'USDT'}",
                             style: R.textStyle.helvetica().copyWith(
                                 color: R.colors.whiteDull, fontSize: 10.sp),
                           ),
