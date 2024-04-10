@@ -40,12 +40,8 @@ class _HomeViewState extends State<HomeView> {
               return <Widget>[
                 SliverAppBar(
                   centerTitle: true,
-                  // shape: ContinuousRectangleBorder(
-                  //     borderRadius: BorderRadius.only(
-                  //         bottomLeft: Radius.circular(47), bottomRight: Radius.circular(47))),
                   backgroundColor: R.colors.black,
                   expandedHeight: 220.sp,
-                  // collapsedHeight: Get.height*.6,
                   floating: true,
                   pinned: true,
                   flexibleSpace: FlexibleSpaceBar(

@@ -57,6 +57,8 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
   TextEditingController priceEightCon = TextEditingController();
   TextEditingController priceFullCon = TextEditingController();
   TextEditingController guestCountCon = TextEditingController();
+  TextEditingController dockCon = TextEditingController();
+  TextEditingController slipCon = TextEditingController();
   FocusNode locationFn = FocusNode();
   FocusNode nameFn = FocusNode();
   FocusNode priceFourFn = FocusNode();
@@ -64,6 +66,8 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
   FocusNode priceFullFn = FocusNode();
   FocusNode guestCountFn = FocusNode();
   FocusNode subheadingFn = FocusNode();
+  FocusNode dockFn = FocusNode();
+  FocusNode slipFn = FocusNode();
   LatLng? locationLatLng;
   String? city;
   bool isEdit = false;
@@ -102,11 +106,19 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
         locationCon.text = charterModel?.location?.adress ?? "";
         subheadingCon.text = charterModel?.subHeading ?? "";
         guestCountCon.text = charterModel?.guestCapacity?.toString() ?? "";
+        dockCon.text = charterModel?.location?.dockno.toString() ?? "";
+        slipCon.text = charterModel?.location?.slipno.toString() ?? "";
 
         /// TODO SET PRICES
-        priceEightCon.text = charterModel?.priceHalfDay != 0 ? charterModel?.priceHalfDay?.toString()??"" : "";
-        priceFullCon.text =charterModel?.priceFullDay != 0 ? charterModel?.priceFullDay?.toString()??"" : "";
-        priceFourCon.text =charterModel?.priceFourHours != 0 ? charterModel?.priceFourHours?.toString()??"" : "";
+        priceEightCon.text = charterModel?.priceHalfDay != 0
+            ? charterModel?.priceHalfDay?.toString() ?? ""
+            : "";
+        priceFullCon.text = charterModel?.priceFullDay != 0
+            ? charterModel?.priceFullDay?.toString() ?? ""
+            : "";
+        priceFourCon.text = charterModel?.priceFourHours != 0
+            ? charterModel?.priceFourHours?.toString() ?? ""
+            : "";
         isFourHours = charterModel?.priceFourHours != 0;
         isEightHours = charterModel?.priceHalfDay != 0;
         isFullDay = charterModel?.priceFullDay != 0;
@@ -312,11 +324,7 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
                               SizedBox()),
                         ),
                         h1P5,
-                        label(getTranslated(
-                              context,
-                              "charter_location",
-                            ) ??
-                            ""),
+                        label("Marina Location"),
                         h0P5,
                         TextFormField(
                           focusNode: locationFn,
@@ -359,6 +367,66 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
                                 R.images.location,
                                 scale: 4,
                               )),
+                        ),
+                        h1P5,
+                        label("Slip Number"),
+                        h0P5,
+                        TextFormField(
+                          focusNode: slipFn,
+                          textInputAction: TextInputAction.next,
+                          onChanged: (v) {
+                            setState(() {});
+                          },
+                          onTap: () {
+                            setState(() {});
+                          },
+                          onFieldSubmitted: (a) {
+                            setState(() {
+                              FocusScope.of(Get.context!)
+                                  .requestFocus(FocusNode());
+                            });
+                          },
+                          controller: slipCon,
+                          validator: (val) =>
+                              FieldValidator.validateRequired(val),
+                          decoration: AppDecorations.suffixTextField(
+                              "enter_slip",
+                              R.textStyle.helvetica().copyWith(
+                                  color: subheadingFn.hasFocus
+                                      ? R.colors.themeMud
+                                      : R.colors.charcoalColor,
+                                  fontSize: 10.sp),
+                              SizedBox()),
+                        ),
+                        h1P5,
+                        label("Dock Number"),
+                        h0P5,
+                        TextFormField(
+                          focusNode: dockFn,
+                          textInputAction: TextInputAction.next,
+                          onChanged: (v) {
+                            setState(() {});
+                          },
+                          onTap: () {
+                            setState(() {});
+                          },
+                          onFieldSubmitted: (a) {
+                            setState(() {
+                              FocusScope.of(Get.context!)
+                                  .requestFocus(FocusNode());
+                            });
+                          },
+                          controller: dockCon,
+                          validator: (val) =>
+                              FieldValidator.validateRequired(val),
+                          decoration: AppDecorations.suffixTextField(
+                              "enter_dock",
+                              R.textStyle.helvetica().copyWith(
+                                  color: subheadingFn.hasFocus
+                                      ? R.colors.themeMud
+                                      : R.colors.charcoalColor,
+                                  fontSize: 10.sp),
+                              SizedBox()),
                         ),
                         h1P5,
                         label(getTranslated(
@@ -512,8 +580,9 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
                                   });
                                 },
                                 controller: priceFourCon,
-                                validator: (val) =>
-                                    isFourHours ? FieldValidator.validateRequiredPrice(val) : null,
+                                validator: (val) => isFourHours
+                                    ? FieldValidator.validateRequiredPrice(val)
+                                    : null,
                                 decoration: AppDecorations.suffixTextField(
                                     "price_four_hours",
                                     R.textStyle.helvetica().copyWith(
@@ -594,9 +663,10 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
                                   });
                                 },
                                 controller: priceEightCon,
-                                validator: (val) =>
-                                    isEightHours ? FieldValidator.validateRequiredPrice(
-                                        priceEightCon.text) : null,
+                                validator: (val) => isEightHours
+                                    ? FieldValidator.validateRequiredPrice(
+                                        priceEightCon.text)
+                                    : null,
                                 decoration: AppDecorations.suffixTextField(
                                     "price_eight_hours",
                                     R.textStyle.helvetica().copyWith(
@@ -677,9 +747,10 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
                                   });
                                 },
                                 controller: priceFullCon,
-                                validator: (val) =>
-                                    isFullDay ? FieldValidator.validateRequiredPrice(
-                                        priceFullCon.text) : null,
+                                validator: (val) => isFullDay
+                                    ? FieldValidator.validateRequiredPrice(
+                                        priceFullCon.text)
+                                    : null,
                                 decoration: AppDecorations.suffixTextField(
                                     "price_twenty_hours",
                                     R.textStyle.helvetica().copyWith(
@@ -700,8 +771,8 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
                         tiles("yacht_rules", 6, provider),
                         h1P5,
                         tiles("health_and_safety", 7, provider),
-                        // h1P5,
-                        // tiles("cancellation_policy", 8, provider),
+                        h1P5,
+                        tiles("boarding_instructions", 8, provider),
                         h5,
                         GestureDetector(
                           onTap: () async {
@@ -726,7 +797,9 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
                                     "Error",
                                     "Please select charter availability",
                                     R.colors.themeMud);
-                              }else if (!isFourHours && !isEightHours && !isFullDay) {
+                              } else if (!isFourHours &&
+                                  !isEightHours &&
+                                  !isFullDay) {
                                 Helper.inSnackBar(
                                     "Error",
                                     "Please select at least 1 price slot",
@@ -747,6 +820,8 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
                                     nameCon.text,
                                     locationCon.text,
                                     locationLatLng,
+                                    dockCon.text,
+                                    slipCon.text,
                                     context);
                               }
                             }
@@ -870,10 +945,10 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
               break;
             case 8:
               Get.bottomSheet(RulesBottomSheet(
-                  title: "cancellation_policy",
+                  title: "boarding_instructions",
                   index: index,
                   subTitle:
-                      "mention_all_the_cancellation_policy_you_want_to_share_with_others"));
+                      "mention_all_the_boarding_instructions_you_want_to_share_with_others"));
               break;
           }
         },
@@ -889,9 +964,10 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
             children: [
               Text(
                 index == 8 &&
-                        (yachtVm.charterModel?.cancelationPolicy?.title != "" &&
-                            yachtVm.charterModel?.cancelationPolicy != null)
-                    ? "${yachtVm.charterModel?.cancelationPolicy?.title}"
+                        (yachtVm.charterModel?.boardingInstructions?.title !=
+                                "" &&
+                            yachtVm.charterModel?.boardingInstructions != null)
+                    ? "${yachtVm.charterModel?.boardingInstructions?.title}"
                     : index == 7 &&
                             (yachtVm.charterModel?.healthSafety?.title != "" &&
                                 yachtVm.charterModel?.healthSafety != null)
@@ -912,8 +988,8 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
                                     yachtVm.charterModel?.healthSafety !=
                                         null) ||
                             index == 8 &&
-                                (yachtVm.charterModel?.cancelationPolicy?.title != "" &&
-                                    yachtVm.charterModel?.cancelationPolicy !=
+                                (yachtVm.charterModel?.boardingInstructions?.title != "" &&
+                                    yachtVm.charterModel?.boardingInstructions !=
                                         null) ||
                             index == 6 &&
                                 (yachtVm.charterModel?.yachtRules?.title != "" &&

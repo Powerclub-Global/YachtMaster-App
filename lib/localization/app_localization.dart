@@ -16,7 +16,7 @@ class AppLocalization {
   }
 
   late Map<String, String> _localizedValues;
-   load() async {
+  load() async {
     String jsonStringVaues = await rootBundle
         .loadString('assets/translations/${locale.languageCode}.json');
 
@@ -44,7 +44,7 @@ class _AppLocalizationDelegate extends LocalizationsDelegate<AppLocalization> {
   }
 
   @override
-   load(Locale locale) async {
+  load(Locale locale) async {
     AppLocalization localization = AppLocalization(locale);
     await localization.load();
     return localization;

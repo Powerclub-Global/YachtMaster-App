@@ -75,7 +75,9 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                   ),
                   h2,
                   Text(
-                    AppDummyData.bitcoinDetail,
+                    isBitcoin
+                        ? AppDummyData.bitcoinDetail
+                        : AppDummyData.usdtDetail,
                     style: R.textStyle.helvetica().copyWith(
                         height: 1.5, color: Colors.white, fontSize: 10.sp),
                   ),
@@ -109,8 +111,8 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                           flex: 8,
                           child: Text(
                             isBitcoin
-                                ? provider.appUrlModel?.adminCryptoEmail ?? ""
-                                : "0x0Ea128FaD1d1d53895FeB294cAC989e3a1eB1807",
+                                ? (provider.appUrlModel?.adminCryptoEmail ?? "")
+                                : (provider.appUrlModel?.adminUsdtEmail ?? ""),
                             style: R.textStyle.helvetica().copyWith(
                                 color: R.colors.whiteDull, fontSize: 10.sp),
                           ),
@@ -122,10 +124,12 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                               onTap: () {
                                 Clipboard.setData(ClipboardData(
                                     text: isBitcoin
-                                        ? provider.appUrlModel
+                                        ? (provider.appUrlModel
                                                 ?.adminCryptoEmail ??
-                                            ""
-                                        : "0x0Ea128FaD1d1d53895FeB294cAC989e3a1eB1807"));
+                                            "")
+                                        : (provider
+                                                .appUrlModel?.adminUsdtEmail ??
+                                            "")));
                                 Helper.inSnackBar(
                                     "Copied",
                                     "Your text has been copied",

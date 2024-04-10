@@ -19,47 +19,60 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CharterModel {
   CharterModel({
-      this.images, 
-      this.cancelationPolicy, 
-      this.createdAt, 
-      this.priceFullDay, 
-      this.availability, 
-      this.createdBy, 
-      this.isPetAllow, 
-      this.healthSafety, 
-      this.guestCapacity, 
-      this.subHeading, 
-      this.yachtRules, 
-      this.name, 
-      this.chartersOffers, 
-      this.location, 
-      this.id,
+    this.images,
+    this.boardingInstructions,
+    this.createdAt,
+    this.priceFullDay,
+    this.availability,
+    this.createdBy,
+    this.isPetAllow,
+    this.healthSafety,
+    this.guestCapacity,
+    this.subHeading,
+    this.yachtRules,
+    this.name,
+    this.chartersOffers,
+    this.location,
+    this.id,
     this.status,
     this.priceFourHours,
-      this.priceHalfDay,});
+    this.priceHalfDay,
+  });
 
   CharterModel.fromJson(dynamic json) {
     images = json['images'] != null ? json['images'].cast<String>() : [];
-    cancelationPolicy = json['cancelation_policy'] != null ? CancelationPolicy.fromJson(json['cancelation_policy']) : null;
+    boardingInstructions = json['boarding_instructions'] != null
+        ? BoardingInstructions.fromJson(json['boarding_instructions'])
+        : null;
     createdAt = json['created_at'];
     priceFullDay = json['price_full_day'];
-    availability = json['availability'] != null ? Availability.fromJson(json['availability']) : null;
+    availability = json['availability'] != null
+        ? Availability.fromJson(json['availability'])
+        : null;
     createdBy = json['created_by'];
     status = json['status'];
     isPetAllow = json['is_pet_allow'];
-    healthSafety = json['health_safety'] != null ? HealthSafety.fromJson(json['health_safety']) : null;
+    healthSafety = json['health_safety'] != null
+        ? HealthSafety.fromJson(json['health_safety'])
+        : null;
     guestCapacity = json['guest_capacity'];
     subHeading = json['sub_heading'];
-    yachtRules = json['yacht_rules'] != null ? YachtRules.fromJson(json['yacht_rules']) : null;
+    yachtRules = json['yacht_rules'] != null
+        ? YachtRules.fromJson(json['yacht_rules'])
+        : null;
     name = json['name'];
-    chartersOffers = json['charters_offers'] != null ? json['charters_offers'].cast<String>() : [];
-    location = json['location'] != null ? CharterLocationModel.fromJson(json['location']) : null;
+    chartersOffers = json['charters_offers'] != null
+        ? json['charters_offers'].cast<String>()
+        : [];
+    location = json['location'] != null
+        ? CharterLocationModel.fromJson(json['location'])
+        : null;
     id = json['id'];
     priceHalfDay = json['price_half_day'];
     priceFourHours = json['price_four_hours'];
   }
   List<String>? images;
-  CancelationPolicy? cancelationPolicy;
+  BoardingInstructions? boardingInstructions;
   Timestamp? createdAt;
   double? priceFullDay;
   Availability? availability;
@@ -76,49 +89,52 @@ class CharterModel {
   int? status;
   double? priceHalfDay;
   double? priceFourHours;
-CharterModel copyWith({  List<String>? images,
-  CancelationPolicy? cancelationPolicy,
-  Timestamp? createdAt,
-  double? priceFullDay,
-  int? status,
-  Availability? availability,
-  String? createdBy,
-  bool? isPetAllow,
-  HealthSafety? healthSafety,
-  int? guestCapacity,
-  String? subHeading,
-  YachtRules? yachtRules,
-  String? name,
-  List<String>? chartersOffers,
-  CharterLocationModel? location,
-  String? id,
-  double? priceHalfDay,
-  double? priceFourHours,
-}) => CharterModel(  images: images ?? this.images,
-  cancelationPolicy: cancelationPolicy ?? this.cancelationPolicy,
-  createdAt: createdAt ?? this.createdAt,
-  status: status ?? this.status,
-  priceFullDay: priceFullDay ?? this.priceFullDay,
-  availability: availability ?? this.availability,
-  createdBy: createdBy ?? this.createdBy,
-  isPetAllow: isPetAllow ?? this.isPetAllow,
-  healthSafety: healthSafety ?? this.healthSafety,
-  guestCapacity: guestCapacity ?? this.guestCapacity,
-  subHeading: subHeading ?? this.subHeading,
-  yachtRules: yachtRules ?? this.yachtRules,
-  name: name ?? this.name,
-  chartersOffers: chartersOffers ?? this.chartersOffers,
-  location: location ?? this.location,
-  id: id ?? this.id,
-  priceHalfDay: priceHalfDay ?? this.priceHalfDay,
-  priceFourHours: priceFourHours ?? this.priceFourHours,
-);
+  CharterModel copyWith({
+    List<String>? images,
+    BoardingInstructions? boardingInstructions,
+    Timestamp? createdAt,
+    double? priceFullDay,
+    int? status,
+    Availability? availability,
+    String? createdBy,
+    bool? isPetAllow,
+    HealthSafety? healthSafety,
+    int? guestCapacity,
+    String? subHeading,
+    YachtRules? yachtRules,
+    String? name,
+    List<String>? chartersOffers,
+    CharterLocationModel? location,
+    String? id,
+    double? priceHalfDay,
+    double? priceFourHours,
+  }) =>
+      CharterModel(
+        images: images ?? this.images,
+        boardingInstructions: boardingInstructions ?? this.boardingInstructions,
+        createdAt: createdAt ?? this.createdAt,
+        status: status ?? this.status,
+        priceFullDay: priceFullDay ?? this.priceFullDay,
+        availability: availability ?? this.availability,
+        createdBy: createdBy ?? this.createdBy,
+        isPetAllow: isPetAllow ?? this.isPetAllow,
+        healthSafety: healthSafety ?? this.healthSafety,
+        guestCapacity: guestCapacity ?? this.guestCapacity,
+        subHeading: subHeading ?? this.subHeading,
+        yachtRules: yachtRules ?? this.yachtRules,
+        name: name ?? this.name,
+        chartersOffers: chartersOffers ?? this.chartersOffers,
+        location: location ?? this.location,
+        id: id ?? this.id,
+        priceHalfDay: priceHalfDay ?? this.priceHalfDay,
+        priceFourHours: priceFourHours ?? this.priceFourHours,
+      );
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['images'] = images;
     map['status'] = status;
-    if (cancelationPolicy != null) {
-      map['cancelation_policy'] = cancelationPolicy?.toJson();
+    if (boardingInstructions != null) {
+      map['boarding_instructions'] = boardingInstructions?.toJson();
     }
     map['created_at'] = createdAt;
     map['price_full_day'] = priceFullDay;
@@ -145,7 +161,6 @@ CharterModel copyWith({  List<String>? images,
     map['price_four_hours'] = priceFourHours;
     return map;
   }
-
 }
 
 /// city : "Kot Radha Kishan"
@@ -155,39 +170,54 @@ CharterModel copyWith({  List<String>? images,
 
 class CharterLocationModel {
   CharterLocationModel({
-      this.city, 
-      this.adress, 
-      this.long, 
-      this.lat,});
+    this.city,
+    this.adress,
+    this.long,
+    this.lat,
+    this.dockno,
+    this.slipno,
+  });
 
   CharterLocationModel.fromJson(dynamic json) {
     city = json['city'];
     adress = json['adress'];
     long = json['long'];
     lat = json['lat'];
+    dockno = json['dock_number'];
+    slipno = json['slip_number'];
   }
   String? city;
   String? adress;
   double? long;
   double? lat;
-CharterLocationModel copyWith({  String? city,
-  String? adress,
-  double? long,
-  double? lat,
-}) => CharterLocationModel(  city: city ?? this.city,
-  adress: adress ?? this.adress,
-  long: long ?? this.long,
-  lat: lat ?? this.lat,
-);
+  String? dockno;
+  String? slipno;
+  CharterLocationModel copyWith({
+    String? city,
+    String? adress,
+    double? long,
+    double? lat,
+    String? dockno,
+    String? slipno,
+  }) =>
+      CharterLocationModel(
+        city: city ?? this.city,
+        adress: adress ?? this.adress,
+        long: long ?? this.long,
+        lat: lat ?? this.lat,
+        dockno: dockno ?? this.dockno,
+        slipno: slipno ?? this.slipno,
+      );
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['city'] = city;
     map['adress'] = adress;
     map['long'] = long;
     map['lat'] = lat;
+    map['dock_number'] = dockno;
+    map['slip_number'] = slipno;
     return map;
   }
-
 }
 
 /// description : "desc"
@@ -195,8 +225,9 @@ CharterLocationModel copyWith({  String? city,
 
 class YachtRules {
   YachtRules({
-      this.description, 
-      this.title,});
+    this.description,
+    this.title,
+  });
 
   YachtRules.fromJson(dynamic json) {
     description = json['description'];
@@ -204,18 +235,20 @@ class YachtRules {
   }
   String? description;
   String? title;
-YachtRules copyWith({  String? description,
-  String? title,
-}) => YachtRules(  description: description ?? this.description,
-  title: title ?? this.title,
-);
+  YachtRules copyWith({
+    String? description,
+    String? title,
+  }) =>
+      YachtRules(
+        description: description ?? this.description,
+        title: title ?? this.title,
+      );
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['description'] = description;
     map['title'] = title;
     return map;
   }
-
 }
 
 /// description : "desc"
@@ -223,8 +256,9 @@ YachtRules copyWith({  String? description,
 
 class HealthSafety {
   HealthSafety({
-      this.description, 
-      this.title,});
+    this.description,
+    this.title,
+  });
 
   HealthSafety.fromJson(dynamic json) {
     description = json['description'];
@@ -232,18 +266,20 @@ class HealthSafety {
   }
   String? description;
   String? title;
-HealthSafety copyWith({  String? description,
-  String? title,
-}) => HealthSafety(  description: description ?? this.description,
-  title: title ?? this.title,
-);
+  HealthSafety copyWith({
+    String? description,
+    String? title,
+  }) =>
+      HealthSafety(
+        description: description ?? this.description,
+        title: title ?? this.title,
+      );
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['description'] = description;
     map['title'] = title;
     return map;
   }
-
 }
 
 /// start_time : "05:34 PM"
@@ -254,12 +290,13 @@ HealthSafety copyWith({  String? description,
 
 class Availability {
   Availability({
-      this.startTime, 
-      this.halfDaySlots, 
-      this.fourHoursSlot,
-      this.fullDaySlots,
-      this.endTime,
-      this.dates,});
+    this.startTime,
+    this.halfDaySlots,
+    this.fourHoursSlot,
+    this.fullDaySlots,
+    this.endTime,
+    this.dates,
+  });
 
   Availability.fromJson(dynamic json) {
     startTime = json['start_time'];
@@ -290,19 +327,22 @@ class Availability {
   List<FullDaySlots>? fullDaySlots;
   String? endTime;
   List<Timestamp>? dates;
-Availability copyWith({  String? startTime,
-  List<HalfDaySlots>? halfDaySlots,
-  List<HalfDaySlots>? fourHoursSlot,
-  List<FullDaySlots>? fullDaySlots,
-  String? endTime,
-  List<Timestamp>? dates,
-}) => Availability(  startTime: startTime ?? this.startTime,
-  halfDaySlots: halfDaySlots ?? this.halfDaySlots,
-  fourHoursSlot: fourHoursSlot ?? this.fourHoursSlot,
-  fullDaySlots: fullDaySlots ?? this.fullDaySlots,
-  endTime: endTime ?? this.endTime,
-  dates: dates ?? this.dates,
-);
+  Availability copyWith({
+    String? startTime,
+    List<HalfDaySlots>? halfDaySlots,
+    List<HalfDaySlots>? fourHoursSlot,
+    List<FullDaySlots>? fullDaySlots,
+    String? endTime,
+    List<Timestamp>? dates,
+  }) =>
+      Availability(
+        startTime: startTime ?? this.startTime,
+        halfDaySlots: halfDaySlots ?? this.halfDaySlots,
+        fourHoursSlot: fourHoursSlot ?? this.fourHoursSlot,
+        fullDaySlots: fullDaySlots ?? this.fullDaySlots,
+        endTime: endTime ?? this.endTime,
+        dates: dates ?? this.dates,
+      );
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['start_time'] = startTime;
@@ -319,7 +359,6 @@ Availability copyWith({  String? startTime,
     map['dates'] = dates;
     return map;
   }
-
 }
 
 /// start : ""
@@ -327,8 +366,10 @@ Availability copyWith({  String? startTime,
 
 class FullDaySlots {
   FullDaySlots({
-      this.start, this.status,
-      this.end,});
+    this.start,
+    this.status,
+    this.end,
+  });
 
   FullDaySlots.fromJson(dynamic json) {
     start = json['start'];
@@ -338,13 +379,16 @@ class FullDaySlots {
   String? start;
   String? end;
   int? status;
-FullDaySlots copyWith({  String? start,
-  String? end,
-  int? status,
-}) => FullDaySlots(  start: start ?? this.start,
-  end: end ?? this.end,
-  status: status ?? this.status,
-);
+  FullDaySlots copyWith({
+    String? start,
+    String? end,
+    int? status,
+  }) =>
+      FullDaySlots(
+        start: start ?? this.start,
+        end: end ?? this.end,
+        status: status ?? this.status,
+      );
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['start'] = start;
@@ -352,16 +396,13 @@ FullDaySlots copyWith({  String? start,
     map['status'] = status;
     return map;
   }
-
 }
 
 /// start : ""
 /// end : ""
 
 class HalfDaySlots {
-  HalfDaySlots({
-      this.start, 
-      this.end,this.status=0});
+  HalfDaySlots({this.start, this.end, this.status = 0});
 
   HalfDaySlots.fromJson(dynamic json) {
     start = json['start'];
@@ -371,13 +412,16 @@ class HalfDaySlots {
   String? start;
   String? end;
   int? status;
-HalfDaySlots copyWith({  String? start,
-  String? end,
-  int? status,
-}) => HalfDaySlots(  start: start ?? this.start,
-  end: end ?? this.end,
-  status: status ?? this.status,
-);
+  HalfDaySlots copyWith({
+    String? start,
+    String? end,
+    int? status,
+  }) =>
+      HalfDaySlots(
+        start: start ?? this.start,
+        end: end ?? this.end,
+        status: status ?? this.status,
+      );
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['start'] = start;
@@ -385,33 +429,35 @@ HalfDaySlots copyWith({  String? start,
     map['status'] = status;
     return map;
   }
-
 }
 
 /// description : "desc"
 /// title : "policy"
 
-class CancelationPolicy {
-  CancelationPolicy({
-      this.description, 
-      this.title,});
+class BoardingInstructions {
+  BoardingInstructions({
+    this.description,
+    this.title,
+  });
 
-  CancelationPolicy.fromJson(dynamic json) {
+  BoardingInstructions.fromJson(dynamic json) {
     description = json['description'];
     title = json['title'];
   }
   String? description;
   String? title;
-CancelationPolicy copyWith({  String? description,
-  String? title,
-}) => CancelationPolicy(  description: description ?? this.description,
-  title: title ?? this.title,
-);
+  BoardingInstructions copyWith({
+    String? description,
+    String? title,
+  }) =>
+      BoardingInstructions(
+        description: description ?? this.description,
+        title: title ?? this.title,
+      );
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['description'] = description;
     map['title'] = title;
     return map;
   }
-
 }
