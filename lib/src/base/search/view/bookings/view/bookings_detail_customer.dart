@@ -166,7 +166,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                   SizedBox(
                                     width: Get.width * .5,
                                     child: Text(
-                                      " ${charterModel.location?.adress}\n Dock No: ${charterModel.location?.dockno}  Slip No: ${charterModel.location?.slipno}",
+                                      " ${charterModel.location?.adress}",
                                       style: R.textStyle.helvetica().copyWith(
                                           color: R.colors.whiteDull,
                                           fontSize: 11.sp),
