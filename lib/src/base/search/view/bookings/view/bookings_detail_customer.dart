@@ -310,8 +310,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  charterModel
-                                          .boardingInstructions?.title ??
+                                  charterModel.boardingInstructions?.title ??
                                       "",
                                   style: R.textStyle.helveticaBold().copyWith(
                                       color: R.colors.whiteColor,
@@ -1231,12 +1230,19 @@ class _BookingsDetailState extends State<BookingsDetail> {
                         .copyWith(color: R.colors.whiteDull, fontSize: 14.sp),
                   ),
                   h0P7,
-                  Text(
-                    subTitle,
-                    style: R.textStyle.helvetica().copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontSize: 10.sp),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        Text(
+                          subTitle,
+                          style: R.textStyle.helvetica().copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 10.sp),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

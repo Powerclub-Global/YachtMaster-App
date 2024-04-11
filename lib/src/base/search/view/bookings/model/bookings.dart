@@ -14,6 +14,7 @@ class BookingsModel {
     this.createdBy,
     this.hostUserUid,
     this.priceDetaill,
+    this.isPending,
   });
 
   BookingsModel.fromJson(dynamic json) {
@@ -36,6 +37,7 @@ class BookingsModel {
     priceDetaill = json['price_detaill'] != null
         ? PriceDetaill.fromJson(json['price_detaill'])
         : null;
+    isPending = json['isPending'];
   }
   int? totalGuest;
   CharterFleetDetail? charterFleetDetail;
@@ -48,6 +50,7 @@ class BookingsModel {
   String? createdBy;
   String? hostUserUid;
   PriceDetaill? priceDetaill;
+  bool? isPending;
   BookingsModel copyWith({
     int? totalGuest,
     CharterFleetDetail? charterFleetDetail,
@@ -73,6 +76,7 @@ class BookingsModel {
         createdBy: createdBy ?? this.createdBy,
         hostUserUid: hostUserUid ?? this.hostUserUid,
         priceDetaill: priceDetaill ?? this.priceDetaill,
+        isPending: isPending ?? this.isPending,
       );
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
@@ -95,6 +99,7 @@ class BookingsModel {
     if (priceDetaill != null) {
       map['price_detaill'] = priceDetaill?.toJson();
     }
+    map['isPending'] = isPending;
     return map;
   }
 }

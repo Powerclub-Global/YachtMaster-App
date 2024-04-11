@@ -19,6 +19,7 @@ import 'package:yacht_master/src/base/search/view/where_going.dart';
 import 'package:yacht_master/utils/empty_screem.dart';
 import 'package:yacht_master/utils/general_app_bar.dart';
 import 'package:yacht_master/utils/heights_widths.dart';
+import 'package:yacht_master/utils/helper.dart';
 
 class HomeView extends StatefulWidget {
   static String route = "/homeView";
@@ -213,9 +214,16 @@ class _HomeViewState extends State<HomeView> {
                                           FirebaseAuth
                                               .instance.currentUser!.uid)
                                   .toList()[index];
-                              return GestureDetector(
+                              return InkWell(
                                 onTap: () {
-                                  log("____here:HOST ID${booking.hostUserUid}______CURRENT:${FirebaseAuth.instance.currentUser?.uid}___CREATEDBY:${booking.createdBy}");
+                                  if (booking.isPending!) {
+                                    Helper.inSnackBar(
+                                        "Pending Payment Approval",
+                                        "Booking Confirmation still pending, please wait",
+                                        R.colors.themeMud);
+                                    return;
+                                  }
+                                  log("____here:HOST ID${booking.hostUserUid}______CURRENT:${FirebaseAuth.instance.currentUser?.uid}___CREATEDBY:${booking.createdBy}_____YACHTID:${booking.id}");
                                   if (booking.createdBy ==
                                       FirebaseAuth.instance.currentUser?.uid) {
                                     Get.toNamed(BookingsDetail.route,

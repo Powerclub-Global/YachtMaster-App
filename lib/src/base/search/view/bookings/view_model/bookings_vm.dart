@@ -1119,6 +1119,7 @@ class BookingsVm extends ChangeNotifier {
     baseVm.update();
     searchVm.update();
     if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
+      await FbCollections.bookings.doc(docID).update({"isPending": false});
       Get.bottomSheet(Congoratulations(
           getTranslated(
                   context, "your_booking_has_been_confirmed_successfully") ??
@@ -1129,6 +1130,7 @@ class BookingsVm extends ChangeNotifier {
         });
       }));
     } else if (selectedPaymentMethod == PaymentMethodEnum.appStore.index) {
+      await FbCollections.bookings.doc(docID).update({"isPending": false});
       Timer(Duration(seconds: 2), () {
         Get.back();
         Get.bottomSheet(Congoratulations(
@@ -1142,6 +1144,8 @@ class BookingsVm extends ChangeNotifier {
         }));
       });
     } else {
+      await FbCollections.bookings.doc(docID).update({"isPending": true});
+
       Get.bottomSheet(Congoratulations(
           getTranslated(context,
                   "your_booking_has_been_confirmed_successfully_crypto") ??
