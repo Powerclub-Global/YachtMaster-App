@@ -166,7 +166,7 @@ class _CharterDetailState extends State<CharterDetail> {
                               Get.back();
                             } else {
                               print("About to Route");
-                              Get.offNamed(BaseView.route);
+                              Get.toNamed(BaseView.route);
                             }
                           },
                           child: Icon(
