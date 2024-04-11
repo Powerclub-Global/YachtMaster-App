@@ -610,9 +610,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                                 paymentIntentResult?['client_secret'],
                                 data: params);
                                 print('Stripe Call Made');
-
                             await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
-
                           },
                           onError: (error) {
                             print(error);
