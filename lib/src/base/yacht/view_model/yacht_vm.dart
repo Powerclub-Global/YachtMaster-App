@@ -112,9 +112,9 @@ class YachtVm extends ChangeNotifier {
           list.docs.map((e) => CharterModel.fromJson(e.data())).toList());
       charterStream ??= res.listen((charters) async {
         if (charters.isNotEmpty) {
-          allCharters = charters
-              .where((element) => element.status == CharterStatus.active.index)
-              .toList();
+          allCharters = charters.where((element) {
+            return element.status == CharterStatus.active.index;
+          }).toList();
           hostCharters = charters
               .where((element) =>
                   element.createdBy == FirebaseAuth.instance.currentUser?.uid &&
@@ -125,7 +125,6 @@ class YachtVm extends ChangeNotifier {
           await settingsVm.fetchReviews(hosts);
           notifyListeners();
           await getCitiesList();
-
           log("//////////////////////All Charters :${allCharters.length}/////host charters :${hostCharters.length}____hosts:${hosts?.length}____");
         }
       });

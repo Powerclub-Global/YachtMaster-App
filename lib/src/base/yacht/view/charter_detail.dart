@@ -25,6 +25,7 @@ import 'package:yacht_master/resources/dummy.dart';
 import 'package:yacht_master/resources/resources.dart';
 import 'package:yacht_master/services/firebase_collections.dart';
 import 'package:yacht_master/src/auth/model/favourite_model.dart';
+import 'package:yacht_master/src/base/base_view.dart';
 import 'package:yacht_master/src/base/base_vm.dart';
 import 'package:yacht_master/src/base/inbox/model/chat_heads_model.dart';
 import 'package:yacht_master/src/base/inbox/view/chat.dart';
@@ -38,6 +39,7 @@ import 'package:yacht_master/src/base/search/model/city_model.dart';
 import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
 import 'package:yacht_master/src/base/search/view/bookings/view/yacht_reserve_payment.dart';
 import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
+import 'package:yacht_master/src/base/search/view/search_screen.dart';
 import 'package:yacht_master/src/base/search/view/what_looking_for.dart';
 import 'package:yacht_master/src/base/search/view/when_will_be_there.dart';
 import 'package:yacht_master/src/base/search/view/where_going.dart';
@@ -111,6 +113,7 @@ class _CharterDetailState extends State<CharterDetail> {
       isReserve = args["isReserve"];
       index = args["index"];
       isEdit = args["isEdit"];
+
       await moveToLocation(LatLng(charter?.location?.lat ?? 51.5072,
           charter?.location?.long ?? 0.1276));
       averageRating = settingsVm.averageRating(settingsVm.allReviews
@@ -133,6 +136,7 @@ class _CharterDetailState extends State<CharterDetail> {
     isReserve = args["isReserve"];
     index = args["index"];
     isEdit = args["isEdit"];
+    bool? isLink = args["isLink"];
 
     return Consumer6<InboxVm, BaseVm, SettingsVm, SearchVm, YachtVm,
             BookingsVm>(
@@ -157,7 +161,13 @@ class _CharterDetailState extends State<CharterDetail> {
                             charter = await yachtVm
                                 .fetchCharterById(charter?.id ?? "");
                             yachtVm.update();
-                            Get.back();
+                            print(isLink);
+                            if (isLink == null) {
+                              Get.back();
+                            } else {
+                              print("About to Route");
+                              Get.offNamed(BaseView.route);
+                            }
                           },
                           child: Icon(
                             Icons.arrow_back_ios,
@@ -176,7 +186,8 @@ class _CharterDetailState extends State<CharterDetail> {
                           children: [
                             GestureDetector(
                                 onTap: () {
-                                  Share.share("Here you can download Yacht Master! \n https://apps.apple.com/us/app/yachtmaster-app/id6449384419");
+                                  Share.share(
+                                      'Share this yachts to your Friends and Family! \n https://yachtmasterapp.com?yachtId=${charter!.id}');
                                 },
                                 child: Image.asset(
                                   R.images.share,
@@ -660,7 +671,8 @@ class _CharterDetailState extends State<CharterDetail> {
                                                   "MIAMI BEACH MARINA",
                                               style: R.textStyle
                                                   .helvetica()
-                                                  .copyWith(color: Colors.white),
+                                                  .copyWith(
+                                                      color: Colors.white),
                                             ),
                                             h0P7,
                                             Text(
@@ -885,25 +897,31 @@ class _CharterDetailState extends State<CharterDetail> {
                                         "capacity",
                                         charter?.guestCapacity.toString() ?? "",
                                         "",
-                                        isDivider: (charter?.healthSafety?.title != null) && (charter?.yachtRules?.title != null)),
-                                    if(charter?.yachtRules?.title != null)
+                                        isDivider:
+                                            (charter?.healthSafety?.title !=
+                                                    null) &&
+                                                (charter?.yachtRules?.title !=
+                                                    null)),
+                                    if (charter?.yachtRules?.title != null)
                                       tiles(
-                                      1,
-                                      charter?.yachtRules?.title ?? "",
-                                      charter?.yachtRules?.description ?? "",
-                                      "${getTranslated(context, "hosts_yacht_rules")}",
-                                      isDivider: charter?.healthSafety?.title != null
-                                    ),
-                                    if(charter?.healthSafety?.title != null)
-                                    tiles(
-                                        2,
-                                        charter?.healthSafety?.title ?? "",
-                                        charter?.healthSafety?.description ??
-                                            "",
-                                        getTranslated(context,
-                                                "yacht_masters_health_and_safety_requirements") ??
-                                            "",
-                                        isDivider: false),
+                                          1,
+                                          charter?.yachtRules?.title ?? "",
+                                          charter?.yachtRules?.description ??
+                                              "",
+                                          "${getTranslated(context, "hosts_yacht_rules")}",
+                                          isDivider:
+                                              charter?.healthSafety?.title !=
+                                                  null),
+                                    if (charter?.healthSafety?.title != null)
+                                      tiles(
+                                          2,
+                                          charter?.healthSafety?.title ?? "",
+                                          charter?.healthSafety?.description ??
+                                              "",
+                                          getTranslated(context,
+                                                  "yacht_masters_health_and_safety_requirements") ??
+                                              "",
+                                          isDivider: false),
                                     // tiles(3,charter?.cancelationPolicy?.title?? "" , charter?.cancelationPolicy?.description??"",getTranslated(context, "cancellation_policy") ?? "",
                                     //     isDivider: false),
                                   ],
@@ -1031,8 +1049,7 @@ class _CharterDetailState extends State<CharterDetail> {
                                   return charterDayList
                                       .toList()
                                       .map((e) => PopupMenuItem(
-                                            value: charterDayList
-                                                .indexOf(e),
+                                            value: charterDayList.indexOf(e),
                                             child: Text(
                                               e.title.split("C").first,
                                               style: R.textStyle
@@ -1292,8 +1309,7 @@ class _CharterDetailState extends State<CharterDetail> {
       charterDayList.add(context.read<SearchVm>().charterDayList[2]);
     }
 
-    context.read<SearchVm>().selectedCharterDayType =
-    charterDayList[0];
+    context.read<SearchVm>().selectedCharterDayType = charterDayList[0];
     context.read<BookingsVm>().bookingsModel.durationType =
         context.read<SearchVm>().selectedCharterDayType!.type;
     context.read<BookingsVm>().update();
