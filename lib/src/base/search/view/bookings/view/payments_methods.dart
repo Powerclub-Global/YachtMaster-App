@@ -46,13 +46,6 @@ class PaymentMethods extends StatefulWidget {
   _PaymentMethodsState createState() => _PaymentMethodsState();
 }
 
-const _paymentItems = [
-  pay.PaymentItem(
-    label: 'Jessy Artman',
-    amount: '1.0',
-    status: pay.PaymentItemStatus.final_price,
-  )
-];
 
 class _PaymentMethodsState extends State<PaymentMethods> {
   bool isDeposit = false;
@@ -74,8 +67,16 @@ class _PaymentMethodsState extends State<PaymentMethods> {
 
   @override
   Widget build(BuildContext context) {
+    
     return Consumer2<BookingsVm, HomeVm>(
         builder: (context, provider, homeVm, _) {
+          var _paymentItems = [
+  pay.PaymentItem(
+    label: 'Jessy Artman',
+    amount: userPaidAmount.toStringAsFixed(2),
+    status: pay.PaymentItemStatus.final_price,
+  )
+];
       log("_____key:${publishableKey}");
       return ModalProgressHUD(
         inAsyncCall: isLoading,
@@ -587,7 +588,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                             print(value);
                             final paymentIntentResult =
                                 await stripe.createPaymentIntents(
-                              amount: "100",
+                              amount: (userPaidAmount * 100).toString(),
                               currency: 'usd', // mocked data
                               secretKey: secretKey!,
                             );
