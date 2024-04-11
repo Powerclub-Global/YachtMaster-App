@@ -89,7 +89,7 @@ class AuthVm extends ChangeNotifier {
 
   onClickLoginOTP(String countryCode, String phoneNumController) async {
     bool isUserExist =
-        await chechUserCollectionExists("${countryCode}${phoneNumController}");
+        await chechUserCollectionExists("$countryCode$phoneNumController");
     print("..................................USER EXIST:$isUserExist");
     if (isUserExist == false) {
       Helper.inSnackBar('Error', "This user does not exist", R.colors.themeMud);
@@ -132,7 +132,7 @@ class AuthVm extends ChangeNotifier {
       });
     } on FirebaseAuthException catch (e) {
       log("THIS IS ERRROR$e");
-      Fluttertoast.showToast(msg: "${e}");
+      Fluttertoast.showToast(msg: "$e");
       if (FirebaseAuth.instance.currentUser != null) {
         logoutUser();
       }
@@ -174,7 +174,7 @@ class AuthVm extends ChangeNotifier {
       });
     } on FirebaseAuthException catch (e) {
       log("THIS IS ERRROR$e");
-      Fluttertoast.showToast(msg: "${e}");
+      Fluttertoast.showToast(msg: "$e");
       if (FirebaseAuth.instance.currentUser != null) {
         logoutUser();
       }
@@ -185,7 +185,7 @@ class AuthVm extends ChangeNotifier {
       String countryCode, String phoneNumController, bool isSocialLogin) async {
     log("____HERE");
     bool isUserExist =
-        await chechUserCollectionExists("${countryCode}${phoneNumController}");
+        await chechUserCollectionExists("$countryCode$phoneNumController");
 
     if (isUserExist == true) {
       Helper.inSnackBar('Error', "User already exist", R.colors.themeMud);
@@ -203,7 +203,7 @@ class AuthVm extends ChangeNotifier {
       bool isSocialLogin,
       {bool isApple = false}) async {
     bool isUserExist =
-        await chechUserCollectionExists("${countryCode}${phoneNumController}");
+        await chechUserCollectionExists("$countryCode$phoneNumController");
 
     if (isUserExist == true) {
       Helper.inSnackBar('Error', "User already exist", R.colors.themeMud);
@@ -362,7 +362,7 @@ class AuthVm extends ChangeNotifier {
       print("About to verify phone number");
 
       await auth.verifyPhoneNumber(
-          phoneNumber: "${countryCode} ${number}",
+          phoneNumber: "$countryCode $number",
           timeout: const Duration(seconds: 60),
           verificationCompleted: (AuthCredential authCredential) async {
             UserCredential? userCredential =
@@ -433,7 +433,7 @@ class AuthVm extends ChangeNotifier {
             log("_______________________WHEN COMP");
             stopLoader();
             Get.dialog(
-                OTP("${countryCode} ${number}", true, (otpCode) async {
+                OTP("$countryCode $number", true, (otpCode) async {
                   startLoader();
                   await verifySignUpOtpGoogle(
                           user, countryCode, verificationId, number, otpCode,
@@ -466,7 +466,7 @@ class AuthVm extends ChangeNotifier {
           .contains("firebase_auth/invalid-verification-code")) {
         Helper.inSnackBar("Error", "Wrong OTP entered", R.colors.themeMud);
       } else {
-        Fluttertoast.showToast(msg: "${e.toString().split("]").last}");
+        Fluttertoast.showToast(msg: e.toString().split("]").last);
       }
       log(e.toString());
       stopLoader();
@@ -523,7 +523,7 @@ class AuthVm extends ChangeNotifier {
         verificationId: verificationId, smsCode: code);
 
     await linkPhoneNumber(_credential).then((cred) async {
-      log("___CRED:${cred}___USER:${user}");
+      log("___CRED:${cred}___USER:$user");
       if (cred != null) {
         // PLEASEEEEE MAKE SURE TO EDIT THIS IN NEAR FUTURE
         // *******************************************************************************************************
@@ -571,10 +571,10 @@ class AuthVm extends ChangeNotifier {
   }
 
   signInWithOtp(String countryCode, String number) async {
-    print("+++++++++++++++++++++++++++++++MOBILE:${countryCode} ${number}");
+    print("+++++++++++++++++++++++++++++++MOBILE:$countryCode $number");
     try {
       await auth.verifyPhoneNumber(
-          phoneNumber: "${countryCode} ${number}",
+          phoneNumber: "$countryCode $number",
           timeout: const Duration(seconds: 60),
           verificationCompleted: (AuthCredential authCredential) async {
             print("////////////////AUTH CRED$authCredential");
@@ -647,7 +647,7 @@ class AuthVm extends ChangeNotifier {
             log("___________CODE SENT:");
             print("I am here code is sent");
             Get.dialog(
-                OTP("${countryCode} ${number}", false, (otpCode) async {
+                OTP("$countryCode $number", false, (otpCode) async {
                   stopLoader();
                   print("about to verify otp");
                   await verifyOtp(
@@ -687,7 +687,7 @@ class AuthVm extends ChangeNotifier {
       String firstName, String lastName, bool isSocialLogin) async {
     try {
       await auth.verifyPhoneNumber(
-          phoneNumber: "${countryCode} ${num}",
+          phoneNumber: "$countryCode $num",
           timeout: const Duration(seconds: 60),
           verificationCompleted: (AuthCredential authCredential) async {
             print("////////////////AUTH CRED$authCredential");
@@ -734,7 +734,7 @@ class AuthVm extends ChangeNotifier {
             log("_______________________WHEN COMP");
             stopLoader();
             Get.dialog(
-                OTP("${countryCode} ${num}", true, (otpCode) async {
+                OTP("$countryCode $num", true, (otpCode) async {
                   startLoader();
                   await verifySignUpOtp(countryCode, verificationId, email,
                           firstName, lastName, num, otpCode, isSocialLogin)
@@ -789,10 +789,10 @@ class AuthVm extends ChangeNotifier {
 
       FirebaseAuth auth = FirebaseAuth.instance;
       AuthCredential _credential;
-      log("////////////////////////VERIF ID${verificationId}");
+      log("////////////////////////VERIF ID$verificationId");
       _credential = PhoneAuthProvider.credential(
           verificationId: verificationId, smsCode: code);
-      log("////////////////////////CRED${_credential}");
+      log("////////////////////////CRED$_credential");
       await auth.signInWithCredential(_credential).then((result) async {
         // PLEASEEEEE MAKE SURE TO EDIT THIS IN NEAR FUTURE
         // *******************************************************************************************************
@@ -837,10 +837,10 @@ class AuthVm extends ChangeNotifier {
       FirebaseAuth auth = FirebaseAuth.instance;
       AuthCredential _credential;
       print("starting verification");
-      log("////////////////////////VERIF ID${verificationId}");
+      log("////////////////////////VERIF ID$verificationId");
       _credential = PhoneAuthProvider.credential(
           verificationId: verificationId, smsCode: code);
-      log("////////////////////////CRED${_credential}");
+      log("////////////////////////CRED$_credential");
       await auth.signInWithCredential(_credential).then((result) async {
         if (result.user != null) {
           Future.delayed(Duration(seconds: 2), () async {
@@ -894,8 +894,8 @@ class AuthVm extends ChangeNotifier {
     try {
       bool isUserExist = false;
 
-      isUserExist = await chechUserCollectionExists("${countryCode}${num}");
-      log("/////////////////////////Current user in db:${isUserExist}................aut:${auth.currentUser}");
+      isUserExist = await chechUserCollectionExists("$countryCode$num");
+      log("/////////////////////////Current user in db:$isUserExist................aut:${auth.currentUser}");
 
       if (isUserExist == false) {
         print("I am here about to add it lessgoooo");
@@ -910,7 +910,7 @@ class AuthVm extends ChangeNotifier {
           "first_name": firstName,
           "last_name": lastName,
           "image_url": user.photoURL ?? R.images.dummyDp,
-          "phone_number": "${countryCode}${number}",
+          "phone_number": "$countryCode$number",
           "fcm": Constants.fcmToken,
           "role": UserType.user.index,
           "status": UserStatus.active.index,

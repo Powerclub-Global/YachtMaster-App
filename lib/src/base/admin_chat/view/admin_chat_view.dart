@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'dart:developer'as msg;
+import 'dart:developer' as msg;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:circular_profile_avatar/circular_profile_avatar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -47,35 +47,34 @@ class _AdminChatViewState extends State<AdminChatView> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       ZBotToast.loadingShow();
       var args =
-      ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
       chatHeadModel = args["chatHeadModel"];
-       chatDocsLen= await FbCollections.adminChat.where("id",isEqualTo: chatHeadModel?.id).get();
+      chatDocsLen = await FbCollections.adminChat
+          .where("id", isEqualTo: chatHeadModel?.id)
+          .get();
       Future.delayed(const Duration(seconds: 1), () {
-        scrollController?.animateTo(scrollController?.position.maxScrollExtent??0,
-            duration: const Duration(microseconds: 1), curve: Curves.easeIn);
+        scrollController?.animateTo(
+            scrollController?.position.maxScrollExtent ?? 0,
+            duration: const Duration(microseconds: 1),
+            curve: Curves.easeIn);
       });
-       ZBotToast.loadingClose();
-       setState(() {
-
-       });
-
+      ZBotToast.loadingClose();
+      setState(() {});
     });
 
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     var args =
-    ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
     chatHeadModel = args["chatHeadModel"];
 
-    return Consumer2<BaseVm,InboxVm>(builder: (context, baseVm,model, _) {
-
+    return Consumer2<BaseVm, InboxVm>(builder: (context, baseVm, model, _) {
       return GestureDetector(
         onTap: () {
-          FocusScope.of(context).requestFocus(new FocusNode());
+          FocusScope.of(context).requestFocus(FocusNode());
         },
         child: Scaffold(
           backgroundColor: R.colors.black,
@@ -89,12 +88,21 @@ class _AdminChatViewState extends State<AdminChatView> {
                 elevation: 0,
                 centerTitle: true,
                 title: GestureDetector(
-                  onTap: (){
+                  onTap: () {
                     // Get.toNamed(HostProfileOthers.route,arguments: {"host":baseVm.allUsers.firstWhereOrNull((element) => chatHeadModel?.users?.where((element) => element!=FirebaseAuth.instance.currentUser?.uid).first==element.uid)});
-
                   },
-                  child: Text(baseVm.allUsers.firstWhereOrNull((element) =>
-                  chatHeadModel?.users?.where((element) => element!=FirebaseAuth.instance.currentUser?.uid).first==element.uid)?.firstName??"",
+                  child: Text(
+                      baseVm.allUsers
+                              .firstWhereOrNull((element) =>
+                                  chatHeadModel?.users
+                                      ?.where((element) =>
+                                          element !=
+                                          FirebaseAuth
+                                              .instance.currentUser?.uid)
+                                      .first ==
+                                  element.uid)
+                              ?.firstName ??
+                          "",
                       style: R.textStyle
                           .helveticaBold()
                           .copyWith(color: R.colors.whiteDull)),
@@ -114,13 +122,14 @@ class _AdminChatViewState extends State<AdminChatView> {
             children: [
               h2,
               Text(
-                (chatHeadModel?.createdAt?.toDate()??now).formateDateChatNow(),
+                (chatHeadModel?.createdAt?.toDate() ?? now)
+                    .formateDateChatNow(),
                 style: R.textStyle
                     .helveticaBold()
                     .copyWith(fontSize: 8.sp, color: R.colors.whiteDull),
               ),
               h2,
-              conversation(model,baseVm),
+              conversation(model, baseVm),
               customTextFieldMessage(model)
             ],
           ),
@@ -129,49 +138,48 @@ class _AdminChatViewState extends State<AdminChatView> {
     });
   }
 
-  Widget conversation(InboxVm model,BaseVm baseVm) {
-    return
-      Expanded(
-        child:baseVm.allUsers.isEmpty?SizedBox():
-        StreamBuilder(
-            stream: FbCollections.message(chatHeadModel?.id).orderBy("created_at",descending:true).
-            snapshots(),
-            builder: (context,AsyncSnapshot<QuerySnapshot> snapshot) {
-              if(!snapshot.hasData)
-              {
-                return SizedBox();
-              }
-              else{
-                return
-                  ScrollConfiguration(
-                    behavior: const ScrollBehavior().copyWith(overscroll: false),
+  Widget conversation(InboxVm model, BaseVm baseVm) {
+    return Expanded(
+      child: baseVm.allUsers.isEmpty
+          ? SizedBox()
+          : StreamBuilder(
+              stream: FbCollections.message(chatHeadModel?.id)
+                  .orderBy("created_at", descending: true)
+                  .snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (!snapshot.hasData) {
+                  return SizedBox();
+                } else {
+                  return ScrollConfiguration(
+                    behavior:
+                        const ScrollBehavior().copyWith(overscroll: false),
                     child: ListView.separated(
                       reverse: true,
                       padding: EdgeInsets.all(10.0),
                       itemBuilder: (context, index) {
-                        AdminChatModel chatModel=AdminChatModel.fromJson(snapshot.data?.docs[index].data());
-                        return
-                          chatModel.senderId==FirebaseAuth.instance.currentUser?.uid?
-                          senderBubble(chatModel,baseVm):
-                          receiverBubble(chatModel,baseVm);
+                        AdminChatModel chatModel = AdminChatModel.fromJson(
+                            snapshot.data?.docs[index].data());
+                        return chatModel.senderId ==
+                                FirebaseAuth.instance.currentUser?.uid
+                            ? senderBubble(chatModel, baseVm)
+                            : receiverBubble(chatModel, baseVm);
                       },
-                      itemCount: snapshot.data?.docs.length??0,
+                      itemCount: snapshot.data?.docs.length ?? 0,
                       controller: scrollController,
                       physics: const ClampingScrollPhysics(),
-
                       separatorBuilder: (BuildContext context, int index) {
                         return Container();
                       },
                     ),
                   );
-              }
-            }
-        ),
-      );
+                }
+              }),
+    );
   }
-  Widget senderBubble(AdminChatModel chatModel,BaseVm baseVm)
-  {
-    return Row(crossAxisAlignment: CrossAxisAlignment.end,
+
+  Widget senderBubble(AdminChatModel chatModel, BaseVm baseVm) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Padding(
@@ -190,9 +198,8 @@ class _AdminChatViewState extends State<AdminChatView> {
             width: Get.width * .7,
             child: Container(
               decoration: BoxDecoration(
-                  color:R.colors.blackDull,
-                  borderRadius:
-                  BorderRadius.only(
+                  color: R.colors.blackDull,
+                  borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(12),
                       topRight: Radius.circular(12),
                       bottomLeft: Radius.circular(12))),
@@ -205,31 +212,34 @@ class _AdminChatViewState extends State<AdminChatView> {
                         width: Get.width * .6,
                         child: Padding(
                           padding: EdgeInsets.symmetric(
-                            horizontal: Get.width * .02,),
-                          child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+                            horizontal: Get.width * .02,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               h1P5,
                               Padding(
-                                padding:  EdgeInsets.only(bottom: 8.0),
+                                padding: EdgeInsets.only(bottom: 8.0),
                                 child: Text(
-                                    baseVm.allUsers.where((element) => element.uid==chatModel.senderId).first.firstName??"",
-                                    style: R.textStyle
-                                        .helvetica()
-                                        .copyWith(
+                                    baseVm.allUsers
+                                            .where((element) =>
+                                                element.uid ==
+                                                chatModel.senderId)
+                                            .first
+                                            .firstName ??
+                                        "",
+                                    style: R.textStyle.helvetica().copyWith(
                                         color: Colors.white,
-                                        fontSize:
-                                        Get.width * .04)),
+                                        fontSize: Get.width * .04)),
                               ),
-                              Text(
-                                  "${chatModel.message}",
-                                  style: R.textStyle
-                                      .helvetica()
-                                      .copyWith(
-                                      color: chatModel.senderId == FirebaseAuth.instance.currentUser?.uid
+                              Text("${chatModel.message}",
+                                  style: R.textStyle.helvetica().copyWith(
+                                      color: chatModel.senderId ==
+                                              FirebaseAuth
+                                                  .instance.currentUser?.uid
                                           ? R.colors.whiteColor
                                           : R.colors.blackDull,
-                                      fontSize:
-                                      Get.width * .033)),
+                                      fontSize: Get.width * .033)),
                               h2
                             ],
                           ),
@@ -239,12 +249,12 @@ class _AdminChatViewState extends State<AdminChatView> {
                   ),
                   Padding(
                     padding: EdgeInsets.only(
-                        bottom: Get.width * .02,
-                        right: Get.height * .01),
+                        bottom: Get.width * .02, right: Get.height * .01),
                     child: Text(
-                        "${DateFormat.jm().format(chatModel.createdAt?.toDate()??now).toString().toLowerCase()}",
+                        "${DateFormat.jm().format(chatModel.createdAt?.toDate() ?? now).toString().toLowerCase()}",
                         style: R.textStyle.helvetica().copyWith(
-                            color: chatModel.senderId == FirebaseAuth.instance.currentUser?.uid
+                            color: chatModel.senderId ==
+                                    FirebaseAuth.instance.currentUser?.uid
                                 ? R.colors.whiteColor
                                 : R.colors.black,
                             fontSize: 7.sp)),
@@ -257,131 +267,154 @@ class _AdminChatViewState extends State<AdminChatView> {
         CircularProfileAvatar(
           "",
           radius: 12.sp,
-          child:
-          CachedNetworkImage(
-            imageUrl:
-            baseVm.allUsers.where((element) => element.uid==chatModel.senderId).first.imageUrl??"",
+          child: CachedNetworkImage(
+            imageUrl: baseVm.allUsers
+                    .where((element) => element.uid == chatModel.senderId)
+                    .first
+                    .imageUrl ??
+                "",
             // peerSnap.data?.get("image_url"),
             fit: BoxFit.cover,
             progressIndicatorBuilder: (context, url, downloadProgress) =>
-                SpinKitPulse(color: R.colors.themeMud,),
+                SpinKitPulse(
+              color: R.colors.themeMud,
+            ),
             errorWidget: (context, url, error) => Icon(Icons.error),
           ),
         )
-
       ],
     );
   }
-  Widget receiverBubble(AdminChatModel chatModel,BaseVm baseVm)
-  {
-    return
-      baseVm.allUsers.firstWhereOrNull((element) => element.uid==chatHeadModel?.users?.firstWhereOrNull((e) => e!=FirebaseAuth.instance.currentUser?.uid))==null?
-      SizedBox():
-      Row(crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          GestureDetector(
-            onTap: (){
-              Get.toNamed(HostProfileOthers.route,arguments: {"host":baseVm.allUsers.firstWhereOrNull((element) => chatHeadModel?.users?.where((element) => element!=FirebaseAuth.instance.currentUser?.uid).first==element.uid)});
 
-            },
-            child: CircularProfileAvatar(
-              "",
-              radius: 12.sp,
-              child:
-              CachedNetworkImage(
-                imageUrl:
-               "https://i.stack.imgur.com/YQu5k.png",
-                // peerSnap.data?.get("image_url"),
-                fit: BoxFit.cover,
-                progressIndicatorBuilder: (context, url, downloadProgress) =>
-                    SpinKitPulse(color: R.colors.themeMud,),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-              ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(bottom: 10, left: 10, right: 10),
-            child: Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(.30),
-                    blurRadius: 8,
-                    spreadRadius: .002,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              width: Get.width * .7,
-              child: Container(
-                decoration: BoxDecoration(
-                    color:  R.colors.milkyWhite,
-                    borderRadius:
-                    BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12),
-                        bottomRight: Radius.circular(12))),
-                child: Stack(
-                  alignment: Alignment.bottomRight,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: Get.width * .6,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: Get.width * .02,),
-                            child: Column(crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                h1P5,
-                                Padding(
-                                  padding:  EdgeInsets.only(bottom: 8.0),
-                                  child: Text(
-                                      baseVm.allUsers.where((element) => element.uid==chatHeadModel!.users!.where((element) => element!=FirebaseAuth.instance.currentUser!.uid).first).first.firstName??"",
-
-                                      style: R.textStyle
-                                          .helvetica()
-                                          .copyWith(
-                                          color: R.colors.blackDull,
-                                          fontSize:
-                                          Get.width * .04)),
-                                ),
-                                Text(
-                                    "${chatModel.message}",
-                                    style: R.textStyle
-                                        .helvetica()
-                                        .copyWith(
-                                        color: chatModel.senderId == FirebaseAuth.instance.currentUser?.uid
-                                            ? R.colors.whiteColor
-                                            : R.colors.blackDull,
-                                        fontSize:
-                                        Get.width * .033)),
-                                h2
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
+  Widget receiverBubble(AdminChatModel chatModel, BaseVm baseVm) {
+    return baseVm.allUsers.firstWhereOrNull((element) =>
+                element.uid ==
+                chatHeadModel?.users?.firstWhereOrNull(
+                    (e) => e != FirebaseAuth.instance.currentUser?.uid)) ==
+            null
+        ? SizedBox()
+        : Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Get.toNamed(HostProfileOthers.route, arguments: {
+                    "host": baseVm.allUsers.firstWhereOrNull((element) =>
+                        chatHeadModel?.users
+                            ?.where((element) =>
+                                element !=
+                                FirebaseAuth.instance.currentUser?.uid)
+                            .first ==
+                        element.uid)
+                  });
+                },
+                child: CircularProfileAvatar(
+                  "",
+                  radius: 12.sp,
+                  child: CachedNetworkImage(
+                    imageUrl: "https://i.stack.imgur.com/YQu5k.png",
+                    // peerSnap.data?.get("image_url"),
+                    fit: BoxFit.cover,
+                    progressIndicatorBuilder:
+                        (context, url, downloadProgress) => SpinKitPulse(
+                      color: R.colors.themeMud,
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                          bottom: Get.width * .02,
-                          right: Get.height * .01),
-                      child: Text("${DateFormat.jm().format(chatModel.createdAt?.toDate()??now).toString().toLowerCase()}",
-                          style: R.textStyle.helvetica().copyWith(
-                              color:  R.colors.black,
-                              fontSize: 7.sp)),
-                    )
-                  ],
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                  ),
                 ),
               ),
-            ),
-          ),
-
-        ],
-      );
+              Padding(
+                padding: EdgeInsets.only(bottom: 10, left: 10, right: 10),
+                child: Container(
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(.30),
+                        blurRadius: 8,
+                        spreadRadius: .002,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  width: Get.width * .7,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: R.colors.milkyWhite,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(12),
+                            topRight: Radius.circular(12),
+                            bottomRight: Radius.circular(12))),
+                    child: Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: Get.width * .6,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: Get.width * .02,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    h1P5,
+                                    Padding(
+                                      padding: EdgeInsets.only(bottom: 8.0),
+                                      child: Text(
+                                          baseVm.allUsers
+                                                  .where((element) =>
+                                                      element.uid ==
+                                                      chatHeadModel!.users!
+                                                          .where((element) =>
+                                                              element !=
+                                                              FirebaseAuth
+                                                                  .instance
+                                                                  .currentUser!
+                                                                  .uid)
+                                                          .first)
+                                                  .first
+                                                  .firstName ??
+                                              "",
+                                          style: R.textStyle
+                                              .helvetica()
+                                              .copyWith(
+                                                  color: R.colors.blackDull,
+                                                  fontSize: Get.width * .04)),
+                                    ),
+                                    Text("${chatModel.message}",
+                                        style: R.textStyle.helvetica().copyWith(
+                                            color: chatModel.senderId ==
+                                                    FirebaseAuth.instance
+                                                        .currentUser?.uid
+                                                ? R.colors.whiteColor
+                                                : R.colors.blackDull,
+                                            fontSize: Get.width * .033)),
+                                    h2
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              bottom: Get.width * .02, right: Get.height * .01),
+                          child: Text(
+                              "${DateFormat.jm().format(chatModel.createdAt?.toDate() ?? now).toString().toLowerCase()}",
+                              style: R.textStyle.helvetica().copyWith(
+                                  color: R.colors.black, fontSize: 7.sp)),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
   }
+
   Widget customTextFieldMessage(InboxVm provider) {
     return Container(
       decoration: BoxDecoration(
@@ -412,7 +445,7 @@ class _AdminChatViewState extends State<AdminChatView> {
                       minHeight: Get.height * .045,
                       maxHeight: Get.height * .045),
                   contentPadding:
-                  EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                      EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                   hintText: 'Start Typing...',
                   hintStyle: R.textStyle.helvetica().copyWith(fontSize: 10.sp),
                   fillColor: R.colors.milkyWhite,
@@ -434,9 +467,9 @@ class _AdminChatViewState extends State<AdminChatView> {
             GestureDetector(
               onTap: () async {
                 setState(() {});
-                if (scrollController?.positions.isNotEmpty==true) {
+                if (scrollController?.positions.isNotEmpty == true) {
                   scrollController?.animateTo(
-                      scrollController?.position.maxScrollExtent??0.0,
+                      scrollController?.position.maxScrollExtent ?? 0.0,
                       duration: Duration(milliseconds: 300),
                       curve: Curves.easeOut);
                 }
@@ -445,47 +478,49 @@ class _AdminChatViewState extends State<AdminChatView> {
                   Fluttertoast.showToast(
                       msg: "Please type something",
                       backgroundColor: R.colors.themeMud);
-                }
-                else {
-                  BaseVm baseVm=Provider.of<BaseVm>(context,listen: false);
-                  Timestamp lastMessageTime=Timestamp.now();
-                  AdminChatModel chatModel=AdminChatModel(
+                } else {
+                  BaseVm baseVm = Provider.of<BaseVm>(context, listen: false);
+                  Timestamp lastMessageTime = Timestamp.now();
+                  AdminChatModel chatModel = AdminChatModel(
                       message: msgCon.text,
                       createdAt: lastMessageTime,
                       senderId: FirebaseAuth.instance.currentUser?.uid,
                       chatHeadId: chatHeadModel?.id,
                       type: 0,
                       isSeen: false,
-                      receiverId:chatHeadModel?.users?.where((element) => element!=FirebaseAuth.instance.currentUser?.uid).toList().first
-                  );
+                      receiverId: chatHeadModel?.users
+                          ?.where((element) =>
+                              element != FirebaseAuth.instance.currentUser?.uid)
+                          .toList()
+                          .first);
                   chatHeadModel?.lastMessage = chatModel;
                   setState(() {});
                   try {
-                    String notficationBody=msgCon.text;
+                    String notficationBody = msgCon.text;
                     msgCon.clear();
-                    scrollController?.animateTo((scrollController?.position.maxScrollExtent??0)*1000, duration: Duration(milliseconds: 500), curve: Curves.easeIn);
+                    scrollController?.animateTo(
+                        (scrollController?.position.maxScrollExtent ?? 0) *
+                            1000,
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.easeIn);
                     setState(() {});
                     FocusScope.of(context).requestFocus(new FocusNode());
 
-
-
                     await FbCollections.adminChat
-                        .doc(chatHeadModel?.id??"")
+                        .doc(chatHeadModel?.id ?? "")
                         .set(chatHeadModel?.toJson());
                     await FbCollections.adminChat
-                        .doc(chatHeadModel?.id??"")
+                        .doc(chatHeadModel?.id ?? "")
                         .collection("messages")
                         .add(chatModel.toJson());
                     setState(() {});
 
-                    await sendNotification(notficationBody,baseVm);
-
+                    await sendNotification(notficationBody, baseVm);
                   } on Exception catch (e) {
                     // TODO
                     debugPrintStack();
                     print(e.toString());
                   }
-
                 }
               },
               child: Container(
@@ -509,18 +544,23 @@ class _AdminChatViewState extends State<AdminChatView> {
       ),
     );
   }
-  Future<void> sendNotification(String notficationBody,BaseVm baseVm
-      ) async {
+
+  Future<void> sendNotification(String notficationBody, BaseVm baseVm) async {
     try {
-      await  NotificationService.sendNotification(
-          fcmToken: baseVm.allUsers.firstWhereOrNull((element) => chatHeadModel?.users?.where((element) => element!=FirebaseAuth.instance.currentUser?.uid).first==element.uid)?.fcm??"",
+      await NotificationService.sendNotification(
+          fcmToken: baseVm.allUsers
+                  .firstWhereOrNull((element) =>
+                      chatHeadModel?.users
+                          ?.where((element) =>
+                              element != FirebaseAuth.instance.currentUser?.uid)
+                          .first ==
+                      element.uid)
+                  ?.fcm ??
+              "",
           title: "New Message",
           body: notficationBody);
-
     } catch (e) {
       print(e.toString());
     }
   }
-
 }
-
