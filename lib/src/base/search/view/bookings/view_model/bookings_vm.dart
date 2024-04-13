@@ -349,7 +349,8 @@ class BookingsVm extends ChangeNotifier {
           Timestamp.fromDate(DateTimePickerServices.selectedEndDateTimeDB),
         ];
         bookingsModel.schedule?.startTime = startTimeCon.text;
-        startTime = DateTime.parse(startTimeCon.text);
+        DateFormat format = DateFormat("dd/MM/yyyy hh:mm a");
+        startTime = format.parse(startTimeCon.text);
         log(startTime.toString());
         if (provider.selectedCharterDayType?.type ==
             CharterDayType.halfDay.index) {

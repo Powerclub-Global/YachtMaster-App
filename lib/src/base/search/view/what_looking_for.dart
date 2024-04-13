@@ -18,8 +18,7 @@ import 'package:yacht_master/utils/heights_widths.dart';
 import 'package:yacht_master/utils/helper.dart';
 
 class WhatLookingFor extends StatefulWidget {
-  static String route="/whatLookingFor";
- 
+  static String route = "/whatLookingFor";
 
   @override
   _WhatLookingForState createState() => _WhatLookingForState();
@@ -33,15 +32,18 @@ class _WhatLookingForState extends State<WhatLookingFor> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    log("______WhatLookingFor");
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      var args=ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+      var args =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
       setState(() {
-        cityModel=args["cityModel"];
-        isReserve=args["isReserve"];
-        yacht=args["yacht"];
+        cityModel = args["cityModel"];
+        isReserve = args["isReserve"];
+        yacht = args["yacht"];
       });
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<SearchVm>(builder: (context, provider, _) {
@@ -52,15 +54,16 @@ class _WhatLookingForState extends State<WhatLookingFor> {
           elevation: 0,
           centerTitle: true,
           titleSpacing: 0,
-          leading:GestureDetector(
-              onTap: (){
+          leading: GestureDetector(
+              onTap: () {
                 Get.back();
-
               },
-              child: Icon(Icons.arrow_back_ios_rounded,color: R.colors.whiteColor,
-              size: 20,)),
-          title: Text(
-              getTranslated(context, "search") ?? "",
+              child: Icon(
+                Icons.arrow_back_ios_rounded,
+                color: R.colors.whiteColor,
+                size: 20,
+              )),
+          title: Text(getTranslated(context, "search") ?? "",
               style: R.textStyle
                   .helvetica()
                   .copyWith(color: Colors.grey, fontSize: 14.sp)),
@@ -82,8 +85,7 @@ class _WhatLookingForState extends State<WhatLookingFor> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   h3,
-                  Text(
-                      getTranslated(context, "what_are_you_looking_for") ?? "",
+                  Text(getTranslated(context, "what_are_you_looking_for") ?? "",
                       style: R.textStyle
                           .helveticaBold()
                           .copyWith(color: Colors.white, fontSize: 16.sp)),
@@ -96,9 +98,9 @@ class _WhatLookingForState extends State<WhatLookingFor> {
                         Text(
                           cityModel ?? "",
                           style: R.textStyle.helveticaBold().copyWith(
-                            color: R.colors.whiteDull,
-                            fontSize: 15.sp,
-                          ),
+                                color: R.colors.whiteDull,
+                                fontSize: 15.sp,
+                              ),
                           textAlign: TextAlign.center,
                         ),
                         h5,
@@ -107,9 +109,9 @@ class _WhatLookingForState extends State<WhatLookingFor> {
                             Column(
                                 children: List.generate(
                                     provider.charterDayList.length, (index) {
-                                  return chartersCard(
-                                      provider.charterDayList[index], provider);
-                                })),
+                              return chartersCard(
+                                  provider.charterDayList[index], provider);
+                            })),
                           ],
                         ),
                         h2,
@@ -130,16 +132,16 @@ class _WhatLookingForState extends State<WhatLookingFor> {
       onTap: () {
         provider.selectedCharterDayType = city;
         provider.update();
-        var bookingsVm=Provider.of<BookingsVm>(context,listen: false);
-        bookingsVm.bookingsModel=BookingsModel();
+        var bookingsVm = Provider.of<BookingsVm>(context, listen: false);
+        bookingsVm.bookingsModel = BookingsModel();
         bookingsVm.update();
         log("______CITY:${cityModel}");
-        Get.toNamed(WhenWillBeThere.route,arguments: {
+        Get.toNamed(WhenWillBeThere.route, arguments: {
           "cityModel": cityModel,
           "yacht": yacht,
-          "isSelectTime":false,
-          "isReserve":isReserve,
-          "bookingsModel":null,
+          "isSelectTime": false,
+          "isReserve": isReserve,
+          "bookingsModel": null,
         });
       },
       child: Container(
