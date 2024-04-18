@@ -14,9 +14,11 @@ import 'package:yacht_master/services/time_schedule_service.dart';
 import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
 import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
 import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
+import 'package:yacht_master/src/base/settings/view/become_verified.dart';
 import 'package:yacht_master/src/base/settings/view/invite_earn/withdraw_money.dart';
 import 'package:yacht_master/utils/heights_widths.dart';
 import 'package:yacht_master/utils/helper.dart';
+import 'package:yacht_master/utils/zbot_toast.dart';
 
 class StatusScreen extends StatefulWidget {
   @override
@@ -26,135 +28,161 @@ class StatusScreen extends StatefulWidget {
 class _StatusScreenState extends State<StatusScreen> {
   @override
   Widget build(BuildContext context) {
-    return Consumer2<AuthVm,HomeVm>(
-      builder: (context, authVm,homeVm,_) {
-        return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Padding(
-            padding:  EdgeInsets.symmetric(horizontal: Get.width*.05),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                h1P5,
-                Container(
-                  width: Get.width,
-                  decoration: AppDecorations.buttonDecoration(R.colors.blackDull, 12),
-                  padding: EdgeInsets.symmetric(vertical: 2.5.h),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        width: Get.width * .7,
-                        child: Text(
-                          getTranslated(context,
-                              "amount_in_wallet") ??
-                              "",
-                          style: R.textStyle.helvetica().copyWith(
-                              height: 1.5, color: Colors.white, fontSize: 10.sp),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      h1P5,
-                      Text(
-                        "\$ ${Helper.numberFormatter(authVm.wallet?.amount ?? "0")}",
-                        style: R.textStyle
-                            .helvetica()
-                            .copyWith(color: Colors.white, fontSize:18.sp),
-                      ),
-                    ],
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    Get.toNamed(WithdrawMoney.route);
-                  },
-                  child: Container(
-                    height: Get.height * .05,
-                    width: Get.width * .65,
-                    margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 2.h),
-                    decoration: AppDecorations.gradientButton(radius: 30),
-                    child: Center(
+    return Consumer2<AuthVm, HomeVm>(builder: (context, authVm, homeVm, _) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: Get.width * .05),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              h1P5,
+              Container(
+                width: Get.width,
+                decoration:
+                    AppDecorations.buttonDecoration(R.colors.blackDull, 12),
+                padding: EdgeInsets.symmetric(vertical: 2.5.h),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: Get.width * .7,
                       child: Text(
-                        getTranslated(context, "withdraw_money")??"",
+                        getTranslated(context, "amount_in_wallet") ?? "",
                         style: R.textStyle.helvetica().copyWith(
-                            color: R.colors.black,
-                            fontSize: 10.5.sp,
-                            fontWeight: FontWeight.bold),
+                            height: 1.5, color: Colors.white, fontSize: 10.sp),
+                        textAlign: TextAlign.center,
                       ),
                     ),
-                  ),
-                ),
-                h2,
-                Row(
-                  children: [
+                    h1P5,
                     Text(
-                      getTranslated(context, "history")??"",
+                      "\$ ${Helper.numberFormatter(authVm.wallet?.amount ?? "0")}",
                       style: R.textStyle
                           .helvetica()
-                          .copyWith(color: Colors.white, fontSize:13.sp),
+                          .copyWith(color: Colors.white, fontSize: 18.sp),
                     ),
                   ],
                 ),
-                h2,
-                Expanded(
-                  child: ListView(
-                    children:List.generate(homeVm.allBookings.where((element) =>
-                    element.createdBy==FirebaseAuth.instance.currentUser?.uid &&
-                        element.paymentDetail?.payWithWallet.toStringAsFixed(1)!="0.0").toList().length, (index){
-                      BookingsModel booking=homeVm.allBookings.where((element) =>
-                      element.createdBy==FirebaseAuth.instance.currentUser?.uid &&
-                          element.paymentDetail?.payWithWallet.toStringAsFixed(1)!="0.0").toList()[index];
-                      return referralHistory(booking.charterFleetDetail?.name??"" , booking.hostUserUid??"", "- \$ ${booking.paymentDetail?.payWithWallet}", booking.createdAt?.toDate()??now);
-                    })
+              ),
+              GestureDetector(
+                onTap: () async {
+                  var data = await db
+                      .collection("users")
+                      .doc(FirebaseAuth.instance.currentUser?.uid)
+                      .get();
+                  var data1 = data.data();
+                  int inviteStatus = data1!["invite_status"];
+                  if (inviteStatus == 2) {
+                    Get.toNamed(WithdrawMoney.route);
+                    ;
+                  } else if (inviteStatus == 1) {
+                    ZBotToast.showToastError(
+                        message:
+                            "Please wait your request to be verified for earnings in process");
+                  } else {
+                    Get.toNamed(BecomeVerified.route);
+                  }
+                  // Get.toNamed(WithdrawMoney.route);
+                },
+                child: Container(
+                  height: Get.height * .05,
+                  width: Get.width * .65,
+                  margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 2.h),
+                  decoration: AppDecorations.gradientButton(radius: 30),
+                  child: Center(
+                    child: Text(
+                      getTranslated(context, "withdraw_money") ?? "",
+                      style: R.textStyle.helvetica().copyWith(
+                          color: R.colors.black,
+                          fontSize: 10.5.sp,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
-                h3
-              ],
-            ),
+              ),
+              h2,
+              Row(
+                children: [
+                  Text(
+                    getTranslated(context, "history") ?? "",
+                    style: R.textStyle
+                        .helvetica()
+                        .copyWith(color: Colors.white, fontSize: 13.sp),
+                  ),
+                ],
+              ),
+              h2,
+              Expanded(
+                child: ListView(
+                    children: List.generate(
+                        homeVm.allBookings
+                            .where((element) =>
+                                element.createdBy ==
+                                    FirebaseAuth.instance.currentUser?.uid &&
+                                element.paymentDetail?.payWithWallet
+                                        .toStringAsFixed(1) !=
+                                    "0.0")
+                            .toList()
+                            .length, (index) {
+                  BookingsModel booking = homeVm.allBookings
+                      .where((element) =>
+                          element.createdBy ==
+                              FirebaseAuth.instance.currentUser?.uid &&
+                          element.paymentDetail?.payWithWallet
+                                  .toStringAsFixed(1) !=
+                              "0.0")
+                      .toList()[index];
+                  return referralHistory(
+                      booking.charterFleetDetail?.name ?? "",
+                      booking.hostUserUid ?? "",
+                      "- \$ ${booking.paymentDetail?.payWithWallet}",
+                      booking.createdAt?.toDate() ?? now);
+                })),
+              ),
+              h3
+            ],
           ),
-        );
-      }
-    );
+        ),
+      );
+    });
   }
-  Widget referralHistory(String title,String subTitle,String amount,DateTime date)
-  {
-    return
-      Container(
+
+  Widget referralHistory(
+      String title, String subTitle, String amount, DateTime date) {
+    return Container(
       width: Get.width,
       margin: EdgeInsets.only(bottom: 1.5.h),
       decoration: AppDecorations.buttonDecoration(R.colors.blackDull, 12),
-      padding: EdgeInsets.symmetric(vertical: 2.h,horizontal: 3.w),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 3.w),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(crossAxisAlignment: CrossAxisAlignment.start,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-               title,
+                title,
                 style: R.textStyle.helvetica().copyWith(
-                    height: 1.5, color: R.colors.whiteDull,
-                    fontSize: 13.sp),
+                    height: 1.5, color: R.colors.whiteDull, fontSize: 13.sp),
                 textAlign: TextAlign.center,
               ),
               h0P6,
               FutureBuilder(
-                future: FbCollections.user.doc(subTitle).get(),
-                builder: (context,AsyncSnapshot<DocumentSnapshot> snapshot) {
-                  if(!snapshot.hasData)
-                    {
+                  future: FbCollections.user.doc(subTitle).get(),
+                  builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                    if (!snapshot.hasData) {
                       return SizedBox();
+                    } else {
+                      return Text(
+                        snapshot.data?.get("first_name") ?? "",
+                        style: R.textStyle.helveticaBold().copyWith(
+                            color: R.colors.whiteDull, fontSize: 11.sp),
+                      );
                     }
-                 else{
-                    return Text(
-                      snapshot.data?.get("first_name")??"",
-                      style: R.textStyle
-                          .helveticaBold()
-                          .copyWith(color: R.colors.whiteDull, fontSize:11.sp),
-                    );
-                  }
-                }
-              ),
+                  }),
             ],
           ),
-          Column(crossAxisAlignment: CrossAxisAlignment.end,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 amount,
@@ -167,7 +195,7 @@ class _StatusScreenState extends State<StatusScreen> {
                 "${now.formateDateMDY()}",
                 style: R.textStyle
                     .helvetica()
-                    .copyWith(color: R.colors.whiteColor, fontSize:10.sp),
+                    .copyWith(color: R.colors.whiteColor, fontSize: 10.sp),
               ),
             ],
           ),
