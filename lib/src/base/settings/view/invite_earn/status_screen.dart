@@ -15,6 +15,7 @@ import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
 import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
 import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
 import 'package:yacht_master/src/base/search/view/bookings/view/host_booking_detail.dart';
+import 'package:yacht_master/src/base/settings/view/become_verified.dart';
 import 'package:yacht_master/src/base/settings/view/invite_earn/withdraw_money.dart';
 import 'package:yacht_master/utils/heights_widths.dart';
 import 'package:yacht_master/utils/helper.dart';
@@ -64,8 +65,23 @@ class _StatusScreenState extends State<StatusScreen> {
                 ),
               ),
               GestureDetector(
-                onTap: () {
-                  Get.toNamed(WithdrawMoney.route);
+                onTap: () async {
+                  var data = await db
+                      .collection("users")
+                      .doc(FirebaseAuth.instance.currentUser?.uid)
+                      .get();
+                  var data1 = data.data();
+                  int inviteStatus = data1!["invite_status"];
+                  if (inviteStatus == 2) {
+                    Get.toNamed(WithdrawMoney.route);
+                    ;
+                  } else if (inviteStatus == 1) {
+                    ZBotToast.showToastError(
+                        message:
+                            "Please wait your request to be verified for earnings in process");
+                  } else {
+                    Get.toNamed(BecomeVerified.route);
+                  }
                 },
                 child: Container(
                   height: Get.height * .05,
