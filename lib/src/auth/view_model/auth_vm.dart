@@ -247,24 +247,31 @@ class AuthVm extends ChangeNotifier {
               if (yachtId == null) {
                 Get.offAllNamed(BaseView.route);
               } else {
-              List<CharterModel> test =
+                print("Here");
+                List<CharterModel> test =
                     yachtProvider.allCharters.where((element) {
                   return element.id == yachtId;
                 }).toList();
-               print("Printing Test");
-               CharterModel yacht = test[0];
-               int index =  yachtProvider.allCharters
+                print("Printing Test");
+                CharterModel yacht = test[0];
+                int index = yachtProvider.allCharters
                     .indexWhere((element) => element.id == yachtId);
                 Get.toNamed(CharterDetail.route, arguments: {
                   "yacht": yacht,
                   "isReserve": false,
                   "index": index,
-                  "isEdit": yacht.createdBy ==
-                          FirebaseAuth.instance.currentUser?.uid
-                      ? true
-                      : false,
+                  "isEdit":
+                      yacht.createdBy == FirebaseAuth.instance.currentUser?.uid
+                          ? true
+                          : false,
                   "isLink": true
                 });
+                String? senderId = Get.parameters["from"];
+                var inviteData = {
+                  'from': senderId,
+                  'to': FirebaseAuth.instance.currentUser?.uid
+                };
+                await FbCollections.invites.add(inviteData);
               }
             }
           } else {

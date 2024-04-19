@@ -331,7 +331,6 @@ class _SettingsViewState extends State<SettingsView> {
       onTap: () async {
         var settingsVm = Provider.of<SettingsVm>(context, listen: false);
         var authVm = Provider.of<AuthVm>(context, listen: false);
-
         switch (index) {
           case 0:
             var data = await db

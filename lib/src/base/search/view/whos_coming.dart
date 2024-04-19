@@ -170,8 +170,6 @@ class _WhosComingState extends State<WhosComing> {
                       startLoader();
                       bookingsVm.onClickWhosComing(charter?.guestCapacity??0,bookingsModel, isReserve, context);
                       stopLoader();
-
-
                 },
                 child: Container(
                   height: Get.height*.055,

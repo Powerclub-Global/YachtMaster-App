@@ -226,7 +226,9 @@ class BookingsVm extends ChangeNotifier {
       bookingsModel.durationType = provider.selectedCharterDayType?.type;
       provider.selectedCharterDayType = CharterDayModel("Half Day Charter",
           "4 Hours", R.images.v2, CharterDayType.halfDay.index);
-      provider.update();
+      print("printing host ID");
+      print(charter!.createdBy);
+      bookingsModel.hostUserUid = charter!.createdBy;
       provider.update();
       DocumentSnapshot? charterDoc;
       try {
@@ -626,8 +628,20 @@ class BookingsVm extends ChangeNotifier {
         await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
             splitAmount, userPaidAmount, finalPaidAmount);
       } else if (selectedPaymentMethod == PaymentMethodEnum.wallet.index) {
-        Helper.inSnackBar(
-            "Error", "Payment method not available", R.colors.themeMud);
+        var authVm = Provider.of<AuthVm>(context, listen: false);
+        await FbCollections.wallet_history.add({
+          'uid': authVm.userModel!.uid,
+          'type': 'CashOut_Booking',
+          'data': {
+            'created_at': DateTime.now().toString(),
+            'host_userId': bookingsModel.hostUserUid,
+            'charter_name': bookingsModel.charterFleetDetail!.name,
+            'charter_image_url': bookingsModel.charterFleetDetail!.image,
+            'amount': bookingsModel.priceDetaill!.totalPrice
+          }
+        });
+        await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
+            splitAmount, userPaidAmount, finalPaidAmount);
       }
     }
   }
@@ -812,6 +826,45 @@ class BookingsVm extends ChangeNotifier {
         "is_card_saved": isSaveThisCard,
       });
       await FbCollections.bookings.doc(docID).set(bookingsModel.toJson());
+      var invite = await FbCollections.invites
+          .where('to', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .get();
+      if (invite.docs.last != null) {
+        var invite_doc = invite.docs.last.data() as Map<String, dynamic>;
+        var from = invite_doc['from'];
+        var fetch_user_wallet = await FbCollections.wallet.doc(from).get();
+        var user_wallet = fetch_user_wallet.data() as Map<String, dynamic>;
+        await FbCollections.wallet
+            .doc(from)
+            .set({'amount': user_wallet['amount'] + 50});
+        await FbCollections.wallet_history.add({
+          'uid': from,
+          'type': 'CashIn_Invite',
+          'data': {
+            'created_at': DateTime.now().toString(),
+            'invited_username': authVm.userModel!.username,
+            'invited_image_url': authVm.userModel!.imageUrl,
+            'amount': 50
+          }
+        });
+      }
+      var fetch_host_wallet =
+          await FbCollections.wallet.doc(bookingsModel.hostUserUid).get();
+      var host_wallet = fetch_host_wallet.data() as Map<String, dynamic>;
+      await FbCollections.wallet
+          .doc(bookingsModel.hostUserUid)
+          .set({'amount': host_wallet['amount'] + 50});
+      await FbCollections.wallet_history.add({
+        'uid': bookingsModel.hostUserUid,
+        'type': 'CashIn_Booking',
+        'data': {
+          'created_at': DateTime.now().toString(),
+          'guest_username': authVm.userModel!.username,
+          'guest_image_url': authVm.userModel!.imageUrl,
+          'amount': 50,
+          'booking_id': bookingsModel.id
+        }
+      });
       DocumentSnapshot hostDoc =
           await FbCollections.user.doc(charter.get("created_by")).get();
       UserModel hostUser = UserModel.fromJson(hostDoc.data());
@@ -1035,7 +1088,6 @@ class BookingsVm extends ChangeNotifier {
           u + .body .gmail-blend-screen { background:#000; mix-blend-mode:screen; }
           u + .body .gmail-blend-difference { background:#000; mix-blend-mode:difference; }
       }
-
       /* Light mode styles */
       @media (prefers-color-scheme: light) {
           body, .body {
@@ -1145,14 +1197,14 @@ class BookingsVm extends ChangeNotifier {
       });
     } else {
       await FbCollections.bookings.doc(docID).update({"isPending": true});
-
       Get.bottomSheet(Congoratulations(
           getTranslated(context,
                   "your_booking_has_been_confirmed_successfully_crypto") ??
               "", () {
         Timer(Duration(seconds: 2), () async {
           await authVm.cancleStreams();
-          Get.offAllNamed(BaseView.route);
+          print("Going back to Base view");
+          Get.offNamed(BaseView.route);
         });
       }));
     }

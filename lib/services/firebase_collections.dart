@@ -8,6 +8,8 @@ class FbCollections {
   static CollectionReference chartersOffers = db.collection('charters_offers');
   static CollectionReference bookings = db.collection('bookings');
   static CollectionReference chatHeads = db.collection('chat_heads');
+  static CollectionReference invites = db.collection('invites');
+  static CollectionReference wallet_history = db.collection('wallet_history');
   static CollectionReference neighborhoodSuppport =
       db.collection('neighborhood_suppport');
   static CollectionReference appFeedBack = db.collection('app_feedback');

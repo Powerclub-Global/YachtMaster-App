@@ -2,7 +2,6 @@
 
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +41,6 @@ class _BaseViewState extends State<BaseView> {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       ZBotToast.loadingShow();
       var bookingsVm = Provider.of<BookingsVm>(Get.context!, listen: false);
-
       await bookingsVm.fetchAppUrls();
       if (bookingsVm.appUrlModel?.is_enable_permission_dialog == true) {
         await takePhotosNotificationsPermissions();

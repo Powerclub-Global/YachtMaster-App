@@ -25,10 +25,8 @@ class _SplashScreenState extends State<SplashScreen> {
       var bookingsVm = Provider.of<BookingsVm>(context, listen: false);
       vm.goToSecondSplash();
       bookingsVm.fetchAppUrls();
-
     });
     super.initState();
-
   }
 
   @override

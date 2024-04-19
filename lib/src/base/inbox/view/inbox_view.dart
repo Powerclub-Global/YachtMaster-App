@@ -18,7 +18,6 @@ class _InboxViewState extends State<InboxView> {
   List<String> tabsList=["messages","notifications"];
   int selectedTabIndex=0;
   dynamic args;
-
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -44,10 +43,10 @@ class _InboxViewState extends State<InboxView> {
          }),),
        ),
         if (selectedTabIndex==0) Messages() else Expanded(child: Notifications())
-
       ],),
     );
   }
+  
   Widget tabs(String title,int index)
   {
     return Expanded(

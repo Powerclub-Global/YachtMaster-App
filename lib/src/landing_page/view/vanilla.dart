@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import 'package:yacht_master/services/firebase_collections.dart';
 import 'package:yacht_master/src/base/search/model/charter_model.dart';
 import 'package:yacht_master/src/base/yacht/view/charter_detail.dart';
 import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
@@ -37,6 +38,12 @@ class _VanillaState extends State<Vanilla> {
         "isLink": true,
       });
     });
+    String? senderId = Get.parameters["from"];
+    var inviteData = {
+      'from': senderId,
+      'to': FirebaseAuth.instance.currentUser?.uid
+    };
+    await FbCollections.invites.add(inviteData);
   }
 
   @override
