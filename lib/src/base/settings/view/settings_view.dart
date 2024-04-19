@@ -333,22 +333,7 @@ class _SettingsViewState extends State<SettingsView> {
         var authVm = Provider.of<AuthVm>(context, listen: false);
         switch (index) {
           case 0:
-            var data = await db
-                .collection("users")
-                .doc(FirebaseAuth.instance.currentUser?.uid)
-                .get();
-            var data1 = data.data();
-            int inviteStatus = data1!["invite_status"];
-            print(inviteStatus);
-            if (inviteStatus == 2) {
-              Get.toNamed(InviteAndEarn.route);
-            } else if (inviteStatus == 1) {
-              ZBotToast.showToastError(
-                  message:
-                      "Please wait your request to be verified for earnings in process");
-            } else {
-              Get.toNamed(BecomeVerified.route);
-            }
+            Get.toNamed(InviteAndEarn.route);
             break;
           case 1:
             Get.toNamed(PaymentPayouts.route);
