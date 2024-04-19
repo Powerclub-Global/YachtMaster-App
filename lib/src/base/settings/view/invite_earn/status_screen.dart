@@ -128,7 +128,7 @@ class _StatusScreenState extends State<StatusScreen> {
                     return CashInBookingWidget(
                         homeVm.walletHistory[index]['data']['guest_username'],
                         homeVm.walletHistory[index]['data']['guest_image_url'],
-                        homeVm.walletHistory[index]['data']['amount'],
+                        "+ \$ ${homeVm.walletHistory[index]['data']['amount']}",
                         DateTime.parse(
                             homeVm.walletHistory[index]['data']['created_at']),
                         homeVm.walletHistory[index]['data']['booking_id']);
@@ -137,7 +137,7 @@ class _StatusScreenState extends State<StatusScreen> {
                         homeVm.walletHistory[index]['data']['invited_username'],
                         homeVm.walletHistory[index]['data']
                             ['invited_image_url'],
-                        homeVm.walletHistory[index]['data']['amount'],
+                        "+ \$ ${homeVm.walletHistory[index]['data']['amount']}",
                         DateTime.parse(
                             homeVm.walletHistory[index]['data']['created_at']));
                   }

@@ -229,6 +229,7 @@ class _WithdrawMoneyState extends State<WithdrawMoney> {
                         {
                           try {
                             await authVm.updateUserWallet(authVm.wallet?.amount-double.parse(amountCon.text));
+                            
                           } on Exception catch (e) {
                             // TODO
                             debugPrintStack();
