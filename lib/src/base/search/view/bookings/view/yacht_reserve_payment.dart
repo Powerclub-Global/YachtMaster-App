@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -25,6 +26,7 @@ import 'package:yacht_master/src/base/search/view/whos_coming.dart';
 import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
 import 'package:yacht_master/src/base/widgets/agreement_sheet.dart';
 import 'package:yacht_master/src/base/widgets/exit_sheet.dart';
+import 'package:yacht_master/src/base/widgets/tip_sheet.dart';
 import 'package:yacht_master/src/base/yacht/view/rules_regulations.dart';
 import 'package:yacht_master/src/base/yacht/widgets/congo_bottomSheet.dart';
 import 'package:yacht_master/utils/general_app_bar.dart';
@@ -48,6 +50,9 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
   double totalPriceAndServiceFee = 0.0;
   double grandTotal = 0.0;
   bool isLoading = false;
+  double? tip;
+  int _selectedIndex = 0;
+  double? temp;
   @override
   void initState() {
     // TODO: implement initState
@@ -63,6 +68,9 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
     charter = args["yacht"];
 
     return Consumer<BookingsVm>(builder: (context, provider, _) {
+      if (grandTotal != 0.0) {
+        temp = grandTotal;
+      }
       price = provider.bookingsModel.durationType ==
               CharterDayType.halfDay.index
           ? "${charter?.priceFourHours?.toStringAsFixed(1)}"
@@ -91,6 +99,11 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
                     provider.tips, totalPriceAndServiceFee))
             .toStringAsFixed(1)));
       }
+      tip ??= Helper().calculatePercentage(10, totalPriceAndServiceFee);
+      if (temp != null) {
+        grandTotal = temp!;
+      }
+
       return ModalProgressHUD(
         inAsyncCall: isLoading,
         progressIndicator: SpinKitPulse(
@@ -321,7 +334,7 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
                               color: R.colors.whiteColor, fontSize: 14.sp),
                         ),
                         Text(
-                          "\$${Helper().calculatePercentage(provider.tips, totalPriceAndServiceFee).toStringAsFixed(2)}",
+                          "\$${tip!.toStringAsFixed(2)}",
                           style: R.textStyle.helvetica().copyWith(
                                 color: R.colors.whiteColor,
                                 fontSize: 15.sp,
@@ -347,6 +360,174 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
                               ),
                         ),
                       ],
+                    ),
+                    h3,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "  How much do you want to Tip?",
+                          style: R.textStyle.helvetica().copyWith(
+                              color: R.colors.whiteColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10.sp),
+                        ),
+                        SizedBox(),
+                      ],
+                    ),
+                    h2,
+                    Container(
+                      // color: Colors.white,
+                      decoration: BoxDecoration(
+                          color: R.colors.blackDull,
+                          borderRadius: BorderRadius.circular(30)),
+                      child: ButtonBar(
+                        alignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                                color: _selectedIndex == 0
+                                    ? Colors.white
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(30)),
+                            child: TextButton(
+                              child: Text(
+                                "\$${Helper().calculatePercentage(10, totalPriceAndServiceFee).toStringAsFixed(2)}",
+                                style: TextStyle(color: Colors.amber),
+                              ),
+                              onPressed: () {
+                                tip = Helper().calculatePercentage(
+                                    10, totalPriceAndServiceFee);
+                                _selectedIndex = 0;
+                                grandTotal = double.parse(
+                                    ((totalPriceAndServiceFee +
+                                            Helper().calculatePercentage(
+                                                provider.taxes,
+                                                totalPriceAndServiceFee) +
+                                            tip!)
+                                        .toStringAsFixed(1)));
+                                setState(() {});
+                              },
+                            ),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                                color: _selectedIndex == 1
+                                    ? Colors.white
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(30)),
+                            child: TextButton(
+                                child: Text(
+                                  "\$${Helper().calculatePercentage(15, totalPriceAndServiceFee).toStringAsFixed(2)}",
+                                  style: TextStyle(color: Colors.amber),
+                                ),
+                                onPressed: () {
+                                  tip = Helper().calculatePercentage(
+                                      15, totalPriceAndServiceFee);
+                                  _selectedIndex = 1;
+                                  grandTotal = double.parse(
+                                      ((totalPriceAndServiceFee +
+                                              Helper().calculatePercentage(
+                                                  provider.taxes,
+                                                  totalPriceAndServiceFee) +
+                                              tip!)
+                                          .toStringAsFixed(1)));
+                                  log(tip.toString());
+                                  setState(() {});
+                                }),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                                color: _selectedIndex == 2
+                                    ? Colors.white
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(30)),
+                            child: TextButton(
+                                child: Text(
+                                  "\$${Helper().calculatePercentage(20, totalPriceAndServiceFee).toStringAsFixed(2)}",
+                                  style: TextStyle(color: Colors.amber),
+                                ),
+                                onPressed: () {
+                                  tip = Helper().calculatePercentage(
+                                      20, totalPriceAndServiceFee);
+                                  _selectedIndex = 2;
+                                  grandTotal = double.parse(
+                                      ((totalPriceAndServiceFee +
+                                              Helper().calculatePercentage(
+                                                  provider.taxes,
+                                                  totalPriceAndServiceFee) +
+                                              tip!)
+                                          .toStringAsFixed(1)));
+                                  setState(() {});
+                                }),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                                color: _selectedIndex == 3
+                                    ? Colors.white
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(30)),
+                            child: TextButton(
+                                child: Text(
+                                  'Other',
+                                  style: TextStyle(color: Colors.amber),
+                                ),
+                                onPressed: () {
+                                  _selectedIndex = 3;
+                                  Get.bottomSheet(TipAmountSheet(
+                                    yesCallBack: (value) {
+                                      tip = double.parse(value);
+                                      grandTotal = double.parse(
+                                          ((totalPriceAndServiceFee +
+                                                  Helper().calculatePercentage(
+                                                      provider.taxes,
+                                                      totalPriceAndServiceFee) +
+                                                  tip!)
+                                              .toStringAsFixed(1)));
+                                      setState(() {});
+                                    },
+                                  ));
+
+                                  // Get.bottomSheet(
+                                  //   Container(
+                                  //     padding: EdgeInsets.all(20),
+                                  //     child: Column(
+                                  //       crossAxisAlignment:
+                                  //           CrossAxisAlignment.start,
+                                  //       children: <Widget>[
+                                  //         Text(
+                                  //           'Enter Custom Tip Amount',
+                                  //           style: TextStyle(
+                                  //               fontSize: 18,
+                                  //               fontWeight: FontWeight.bold),
+                                  //         ),
+                                  //         SizedBox(height: 10),
+                                  //         TextField(
+                                  //           keyboardType: TextInputType.number,
+                                  //           decoration: InputDecoration(
+                                  //             border: OutlineInputBorder(),
+                                  //             labelText: 'Tip Amount',
+                                  //           ),
+                                  //           onChanged: (value) {
+                                  //             // Handle the entered tip amount here
+                                  //           },
+                                  //         ),
+                                  //         SizedBox(height: 20),
+                                  //         ElevatedButton(
+                                  //           child: Text('Submit'),
+                                  //           onPressed: () {
+                                  //             // Handle the submission of the tip amount here
+                                  //             Get.back(); // Close the bottom sheet
+                                  //           },
+                                  //         ),
+                                  //       ],
+                                  //     ),
+                                  //   ),
+                                  // );
+                                }),
+                          ),
+                        ],
+                      ),
                     ),
                     h3,
                     Container(
