@@ -25,7 +25,7 @@ dependencies:
   pin_code_fields: ^7.4.0
   paged_vertical_calendar: ^1.0.6
   circular_profile_avatar: ^2.0.5
-  image_picker: "1.0.7"
+  image_picker: ^1.0.8
   dotted_border: ^2.0.0+2
   flutter_rating_bar: ^4.0.0
   google_maps_flutter: ^2.1.5

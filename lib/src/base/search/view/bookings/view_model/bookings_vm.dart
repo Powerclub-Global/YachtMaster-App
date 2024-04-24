@@ -214,8 +214,6 @@ class BookingsVm extends ChangeNotifier {
         "isSelectTime": true,
         "bookingsModel": bookingsModel,
       });
-      // Get.toNamed(YachtReservePayment.route,
-      //     arguments: {"yacht": charter});
     } else {
       bookingsModel = BookingsModel();
       bookingsModel.charterFleetDetail = CharterFleetDetail(

@@ -339,13 +339,6 @@ class _SettingsViewState extends State<SettingsView> {
           case 1:
             Get.toNamed(PaymentPayouts.route);
             break;
-          // case 2:
-          //   Get.bottomSheet(Translate(),
-          //       barrierColor: R.colors.grey.withOpacity(.30));
-          //   break;
-          // case 3:
-          //   Get.toNamed(PrivacySharing.route);
-          //   break;
           case 4:
             {
               if (authVm.userModel?.requestStatus ==
