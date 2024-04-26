@@ -1,0 +1,577 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
+import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import 'package:pay/pay.dart' as pay;
+import 'package:provider/provider.dart';
+import 'package:sizer/sizer.dart';
+import 'package:yacht_master/constant/enums.dart';
+import 'package:yacht_master/localization/app_localization.dart';
+import 'package:yacht_master/main.dart';
+import 'package:yacht_master/resources/decorations.dart';
+import 'package:yacht_master/resources/resources.dart';
+import 'package:yacht_master/services/firebase_collections.dart';
+import 'package:yacht_master/services/stripe/stripe_service.dart';
+import 'package:yacht_master/services/time_schedule_service.dart';
+import 'package:yacht_master/src/base/base_view.dart';
+import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
+import 'package:yacht_master/src/base/search/model/stripe_card_model.dart';
+import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
+import 'package:yacht_master/src/base/search/view/bookings/view/add_credit_card.dart';
+import 'package:yacht_master/src/base/search/view/bookings/view/apple_store_sheet.dart';
+import 'package:yacht_master/src/base/search/view/bookings/view/pay_with_crypto.dart';
+import 'package:yacht_master/src/base/search/view/bookings/view/pay_with_wallet.dart';
+import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
+import 'package:yacht_master/src/base/yacht/widgets/congo_bottomSheet.dart';
+import 'package:yacht_master/utils/general_app_bar.dart';
+import 'package:yacht_master/utils/heights_widths.dart';
+import 'package:yacht_master/utils/helper.dart';
+
+class TipPaymentMethods extends StatefulWidget {
+  static String route = "/paymentTipMethods";
+
+  const TipPaymentMethods({Key? key}) : super(key: key);
+
+  @override
+  _TipPaymentMethodsState createState() => _TipPaymentMethodsState();
+}
+
+class _TipPaymentMethodsState extends State<TipPaymentMethods> {
+  double userPaidAmount = 0.0;
+  String? bookingId;
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      log("___INIT");
+      await stripeConfig();
+    });
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer2<BookingsVm, HomeVm>(
+        builder: (context, provider, homeVm, _) {
+      var _paymentItems = [
+        pay.PaymentItem(
+          label: 'Jessy Artman',
+          amount: userPaidAmount.toStringAsFixed(2),
+          status: pay.PaymentItemStatus.final_price,
+        )
+      ];
+      log("_____key:${publishableKey}");
+      return ModalProgressHUD(
+          inAsyncCall: isLoading,
+          progressIndicator: SpinKitPulse(
+            color: R.colors.themeMud,
+          ),
+          child: Scaffold(
+              backgroundColor: R.colors.black,
+              appBar: GeneralAppBar.simpleAppBar(
+                  context, getTranslated(context, "payment_method") ?? ""),
+              body: Padding(
+                padding: EdgeInsets.symmetric(horizontal: Get.width * .05),
+                child: Column(children: [
+                  h1P5,
+                  Container(
+                    decoration: BoxDecoration(
+                        color: R.colors.blackDull,
+                        borderRadius: BorderRadius.circular(12)),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: Get.width * .05,
+                        vertical: Get.height * .02),
+                    child: Column(
+                      children: [
+                        if (provider.bookingsModel.paymentDetail?.payInType ==
+                            PayType.deposit.index)
+                          Padding(
+                            padding: EdgeInsets.only(bottom: 2.h),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "25% Deposit",
+                                  style: R.textStyle.helveticaBold().copyWith(
+                                      color: R.colors.whiteColor,
+                                      fontSize: 14.5.sp),
+                                ),
+                                Text(
+                                  "\$${Helper.numberFormatter(double.parse((userPaidAmount * (25 / 100)).toStringAsFixed(1)))}",
+                                  style: R.textStyle.helveticaBold().copyWith(
+                                        color: R.colors.yellowDark,
+                                        fontSize: 15.sp,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          SizedBox(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              getTranslated(context, "total_amount") ?? "",
+                              style: R.textStyle.helvetica().copyWith(
+                                  color: R.colors.whiteColor, fontSize: 14.sp),
+                            ),
+                            Text(
+                              "\$${Helper.numberFormatter(double.parse(userPaidAmount.toStringAsFixed(2)))}",
+                              style: R.textStyle.helveticaBold().copyWith(
+                                    color: R.colors.yellowDark,
+                                    fontSize: 15.sp,
+                                  ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  h4,
+                  Padding(
+                    padding: EdgeInsets.only(right: 2.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          getTranslated(context, "pay_with") ?? "",
+                          style: R.textStyle.helvetica().copyWith(
+                              color: R.colors.whiteColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15.sp),
+                        ),
+                        if ((provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
+                                provider.bookingsModel.paymentDetail?.isSplit ==
+                                    false &&
+                                provider.bookingsModel.paymentDetail?.remainingAmount !=
+                                    null &&
+                                provider.bookingsModel.paymentDetail?.paymentMethod ==
+                                    PaymentMethodEnum.wallet.index &&
+                                removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) !=
+                                    "0.0") ||
+                            (provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
+                                provider.bookingsModel.paymentDetail?.isSplit ==
+                                    true &&
+                                provider.bookingsModel.paymentDetail?.paymentMethod ==
+                                    PaymentMethodEnum.wallet.index &&
+                                removeSign(provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingAmount) !=
+                                    "0.0") ||
+                            (provider.bookingsModel.paymentDetail?.payInType ==
+                                    PayType.deposit.index &&
+                                provider.bookingsModel.paymentDetail?.isSplit ==
+                                    true &&
+                                removeSign(provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingDeposit) !=
+                                    "0.0" &&
+                                provider.bookingsModel.paymentDetail?.paymentMethod ==
+                                    PaymentMethodEnum.wallet.index) ||
+                            (provider.bookingsModel.paymentDetail?.payInType ==
+                                    PayType.deposit.index &&
+                                provider.bookingsModel.paymentDetail?.isSplit == true &&
+                                provider.bookingsModel.paymentDetail?.splitPayment?.first.depositStatus == DepositStatus.twentyFivePaid.index &&
+                                removeSign(provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingAmount) != "0.0" &&
+                                provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index) ||
+                            (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index && provider.bookingsModel.paymentDetail?.isSplit == false && provider.bookingsModel.paymentDetail?.paymentStatus != PaymentStatus.confirmBooking.index && provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index) ||
+                            (provider.bookingsModel.paymentDetail?.paymentMethod == -1))
+                          SizedBox()
+                        else
+                          GestureDetector(
+                              onTap: () {
+                                provider.creditCardModel.cardNum = "";
+                                provider.bookingsModel.paymentDetail
+                                    ?.paymentMethod = -1;
+                                setState(() {});
+                              },
+                              child: Image.asset(
+                                R.images.edit,
+                                height: Get.height * .017,
+                              ))
+                      ],
+                    ),
+                  ),
+                  h2,
+                  if ((provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
+                          provider.bookingsModel.paymentDetail?.isSplit ==
+                              false &&
+                          provider.bookingsModel.paymentDetail?.remainingAmount !=
+                              null &&
+                          provider.bookingsModel.paymentDetail?.paymentMethod ==
+                              PaymentMethodEnum.wallet.index &&
+                          removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) !=
+                              "0.0") ||
+                      (provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
+                          provider.bookingsModel.paymentDetail?.isSplit ==
+                              true &&
+                          provider.bookingsModel.paymentDetail?.paymentMethod ==
+                              PaymentMethodEnum.wallet.index &&
+                          removeSign(provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingAmount) !=
+                              "0.0") ||
+                      (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
+                          provider.bookingsModel.paymentDetail?.isSplit ==
+                              true &&
+                          provider.bookingsModel.paymentDetail?.splitPayment
+                                  ?.first.remainingDeposit
+                                  .toStringAsFixed(1) !=
+                              "0.0" &&
+                          provider.bookingsModel.paymentDetail?.paymentMethod ==
+                              PaymentMethodEnum.wallet.index) ||
+                      (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
+                          provider.bookingsModel.paymentDetail?.isSplit ==
+                              true &&
+                          provider.bookingsModel.paymentDetail?.splitPayment?.first.depositStatus ==
+                              DepositStatus.twentyFivePaid.index &&
+                          removeSign(provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingAmount) != "0.0" &&
+                          provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index) ||
+                      (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index && provider.bookingsModel.paymentDetail?.isSplit == false && provider.bookingsModel.paymentDetail?.paymentStatus != PaymentStatus.confirmBooking.index && provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index) ||
+                      (provider.bookingsModel.paymentDetail?.paymentMethod == -1))
+                    Column(
+                      children: [
+                        paymentMethods(provider, "credit_or_debit_card",
+                            R.images.credit, 0),
+                        if (Platform.isIOS) ...[
+                          h2,
+                          pay.ApplePayButton(
+                            paymentItems: _paymentItems,
+                            style: pay.ApplePayButtonStyle.black,
+                            type: pay.ApplePayButtonType.buy,
+                            width: 200,
+                            height: 50,
+                            margin: const EdgeInsets.only(top: 15.0),
+                            onPressed: () {
+                              provider.selectedPaymentMethod = 1;
+                            },
+                            onPaymentResult: (value) async {
+                              print("payment was success");
+                              StripeService stripe = StripeService();
+                              final token = await Stripe.instance
+                                  .createApplePayToken(value);
+                              print(value);
+                              final paymentIntentResult =
+                                  await stripe.createPaymentIntents(
+                                amount: (userPaidAmount * 100).toString(),
+                                currency: 'usd', // mocked data
+                                secretKey: secretKey!,
+                              );
+                              print('Fetched Payment Intent');
+                              //print(value["token"]["data"]);
+                              print('Did that Successfully');
+                              //  print(value["token"]["data"]);
+                              //var token = value[2]["data"];
+                              // print('About to Add Token');
+                              // final tokenJson = Map.castFrom(json.decode(value));
+                              final params = PaymentMethodParams.cardFromToken(
+                                  paymentMethodData:
+                                      PaymentMethodDataCardFromToken(
+                                          token: token.id));
+                              print('About to Make Call to Strip');
+
+                              // Confirm Google pay payment method
+                              await Stripe.instance.confirmPayment(
+                                  paymentIntentClientSecret:
+                                      paymentIntentResult?['client_secret'],
+                                  data: params);
+                              print('Stripe Call Made');
+
+                              // await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
+                            },
+                            onError: (error) {
+                              print(error);
+                            },
+                            loadingIndicator: const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                            paymentConfiguration:
+                                pay.PaymentConfiguration.fromJsonString('''{
+  "provider": "apple_pay",
+  "data": {
+    "merchantIdentifier": "merchant.com.yachtmaster.app", 
+    "displayName": "Yacht Master",
+    "merchantCapabilities": [
+      "3DS",
+      "debit",
+      "credit"
+    ],
+    "supportedNetworks": [
+      "amex",
+      "visa",
+      "discover",
+      "masterCard"
+    ],
+    "countryCode": "US",
+    "currencyCode": "USD",
+    "requiredBillingContactFields": [], 
+    "requiredShippingContactFields": []
+  }
+}'''),
+                          ),
+                        ],
+                        h2,
+                        paymentMethods(
+                            provider, "crypto_currency", R.images.crypto, 2),
+                        h2,
+                        paymentMethods(provider, "crypto_currency_usdt",
+                            R.images.crypto, 3),
+                        h2,
+                        paymentMethods(
+                            provider, "pay_with_wallet", R.images.link, 4),
+                      ],
+                    )
+                  else
+                    Container(
+                      decoration: BoxDecoration(
+                          color: R.colors.blackDull,
+                          borderRadius: BorderRadius.circular(12)),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: Get.width * .05,
+                          vertical: Get.height * .02),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Image.asset(
+                                provider.bookingsModel.paymentDetail
+                                            ?.paymentMethod ==
+                                        PaymentMethodEnum.appStore.index
+                                    ? R.images.apple
+                                    : provider.bookingsModel.paymentDetail
+                                                ?.paymentMethod ==
+                                            PaymentMethodEnum.crypto.index
+                                        ? R.images.crypto
+                                        : provider.bookingsModel.paymentDetail
+                                                    ?.paymentMethod ==
+                                                PaymentMethodEnum.wallet.index
+                                            ? R.images.link
+                                            : R.images.credit,
+                                height: Get.height * .02,
+                              ),
+                              w2,
+                              Text(
+                                provider.bookingsModel.paymentDetail
+                                            ?.paymentMethod ==
+                                        PaymentMethodEnum.appStore.index
+                                    ? getTranslated(context, "apple_pay") ?? ""
+                                    : provider.bookingsModel.paymentDetail
+                                                ?.paymentMethod ==
+                                            PaymentMethodEnum.crypto.index
+                                        ? getTranslated(
+                                                context, "crypto_currency") ??
+                                            ""
+                                        : provider.bookingsModel.paymentDetail
+                                                    ?.paymentMethod ==
+                                                PaymentMethodEnum.wallet.index
+                                            ? getTranslated(context,
+                                                    "pay_with_wallet") ??
+                                                ""
+                                            : (provider.creditCardModel
+                                                        .cardNum ??
+                                                    "")
+                                                .obsecureCardNum(),
+                                style: R.textStyle.helveticaBold().copyWith(
+                                    color: R.colors.whiteColor,
+                                    fontSize: provider.bookingsModel
+                                                .paymentDetail?.paymentMethod ==
+                                            PaymentMethodEnum.card.index
+                                        ? 14.5.sp
+                                        : 10.sp),
+                              ),
+                            ],
+                          ),
+                          Spacer(),
+                          if ((provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
+                                  provider.bookingsModel.paymentDetail?.isSplit ==
+                                      false &&
+                                  provider.bookingsModel.paymentDetail?.remainingAmount !=
+                                      null &&
+                                  provider.bookingsModel.paymentDetail?.paymentMethod ==
+                                      PaymentMethodEnum.wallet.index &&
+                                  removeSign(provider.bookingsModel.paymentDetail?.remainingAmount) !=
+                                      "0.0") ||
+                              (provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
+                                  provider.bookingsModel.paymentDetail?.isSplit ==
+                                      true &&
+                                  provider.bookingsModel.paymentDetail?.paymentMethod ==
+                                      PaymentMethodEnum.wallet.index &&
+                                  removeSign(provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingAmount) !=
+                                      "0.0") ||
+                              (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
+                                  provider.bookingsModel.paymentDetail?.isSplit ==
+                                      true &&
+                                  removeSign(provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingDeposit) !=
+                                      "0.0" &&
+                                  provider.bookingsModel.paymentDetail?.paymentMethod ==
+                                      PaymentMethodEnum.wallet.index) ||
+                              (provider.bookingsModel.paymentDetail?.payInType ==
+                                      PayType.deposit.index &&
+                                  provider.bookingsModel.paymentDetail?.isSplit == false &&
+                                  provider.bookingsModel.paymentDetail?.paymentStatus != PaymentStatus.confirmBooking.index &&
+                                  provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index) ||
+                              (provider.bookingsModel.paymentDetail?.paymentMethod == -1))
+                            SizedBox()
+                          else
+                            GestureDetector(
+                              onTap: () async {
+                                print("Here I am about to pay now");
+                                startLoader();
+                                // await provider.onClickPaymentMethods("", context,
+                                //     isCompletePayment, splitAmount, userPaidAmount);
+                                stopLoader();
+                              },
+                              child: Container(
+                                height: Get.height * .065,
+                                width: Get.width * .8,
+                                decoration:
+                                    AppDecorations.gradientButton(radius: 30),
+                                child: Center(
+                                  child: Text(
+                                    "${getTranslated(context, "pay_now")?.toUpperCase()}",
+                                    style: R.textStyle.helvetica().copyWith(
+                                        color: R.colors.black,
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          h4,
+                        ],
+                      ),
+                    ),
+                ]),
+              )));
+    });
+  }
+
+  Widget paymentMethods(
+      BookingsVm provider, String title, String img, int index) {
+    return GestureDetector(
+      onTap: () async {
+        provider.selectedPaymentMethod = index;
+        provider.update();
+        switch (index) {
+          case 0:
+            provider.bookingsModel.paymentDetail?.paymentMethod =
+                PaymentMethodEnum.card.index;
+            provider.update();
+            //await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
+            // Get.toNamed(AddCreditCard.route);
+            break;
+          case 1:
+            {
+              Get.bottomSheet(AppleStoreSheet(
+                callBack: () async {
+                  // await provider.onClickPaymentMethods("", context,
+                  //     isCompletePayment, splitAmount, userPaidAmount);
+                },
+              ), barrierColor: Colors.grey.withOpacity(.20));
+            }
+            break;
+          case 2:
+            {
+              var response = await http.get(
+                Uri.parse('https://rest.coinapi.io/v1/exchangerate/USD/BTC'),
+                headers: {
+                  HttpHeaders.authorizationHeader:
+                      'D07A3A3B-7641-4158-B7F5-81A6FD8B3265',
+                },
+              );
+
+              Map<String, dynamic> data = await json.decode(response.body);
+              // Get.toNamed(PayWithCrypto.route, arguments: {
+              //   "converRate": data['rate'],
+              //   "isCompletePayment": isCompletePayment,
+              //   "userPaidAmount": userPaidAmount,
+              //   "splitAmount": splitAmount,
+              //   "isBitcoin": true
+              // });
+            }
+            break;
+          case 3:
+            // {
+            //   Get.toNamed(PayWithCrypto.route, arguments: {
+            //     "converRate": 1.0,
+            //     "isCompletePayment": isCompletePayment,
+            //     "userPaidAmount": userPaidAmount,
+            //     "splitAmount": splitAmount,
+            //     "isBitcoin": false
+            //   });
+            // }
+            break;
+          case 4:
+            Get.toNamed(PayWithWallet.route);
+        }
+        provider.update();
+      },
+      child: Container(
+        decoration: BoxDecoration(
+            color: R.colors.blackDull, borderRadius: BorderRadius.circular(12)),
+        padding: EdgeInsets.symmetric(
+            horizontal: Get.width * .05, vertical: Get.height * .02),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Image.asset(
+                  img,
+                  height: Get.height * .025,
+                ),
+                w3,
+                Text(
+                  getTranslated(context, title) ?? "",
+                  style: R.textStyle.helvetica().copyWith(
+                        color: R.colors.whiteDull,
+                      ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  ///LOADER
+  startLoader() {
+    isLoading = true;
+    setState(() {});
+  }
+
+  stopLoader() {
+    isLoading = false;
+    setState(() {});
+  }
+
+  Future<void> stripeConfig() async {
+    try {
+      Stripe.publishableKey = publishableKey ?? "";
+      Stripe.merchantIdentifier = 'merchant.flutter.stripe.test';
+      Stripe.urlScheme = 'flutterstripe';
+      await Stripe.instance
+          .applySettings()
+          .whenComplete(() => setInitialBookingData());
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  void setInitialBookingData() {
+    var bookingVm = Provider.of<BookingsVm>(context, listen: false);
+    var args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+    bookingId = args["bookingId"];
+    userPaidAmount = args["userPaidAmount"];
+    setState(() {});
+  }
+}

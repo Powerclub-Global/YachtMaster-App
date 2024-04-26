@@ -56,7 +56,6 @@ class _BaseViewState extends State<BaseView> {
       baseVm.update();
       ZBotToast.loadingClose();
     });
-
   }
 
   @override

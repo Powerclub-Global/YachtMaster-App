@@ -752,7 +752,7 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
                                     .add(charter!.toJson());
                                 startLoader();
                                 await provider.onClickCharterConfirmPay(
-                                    grandTotal, price, isSplit, charter);
+                                    grandTotal, price, isSplit, charter, tip!);
                                 stopLoader();
                               },
                             ),

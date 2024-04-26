@@ -548,8 +548,8 @@ class BookingsVm extends ChangeNotifier {
     provider.update();
   }
 
-  onClickCharterConfirmPay(
-      double totalPrice, String price, int isSplit, CharterModel? charter) {
+  onClickCharterConfirmPay(double totalPrice, String price, int isSplit,
+      CharterModel? charter, double tip) {
     if (selectedPayIn == -1) {
       Helper.inSnackBar("Error", "Please select pay in", R.colors.themeMud);
     } else {
@@ -560,6 +560,7 @@ class BookingsVm extends ChangeNotifier {
       bookingsModel.priceDetaill?.subTotal = double.parse(price);
       bookingsModel.paymentDetail?.payInType = selectedPayIn;
       bookingsModel.paymentDetail?.isSplit = isSplit == 1 ? false : true;
+      bookingsModel.priceDetaill?.tip = tip.toPrecision(2);
       update();
 
       if (isSplit == SplitType.yes.index &&
@@ -789,7 +790,6 @@ class BookingsVm extends ChangeNotifier {
                   bookingsModel.paymentDetail?.isSplit == true
               ? PaymentStatus.confirmBooking.index
               : PaymentStatus.markAsComplete.index;
-      bookingsModel.priceDetaill?.tip = double.parse(tips.toString());
       bookingsModel.hostUserUid = charter.get("created_by");
       bookingsModel.priceDetaill?.serviceFee =
           double.parse(serviceFee.toString());

@@ -15,9 +15,7 @@ import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_v
 import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
 import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
 
-
 class BaseVm extends ChangeNotifier {
-
   List<String> bottomIcons = [
     R.images.searchFilled,
     R.images.star,
@@ -44,13 +42,16 @@ class BaseVm extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<UserModel> allUsers=[];
+  List<UserModel> allUsers = [];
   StreamSubscription<List<UserModel>>? userFavouritesStream;
-  Future<void> fetchAllUsers()
-  async {
+  Future<void> fetchAllUsers() async {
     try {
-      var ref = FbCollections.user.where("status",isEqualTo:UserStatus.active.index).snapshots().asBroadcastStream();
-      var res = ref.map((list) => list.docs.map((e) => UserModel.fromJson(e.data())).toList());
+      var ref = FbCollections.user
+          .where("status", isEqualTo: UserStatus.active.index)
+          .snapshots()
+          .asBroadcastStream();
+      var res = ref.map((list) =>
+          list.docs.map((e) => UserModel.fromJson(e.data())).toList());
       userFavouritesStream ??= res.listen((user) async {
         allUsers = user;
         notifyListeners();
@@ -61,27 +62,25 @@ class BaseVm extends ChangeNotifier {
     }
     notifyListeners();
   }
-   fetchData()
-   async {
-     var yachtVm=Provider.of<YachtVm>(Get.context!,listen: false);
-     var bookingsVm=Provider.of<BookingsVm>(Get.context!,listen: false);
-     var homeVm=Provider.of<HomeVm>(Get.context!,listen: false);
-     var inboxVm=Provider.of<InboxVm>(Get.context!,listen: false);
-     var settingsVm=Provider.of<SettingsVm>(Get.context!,listen: false);
-     await Future.wait([
-     bookingsVm.fetchTaxes(),
-     yachtVm.fetchCharterOffers(),
-    fetchAllUsers(),
-     bookingsVm.fetchAppUrls(),
-     settingsVm.fetchContent(),
-     yachtVm.fetchServices(),
-     yachtVm.fetchUserFavourites(),
-     yachtVm.fetchCharters(),
-     yachtVm.fetchYachts(),
-     homeVm.fetchAllBookings(),
-     inboxVm.fetchNotificatoins(),
 
-     ]);
-   }
-
+  fetchData() async {
+    var yachtVm = Provider.of<YachtVm>(Get.context!, listen: false);
+    var bookingsVm = Provider.of<BookingsVm>(Get.context!, listen: false);
+    var homeVm = Provider.of<HomeVm>(Get.context!, listen: false);
+    var inboxVm = Provider.of<InboxVm>(Get.context!, listen: false);
+    var settingsVm = Provider.of<SettingsVm>(Get.context!, listen: false);
+    await Future.wait([
+      bookingsVm.fetchTaxes(),
+      yachtVm.fetchCharterOffers(),
+      fetchAllUsers(),
+      bookingsVm.fetchAppUrls(),
+      settingsVm.fetchContent(),
+      yachtVm.fetchServices(),
+      yachtVm.fetchUserFavourites(),
+      yachtVm.fetchCharters(),
+      yachtVm.fetchYachts(),
+      homeVm.fetchAllBookings(),
+      inboxVm.fetchNotificatoins(),
+    ]);
+  }
 }

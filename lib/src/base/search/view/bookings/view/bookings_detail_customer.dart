@@ -1128,6 +1128,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                             ? GestureDetector(
                                 onTap: () {
                                   Get.bottomSheet(FeedbackSheet(
+                                    bookingsModel: bookingsModel,
                                     submitCallBack: (rat, desc) async {
                                       log("____________RATING:${rat}____:${desc}____${bookingsModel?.id}");
                                       firstSlpliter?.paymentStatus =
