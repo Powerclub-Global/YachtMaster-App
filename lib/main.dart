@@ -101,12 +101,6 @@ void onDidReceiveLocalNotification(
           child: Text('Ok'),
           onPressed: () async {
             Navigator.of(context, rootNavigator: true).pop();
-            // await Navigator.push(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (context) => SecondScreen(payload),
-            //   ),
-            // );
           },
         )
       ],
@@ -120,15 +114,10 @@ void onDidReceiveNotificationResponse(
   if (notificationResponse.payload != null) {
     debugPrint('notification payload: $payload');
   }
-  // await Navigator.push(
-  //   Get.context!,
-  //   MaterialPageRoute<void>(builder: (context) => SecondScreen(payload)),
-  // );
 }
 
 bool isLogin = false;
 void main() async {
-  // BindingBase.debugZoneErrorsAreFatal = true;
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp();

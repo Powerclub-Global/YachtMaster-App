@@ -1,15 +1,21 @@
+import 'dart:convert';
+
+import 'package:bulleted_list/bulleted_list.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:yacht_master/localization/app_localization.dart';
 import 'package:yacht_master/resources/decorations.dart';
 import 'package:yacht_master/resources/resources.dart';
 import 'package:yacht_master/services/firebase_collections.dart';
+import 'package:yacht_master/services/stripe/stripe_service.dart';
 import 'package:yacht_master/services/time_schedule_service.dart';
 import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
 import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
@@ -27,8 +33,11 @@ class StatusScreen extends StatefulWidget {
 }
 
 class _StatusScreenState extends State<StatusScreen> {
+  StripeService stripe = StripeService();
+
   @override
   Widget build(BuildContext context) {
+    var authVm = Provider.of<AuthVm>(context, listen: false);
     return Consumer2<AuthVm, HomeVm>(builder: (context, authVm, homeVm, _) {
       return Scaffold(
         backgroundColor: Colors.transparent,
@@ -66,6 +75,7 @@ class _StatusScreenState extends State<StatusScreen> {
               ),
               GestureDetector(
                 onTap: () async {
+                  ZBotToast.loadingShow();
                   var data = await db
                       .collection("users")
                       .doc(FirebaseAuth.instance.currentUser?.uid)
@@ -73,8 +83,89 @@ class _StatusScreenState extends State<StatusScreen> {
                   var data1 = data.data();
                   int inviteStatus = data1!["invite_status"];
                   if (inviteStatus == 2) {
-                    Get.toNamed(WithdrawMoney.route);
-                    ;
+                    var connectedAccount = await FbCollections
+                        .connected_accounts
+                        .where('uid', isEqualTo: authVm.userModel!.uid)
+                        .get();
+                    if (connectedAccount.docs.isNotEmpty) {
+                      Map<String, dynamic> connected_account_id_data =
+                          connectedAccount.docs.first.data()
+                              as Map<String, dynamic>;
+                      String connectedAccountId =
+                          connected_account_id_data['account_id'];
+                      await stripe.checkDetailsSubmitted(
+                          context, false, connectedAccountId);
+                    } else {
+                      ZBotToast.loadingClose();
+                      Get.bottomSheet(Column(
+                        children: [
+                          Text(
+                            getTranslated(context, "first_time_intro")!,
+                            softWrap: true,
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(getTranslated(context, "read_instructions")!),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          BulletedList(listItems: [
+                            getTranslated(
+                                context, "first_time_intro_bullet_text_1")!,
+                            getTranslated(
+                                context, "first_time_intro_bullet_text_2")!,
+                            getTranslated(
+                                context, "first_time_intro_bullet_text_3")!
+                          ]),
+                          SizedBox(
+                            height: 20,
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              ZBotToast.loadingShow();
+                              String accountId =
+                                  await stripe.createStripeConnectedAccount(
+                                      authVm.userModel!.uid!);
+                              if (accountId == 'internet error') {
+                                // ignore: use_build_context_synchronously
+                                Get.dialog(Text(getTranslated(
+                                    context, "no_internet_onboarding")!));
+                                return;
+                              }
+                              String accountLink =
+                                  await stripe.createAccountLink(accountId);
+                              if (accountLink == 'internet error') {
+                                // ignore: use_build_context_synchronously
+                                Get.dialog(Text(getTranslated(
+                                    context, "no_internet_onboarding")!));
+                                return;
+                              }
+                              ZBotToast.loadingClose();
+                              launchUrl(Uri.parse(accountLink));
+                              // start on boarding
+                            },
+                            child: Container(
+                              height: Get.height * .05,
+                              width: Get.width * .65,
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: 10.w, vertical: 2.h),
+                              decoration:
+                                  AppDecorations.gradientButton(radius: 30),
+                              child: Center(
+                                child: Text(
+                                  getTranslated(context, "proceed") ?? "",
+                                  style: R.textStyle.helvetica().copyWith(
+                                      color: R.colors.black,
+                                      fontSize: 10.5.sp,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ));
+                    }
                   } else if (inviteStatus == 1) {
                     ZBotToast.showToastError(
                         message:

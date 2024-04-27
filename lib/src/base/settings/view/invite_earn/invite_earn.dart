@@ -3,10 +3,13 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:yacht_master/localization/app_localization.dart';
 import 'package:yacht_master/resources/resources.dart';
+import 'package:yacht_master/services/firebase_collections.dart';
+import 'package:yacht_master/services/stripe/stripe_service.dart';
 import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
 import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
 import 'package:yacht_master/src/base/settings/view/invite_earn/invite_screen.dart';
 import 'package:yacht_master/src/base/settings/view/invite_earn/status_screen.dart';
+import 'package:yacht_master/src/base/settings/view/invite_earn/withdraw_money.dart';
 import 'package:yacht_master/utils/general_app_bar.dart';
 import 'package:yacht_master/utils/heights_widths.dart';
 import 'package:yacht_master/utils/zbot_toast.dart';
@@ -35,8 +38,34 @@ class _InviteAndEarnState extends State<InviteAndEarn> {
     });
   }
 
+  Future<void> checkOnboardingStatus() async {
+    StripeService stripe = StripeService();
+    var authVm = Provider.of<AuthVm>(context, listen: false);
+    var connectedAccount = await FbCollections.connected_accounts
+        .where('uid', isEqualTo: authVm.userModel!.uid)
+        .get();
+    Map<String, dynamic> connected_account_id_data =
+        connectedAccount.docs.first.data() as Map<String, dynamic>;
+    String connectedAccountId = connected_account_id_data['account_id'];
+    stripe.checkDetailsSubmitted(context, true, connectedAccountId);
+  }
+
   @override
   Widget build(BuildContext context) {
+    var args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+    String? status = args['status'];
+    if (status != null) {
+      if (status == "refresh") {
+        Get.dialog(Text(getTranslated(context, "onboarding_refresh")!));
+      } else {
+        Get.dialog(Text(getTranslated(context, "onboarding_return")!));
+        Future.delayed(Duration(seconds: 2), () {
+          ZBotToast.loadingShow();
+        });
+        checkOnboardingStatus();
+      }
+    }
     return Scaffold(
       appBar: GeneralAppBar.simpleAppBar(
           context, getTranslated(context, "invite_earn") ?? ""),

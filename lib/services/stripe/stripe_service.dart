@@ -1,12 +1,20 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:bulleted_list/bulleted_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 // ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
+import 'package:sizer/sizer.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:yacht_master/main.dart';
+import 'package:yacht_master/resources/decorations.dart';
+import 'package:yacht_master/resources/resources.dart';
+import 'package:yacht_master/services/firebase_collections.dart';
 import 'package:yacht_master/services/stripe/stripe_api.dart';
+import 'package:yacht_master/src/base/settings/view/invite_earn/withdraw_money.dart';
 
 import '../../localization/app_localization.dart';
 import '../../utils/zbot_toast.dart';
@@ -186,6 +194,143 @@ class StripeService {
     }
   }
 
+  Future<void> checkDetailsSubmitted(
+      BuildContext context, bool isRedirect, String connectedAccount) async {
+    var headers = {'Authorization': 'Basic ${secretKey}'};
+    var request = http.Request('GET',
+        Uri.parse('https://api.stripe.com/v1/accounts/acct_1P9tLlB9Hx8jUYli'));
+
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var account_data = jsonDecode(await response.stream.bytesToString());
+      if (account_data['details_submitted']) {
+        ZBotToast.loadingClose();
+        Get.toNamed(WithdrawMoney.route);
+      } else {
+        ZBotToast.loadingClose();
+        if (isRedirect) {
+          Navigator.pop(context);
+          Get.dialog(Text(getTranslated(
+              context, "onboarding_return_details_not_suhmitted")!));
+        } else {
+          // error in onoarding starting again
+          Get.bottomSheet(Column(
+            children: [
+              Text(
+                getTranslated(context, "fail_prev_intro")!,
+                softWrap: true,
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text(getTranslated(context, "read_instructions")!),
+              SizedBox(
+                height: 10,
+              ),
+              BulletedList(listItems: [
+                getTranslated(context, "first_time_intro_bullet_text_1")!,
+                getTranslated(context, "first_time_intro_bullet_text_2")!,
+                getTranslated(context, "first_time_intro_bullet_text_3")!
+              ]),
+              SizedBox(
+                height: 20,
+              ),
+              GestureDetector(
+                onTap: () async {
+                  ZBotToast.loadingShow();
+                  String accountLink =
+                      await createAccountLink(connectedAccount);
+                  if (accountLink == 'internet error') {
+                    // ignore: use_build_context_synchronously
+                    Get.dialog(Text(
+                        getTranslated(context, "no_internet_onboarding")!));
+                    return;
+                  }
+                  ZBotToast.loadingClose();
+                  launchUrl(Uri.parse(accountLink));
+                },
+                child: Container(
+                  height: Get.height * .05,
+                  width: Get.width * .65,
+                  margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 2.h),
+                  decoration: AppDecorations.gradientButton(radius: 30),
+                  child: Center(
+                    child: Text(
+                      getTranslated(context, "proceed") ?? "",
+                      style: R.textStyle.helvetica().copyWith(
+                          color: R.colors.black,
+                          fontSize: 10.5.sp,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ));
+        }
+      }
+    } else {
+      ZBotToast.loadingClose();
+      Get.dialog(Text(getTranslated(context, "no_internet_onboarding")!));
+    }
+  }
+
+  Future<String> createStripeConnectedAccount(String uid) async {
+    var headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ${secretKey}'
+    };
+    var request =
+        http.Request('POST', Uri.parse('https://api.stripe.com/v1/accounts'));
+    request.bodyFields = {
+      'controller[losses][payments]': 'application',
+      'controller[fees][payer]': 'application',
+      'controller[stripe_dashboard][type]': 'express'
+    };
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var account_data = jsonDecode(await response.stream.bytesToString());
+      FbCollections.connected_accounts
+          .add({"account_id": account_data['id'], "uid": uid});
+      return account_data['id'];
+    } else {
+      print(response.reasonPhrase);
+      return "internet error";
+    }
+  }
+
+  Future<String> createAccountLink(String accountId) async {
+    var headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ${secretKey}'
+    };
+    var request = http.Request(
+        'POST', Uri.parse('https://api.stripe.com/v1/account_links'));
+    request.bodyFields = {
+      'account': 'acct_1P9tLlB9Hx8jUYli',
+      'type': 'account_onboarding',
+      'refresh_url': ' yatchmasterapp.com/inviteAndEarn?status=refresh',
+      'return_url': ' yatchmasterapp.com/inviteAndEarn?status=return'
+    };
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      var account_link_data = jsonDecode(await response.stream.bytesToString());
+      return account_link_data["url"];
+    } else {
+      print(response.reasonPhrase);
+      return "internet error";
+    }
+  }
+
   Future<void> cancelSubscription({
     required String secretKey,
     required String subscriptionID,
@@ -245,7 +390,7 @@ class StripeService {
     http.StreamedResponse response = await request.send();
     print("request made");
     print(response.statusCode);
-    if (response.statusCode == 200) {                 
+    if (response.statusCode == 200) {
       result = await response.stream.bytesToString();
       print(jsonDecode(result));
       return jsonDecode(result);
