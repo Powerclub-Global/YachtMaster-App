@@ -48,7 +48,7 @@ class PaymentMethods extends StatefulWidget {
 class _PaymentMethodsState extends State<PaymentMethods> {
   bool isDeposit = false;
   double splitAmount = 0.0;
-  double userPaidAmount = 0.0;
+  double userPaidAmount = 0;
   BookingsModel? bookingsModel;
   bool? isCompletePayment = false;
   bool isLoading = false;
@@ -1014,6 +1014,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
           .applySettings()
           .whenComplete(() => setInitialBookingData());
     } catch (e) {
+      log("error aagya");
       log(e.toString());
     }
   }
@@ -1025,8 +1026,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
     isDeposit = args["isDeposit"];
     bookingsModel = args["bookingsModel"];
     isCompletePayment = args["isCompletePayment"];
-    isTip = args["isTip"];
-    userPaidAmount = args["userPaidAmount"];
+    isTip = args["isTip"] ?? false;
+    userPaidAmount = args["userPaidAmount"] ?? 0.0;
     setState(() {});
     bookingVm.selectedPaymentMethod = -1;
     if (bookingVm.bookingsModel.paymentDetail?.isSplit == true) {
@@ -1068,7 +1069,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
     } else {
       splitAmount = bookingsModel?.priceDetaill?.totalPrice ?? 0.0;
     }
-    userPaidAmount == 0.0
+    userPaidAmount == 0
         ? userPaidAmount = bookingsModel?.priceDetaill?.totalPrice ?? 0.0
         : userPaidAmount = userPaidAmount;
     bookingsModel?.paymentDetail?.paidAmount =
