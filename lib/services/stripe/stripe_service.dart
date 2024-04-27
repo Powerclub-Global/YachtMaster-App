@@ -208,7 +208,8 @@ class StripeService {
       var account_data = jsonDecode(await response.stream.bytesToString());
       if (account_data['details_submitted']) {
         ZBotToast.loadingClose();
-        Get.toNamed(WithdrawMoney.route);
+        Get.toNamed(WithdrawMoney.route,
+            arguments: {'accountId': connectedAccount});
       } else {
         ZBotToast.loadingClose();
         if (isRedirect) {
@@ -275,6 +276,29 @@ class StripeService {
     } else {
       ZBotToast.loadingClose();
       Get.dialog(Text(getTranslated(context, "no_internet_onboarding")!));
+    }
+  }
+
+  Future<void> payout(String accountId, String amount) async {
+    var headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Authorization': 'Basic ${secretKey}'
+    };
+    var request =
+        http.Request('POST', Uri.parse('https://api.stripe.com/v1/transfers'));
+    request.bodyFields = {
+      'amount': amount,
+      'currency': 'usd',
+      'destination': accountId
+    };
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    } else {
+      Get.dialog(Text(response.reasonPhrase!));
     }
   }
 
