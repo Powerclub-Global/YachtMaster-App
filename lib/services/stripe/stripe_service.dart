@@ -198,7 +198,7 @@ class StripeService {
       BuildContext context, bool isRedirect, String connectedAccount) async {
     var headers = {'Authorization': 'Basic ${secretKey}'};
     var request = http.Request('GET',
-        Uri.parse('https://api.stripe.com/v1/accounts/acct_1P9tLlB9Hx8jUYli'));
+        Uri.parse('https://api.stripe.com/v1/accounts/${connectedAccount}'));
 
     request.headers.addAll(headers);
 
@@ -313,7 +313,7 @@ class StripeService {
     var request = http.Request(
         'POST', Uri.parse('https://api.stripe.com/v1/account_links'));
     request.bodyFields = {
-      'account': 'acct_1P9tLlB9Hx8jUYli',
+      'account': accountId,
       'type': 'account_onboarding',
       'refresh_url': ' yatchmasterapp.com/inviteAndEarn?status=refresh',
       'return_url': ' yatchmasterapp.com/inviteAndEarn?status=return'
