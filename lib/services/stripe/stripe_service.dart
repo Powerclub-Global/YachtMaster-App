@@ -196,7 +196,7 @@ class StripeService {
 
   Future<void> checkDetailsSubmitted(
       BuildContext context, bool isRedirect, String connectedAccount) async {
-    var headers = {'Authorization': 'Basic ${secretKey}'};
+    var headers = {'Authorization': 'Basic ${connectKey}'};
     var request = http.Request('GET',
         Uri.parse('https://api.stripe.com/v1/accounts/${connectedAccount}'));
 
@@ -214,8 +214,10 @@ class StripeService {
         ZBotToast.loadingClose();
         if (isRedirect) {
           Navigator.pop(context);
-          Get.dialog(Text(getTranslated(
-              context, "onboarding_return_details_not_suhmitted")!));
+          Get.dialog(AlertDialog(
+            content: Text(getTranslated(
+                context, "onboarding_return_details_not_suhmitted")!),
+          ));
         } else {
           // error in onoarding starting again
           Get.bottomSheet(Container(
@@ -256,8 +258,10 @@ class StripeService {
                         await createAccountLink(connectedAccount);
                     if (accountLink == 'internet error') {
                       // ignore: use_build_context_synchronously
-                      Get.dialog(Text(
-                          getTranslated(context, "no_internet_onboarding")!));
+                      Get.dialog(AlertDialog(
+                        content: Text(
+                            getTranslated(context, "no_internet_onboarding")!),
+                      ));
                       return;
                     }
                     ZBotToast.loadingClose();
@@ -287,14 +291,15 @@ class StripeService {
       }
     } else {
       ZBotToast.loadingClose();
-      Get.dialog(Text(getTranslated(context, "no_internet_onboarding")!));
+      Get.dialog(AlertDialog(
+          content: Text(getTranslated(context, "no_internet_onboarding")!)));
     }
   }
 
   Future<void> payout(String accountId, String amount) async {
     var headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ${secretKey}'
+      'Authorization': 'Basic ${connectKey}'
     };
     var request =
         http.Request('POST', Uri.parse('https://api.stripe.com/v1/transfers'));
@@ -310,14 +315,15 @@ class StripeService {
     if (response.statusCode == 200) {
       print(await response.stream.bytesToString());
     } else {
-      Get.dialog(Text(response.reasonPhrase!));
+      Get.dialog(AlertDialog(content: Text(response.reasonPhrase!)));
     }
   }
 
   Future<String> createStripeConnectedAccount(String uid) async {
     var headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ${secretKey}'
+      'Authorization':
+          'Basic ${connectKey}'
     };
     var request =
         http.Request('POST', Uri.parse('https://api.stripe.com/v1/accounts'));
@@ -344,7 +350,7 @@ class StripeService {
   Future<String> createAccountLink(String accountId) async {
     var headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ${secretKey}'
+      'Authorization': 'Basic ${connectKey}'
     };
     var request = http.Request(
         'POST', Uri.parse('https://api.stripe.com/v1/account_links'));

@@ -163,6 +163,7 @@ void main() async {
 
 String? publishableKey;
 String? secretKey;
+String? connectKey;
 Future<FirebaseRemoteConfig> setupRemoteConfig() async {
   final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
   print("fetch kar rha bro .....hahahaha");
@@ -176,6 +177,7 @@ Future<FirebaseRemoteConfig> setupRemoteConfig() async {
 
   publishableKey = remoteConfig.getString("publishable_key");
   secretKey = remoteConfig.getString("secret_key");
+  connectKey = remoteConfig.getString("connect_key");
   print("THIS IS SECRET $publishableKey");
   Stripe.merchantIdentifier = 'any string works';
   Stripe.publishableKey = publishableKey ?? "";

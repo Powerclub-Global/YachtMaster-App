@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yacht_master/localization/app_localization.dart';
+import 'package:yacht_master/main.dart';
 import 'package:yacht_master/resources/decorations.dart';
 import 'package:yacht_master/resources/resources.dart';
 import 'package:yacht_master/services/firebase_collections.dart';
@@ -132,26 +133,33 @@ class _StatusScreenState extends State<StatusScreen> {
                             GestureDetector(
                               onTap: () async {
                                 ZBotToast.loadingShow();
-                                String accountId =
-                                    await stripe.createStripeConnectedAccount(
-                                        authVm.userModel!.uid!);
-                                if (accountId == 'internet error') {
-                                  // ignore: use_build_context_synchronously
-                                  Get.dialog(AlertDialog(
-                                      content: Text(getTranslated(context,
-                                          "no_internet_onboarding")!)));
-                                  return;
-                                }
-                                String accountLink =
-                                    await stripe.createAccountLink(accountId);
-                                if (accountLink == 'internet error') {
-                                  // ignore: use_build_context_synchronously
-                                  Get.dialog(Text(getTranslated(
-                                      context, "no_internet_onboarding")!));
-                                  return;
-                                }
-                                ZBotToast.loadingClose();
-                                launchUrl(Uri.parse(accountLink));
+                                print(secretKey);
+                                print(
+                                    'c2tfbGl2ZV81MU11ZFM4QlA1NE9teGdhc2l1QUljRmR0Z255c2tzYkhPQURyVHZET0pZcVZnbzVWMnR4Wmtsc0MxRGx1cnI2eU5YZVZ2a1Z0eEpjU1lHZmhPbzU1cnpqSDAwaHRjaXhHRU86');
+                                print(secretKey ==
+                                    'c2tfbGl2ZV81MU11ZFM4QlA1NE9teGdhc2l1QUljRmR0Z255c2tzYkhPQURyVHZET0pZcVZnbzVWMnR4Wmtsc0MxRGx1cnI2eU5YZVZ2a1Z0eEpjU1lHZmhPbzU1cnpqSDAwaHRjaXhHRU86');
+                                // String accountId =
+                                //     await stripe.createStripeConnectedAccount(
+                                //         authVm.userModel!.uid!);
+                                // print("connected account made");
+                                // if (accountId == 'internet error') {
+                                //   // ignore: use_build_context_synchronously
+                                //   Get.dialog(AlertDialog(
+                                //       content: Text(getTranslated(context,
+                                //           "no_internet_onboarding")!)));
+                                //   return;
+                                // }
+                                // print("about to make account link");
+                                // String accountLink =
+                                //     await stripe.createAccountLink(accountId);
+                                // if (accountLink == 'internet error') {
+                                //   // ignore: use_build_context_synchronously
+                                //   Get.dialog(Text(getTranslated(
+                                //       context, "no_internet_onboarding")!));
+                                //   return;
+                                // }
+                                // ZBotToast.loadingClose();
+                                // launchUrl(Uri.parse(accountLink));
                                 // start on boarding
                               },
                               child: Container(
