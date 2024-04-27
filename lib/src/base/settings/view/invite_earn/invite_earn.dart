@@ -53,9 +53,11 @@ class _InviteAndEarnState extends State<InviteAndEarn> {
   @override
   Widget build(BuildContext context) {
     var args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
-    String? status = args['status'];
-    if (status != null) {
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    print("printing arguments");
+    print(args);
+    if (args != null) {
+      String? status = args!['status'];
       if (status == "refresh") {
         Get.dialog(Text(getTranslated(context, "onboarding_refresh")!));
       } else {
