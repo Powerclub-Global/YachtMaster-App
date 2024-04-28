@@ -133,34 +133,28 @@ class _StatusScreenState extends State<StatusScreen> {
                             GestureDetector(
                               onTap: () async {
                                 ZBotToast.loadingShow();
-                                print(secretKey);
-                                print(
-                                    'c2tfbGl2ZV81MU11ZFM4QlA1NE9teGdhc2l1QUljRmR0Z255c2tzYkhPQURyVHZET0pZcVZnbzVWMnR4Wmtsc0MxRGx1cnI2eU5YZVZ2a1Z0eEpjU1lHZmhPbzU1cnpqSDAwaHRjaXhHRU86');
-                                print(secretKey ==
-                                    'c2tfbGl2ZV81MU11ZFM4QlA1NE9teGdhc2l1QUljRmR0Z255c2tzYkhPQURyVHZET0pZcVZnbzVWMnR4Wmtsc0MxRGx1cnI2eU5YZVZ2a1Z0eEpjU1lHZmhPbzU1cnpqSDAwaHRjaXhHRU86');
-                                // String accountId =
-                                //     await stripe.createStripeConnectedAccount(
-                                //         authVm.userModel!.uid!);
-                                // print("connected account made");
-                                // if (accountId == 'internet error') {
-                                //   // ignore: use_build_context_synchronously
-                                //   Get.dialog(AlertDialog(
-                                //       content: Text(getTranslated(context,
-                                //           "no_internet_onboarding")!)));
-                                //   return;
-                                // }
-                                // print("about to make account link");
-                                // String accountLink =
-                                //     await stripe.createAccountLink(accountId);
-                                // if (accountLink == 'internet error') {
-                                //   // ignore: use_build_context_synchronously
-                                //   Get.dialog(Text(getTranslated(
-                                //       context, "no_internet_onboarding")!));
-                                //   return;
-                                // }
-                                // ZBotToast.loadingClose();
-                                // launchUrl(Uri.parse(accountLink));
-                                // start on boarding
+                                String accountId =
+                                    await stripe.createStripeConnectedAccount(
+                                        authVm.userModel!.uid!);
+                                print("connected account made");
+                                if (accountId == 'internet error') {
+                                  // ignore: use_build_context_synchronously
+                                  Get.dialog(AlertDialog(
+                                      content: Text(getTranslated(context,
+                                          "no_internet_onboarding")!)));
+                                  return;
+                                }
+                                print("about to make account link");
+                                String accountLink =
+                                    await stripe.createAccountLink(accountId);
+                                if (accountLink == 'internet error') {
+                                  // ignore: use_build_context_synchronously
+                                  Get.dialog(Text(getTranslated(
+                                      context, "no_internet_onboarding")!));
+                                  return;
+                                }
+                                ZBotToast.loadingClose();
+                                launchUrl(Uri.parse(accountLink));
                               },
                               child: Container(
                                 height: Get.height * .05,
