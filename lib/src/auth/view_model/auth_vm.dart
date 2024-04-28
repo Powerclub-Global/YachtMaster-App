@@ -14,8 +14,10 @@ import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:yacht_master/constant/constant.dart';
 import 'package:yacht_master/constant/enums.dart';
+import 'package:yacht_master/localization/app_localization.dart';
 import 'package:yacht_master/services/firebase_collections.dart';
 import 'package:yacht_master/services/image_picker_services.dart';
+import 'package:yacht_master/services/stripe/stripe_service.dart';
 import 'package:yacht_master/src/auth/model/user_model.dart';
 import 'package:yacht_master/src/auth/view/create_username.dart';
 import 'package:yacht_master/src/auth/view/social_signup.dart';
@@ -27,6 +29,7 @@ import 'package:yacht_master/src/base/search/view/bookings/model/wallet_model.da
 import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
 import 'package:yacht_master/src/base/yacht/view/charter_detail.dart';
 import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
+import 'package:yacht_master/src/landing_page/view/vanilla.dart';
 import '../../../resources/resources.dart';
 import '../../../services/apple_service.dart';
 import '../../../utils/helper.dart';
@@ -218,7 +221,7 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
-  checkCurrentUser() async {
+  checkCurrentUser(BuildContext context) async {
     try {
       log("////////////////in check current user");
       User? user = auth.currentUser;
@@ -245,7 +248,16 @@ class AuthVm extends ChangeNotifier {
               ZBotToast.loadingClose();
               String? yachtId = Get.parameters["yachtId"];
               if (yachtId == null) {
-                Get.offAllNamed(BaseView.route);
+                /// Pasting code
+
+                if (Get.parameters['status'] != null) {
+                  handleReturnRedirectFromStripeAccountLink(
+                      context, Get.parameters['status']!);
+                } else {
+                  Get.offAllNamed(BaseView.route);
+                }
+
+                /// end of code pasted
               } else {
                 print("Here");
                 List<CharterModel> test =

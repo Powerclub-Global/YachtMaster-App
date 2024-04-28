@@ -357,8 +357,8 @@ class StripeService {
     request.bodyFields = {
       'account': accountId,
       'type': 'account_onboarding',
-      'refresh_url': 'https://yachtmasterapp.com/inviteAndEarn?status=refresh',
-      'return_url': 'https://yachtmasterapp.com/inviteAndEarn?status=return'
+      'refresh_url': 'https://yachtmasterapp.com?status=refresh',
+      'return_url': 'https://yachtmasterapp.com?status=return'
     };
     request.headers.addAll(headers);
 

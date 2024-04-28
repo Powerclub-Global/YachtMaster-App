@@ -13,7 +13,7 @@ class LandingVm extends ChangeNotifier {
     Future.delayed(Duration(seconds: 4), () async {
       var yachtProvider = Provider.of<YachtVm>(Get.context!, listen: false);
       await yachtProvider.fetchCharters();
-      await Provider.of<AuthVm>(context, listen: false).checkCurrentUser();
+      await Provider.of<AuthVm>(context, listen: false).checkCurrentUser(context);
     });
   }
 

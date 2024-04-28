@@ -38,36 +38,9 @@ class _InviteAndEarnState extends State<InviteAndEarn> {
     });
   }
 
-  Future<void> checkOnboardingStatus() async {
-    StripeService stripe = StripeService();
-    var authVm = Provider.of<AuthVm>(context, listen: false);
-    var connectedAccount = await FbCollections.connected_accounts
-        .where('uid', isEqualTo: authVm.userModel!.uid)
-        .get();
-    Map<String, dynamic> connected_account_id_data =
-        connectedAccount.docs.first.data() as Map<String, dynamic>;
-    String connectedAccountId = connected_account_id_data['account_id'];
-    stripe.checkDetailsSubmitted(context, true, connectedAccountId);
-  }
 
   @override
   Widget build(BuildContext context) {
-    var args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-    print("printing arguments");
-    print(args);
-    if (args != null) {
-      String? status = args!['status'];
-      if (status == "refresh") {
-        Get.dialog(Text(getTranslated(context, "onboarding_refresh")!));
-      } else {
-        Get.dialog(Text(getTranslated(context, "onboarding_return")!));
-        Future.delayed(Duration(seconds: 2), () {
-          ZBotToast.loadingShow();
-        });
-        checkOnboardingStatus();
-      }
-    }
     return Scaffold(
       appBar: GeneralAppBar.simpleAppBar(
           context, getTranslated(context, "invite_earn") ?? ""),
