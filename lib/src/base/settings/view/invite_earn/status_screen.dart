@@ -144,13 +144,18 @@ class _StatusScreenState extends State<StatusScreen> {
                                           "no_internet_onboarding")!)));
                                   return;
                                 }
+                                print("connected account Id");
+                                print(accountId);
                                 print("about to make account link");
+
                                 String accountLink =
                                     await stripe.createAccountLink(accountId);
                                 if (accountLink == 'internet error') {
                                   // ignore: use_build_context_synchronously
-                                  Get.dialog(Text(getTranslated(
-                                      context, "no_internet_onboarding")!));
+                                  Get.dialog(AlertDialog(
+                                    content: Text(getTranslated(
+                                        context, "no_internet_onboarding")!),
+                                  ));
                                   return;
                                 }
                                 ZBotToast.loadingClose();
