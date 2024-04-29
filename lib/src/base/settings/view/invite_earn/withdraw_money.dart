@@ -67,44 +67,49 @@ class _WithdrawMoneyState extends State<WithdrawMoney> {
                         R.textStyle.helvetica().copyWith(color: Colors.white),
                   ),
                   h3,
-                  TextFormField(
-                      controller: amountCon,
-                      focusNode: amountFn,
-                      textInputAction: TextInputAction.next,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(10),
-                        FilteringTextInputFormatter.allow(RegExp("[0-9.]"))
-                      ],
-                      onFieldSubmitted: (value) {
-                        Helper.moveFocus(context, cardNumFn);
-                      },
-                      validator: (val) =>
-                          FieldValidator.validateAmount(amountCon.text),
-                      decoration: InputDecoration(
-                        errorStyle: R.textStyle
-                            .helvetica()
-                            .copyWith(color: R.colors.redColor, fontSize: 9.sp),
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 10,
-                        ),
-                        hintText: getTranslated(context, "amount"),
-                        hintStyle:
-                            R.textStyle.helvetica().copyWith(fontSize: 12.sp),
-                        fillColor: R.colors.whiteColor,
-                        filled: true,
-                        disabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(
-                              color: R.colors.whiteColor,
-                            )),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(color: R.colors.whiteColor)),
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(color: R.colors.whiteColor)),
-                      )),
+                  GestureDetector(
+                    onTap: (){
+                      FocusScope.of(context).unfocus();
+                    },
+                    child: TextFormField(
+                        controller: amountCon,
+                        focusNode: amountFn,
+                        textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          LengthLimitingTextInputFormatter(10),
+                          FilteringTextInputFormatter.allow(RegExp("[0-9.]"))
+                        ],
+                        onFieldSubmitted: (value) {
+                          Helper.moveFocus(context, cardNumFn);
+                        },
+                        validator: (val) =>
+                            FieldValidator.validateAmount(amountCon.text),
+                        decoration: InputDecoration(
+                          errorStyle: R.textStyle
+                              .helvetica()
+                              .copyWith(color: R.colors.redColor, fontSize: 9.sp),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 10,
+                          ),
+                          hintText: getTranslated(context, "amount"),
+                          hintStyle:
+                              R.textStyle.helvetica().copyWith(fontSize: 12.sp),
+                          fillColor: R.colors.whiteColor,
+                          filled: true,
+                          disabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: R.colors.whiteColor,
+                              )),
+                          enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: R.colors.whiteColor)),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(color: R.colors.whiteColor)),
+                        )),
+                  ),
                   h3,
                 ],
               ),

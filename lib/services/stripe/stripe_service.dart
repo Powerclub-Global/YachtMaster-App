@@ -322,8 +322,7 @@ class StripeService {
   Future<String> createStripeConnectedAccount(String uid) async {
     var headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization':
-          'Basic ${connectKey}'
+      'Authorization': 'Basic ${connectKey}'
     };
     var request =
         http.Request('POST', Uri.parse('https://api.stripe.com/v1/accounts'));

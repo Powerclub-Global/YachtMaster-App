@@ -38,7 +38,6 @@ class _StatusScreenState extends State<StatusScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var authVm = Provider.of<AuthVm>(context, listen: false);
     return Consumer2<AuthVm, HomeVm>(builder: (context, authVm, homeVm, _) {
       return Scaffold(
         backgroundColor: Colors.transparent,
@@ -66,7 +65,7 @@ class _StatusScreenState extends State<StatusScreen> {
                     ),
                     h1P5,
                     Text(
-                      "\$ ${Helper.numberFormatter(authVm.wallet?.amount ?? "0")}",
+                      "\$ ${authVm.wallet?.amount ?? "0"}",
                       style: R.textStyle
                           .helvetica()
                           .copyWith(color: Colors.white, fontSize: 18.sp),
@@ -82,7 +81,7 @@ class _StatusScreenState extends State<StatusScreen> {
                       .doc(FirebaseAuth.instance.currentUser?.uid)
                       .get();
                   var data1 = data.data();
-                  int inviteStatus = data1!["invite_status"];
+                  var inviteStatus = data1!["invite_status"];
                   if (inviteStatus == 2) {
                     var connectedAccount = await FbCollections
                         .connected_accounts
