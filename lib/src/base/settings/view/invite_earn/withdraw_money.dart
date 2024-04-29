@@ -124,9 +124,9 @@ class _WithdrawMoneyState extends State<WithdrawMoney> {
                   }
                   Get.back();
                   StripeService stripe = StripeService();
-                  print((double.parse(amountCon.text) * 100).toString());
+                  print( (double.parse(amountCon.text) * 100).toInt().toString());
                   await stripe.payout(accountId,
-                      (double.parse(amountCon.text) * 100).toString());
+                      (double.parse(amountCon.text) * 100).toInt().toString());
                   Get.bottomSheet(Congoratulations(
                       "You have withdrawn money successfully", () {
                     Future.delayed(Duration(seconds: 2), () {
