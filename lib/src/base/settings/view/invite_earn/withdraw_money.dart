@@ -52,26 +52,25 @@ class _WithdrawMoneyState extends State<WithdrawMoney> {
           backgroundColor: R.colors.black,
           appBar: GeneralAppBar.simpleAppBar(context,
               "${getTranslated(context, "withdraw_money").toString().capitalize}"),
-          body: Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: Get.width * .05, vertical: Get.height * .02),
-            child: Form(
-              key: formKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    getTranslated(context, "amount_you_want_to_withdraw") ?? "",
-                    style:
-                        R.textStyle.helvetica().copyWith(color: Colors.white),
-                  ),
-                  h3,
-                  GestureDetector(
-                    onTap: (){
-                      FocusScope.of(context).unfocus();
-                    },
-                    child: TextFormField(
+          body: GestureDetector(
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                  horizontal: Get.width * .05, vertical: Get.height * .02),
+              child: Form(
+                key: formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      getTranslated(context, "amount_you_want_to_withdraw") ??
+                          "",
+                      style:
+                          R.textStyle.helvetica().copyWith(color: Colors.white),
+                    ),
+                    h3,
+                    TextFormField(
                         controller: amountCon,
                         focusNode: amountFn,
                         textInputAction: TextInputAction.next,
@@ -86,9 +85,8 @@ class _WithdrawMoneyState extends State<WithdrawMoney> {
                         validator: (val) =>
                             FieldValidator.validateAmount(amountCon.text),
                         decoration: InputDecoration(
-                          errorStyle: R.textStyle
-                              .helvetica()
-                              .copyWith(color: R.colors.redColor, fontSize: 9.sp),
+                          errorStyle: R.textStyle.helvetica().copyWith(
+                              color: R.colors.redColor, fontSize: 9.sp),
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 10,
                           ),
@@ -104,14 +102,16 @@ class _WithdrawMoneyState extends State<WithdrawMoney> {
                               )),
                           enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: R.colors.whiteColor)),
+                              borderSide:
+                                  BorderSide(color: R.colors.whiteColor)),
                           border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(color: R.colors.whiteColor)),
+                              borderSide:
+                                  BorderSide(color: R.colors.whiteColor)),
                         )),
-                  ),
-                  h3,
-                ],
+                    h3,
+                  ],
+                ),
               ),
             ),
           ),
