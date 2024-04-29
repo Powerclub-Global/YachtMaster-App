@@ -343,7 +343,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           },
           debugShowCheckedModeBanner: false,
           home: Application(
-            page: WithdrawMoney(),
+            page: SplashScreen(),
           ),
           getPages: [
             GetPage(name: Vanilla.route, page: () => Vanilla()),
