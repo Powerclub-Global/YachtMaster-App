@@ -70,7 +70,8 @@ class _WithdrawMoneyState extends State<WithdrawMoney> {
                       controller: amountCon,
                       focusNode: amountFn,
                       textInputAction: TextInputAction.next,
-                      keyboardType: TextInputType.numberWithOptions(decimal: true),
+                      keyboardType:
+                          TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
                         LengthLimitingTextInputFormatter(10),
                         FilteringTextInputFormatter.allow(RegExp("[0-9.]"))
@@ -123,7 +124,9 @@ class _WithdrawMoneyState extends State<WithdrawMoney> {
                   }
                   Get.back();
                   StripeService stripe = StripeService();
-                  await stripe.payout(accountId, (double.parse(amountCon.text)*100).toString());
+                  print((double.parse(amountCon.text) * 100).toString());
+                  await stripe.payout(accountId,
+                      (double.parse(amountCon.text) * 100).toString());
                   Get.bottomSheet(Congoratulations(
                       "You have withdrawn money successfully", () {
                     Future.delayed(Duration(seconds: 2), () {
