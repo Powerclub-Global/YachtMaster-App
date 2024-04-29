@@ -70,7 +70,7 @@ class _WithdrawMoneyState extends State<WithdrawMoney> {
                       controller: amountCon,
                       focusNode: amountFn,
                       textInputAction: TextInputAction.next,
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [
                         LengthLimitingTextInputFormatter(10),
                         FilteringTextInputFormatter.allow(RegExp("[0-9.]"))
