@@ -972,7 +972,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
             }
             break;
           case 4:
-            Get.toNamed(PayWithWallet.route);
+            Get.toNamed(PayWithWallet.route, arguments: {"isTip":isTip, "amount": userPaidAmount},);
         }
         provider.update();
       },

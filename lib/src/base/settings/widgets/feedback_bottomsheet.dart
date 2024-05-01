@@ -18,16 +18,18 @@ import 'package:yacht_master/resources/resources.dart';
 import 'package:yacht_master/services/firebase_collections.dart';
 import 'package:yacht_master/src/base/search/model/charter_model.dart';
 import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
+import 'package:yacht_master/src/base/widgets/tip_sheet.dart';
 import 'package:yacht_master/utils/general_app_bar.dart';
 import 'package:yacht_master/utils/heights_widths.dart';
 import 'package:yacht_master/utils/helper.dart';
 import 'package:yacht_master/utils/validation.dart';
 
 class FeedbackSheet extends StatefulWidget {
-  Function(double rat, String desc)? submitCallBack;
+  Function(double rat, String desc, double tip)? submitCallBack;
 
   FeedbackSheet({this.submitCallBack, required this.bookingsModel});
   BookingsModel? bookingsModel;
+  double tipAmount = 0.0;
 
   @override
   _FeedbackSheetState createState() => _FeedbackSheetState();
@@ -35,6 +37,7 @@ class FeedbackSheet extends StatefulWidget {
 
 class _FeedbackSheetState extends State<FeedbackSheet> {
   Future<DocumentSnapshot>? _getData;
+  int _selectedIndex = 0;
   @override
   void initState() {
     // TODO: implement initState
@@ -62,6 +65,12 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
 
   @override
   Widget build(BuildContext context) {
+    log(widget.tipAmount.toString());
+    double totalPrice = widget.bookingsModel!.priceDetaill!.subTotal! +
+        Helper().calculatePercentage(
+            widget.bookingsModel?.priceDetaill?.taxes!.toInt() ?? 0,
+            widget.bookingsModel!.priceDetaill!.subTotal!) +
+        widget.bookingsModel!.priceDetaill!.serviceFee!;
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());
@@ -203,6 +212,123 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
                                 ],
                               ),
                               h3,
+                              if (Helper().calculatePercentage(10, totalPrice) >
+                                  widget.bookingsModel!.priceDetaill!.tip!) ...[
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "  How much do you want to Tip?",
+                                      style: R.textStyle.helvetica().copyWith(
+                                          color: R.colors.whiteColor,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 10.sp),
+                                    ),
+                                    SizedBox(),
+                                  ],
+                                ),
+                                h2,
+                                Container(
+                                  decoration: BoxDecoration(
+                                      color: R.colors.blackDull,
+                                      borderRadius: BorderRadius.circular(30)),
+                                  child: ButtonBar(
+                                    alignment: MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            color: _selectedIndex == 0
+                                                ? Colors.white
+                                                : Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(30)),
+                                        child: TextButton(
+                                          child: Text(
+                                            "\$${Helper().calculatePercentage(10, totalPrice).toStringAsFixed(2)}",
+                                            style:
+                                                TextStyle(color: Colors.amber),
+                                          ),
+                                          onPressed: () {
+                                            widget.tipAmount = Helper()
+                                                .calculatePercentage(
+                                                    10, totalPrice);
+                                            _selectedIndex = 0;
+                                            setState(() {});
+                                          },
+                                        ),
+                                      ),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            color: _selectedIndex == 1
+                                                ? Colors.white
+                                                : Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(30)),
+                                        child: TextButton(
+                                            child: Text(
+                                              "\$${Helper().calculatePercentage(15, totalPrice).toStringAsFixed(2)}",
+                                              style: TextStyle(
+                                                  color: Colors.amber),
+                                            ),
+                                            onPressed: () {
+                                              widget.tipAmount = Helper()
+                                                  .calculatePercentage(
+                                                      15, totalPrice);
+                                              _selectedIndex = 1;
+                                              setState(() {});
+                                            }),
+                                      ),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            color: _selectedIndex == 2
+                                                ? Colors.white
+                                                : Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(30)),
+                                        child: TextButton(
+                                            child: Text(
+                                              "\$${Helper().calculatePercentage(20, totalPrice).toStringAsFixed(2)}",
+                                              style: TextStyle(
+                                                  color: Colors.amber),
+                                            ),
+                                            onPressed: () {
+                                              widget.tipAmount = Helper()
+                                                  .calculatePercentage(
+                                                      20, totalPrice);
+                                              _selectedIndex = 2;
+                                              setState(() {});
+                                            }),
+                                      ),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                            color: _selectedIndex == 3
+                                                ? Colors.white
+                                                : Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(30)),
+                                        child: TextButton(
+                                            child: Text(
+                                              'Other',
+                                              style: TextStyle(
+                                                  color: Colors.amber),
+                                            ),
+                                            onPressed: () {
+                                              _selectedIndex = 3;
+                                              Get.bottomSheet(TipAmountSheet(
+                                                yesCallBack: (value) {
+                                                  widget.tipAmount =
+                                                      double.parse(value);
+                                                  setState(() {});
+                                                },
+                                              ));
+                                            }),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                h3,
+                              ],
                               SizedBox(
                                 width: Get.width * .7,
                                 child: Text(
@@ -286,7 +412,7 @@ class _FeedbackSheetState extends State<FeedbackSheet> {
                                   if (_ratingFormKey.currentState!.validate()) {
                                     startLoader();
                                     await widget.submitCallBack!(
-                                        rating, descCon.text);
+                                        rating, descCon.text, widget.tipAmount);
                                     stopLoader();
                                   }
                                 },

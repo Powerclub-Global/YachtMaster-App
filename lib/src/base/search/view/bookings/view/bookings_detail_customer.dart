@@ -1127,66 +1127,71 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                     bookingsModel?.bookingStatus == BookingStatus.completed.index))
                             ? GestureDetector(
                                 onTap: () {
-                                  Get.bottomSheet(FeedbackSheet(
-                                    bookingsModel: bookingsModel,
-                                    submitCallBack: (rat, desc) async {
-                                      log("____________RATING:${rat}____:${desc}____${bookingsModel?.id}");
-                                      firstSlpliter?.paymentStatus =
-                                          PaymentStatus.ratingDone.index;
-                                      if (bookingsModel
-                                              ?.paymentDetail?.splitPayment
-                                              ?.every((element) =>
-                                                  element.paymentStatus ==
-                                                  PaymentStatus
-                                                      .ratingDone.index) ==
-                                          true) {
-                                        bookingsModel
-                                                ?.paymentDetail?.paymentStatus =
-                                            PaymentStatus.ratingDone.index;
-                                      }
-                                      setState(() {});
-                                      String docId = Timestamp.now()
-                                          .millisecondsSinceEpoch
-                                          .toString();
-                                      ReviewModel reviewModel = ReviewModel(
-                                        bookingId: bookingsModel?.id,
-                                        userId: FirebaseAuth
-                                            .instance.currentUser?.uid,
-                                        rating: rat,
-                                        description: desc,
-                                        createdAt: Timestamp.now(),
-                                        charterFleetDetail: CharterFleetDetail(
-                                            id: bookingsModel
-                                                ?.charterFleetDetail?.id,
-                                            location: bookingsModel
-                                                ?.charterFleetDetail?.location,
-                                            name: bookingsModel
-                                                ?.charterFleetDetail?.name,
-                                            image: bookingsModel
-                                                ?.charterFleetDetail?.image),
-                                        id: docId,
-                                        hostId: bookingsModel?.hostUserUid,
-                                      );
-                                      try {
-                                        await FbCollections.bookings
-                                            .doc(bookingsModel?.id)
-                                            .set(bookingsModel?.toJson());
-                                        await FbCollections.bookingReviews
-                                            .doc(docId)
-                                            .set(reviewModel.toJson());
-                                      } on Exception catch (e) {
-                                        // TODO
-                                        debugPrintStack();
-                                        log(e.toString());
-                                      }
-                                      Get.back();
-                                      Get.back();
-                                      Helper.inSnackBar(
-                                          "Success",
-                                          "Submitted successfully",
-                                          R.colors.themeMud);
-                                    },
-                                  ));
+                                  Get.bottomSheet(
+          FeedbackSheet(
+            bookingsModel: bookingsModel,
+            submitCallBack: (
+              rat,
+              desc,
+              tipAmount,
+            ) async {
+              log("____________RATING:${rat}____:${desc}____${bookingsModel?.id}");
+              firstSlpliter?.paymentStatus = PaymentStatus.ratingDone.index;
+              if (bookingsModel?.paymentDetail?.splitPayment?.every((element) =>
+                      element.paymentStatus ==
+                      PaymentStatus.ratingDone.index) ==
+                  true) {
+                bookingsModel?.paymentDetail?.paymentStatus =
+                    PaymentStatus.ratingDone.index;
+              }
+              setState(() {});
+              String docId = Timestamp.now().millisecondsSinceEpoch.toString();
+              ReviewModel reviewModel = ReviewModel(
+                bookingId: bookingsModel?.id,
+                userId: FirebaseAuth.instance.currentUser?.uid,
+                rating: rat,
+                description: desc,
+                createdAt: Timestamp.now(),
+                charterFleetDetail: CharterFleetDetail(
+                    id: bookingsModel?.charterFleetDetail?.id,
+                    location: bookingsModel?.charterFleetDetail?.location,
+                    name: bookingsModel?.charterFleetDetail?.name,
+                    image: bookingsModel?.charterFleetDetail?.image),
+                id: docId,
+                hostId: bookingsModel?.hostUserUid,
+              );
+              try {
+                await FbCollections.bookings
+                    .doc(bookingsModel?.id)
+                    .set(bookingsModel?.toJson());
+                await FbCollections.bookingReviews
+                    .doc(docId)
+                    .set(reviewModel.toJson());
+              } on Exception catch (e) {
+                // TODO
+                debugPrintStack();
+                log(e.toString());
+              }
+              Get.back();
+              Get.back();
+              Helper.inSnackBar(
+                  "Success", "Submitted successfully", R.colors.themeMud);
+              if (tipAmount > 1.0) {
+                Get.toNamed(PaymentMethods.route, arguments: {
+                  "isDeposit": bookingsModel!.paymentDetail?.payInType ==
+                          PayType.fullPay.index
+                      ? false
+                      : true,
+                  "bookingsModel": bookingsModel,
+                  "isCompletePayment": true,
+                  "isTip": true,
+                  "userPaidAmount": tipAmount,
+                });
+              }
+            },
+          ),
+          isScrollControlled: true,
+        );
                                 },
                                 child: Container(
                                   height: Get.height * .055,

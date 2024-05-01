@@ -487,43 +487,6 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
                                       setState(() {});
                                     },
                                   ));
-
-                                  // Get.bottomSheet(
-                                  //   Container(
-                                  //     padding: EdgeInsets.all(20),
-                                  //     child: Column(
-                                  //       crossAxisAlignment:
-                                  //           CrossAxisAlignment.start,
-                                  //       children: <Widget>[
-                                  //         Text(
-                                  //           'Enter Custom Tip Amount',
-                                  //           style: TextStyle(
-                                  //               fontSize: 18,
-                                  //               fontWeight: FontWeight.bold),
-                                  //         ),
-                                  //         SizedBox(height: 10),
-                                  //         TextField(
-                                  //           keyboardType: TextInputType.number,
-                                  //           decoration: InputDecoration(
-                                  //             border: OutlineInputBorder(),
-                                  //             labelText: 'Tip Amount',
-                                  //           ),
-                                  //           onChanged: (value) {
-                                  //             // Handle the entered tip amount here
-                                  //           },
-                                  //         ),
-                                  //         SizedBox(height: 20),
-                                  //         ElevatedButton(
-                                  //           child: Text('Submit'),
-                                  //           onPressed: () {
-                                  //             // Handle the submission of the tip amount here
-                                  //             Get.back(); // Close the bottom sheet
-                                  //           },
-                                  //         ),
-                                  //       ],
-                                  //     ),
-                                  //   ),
-                                  // );
                                 }),
                           ),
                         ],

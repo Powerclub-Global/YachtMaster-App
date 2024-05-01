@@ -117,13 +117,18 @@ class _SearchScreenState extends State<SearchScreen> {
               element.paymentDetail?.paymentStatus ==
                   PaymentStatus.giveRating.index)
           .toList();
+      log("LENGTH OF THE REVIEWS : ${pendingReviewsList.length}");
       if (pendingReviewsList.isNotEmpty) {
         SplitPaymentModel? firstSlpliter;
         BookingsModel bookingsModel = pendingReviewsList.first;
         Get.bottomSheet(
           FeedbackSheet(
             bookingsModel: bookingsModel,
-            submitCallBack: (rat, desc) async {
+            submitCallBack: (
+              rat,
+              desc,
+              tipAmount,
+            ) async {
               log("____________RATING:${rat}____:${desc}____${bookingsModel?.id}");
               firstSlpliter?.paymentStatus = PaymentStatus.ratingDone.index;
               if (bookingsModel?.paymentDetail?.splitPayment?.every((element) =>
@@ -150,9 +155,9 @@ class _SearchScreenState extends State<SearchScreen> {
                 hostId: bookingsModel?.hostUserUid,
               );
               try {
-                // await FbCollections.bookings
-                //     .doc(bookingsModel?.id)
-                //     .set(bookingsModel?.toJson());
+                await FbCollections.bookings
+                    .doc(bookingsModel?.id)
+                    .set(bookingsModel?.toJson());
                 await FbCollections.bookingReviews
                     .doc(docId)
                     .set(reviewModel.toJson());
@@ -165,16 +170,18 @@ class _SearchScreenState extends State<SearchScreen> {
               Get.back();
               Helper.inSnackBar(
                   "Success", "Submitted successfully", R.colors.themeMud);
-              Get.toNamed(PaymentMethods.route, arguments: {
-                "isDeposit": bookingsModel.paymentDetail?.payInType ==
-                        PayType.fullPay.index
-                    ? false
-                    : true,
-                "bookingsModel": bookingsModel,
-                "isCompletePayment": true,
-                "isTip": true,
-                "userPaidAmount": 200.0,
-              });
+              if (tipAmount > 1.0) {
+                Get.toNamed(PaymentMethods.route, arguments: {
+                  "isDeposit": bookingsModel.paymentDetail?.payInType ==
+                          PayType.fullPay.index
+                      ? false
+                      : true,
+                  "bookingsModel": bookingsModel,
+                  "isCompletePayment": true,
+                  "isTip": true,
+                  "userPaidAmount": tipAmount,
+                });
+              }
             },
           ),
           isScrollControlled: true,
