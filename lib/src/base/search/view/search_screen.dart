@@ -173,7 +173,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 "bookingsModel": bookingsModel,
                 "isCompletePayment": true,
                 "isTip": true,
-                "userPaidAmount": 200,
+                "userPaidAmount": 200.0,
               });
             },
           ),
@@ -798,7 +798,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   Column(
                     children: [
                       if (yachtVm.allCharters.isNotEmpty) ...[
-                        GeneralWidgets.seeAllWidget(context, "charters",
+                        GeneralWidgets.seeAllWidget(context, "feat_charters",
                             onTap: () {
                           Get.toNamed(SearchSeeAll.route, arguments: {
                             "isReserve": false,

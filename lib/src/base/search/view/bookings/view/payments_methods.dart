@@ -140,12 +140,14 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                           ),
                         ],
                       ),
-                      if ((splitPerson != null &&
-                              removeSign(splitPerson?.payWithWallet) !=
-                                  "0.0") ||
-                          provider.bookingsModel.paymentDetail?.payWithWallet
-                                  .toStringAsFixed(1) !=
-                              "0.0")
+                      if (((splitPerson != null &&
+                                  removeSign(splitPerson?.payWithWallet) !=
+                                      "0.0") ||
+                              provider.bookingsModel.paymentDetail
+                                      ?.payWithWallet
+                                      .toStringAsFixed(1) !=
+                                  "0.0") &&
+                          isTip != true)
                         Column(
                           children: [
                             Divider(
@@ -371,18 +373,20 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                   ),
                 ),
                 h2,
-                if ((provider.bookingsModel.paymentDetail?.remainingAmount !=
-                            null &&
-                        removeSign(provider.bookingsModel.paymentDetail
-                                ?.remainingAmount) ==
-                            "0.0") ||
-                    (provider.bookingsModel.paymentDetail?.isSplit == true &&
-                            splitPerson?.paymentMethod ==
-                                PaymentMethodEnum.wallet.index &&
-                            splitPerson?.depositStatus ==
-                                DepositStatus.nothingPaid.index) &&
-                        removeSign(splitPerson?.remainingDeposit) ==
-                            removeSign(splitPerson?.payWithWallet))
+                if (((provider.bookingsModel.paymentDetail?.remainingAmount !=
+                                null &&
+                            removeSign(provider.bookingsModel.paymentDetail
+                                    ?.remainingAmount) ==
+                                "0.0") ||
+                        (provider.bookingsModel.paymentDetail?.isSplit ==
+                                    true &&
+                                splitPerson?.paymentMethod ==
+                                    PaymentMethodEnum.wallet.index &&
+                                splitPerson?.depositStatus ==
+                                    DepositStatus.nothingPaid.index) &&
+                            removeSign(splitPerson?.remainingDeposit) ==
+                                removeSign(splitPerson?.payWithWallet)) &&
+                    isTip == false)
                   Container(
                     decoration: BoxDecoration(
                         color: R.colors.blackDull,
@@ -527,7 +531,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                       ],
                     ),
                   )
-                else if ((provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
+                else if ((isTip == true) ||
+                    (provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
                         provider.bookingsModel.paymentDetail?.isSplit ==
                             false &&
                         provider.bookingsModel.paymentDetail?.remainingAmount !=
@@ -544,7 +549,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                             "0.0") ||
                     (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
                         provider.bookingsModel.paymentDetail?.isSplit == true &&
-                        provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingDeposit.toStringAsFixed(1) !=
+                        provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingDeposit
+                                .toStringAsFixed(1) !=
                             "0.0" &&
                         provider.bookingsModel.paymentDetail?.paymentMethod ==
                             PaymentMethodEnum.wallet.index) ||
@@ -557,9 +563,12 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                         provider.bookingsModel.paymentDetail?.paymentMethod ==
                             PaymentMethodEnum.wallet.index) ||
                     (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
-                        provider.bookingsModel.paymentDetail?.isSplit == false &&
-                        provider.bookingsModel.paymentDetail?.paymentStatus != PaymentStatus.confirmBooking.index &&
-                        provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index) ||
+                        provider.bookingsModel.paymentDetail?.isSplit ==
+                            false &&
+                        provider.bookingsModel.paymentDetail?.paymentStatus !=
+                            PaymentStatus.confirmBooking.index &&
+                        provider.bookingsModel.paymentDetail?.paymentMethod ==
+                            PaymentMethodEnum.wallet.index) ||
                     (provider.bookingsModel.paymentDetail?.paymentMethod == -1))
                   Column(
                     children: [
@@ -585,7 +594,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                             print(value);
                             final paymentIntentResult =
                                 await stripe.createPaymentIntents(
-                              amount: (userPaidAmount! * 100).toString(),
+                              amount: (userPaidAmount * 100).toString(),
                               currency: 'usd', // mocked data
                               secretKey: secretKey!,
                             );
@@ -916,7 +925,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                 PaymentMethodEnum.card.index;
             provider.update();
             await provider.onClickPaymentMethods(
-                "", context, isCompletePayment, splitAmount, userPaidAmount!);
+                "", context, isCompletePayment, splitAmount, userPaidAmount,isTip: isTip ?? false);
             // Get.toNamed(AddCreditCard.route);
             break;
           case 1:
@@ -924,7 +933,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
               Get.bottomSheet(AppleStoreSheet(
                 callBack: () async {
                   await provider.onClickPaymentMethods("", context,
-                      isCompletePayment, splitAmount, userPaidAmount!);
+                      isCompletePayment, splitAmount, userPaidAmount,isTip: isTip ?? false);
                 },
               ), barrierColor: Colors.grey.withOpacity(.20));
             }
@@ -945,7 +954,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                 "isCompletePayment": isCompletePayment,
                 "userPaidAmount": userPaidAmount,
                 "splitAmount": splitAmount,
-                "isBitcoin": true
+                "isBitcoin": true,
+                "isTip":isTip,
               });
             }
             break;
@@ -956,7 +966,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                 "isCompletePayment": isCompletePayment,
                 "userPaidAmount": userPaidAmount,
                 "splitAmount": splitAmount,
-                "isBitcoin": false
+                "isBitcoin": false,
+                "isTip":isTip
               });
             }
             break;
