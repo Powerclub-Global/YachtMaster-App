@@ -550,8 +550,8 @@ class BookingsVm extends ChangeNotifier {
     provider.update();
   }
 
-  onClickCharterConfirmPay(
-      double totalPrice, String price, int isSplit, CharterModel? charter) {
+  onClickCharterConfirmPay(double totalPrice, String price, int isSplit,
+      CharterModel? charter, double tip) {
     if (selectedPayIn == -1) {
       Helper.inSnackBar("Error", "Please select pay in", R.colors.themeMud);
     } else {
@@ -562,6 +562,7 @@ class BookingsVm extends ChangeNotifier {
       bookingsModel.priceDetaill?.subTotal = double.parse(price);
       bookingsModel.paymentDetail?.payInType = selectedPayIn;
       bookingsModel.paymentDetail?.isSplit = isSplit == 1 ? false : true;
+      bookingsModel.priceDetaill?.tip = tip.toPrecision(2);
       update();
 
       if (isSplit == SplitType.yes.index &&
@@ -590,12 +591,9 @@ class BookingsVm extends ChangeNotifier {
     }
   }
 
-  onClickPaymentMethods(
-      String? screenShotUrl,
-      BuildContext context,
-      bool? isCompletePayment,
-      double splitAmount,
-      double userPaidAmount) async {
+  onClickPaymentMethods(String? screenShotUrl, BuildContext context,
+      bool? isCompletePayment, double splitAmount, double userPaidAmount,
+      {bool isTip = false}) async {
     bookingsModel.paymentDetail?.paymentMethod = selectedPaymentMethod;
     if (bookingsModel.paymentDetail?.paymentMethod == -1) {
       Helper.inSnackBar(
@@ -619,13 +617,16 @@ class BookingsVm extends ChangeNotifier {
             splitAmount, userPaidAmount, finalPaidAmount);
       } else if (selectedPaymentMethod == PaymentMethodEnum.crypto.index) {
         await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
-            splitAmount, userPaidAmount, finalPaidAmount);
+            splitAmount, userPaidAmount, finalPaidAmount,
+            isTip: isTip);
       } else if (selectedPaymentMethod == PaymentMethodEnum.usdt.index) {
         await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
-            splitAmount, userPaidAmount, finalPaidAmount);
+            splitAmount, userPaidAmount, finalPaidAmount,
+            isTip: isTip);
       } else if (selectedPaymentMethod == PaymentMethodEnum.appStore.index) {
         await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
-            splitAmount, userPaidAmount, finalPaidAmount);
+            splitAmount, userPaidAmount, finalPaidAmount,
+            isTip: isTip);
       } else if (selectedPaymentMethod == PaymentMethodEnum.wallet.index) {
         var authVm = Provider.of<AuthVm>(context, listen: false);
         await FbCollections.wallet_history.add({
@@ -716,7 +717,8 @@ class BookingsVm extends ChangeNotifier {
       bool? isCompletePayment,
       double splitAmount,
       double userPaidAmount,
-      double finalPaidAmount) async {
+      double finalPaidAmount,
+      {bool isTip = false}) async {
     print("Your payment was success");
     var baseVm = Provider.of<BaseVm>(context, listen: false);
     var homeVm = Provider.of<HomeVm>(context, listen: false);
@@ -745,7 +747,7 @@ class BookingsVm extends ChangeNotifier {
     if (isCompletePayment == true) {
       print("Your payment was success less");
       completePaymentFunction(screenShotUrl, context);
-    } else {
+    } else if (isTip == false) {
       bookingsModel.bookingStatus = BookingStatus.ongoing.index;
       bookingsModel.paymentDetail?.cryptoScreenShot = screenShotUrl;
       bookingsModel.paymentDetail?.cryptoReceiverEmail =
@@ -803,7 +805,6 @@ class BookingsVm extends ChangeNotifier {
                   bookingsModel.paymentDetail?.isSplit == true
               ? PaymentStatus.confirmBooking.index
               : PaymentStatus.markAsComplete.index;
-      bookingsModel.priceDetaill?.tip = double.parse(tips.toString());
       bookingsModel.hostUserUid = charter.get("created_by");
       bookingsModel.priceDetaill?.serviceFee =
           double.parse(serviceFee.toString());
@@ -816,6 +817,10 @@ class BookingsVm extends ChangeNotifier {
         bookingsModel.paymentDetail?.splitPayment = [];
       }
       // homeVm.previousBookings.add(bookingsModel);
+      homeVm.update();
+    } else if (isTip == true) {
+      bookingsModel.priceDetaill!.tip =
+          bookingsModel.priceDetaill!.tip ?? 0 + finalPaidAmount;
       homeVm.update();
     }
     try {
@@ -867,13 +872,15 @@ class BookingsVm extends ChangeNotifier {
       DocumentSnapshot hostDoc =
           await FbCollections.user.doc(charter.get("created_by")).get();
       UserModel hostUser = UserModel.fromJson(hostDoc.data());
-      await sendNotificationOnBooking(context, docID!, charter);
-      await FbCollections.mail.add({
-        "to": [hostUser.email],
-        "message": {
-          "subject": "Booking Update",
-          "text": "Your Booking for ${charter.get("name")} has been confirmed",
-          "html": '''<!DOCTYPE html>
+      if (isTip == false) {
+        await sendNotificationOnBooking(context, docID!, charter);
+        await FbCollections.mail.add({
+          "to": [hostUser.email],
+          "message": {
+            "subject": "Booking Update",
+            "text":
+                "Your Booking for ${charter.get("name")} has been confirmed",
+            "html": '''<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1009,14 +1016,15 @@ class BookingsVm extends ChangeNotifier {
 </body>
 </html>
 ''',
-        }
-      });
-      await FbCollections.mail.add({
-        "to": [authVm.userModel!.email],
-        "message": {
-          "subject": "Booking Update",
-          "text": "Your Booking for ${charter.get("name")} has been confirmed",
-          "html": '''<!DOCTYPE html>
+          }
+        });
+        await FbCollections.mail.add({
+          "to": [authVm.userModel!.email],
+          "message": {
+            "subject": "Booking Update",
+            "text":
+                "Your Booking for ${charter.get("name")} has been confirmed",
+            "html": '''<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1151,8 +1159,9 @@ class BookingsVm extends ChangeNotifier {
 </body>
 </html>
 ''',
-        }
-      });
+          }
+        });
+      }
     } on Exception catch (e) {
       debugPrintStack();
       log(e.toString());
@@ -1169,7 +1178,15 @@ class BookingsVm extends ChangeNotifier {
     update();
     baseVm.update();
     searchVm.update();
-    if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
+    if (isTip == true) {
+      Get.bottomSheet(Congoratulations(
+          getTranslated(context, "tip_payment_done") ?? "", () {
+        Timer(Duration(seconds: 2), () async {
+          await authVm.cancleStreams();
+          Get.offAllNamed(BaseView.route);
+        });
+      }));
+    } else if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
       await FbCollections.bookings.doc(docID).update({"isPending": false});
       Get.bottomSheet(Congoratulations(
           getTranslated(

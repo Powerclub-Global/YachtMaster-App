@@ -48,6 +48,7 @@ import 'package:yacht_master/src/base/search/view/bookings/view/pay_with_crypto.
 import 'package:yacht_master/src/base/search/view/bookings/view/pay_with_wallet.dart';
 import 'package:yacht_master/src/base/search/view/bookings/view/payments_methods.dart';
 import 'package:yacht_master/src/base/search/view/bookings/view/split_payment.dart';
+import 'package:yacht_master/src/base/search/view/bookings/view/tip_payment_methods.dart';
 import 'package:yacht_master/src/base/search/view/bookings/view/yacht_reserve_payment.dart';
 import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
 import 'package:yacht_master/src/base/search/view/search_screen.dart';
@@ -420,6 +421,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             GetPage(name: ViewAllServices.route, page: () => ViewAllServices()),
             GetPage(name: SeeAllHost.route, page: () => SeeAllHost()),
             GetPage(name: SocialSignup.route, page: () => SocialSignup()),
+            GetPage(
+                name: TipPaymentMethods.route, page: () => TipPaymentMethods())
           ],
           title: "YachtMaster App",
         ),

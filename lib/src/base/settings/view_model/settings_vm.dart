@@ -1,5 +1,3 @@
-
-
 import 'dart:async';
 import 'dart:developer';
 
@@ -24,14 +22,13 @@ class SettingsVm extends ChangeNotifier {
   bool isLoading = false;
   UpdateLocale lang = UpdateLocale();
 
-  int selectedLang=0;
+  int selectedLang = 0;
 
   List<ReviewModel> allReviews = [];
   List<ContentModel> allContent = [];
 
   List<ReviewModel> hostReviews = [];
   StreamSubscription<List<ReviewModel>>? reviewStream;
-
 
   onChangeLang(String langCode, BuildContext context) {
     lang.language(langCode, context).then((value) => notifyListeners());
@@ -46,51 +43,56 @@ class SettingsVm extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
   }
+
   Future<void> fetchContent() async {
     log("/////////////////////IN FETCH CONTENT");
     try {
-      allContent=[];
+      allContent = [];
       QuerySnapshot snapshot = await FbCollections.content.get();
       if (snapshot.docs.isNotEmpty) {
-        allContent=snapshot.docs.map((e) => ContentModel.fromJson(e.data())).toList();
+        allContent =
+            snapshot.docs.map((e) => ContentModel.fromJson(e.data())).toList();
         notifyListeners();
       }
       log("__________ Data ${allContent.length}");
-
     } catch (e) {
       debugPrintStack();
       log(e.toString());
     }
   }
 
-   fetchReviews(List<UserModel>? hosts) async {
+  fetchReviews(List<UserModel>? hosts) async {
     try {
-      var yachtVm=Provider.of<YachtVm>(Get.context!,listen: false);
+      var yachtVm = Provider.of<YachtVm>(Get.context!, listen: false);
 
       log("/////////////////////IN FETCH REVIEWS:${hosts?.length}");
-      allReviews=[];
-      hostReviews=[];
+      allReviews = [];
+      hostReviews = [];
 
       notifyListeners();
-      var ref = FbCollections.bookingReviews.orderBy("rating",descending: true)
+      var ref = FbCollections.bookingReviews
+          .orderBy("rating", descending: true)
           .snapshots()
           .asBroadcastStream();
-      var res = ref.map((list) => list.docs.map((e) => ReviewModel.fromJson(e.data())).toList());
+      var res = ref.map((list) =>
+          list.docs.map((e) => ReviewModel.fromJson(e.data())).toList());
       reviewStream ??= res.listen((reviews) async {
         if (reviews.isNotEmpty) {
           allReviews = reviews;
-          hostReviews=reviews.where((element) => element.hostId==FirebaseAuth.instance.currentUser?.uid).toList();
-         await reviews.asyncForEach((element) async {
-           log(")))))))))))))))))HOSTS:${hosts?.length}");
-            var doc=await FbCollections.user.doc(element.hostId).get();
-            UserModel featuredHost=UserModel.fromJson(doc.data());
-            featuredHost.rating=element.rating;
+          hostReviews = reviews
+              .where((element) =>
+                  element.hostId == FirebaseAuth.instance.currentUser?.uid)
+              .toList();
+          await reviews.asyncForEach((element) async {
+            log(")))))))))))))))))HOSTS:${hosts?.length}");
+            var doc = await FbCollections.user.doc(element.hostId).get();
+            UserModel featuredHost = UserModel.fromJson(doc.data());
+            featuredHost.rating = element.rating;
             notifyListeners();
             hosts?.forEach((hostEl) {
-              if(hostEl.uid==featuredHost.uid)
-                {
-                  hosts[hosts.indexOf(hostEl)]=featuredHost;
-                }
+              if (hostEl.uid == featuredHost.uid) {
+                hosts[hosts.indexOf(hostEl)] = featuredHost;
+              }
               // hosts?[hosts.indexWhere((hostEl) => hostEl.uid==featuredHost.uid)]=featuredHost;
             });
           });
@@ -107,7 +109,7 @@ class SettingsVm extends ChangeNotifier {
           //     }
           //   // element.uid!=FirebaseAuth.instance.currentUser?.uid;
           // });
-          yachtVm.allHosts=List.from(hosts?.toList()??[]);
+          yachtVm.allHosts = List.from(hosts?.toList() ?? []);
           notifyListeners();
           log("________FEATURED HOST:${yachtVm.allHosts.length}");
           await yachtVm.sortHostsByBookings();
@@ -122,8 +124,8 @@ class SettingsVm extends ChangeNotifier {
       log(e.toString());
     }
   }
-   averageRating(List<ReviewModel> reviews)
-  {
+
+  averageRating(List<ReviewModel> reviews) {
     double sumRating = 0;
     for (var i = 0; i < reviews.length; i++) {
       sumRating += reviews[i].rating;
@@ -132,9 +134,8 @@ class SettingsVm extends ChangeNotifier {
     update();
     return average;
   }
-  update()
-  {
+
+  update() {
     notifyListeners();
   }
-
 }

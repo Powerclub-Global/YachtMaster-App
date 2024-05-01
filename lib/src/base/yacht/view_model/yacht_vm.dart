@@ -120,8 +120,11 @@ class YachtVm extends ChangeNotifier {
                   element.createdBy == FirebaseAuth.instance.currentUser?.uid &&
                   element.status == CharterStatus.active.index)
               .toList();
+          log("Test");
           List<UserModel>? hosts = await fetchAllHost(charters);
           notifyListeners();
+          log("Test2");
+          log("About to fetch reviews");
           await settingsVm.fetchReviews(hosts);
           notifyListeners();
           await getCitiesList();
@@ -132,7 +135,7 @@ class YachtVm extends ChangeNotifier {
     } on Exception catch (e) {
       // TODO
       debugPrintStack();
-      log(e.toString());
+      log("${e}Is the error in Reviews");
     }
   }
 

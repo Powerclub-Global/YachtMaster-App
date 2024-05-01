@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -10,6 +11,7 @@ import 'package:sizer/sizer.dart';
 import 'package:yacht_master/localization/app_localization.dart';
 import 'package:yacht_master/resources/decorations.dart';
 import 'package:yacht_master/resources/resources.dart';
+import 'package:yacht_master/services/firebase_collections.dart';
 import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
 import 'package:yacht_master/src/base/base_vm.dart';
 import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
@@ -67,18 +69,16 @@ class _HostProfileState extends State<HostProfile> {
           yachtVm.hostCharters.length * 1000,
         );
       }
+      QuerySnapshot reviewsQuery = await FbCollections.bookingReviews.get();
       var settingsVm = Provider.of<SettingsVm>(context, listen: false);
+      settingsVm.allReviews =
+          reviewsQuery.docs.map((e) => ReviewModel.fromJson(e.data())).toList();
       averageRating = settingsVm.averageRating(settingsVm.allReviews
           .where((element) =>
               element.hostId == FirebaseAuth.instance.currentUser?.uid)
           .toList());
       setState(() {});
       log("______________AEVRAGE RATING:${averageRating}");
-      // if (searchVm.yachtsForSaleList.isNotEmpty) {
-      //   yachtscrollController.jumpTo(
-      //     searchVm.yachtsForSaleList.length * 1000,
-      //   );
-      // }
     });
     super.initState();
   }
@@ -335,18 +335,19 @@ class _HostProfileState extends State<HostProfile> {
               h2,
               SizedBox(
                   height: Get.height * .2,
-                  width: Get.width*.9,
-                  child:  Row(crossAxisAlignment: CrossAxisAlignment.start,
+                  width: Get.width * .9,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(flex:5,
+                      Expanded(
+                        flex: 5,
                         child: GestureDetector(
                           onTap: () {
-                            Get.toNamed(AddfeaturedCharters.route,
-                                arguments: {
-                                  "charterModel": null,
-                                  "isEdit": false,
-                                  "index": -1
-                                });
+                            Get.toNamed(AddfeaturedCharters.route, arguments: {
+                              "charterModel": null,
+                              "isEdit": false,
+                              "index": -1
+                            });
                           },
                           child: Container(
                             width: Get.width * .6,
@@ -381,297 +382,307 @@ class _HostProfileState extends State<HostProfile> {
                           ),
                         ),
                       ),
-                      if (yachtVm.hostCharters.isEmpty) SizedBox()
-                      else Expanded(flex:3,
-                        child: ListView(
-                          controller: charterscrollController,
-                          reverse: true,
-                          scrollDirection: Axis.horizontal,
-                          children: List.generate(yachtVm.hostCharters.length,
-                                  (index) {
-                                return
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      right: 10,
-                                    ),
-                                    child: Align(
-                                      alignment: Alignment.topLeft,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          Get.toNamed(CharterDetail.route,
-                                              arguments: {
-                                                "yacht":
+                      if (yachtVm.hostCharters.isEmpty)
+                        SizedBox()
+                      else
+                        Expanded(
+                          flex: 3,
+                          child: ListView(
+                            controller: charterscrollController,
+                            reverse: true,
+                            scrollDirection: Axis.horizontal,
+                            children: List.generate(yachtVm.hostCharters.length,
+                                (index) {
+                              return Padding(
+                                padding: EdgeInsets.only(
+                                  right: 10,
+                                ),
+                                child: Align(
+                                  alignment: Alignment.topLeft,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      Get.toNamed(CharterDetail.route,
+                                          arguments: {
+                                            "yacht":
                                                 yachtVm.hostCharters[index],
-                                                "isReserve": false,
-                                                "index": index,
-                                                "isEdit": true
-                                              })?.then((value) async {
-                                            yachtVm.hostCharters[index]=await yachtVm.fetchCharterById(yachtVm.hostCharters[index].id??"");
-                                            yachtVm.update();
-                                          });
-                                        },
-                                        child: CharterWidget(
-                                          charter: yachtVm.hostCharters[index],
-                                          width: Get.width * .6,
-                                          height: Get.height * .17,
-                                          isSmall: true,
-                                          isShowStar: false,
-                                          isFavCallBack: () {},
-                                        ),
-                                      ),
+                                            "isReserve": false,
+                                            "index": index,
+                                            "isEdit": true
+                                          })?.then((value) async {
+                                        yachtVm.hostCharters[index] =
+                                            await yachtVm.fetchCharterById(
+                                                yachtVm.hostCharters[index]
+                                                        .id ??
+                                                    "");
+                                        yachtVm.update();
+                                      });
+                                    },
+                                    child: CharterWidget(
+                                      charter: yachtVm.hostCharters[index],
+                                      width: Get.width * .6,
+                                      height: Get.height * .17,
+                                      isSmall: true,
+                                      isShowStar: false,
+                                      isFavCallBack: () {},
                                     ),
-                                  );
-                              }),
+                                  ),
+                                ),
+                              );
+                            }),
+                          ),
                         ),
-                      ),
                     ],
-                  )
-
-              ),
+                  )),
               GeneralWidgets.seeAllWidget(context, "concierge_experiences",
                   isSeeAll: false),
               h2,
               SizedBox(
-                width: Get.width*.9,
+                width: Get.width * .9,
                 height: Get.height * .28,
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(flex: 4,
-                            child: GestureDetector(
-                              onTap: () {
-                                Get.toNamed(AddServices.route, arguments: {
-                                  "service": null,
-                                  "isEdit": false,
-                                  "index": -1
-                                });
-                              },
-                              child: Container(
-                                height: Get.height * .2,
-                                width: Get.width*.3,
-                                margin: EdgeInsets.only(right: 10),
-                                decoration: BoxDecoration(
-                                    color: R.colors.blackLight,
-                                    borderRadius:
-                                        BorderRadius.circular(18)),
-                                child: Center(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                            begin: Alignment.topCenter,
-                                            end: Alignment.bottomCenter,
-                                            stops: [
-                                              0.1,
-                                              10
-                                            ],
-                                            colors: [
-                                              R.colors.gradMudLight,
-                                              R.colors.gradMud,
-                                            ]),
-                                        shape: BoxShape.circle),
-                                    padding: EdgeInsets.all(4),
-                                    child: Icon(
-                                      Icons.add,
-                                      color: R.colors.blackDull,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
+                  children: [
+                    Expanded(
+                      flex: 4,
+                      child: GestureDetector(
+                        onTap: () {
+                          Get.toNamed(AddServices.route, arguments: {
+                            "service": null,
+                            "isEdit": false,
+                            "index": -1
+                          });
+                        },
+                        child: Container(
+                          height: Get.height * .2,
+                          width: Get.width * .3,
+                          margin: EdgeInsets.only(right: 10),
+                          decoration: BoxDecoration(
+                              color: R.colors.blackLight,
+                              borderRadius: BorderRadius.circular(18)),
+                          child: Center(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      stops: [
+                                        0.1,
+                                        10
+                                      ],
+                                      colors: [
+                                        R.colors.gradMudLight,
+                                        R.colors.gradMud,
+                                      ]),
+                                  shape: BoxShape.circle),
+                              padding: EdgeInsets.all(4),
+                              child: Icon(
+                                Icons.add,
+                                color: R.colors.blackDull,
+                                size: 20,
                               ),
                             ),
                           ),
-                          if (yachtVm.hostServicesList.isEmpty) SizedBox()
-                          else
-                            Expanded(flex: 7,
-                              child: ListView(
-                              controller: servicescrollController,
-                              reverse: false,
-                              scrollDirection: Axis.horizontal,
-                              children: List.generate(
-                                  yachtVm.hostServicesList.length, (index) {
-                                ServiceModel service =
-                                yachtVm.hostServicesList[index];
-                                return Padding(
-                                  padding:  EdgeInsets.only(right:10),
-                                  child: Align(
-                                    alignment: Alignment.topLeft,
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Get.toNamed(ServiceDetail.route,
-                                            arguments: {
-                                              "service": service,
-                                              "isHostView": true,
-                                              "index": index
-                                            });
-                                      },
-                                      child: HostWidget(
-                                        service: service,
-                                        width: Get.width * .3,
-                                        height: Get.height * .2,
-                                        isShowRating: false,
-                                        isShowStar: false,
-                                        isFavCallBack: () {
-                                          // service.isFav == true
-                                          //     ? service.isFav = false
-                                          //     : service.isFav = true;
-                                          provider.update();
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }),
-                          ),
-                            )
-                        ],
+                        ),
                       ),
+                    ),
+                    if (yachtVm.hostServicesList.isEmpty)
+                      SizedBox()
+                    else
+                      Expanded(
+                        flex: 7,
+                        child: ListView(
+                          controller: servicescrollController,
+                          reverse: false,
+                          scrollDirection: Axis.horizontal,
+                          children: List.generate(
+                              yachtVm.hostServicesList.length, (index) {
+                            ServiceModel service =
+                                yachtVm.hostServicesList[index];
+                            return Padding(
+                              padding: EdgeInsets.only(right: 10),
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Get.toNamed(ServiceDetail.route,
+                                        arguments: {
+                                          "service": service,
+                                          "isHostView": true,
+                                          "index": index
+                                        });
+                                  },
+                                  child: HostWidget(
+                                    service: service,
+                                    width: Get.width * .3,
+                                    height: Get.height * .2,
+                                    isShowRating: false,
+                                    isShowStar: false,
+                                    isFavCallBack: () {
+                                      // service.isFav == true
+                                      //     ? service.isFav = false
+                                      //     : service.isFav = true;
+                                      provider.update();
+                                    },
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                      )
+                  ],
+                ),
               ),
               GeneralWidgets.seeAllWidget(context, "rating_and_reviews",
                   onTap: () {
-                    Get.toNamed(ReviewScreen.route, arguments: {
-                      "reviews": settingsVm.allReviews
-                          .where((element) =>
-                      element.hostId ==
-                          FirebaseAuth.instance.currentUser?.uid)
-                          .toList()
-                    });
-                  },
-                  isSeeAll: settingsVm.allReviews
+                Get.toNamed(ReviewScreen.route, arguments: {
+                  "reviews": settingsVm.allReviews
                       .where((element) =>
-                  element.hostId ==
-                      FirebaseAuth.instance.currentUser?.uid)
+                          element.hostId ==
+                          FirebaseAuth.instance.currentUser?.uid)
                       .toList()
-                      .isEmpty
+                });
+              },
+                  isSeeAll: settingsVm.allReviews
+                          .where((element) =>
+                              element.hostId ==
+                              FirebaseAuth.instance.currentUser?.uid)
+                          .toList()
+                          .isEmpty
                       ? false
                       : true),
               h2,
               Padding(
                 padding: EdgeInsets.only(left: Get.width * .05),
                 child: settingsVm.allReviews
-                    .where((element) =>
-                element.hostId ==
-                    FirebaseAuth.instance.currentUser?.uid)
-                    .toList()
-                    .isEmpty ==
-                    true
-                    ? SizedBox(
-                  height: Get.height * .25,
-                  child: EmptyScreen(
-                    title: "no_reviews",
-                    subtitle: "no_reviews_has_been_received_yet",
-                    img: R.images.noFav,
-                  ),
-                )
-                    : SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                      children: List.generate(
-                          settingsVm.allReviews
-                              .where((element) =>
-                          element.hostId ==
-                              FirebaseAuth.instance.currentUser?.uid)
-                              .toList()
-                              .length, (index) {
-                        ReviewModel review = settingsVm.allReviews
                             .where((element) =>
-                        element.hostId ==
-                            FirebaseAuth.instance.currentUser?.uid)
-                            .toList()[index];
-                        return RatingReviewsCard(
-                          reviewModel: review,
-                        );
-                      })),
-                ),
+                                element.hostId ==
+                                FirebaseAuth.instance.currentUser?.uid)
+                            .toList()
+                            .isEmpty ==
+                        true
+                    ? SizedBox(
+                        height: Get.height * .25,
+                        child: EmptyScreen(
+                          title: "no_reviews",
+                          subtitle: "no_reviews_has_been_received_yet",
+                          img: R.images.noFav,
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                            children: List.generate(
+                                settingsVm.allReviews
+                                    .where((element) =>
+                                        element.hostId ==
+                                        FirebaseAuth.instance.currentUser?.uid)
+                                    .toList()
+                                    .length, (index) {
+                          ReviewModel review = settingsVm.allReviews
+                              .where((element) =>
+                                  element.hostId ==
+                                  FirebaseAuth.instance.currentUser?.uid)
+                              .toList()[index];
+                          return RatingReviewsCard(
+                            reviewModel: review,
+                          );
+                        })),
+                      ),
               ),
               GeneralWidgets.seeAllWidget(context, "yacht_for_sale",
                   isSeeAll: false),
               h2,
               SizedBox(
-                height: Get.height * .2,
-                width: Get.width*.9,
-                child:Row(crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(flex:5,
-                            child: GestureDetector(
-                              onTap: () {
-                                Get.toNamed(AddYachtForSale.route, arguments: {
-                                  "yachtsModel": null,
-                                  "isEdit": false,
-                                  "index": -1
-                                });
-                              },
+                  height: Get.height * .2,
+                  width: Get.width * .9,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: GestureDetector(
+                          onTap: () {
+                            Get.toNamed(AddYachtForSale.route, arguments: {
+                              "yachtsModel": null,
+                              "isEdit": false,
+                              "index": -1
+                            });
+                          },
+                          child: Container(
+                            width: Get.width * .6,
+                            height: Get.height * .17,
+                            margin: EdgeInsets.only(right: 10),
+                            decoration: BoxDecoration(
+                                color: R.colors.blackLight,
+                                borderRadius: BorderRadius.circular(18)),
+                            child: Center(
                               child: Container(
-                                width: Get.width * .6,
-                                height: Get.height * .17,
-                                margin: EdgeInsets.only(right: 10),
                                 decoration: BoxDecoration(
-                                    color: R.colors.blackLight,
-                                    borderRadius: BorderRadius.circular(18)),
-                                child: Center(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                            begin: Alignment.topCenter,
-                                            end: Alignment.bottomCenter,
-                                            stops: [
-                                              0.1,
-                                              10
-                                            ],
-                                            colors: [
-                                              R.colors.gradMudLight,
-                                              R.colors.gradMud,
-                                            ]),
-                                        shape: BoxShape.circle),
-                                    padding: EdgeInsets.all(4),
-                                    child: Icon(
-                                      Icons.add,
-                                      color: R.colors.blackDull,
-                                      size: 20,
-                                    ),
-                                  ),
+                                    gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        stops: [
+                                          0.1,
+                                          10
+                                        ],
+                                        colors: [
+                                          R.colors.gradMudLight,
+                                          R.colors.gradMud,
+                                        ]),
+                                    shape: BoxShape.circle),
+                                padding: EdgeInsets.all(4),
+                                child: Icon(
+                                  Icons.add,
+                                  color: R.colors.blackDull,
+                                  size: 20,
                                 ),
                               ),
                             ),
                           ),
-                          if (yachtVm.hostYachts.isEmpty) SizedBox() else
-                            Expanded(flex:3,
-                              child: ListView(
-                                controller: yachtscrollController,
-                                reverse: true,
-                                scrollDirection: Axis.horizontal,
-                                children:
-                                List.generate(yachtVm.hostYachts.length, (index) {
-                                  return Padding(
-                                    padding: EdgeInsets.only(
-                                      right: 10,
+                        ),
+                      ),
+                      if (yachtVm.hostYachts.isEmpty)
+                        SizedBox()
+                      else
+                        Expanded(
+                          flex: 3,
+                          child: ListView(
+                              controller: yachtscrollController,
+                              reverse: true,
+                              scrollDirection: Axis.horizontal,
+                              children: List.generate(yachtVm.hostYachts.length,
+                                  (index) {
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                    right: 10,
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment.topLeft,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Get.toNamed(YachtDetail.route,
+                                            arguments: {
+                                              "yacht":
+                                                  yachtVm.hostYachts[index],
+                                              "isEdit": true,
+                                              "index": index
+                                            });
+                                      },
+                                      child: YachtWidget(
+                                          yacht: yachtVm.hostYachts[index],
+                                          width: Get.width * .6,
+                                          height: Get.height * .17,
+                                          isSmall: true,
+                                          isShowStar: false),
                                     ),
-                                    child: Align(alignment: Alignment.topLeft,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          Get.toNamed(YachtDetail.route,
-                                              arguments: {
-                                                "yacht": yachtVm.hostYachts[index],
-                                                "isEdit": true,
-                                                "index": index
-                                              });
-                                        },
-                                        child: YachtWidget(
-                                            yacht: yachtVm.hostYachts[index],
-                                            width: Get.width * .6,
-                                            height: Get.height * .17,
-                                            isSmall: true,
-                                            isShowStar: false),
-                                      ),
-                                    ),
-                                  );
-                                })),
-                            )
-                        ],
-                      )
-              ),
-
+                                  ),
+                                );
+                              })),
+                        )
+                    ],
+                  )),
               h3,
-
               GestureDetector(
                 onTap: () {
                   Get.bottomSheet(EditProfile());

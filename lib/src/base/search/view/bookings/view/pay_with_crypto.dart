@@ -38,6 +38,7 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
   late double converRate;
   late double userPaidAmount;
   late bool isBitcoin;
+  bool? isTip;
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +50,7 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
     isCompletePayment = args["isCompletePayment"];
     isBitcoin = args["isBitcoin"];
     converRate = args["converRate"];
+    isTip = args["isTip"];
     return Consumer<BookingsVm>(builder: (context, provider, _) {
       log("___________${provider.appUrlModel?.adminCryptoEmail}");
       return ModalProgressHUD(
@@ -311,6 +313,7 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                   isCompletePayment,
                   splitAmount,
                   userPaidAmount,
+                  isTip: isTip ?? false
                 );
                 stopLoader();
               } else {
