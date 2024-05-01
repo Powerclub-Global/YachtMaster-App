@@ -84,6 +84,7 @@ import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
 import 'package:yacht_master/src/base/yacht/widgets/choose_services.dart';
 import 'package:yacht_master/src/base/yacht/widgets/view_all_services.dart';
 import 'package:yacht_master/src/landing_page/view/splash_view.dart';
+import 'package:yacht_master/src/landing_page/view/vanilla.dart';
 import 'package:yacht_master/src/landing_page/view_model/landing_vm.dart';
 import 'package:yacht_master/utils/no_internet_screen.dart';
 
@@ -356,6 +357,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             page: SplashScreen(),
           ),
           getPages: [
+            GetPage(name: Vanilla.route, page: () => Vanilla()),
             GetPage(name: InviteAndEarn.route, page: () => InviteAndEarn()),
             GetPage(name: BecomeHost.route, page: () => BecomeHost()),
             GetPage(name: BecomeVerified.route, page: () => BecomeVerified()),

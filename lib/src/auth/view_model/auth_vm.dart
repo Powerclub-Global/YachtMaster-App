@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -23,8 +22,10 @@ import 'package:yacht_master/src/auth/view/social_signup.dart';
 import 'package:yacht_master/src/base/base_view.dart';
 import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
 import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
+import 'package:yacht_master/src/base/search/model/charter_model.dart';
 import 'package:yacht_master/src/base/search/view/bookings/model/wallet_model.dart';
 import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
+import 'package:yacht_master/src/base/yacht/view/charter_detail.dart';
 import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
 import '../../../resources/resources.dart';
 import '../../../services/apple_service.dart';
@@ -226,7 +227,6 @@ class AuthVm extends ChangeNotifier {
         Future.delayed(Duration(seconds: 2), () async {
           if (Constants.fcmToken.isEmpty) {
             print("Hi bro");
-
             // userModel?.fcm = await FirebaseMessaging.instance.getToken();
           } else {
             userModel?.fcm = Constants.fcmToken;
@@ -238,10 +238,34 @@ class AuthVm extends ChangeNotifier {
               Fluttertoast.showToast(msg: "You have been blocked by admin");
             } else {
               userModel?.fcm = Constants.fcmToken;
+              var yachtProvider =
+                  Provider.of<YachtVm>(Get.context!, listen: false);
               // userModel?.isActiveUser = true;
               await updateUser(userModel);
               ZBotToast.loadingClose();
-              Get.offAllNamed(BaseView.route);
+              String? yachtId = Get.parameters["yachtId"];
+              if (yachtId == null) {
+                Get.offAllNamed(BaseView.route);
+              } else {
+              List<CharterModel> test =
+                    yachtProvider.allCharters.where((element) {
+                  return element.id == yachtId;
+                }).toList();
+               print("Printing Test");
+               CharterModel yacht = test[0];
+               int index =  yachtProvider.allCharters
+                    .indexWhere((element) => element.id == yachtId);
+                Get.toNamed(CharterDetail.route, arguments: {
+                  "yacht": yacht,
+                  "isReserve": false,
+                  "index": index,
+                  "isEdit": yacht.createdBy ==
+                          FirebaseAuth.instance.currentUser?.uid
+                      ? true
+                      : false,
+                  "isLink": true
+                });
+              }
             }
           } else {
             Get.offAllNamed(LoginScreen.route);

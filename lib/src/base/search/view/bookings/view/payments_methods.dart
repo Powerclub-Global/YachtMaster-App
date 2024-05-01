@@ -925,7 +925,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                 PaymentMethodEnum.card.index;
             provider.update();
             await provider.onClickPaymentMethods(
-                "", context, isCompletePayment, splitAmount, userPaidAmount,isTip: isTip ?? false);
+                "", context, isCompletePayment, splitAmount, userPaidAmount,
+                isTip: isTip ?? false);
             // Get.toNamed(AddCreditCard.route);
             break;
           case 1:
@@ -933,7 +934,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
               Get.bottomSheet(AppleStoreSheet(
                 callBack: () async {
                   await provider.onClickPaymentMethods("", context,
-                      isCompletePayment, splitAmount, userPaidAmount,isTip: isTip ?? false);
+                      isCompletePayment, splitAmount, userPaidAmount,
+                      isTip: isTip ?? false);
                 },
               ), barrierColor: Colors.grey.withOpacity(.20));
             }
@@ -955,7 +957,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                 "userPaidAmount": userPaidAmount,
                 "splitAmount": splitAmount,
                 "isBitcoin": true,
-                "isTip":isTip,
+                "isTip": isTip,
               });
             }
             break;
@@ -967,12 +969,15 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                 "userPaidAmount": userPaidAmount,
                 "splitAmount": splitAmount,
                 "isBitcoin": false,
-                "isTip":isTip
+                "isTip": isTip
               });
             }
             break;
           case 4:
-            Get.toNamed(PayWithWallet.route, arguments: {"isTip":isTip, "amount": userPaidAmount},);
+            Get.toNamed(
+              PayWithWallet.route,
+              arguments: {"isTip": isTip, "amount": userPaidAmount},
+            );
         }
         provider.update();
       },
