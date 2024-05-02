@@ -128,6 +128,8 @@
   "featured_charters": "Featured Charters",
   "superhost_charters": "SuperHost Charters",
   "charters": "Charters",
+  "dubai": "Dubai",
+  "miami": "Miami",
   "experiences": "Experiences",
   "desc": "Description",
   "subject": "Subject",
@@ -180,6 +182,9 @@
   "define_availability": "Define Availability",
   "yacht_rules": "Yacht Rules",
   "health_and_safety": "Health & Safety",
+  "tip_payment_done": "Your payment has been confirmed and the Tip is received",
+  "feat_charters": "Featured Charters",
+  "money2pay" : "Amount to be paid",
 
   "report_listing": "Report Listing",
   "reserve": "Reserve",

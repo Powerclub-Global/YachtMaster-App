@@ -374,7 +374,7 @@ class _SettingsViewState extends State<SettingsView> {
             Get.toNamed(HelpCenter.route);
             break;
           case 9:
-            Get.bottomSheet(FeedbackSheet(
+            Get.bottomSheet(SettingsFeedbackSheet(
               submitCallBack: (rating, desc) async {
                 String docID =
                     Timestamp.now().millisecondsSinceEpoch.toString();

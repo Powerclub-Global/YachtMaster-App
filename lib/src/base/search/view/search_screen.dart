@@ -25,6 +25,7 @@ import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
 import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
 import 'package:yacht_master/src/base/inbox/model/chat_heads_model.dart';
 import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
+import 'package:yacht_master/src/base/profile/model/review_model.dart';
 import 'package:yacht_master/src/base/profile/view/host_profile.dart';
 import 'package:yacht_master/src/base/profile/view/host_profile_others.dart';
 import 'package:yacht_master/src/base/search/model/charter_model.dart';
@@ -32,6 +33,8 @@ import 'package:yacht_master/src/base/search/model/charters_day_model.dart';
 import 'package:yacht_master/src/base/search/model/services_model.dart';
 import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
 import 'package:yacht_master/src/base/search/view/bookings/model/time_slot_model.dart';
+import 'package:yacht_master/src/base/search/view/bookings/view/payments_methods.dart';
+import 'package:yacht_master/src/base/search/view/bookings/view/tip_payment_methods.dart';
 import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
 import 'package:yacht_master/src/base/search/view/search_see_all.dart';
 import 'package:yacht_master/src/base/search/view/see_all_host.dart';
@@ -41,6 +44,7 @@ import 'package:yacht_master/src/base/search/widgets/host_widget.dart';
 import 'package:yacht_master/src/base/search/view/where_going.dart';
 import 'package:yacht_master/src/base/search/widgets/yacht_widget.dart';
 import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
+import 'package:yacht_master/src/base/settings/widgets/feedback_bottomsheet.dart';
 import 'package:yacht_master/src/base/yacht/view/charter_detail.dart';
 import 'package:yacht_master/src/base/yacht/view/rules_regulations.dart';
 import 'package:yacht_master/src/base/yacht/view/service_detail.dart';
@@ -84,7 +88,6 @@ class _SearchScreenState extends State<SearchScreen> {
     var homeVm = Provider.of<HomeVm>(context, listen: false);
     var yachtVm = Provider.of<YachtVm>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      Reference root = FirebaseStorage.instance.ref();
       var globalDoc = await FbCollections.settings.doc("global").get();
       Map<String, dynamic>? gdData = globalDoc.data() as Map<String, dynamic>?;
       picLink = gdData!['resURL'];
@@ -104,6 +107,86 @@ class _SearchScreenState extends State<SearchScreen> {
       searchVm.petsCount = 0;
       bookingVm.totalMembersCount = 0;
       searchVm.notifyListeners();
+      var pendingReviews = await FbCollections.bookings.get();
+      List<BookingsModel> pendingReviewsList = pendingReviews.docs
+          .map((e) => BookingsModel.fromJson(e.data() as Map<String, dynamic>))
+          .toList()
+          .where((element) =>
+              element.createdBy == FirebaseAuth.instance.currentUser?.uid &&
+              element.bookingStatus == BookingStatus.completed.index &&
+              element.paymentDetail?.paymentStatus ==
+                  PaymentStatus.giveRating.index)
+          .toList();
+      log("LENGTH OF THE REVIEWS : ${pendingReviewsList.length}");
+      if (pendingReviewsList.isNotEmpty) {
+        SplitPaymentModel? firstSlpliter;
+        BookingsModel bookingsModel = pendingReviewsList.first;
+        Get.bottomSheet(
+          FeedbackSheet(
+            bookingsModel: bookingsModel,
+            submitCallBack: (
+              rat,
+              desc,
+              tipAmount,
+            ) async {
+              log("____________RATING:${rat}____:${desc}____${bookingsModel?.id}");
+              firstSlpliter?.paymentStatus = PaymentStatus.ratingDone.index;
+              if (bookingsModel?.paymentDetail?.splitPayment?.every((element) =>
+                      element.paymentStatus ==
+                      PaymentStatus.ratingDone.index) ==
+                  true) {
+                bookingsModel?.paymentDetail?.paymentStatus =
+                    PaymentStatus.ratingDone.index;
+              }
+              setState(() {});
+              String docId = Timestamp.now().millisecondsSinceEpoch.toString();
+              ReviewModel reviewModel = ReviewModel(
+                bookingId: bookingsModel?.id,
+                userId: FirebaseAuth.instance.currentUser?.uid,
+                rating: rat,
+                description: desc,
+                createdAt: Timestamp.now(),
+                charterFleetDetail: CharterFleetDetail(
+                    id: bookingsModel?.charterFleetDetail?.id,
+                    location: bookingsModel?.charterFleetDetail?.location,
+                    name: bookingsModel?.charterFleetDetail?.name,
+                    image: bookingsModel?.charterFleetDetail?.image),
+                id: docId,
+                hostId: bookingsModel?.hostUserUid,
+              );
+              try {
+                await FbCollections.bookings
+                    .doc(bookingsModel?.id)
+                    .set(bookingsModel?.toJson());
+                await FbCollections.bookingReviews
+                    .doc(docId)
+                    .set(reviewModel.toJson());
+              } on Exception catch (e) {
+                // TODO
+                debugPrintStack();
+                log(e.toString());
+              }
+              Get.back();
+              Get.back();
+              Helper.inSnackBar(
+                  "Success", "Submitted successfully", R.colors.themeMud);
+              if (tipAmount > 1.0) {
+                Get.toNamed(PaymentMethods.route, arguments: {
+                  "isDeposit": bookingsModel.paymentDetail?.payInType ==
+                          PayType.fullPay.index
+                      ? false
+                      : true,
+                  "bookingsModel": bookingsModel,
+                  "isCompletePayment": true,
+                  "isTip": true,
+                  "userPaidAmount": tipAmount,
+                });
+              }
+            },
+          ),
+          isScrollControlled: true,
+        );
+      }
     });
 
     searchVm.selectedCharterDayType = searchVm.charterDayList[0];
@@ -111,7 +194,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Size windowSize = MediaQueryData.fromWindow(window).size;
+    final Size windowSize = MediaQueryData.fromView(View.of(context)).size;
     return Consumer5<HomeVm, SettingsVm, YachtVm, SearchVm, BookingsVm>(builder:
         (context, homeVm, settingsVm, yachtVm, provider, bookingVm, _) {
       log("LEN:${yachtVm.allHosts.length}");
@@ -721,11 +804,8 @@ class _SearchScreenState extends State<SearchScreen> {
                 else
                   Column(
                     children: [
-                      if (yachtVm.allCharters
-                              .isNotEmpty /* &&
-                              yachtVm.allCharters.where((element) => homeVm.allBookings.where((bookin) => bookin.charterFleetDetail?.id==element.id).toList().length>=(bookingVm.appUrlModel?.superhostminimumbookings??0)).toList().isNotEmpty*/
-                          ) ...[
-                        GeneralWidgets.seeAllWidget(context, "charters",
+                      if (yachtVm.allCharters.isNotEmpty) ...[
+                        GeneralWidgets.seeAllWidget(context, "feat_charters",
                             onTap: () {
                           Get.toNamed(SearchSeeAll.route, arguments: {
                             "isReserve": false,
@@ -740,14 +820,9 @@ class _SearchScreenState extends State<SearchScreen> {
                             scrollDirection: Axis.horizontal,
                             child: Row(
                               children: List.generate(
-
-                                  /// REMOVED THIS CHECK AS PER ADVISED BY THE BD TEAM DATE: 11 DEC 2023
-                                  //yachtVm.allCharters.where((element) => homeVm.allBookings.where((bookin) => bookin.charterFleetDetail?.id==element.id).toList().length>=(bookingVm.appUrlModel?.superhostminimumbookings??0)).toList().length>3?
-                                  //                                     3: yachtVm.allCharters.where((element) => homeVm.allBookings.where((bookin) => bookin.charterFleetDetail?.id==element.id).toList().length>=(bookingVm.appUrlModel?.superhostminimumbookings??0)).toList().length
                                   yachtVm.allCharters.length > 3
                                       ? 3
                                       : yachtVm.allCharters.length, (index) {
-                                // CharterModel charterModel = yachtVm.allCharters.where((element) => homeVm.allBookings.where((bookin) => bookin.charterFleetDetail?.id==element.id).toList().length>=(bookingVm.appUrlModel?.superhostminimumbookings??0)).toList()[index];
                                 CharterModel charterModel =
                                     yachtVm.allCharters[index];
                                 return Padding(
@@ -841,171 +916,423 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                       ],
                       h2,
-                      if (yachtVm.allServicesList.isEmpty)
-                        SizedBox()
-                      else
-                        GeneralWidgets.seeAllWidget(context, "experiences",
+                      if (yachtVm.allCharters
+                          .where((element) => element.location!.city!
+                              .toLowerCase()
+                              .contains("miami".toLowerCase()))
+                          .isNotEmpty) ...[
+                        GeneralWidgets.seeAllWidget(context, "miami",
                             onTap: () {
                           Get.toNamed(SearchSeeAll.route, arguments: {
                             "isReserve": false,
-                            "index": 1,
-                            "seeAllType": SeeAllType.service.index
+                            "index": 0,
+                            "seeAllType": SeeAllType.charter.index
                           });
                         }),
-                      if (yachtVm.allServicesList.isEmpty)
-                        SizedBox()
-                      else
+                        h2,
                         Padding(
-                            padding: EdgeInsets.only(
-                              left: Get.width * .03,
-                              right: Get.width * .03,
-                            ),
-                            child: SizedBox(
-                              height: Get.height * .29,
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: List.generate(
-                                      yachtVm.allServicesList.length > 3
-                                          ? 3
-                                          : yachtVm.allServicesList.length,
-                                      (index) {
-                                    ServiceModel service =
-                                        yachtVm.allServicesList[index];
-                                    return GestureDetector(
+                          padding: EdgeInsets.only(left: 10.0),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: List.generate(
+                                  yachtVm.allCharters
+                                              .where((element) => element
+                                                  .location!.city!
+                                                  .toLowerCase()
+                                                  .contains(
+                                                      "miami".toLowerCase()))
+                                              .length >
+                                          3
+                                      ? 3
+                                      : yachtVm.allCharters
+                                          .where((element) => element
+                                              .location!.city!
+                                              .toLowerCase()
+                                              .contains("miami".toLowerCase()))
+                                          .length, (index) {
+                                CharterModel charterModel = yachtVm.allCharters
+                                    .where((element) => element.location!.city!
+                                        .toLowerCase()
+                                        .contains("miami".toLowerCase()))
+                                    .toList()[index];
+                                return Padding(
+                                  padding: EdgeInsets.only(right: 10),
+                                  child: GestureDetector(
                                       onTap: () {
-                                        Get.toNamed(ServiceDetail.route,
+                                        bookingVm.bookingsModel =
+                                            BookingsModel();
+                                        bookingVm.bookingsModel.durationType =
+                                            CharterDayType.halfDay.index;
+                                        provider.selectedCharterDayType =
+                                            CharterDayModel(
+                                                "Half Day Charter",
+                                                "4 Hours",
+                                                R.images.v2,
+                                                CharterDayType.halfDay.index);
+                                        bookingVm.totalMembersCount = 0;
+                                        provider.adultsCount = 0;
+                                        provider.childrenCount = 0;
+                                        provider.infantsCount = 0;
+                                        provider.petsCount = 0;
+                                        provider.selectedBookingTime =
+                                            TimeSlotModel("", "");
+                                        provider.selectedBookingDays?.clear();
+                                        bookingVm.splitList.clear();
+                                        provider.update();
+                                        bookingVm.update();
+                                        Get.toNamed(CharterDetail.route,
                                             arguments: {
-                                              "service": service,
-                                              "isHostView": service.createdBy ==
-                                                      FirebaseAuth.instance
-                                                          .currentUser?.uid
-                                                  ? true
-                                                  : false,
-                                              "index": index
+                                              "yacht": charterModel,
+                                              "isReserve": false,
+                                              "index": index,
+                                              "isEdit":
+                                                  charterModel.createdBy ==
+                                                          FirebaseAuth.instance
+                                                              .currentUser?.uid
+                                                      ? true
+                                                      : false
                                             });
                                       },
-                                      child: Padding(
-                                        padding: EdgeInsets.only(right: 10),
-                                        child: HostWidget(
-                                          service: service,
-                                          width: Get.width * .3,
-                                          height: Get.height * .2,
-                                          isShowRating: false,
-                                          isShowStar: true,
-                                          isFav: yachtVm.userFavouritesList.any(
-                                              (element) =>
-                                                  element.favouriteItemId ==
-                                                      service.id &&
-                                                  element.type ==
-                                                      FavouriteType
-                                                          .service.index),
-                                          isFavCallBack: () async {
-                                            FavouriteModel favModel =
-                                                FavouriteModel(
-                                                    creaatedAt: Timestamp.now(),
-                                                    favouriteItemId: service.id,
-                                                    id: service.id,
-                                                    type: FavouriteType
-                                                        .service.index);
-                                            if (yachtVm.userFavouritesList.any(
-                                                (element) =>
-                                                    element.id == service.id)) {
-                                              yachtVm.userFavouritesList
-                                                  .removeAt(index);
-                                              yachtVm.update();
-                                              await FbCollections.user
-                                                  .doc(FirebaseAuth.instance
-                                                      .currentUser?.uid)
-                                                  .collection("favourite")
-                                                  .doc(service.id)
-                                                  .delete();
-                                            } else {
-                                              await FbCollections.user
-                                                  .doc(FirebaseAuth.instance
-                                                      .currentUser?.uid)
-                                                  .collection("favourite")
-                                                  .doc(service.id)
-                                                  .set(favModel.toJson());
-                                            }
-                                            provider.update();
-                                          },
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                ),
-                              ),
-                            )),
-                      if (yachtVm.allHosts.isNotEmpty) ...[
-                        h2,
-                        GeneralWidgets.seeAllWidget(context, "superhosts",
-                            onTap: () {
-                          Get.toNamed(
-                            SeeAllHost.route,
-                          );
-                        }),
-                        h2,
-                        if (yachtVm.allHosts.isEmpty)
-                          SizedBox()
-                        else
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: Get.width * .03,
-                            ),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: List.generate(
-                                      yachtVm.allHosts.length > 3
-                                          ? 3
-                                          : yachtVm.allHosts.length, (index) {
-                                    UserModel user = yachtVm.allHosts[index];
-                                    return host(
-                                      user,
-                                      index,
-                                      yachtVm.userFavouritesList.any(
-                                          (element) =>
-                                              element.favouriteItemId ==
-                                                  user.uid &&
-                                              element.type ==
-                                                  FavouriteType.host.index),
-                                      () async {
-                                        FavouriteModel favModel =
-                                            FavouriteModel(
-                                                creaatedAt: Timestamp.now(),
-                                                favouriteItemId: user.uid,
-                                                id: user.uid,
-                                                type: FavouriteType.host.index);
-                                        if (yachtVm.userFavouritesList.any(
+                                      child: CharterWidget(
+                                        charter: charterModel,
+                                        width: Get.width * .6,
+                                        height: Get.height * .17,
+                                        isSmall: true,
+                                        isShowStar: true,
+                                        isFav: yachtVm.userFavouritesList.any(
                                             (element) =>
-                                                element.id == user.uid)) {
-                                          yachtVm.userFavouritesList
-                                              .removeAt(index);
-                                          yachtVm.update();
-                                          await FbCollections.user
-                                              .doc(FirebaseAuth
-                                                  .instance.currentUser?.uid)
-                                              .collection("favourite")
-                                              .doc(user.uid)
-                                              .delete();
-                                        } else {
-                                          await FbCollections.user
-                                              .doc(FirebaseAuth
-                                                  .instance.currentUser?.uid)
-                                              .collection("favourite")
-                                              .doc(user.uid)
-                                              .set(favModel.toJson());
-                                        }
-                                        provider.update();
-                                      },
-                                    );
-                                  })),
+                                                element.favouriteItemId ==
+                                                    charterModel.id &&
+                                                element.type ==
+                                                    FavouriteType
+                                                        .charter.index),
+                                        isFavCallBack: () async {
+                                          FavouriteModel favModel =
+                                              FavouriteModel(
+                                                  creaatedAt: Timestamp.now(),
+                                                  favouriteItemId:
+                                                      charterModel.id,
+                                                  id: charterModel.id,
+                                                  type: FavouriteType
+                                                      .charter.index);
+                                          if (yachtVm.userFavouritesList.any(
+                                              (element) =>
+                                                  element.id ==
+                                                  charterModel.id)) {
+                                            yachtVm.userFavouritesList
+                                                .removeAt(index);
+                                            yachtVm.update();
+                                            await FbCollections.user
+                                                .doc(FirebaseAuth
+                                                    .instance.currentUser?.uid)
+                                                .collection("favourite")
+                                                .doc(charterModel.id)
+                                                .delete();
+                                          } else {
+                                            await FbCollections.user
+                                                .doc(FirebaseAuth
+                                                    .instance.currentUser?.uid)
+                                                .collection("favourite")
+                                                .doc(charterModel.id)
+                                                .set(favModel.toJson());
+                                          }
+                                          provider.update();
+                                        },
+                                      )),
+                                );
+                              }),
                             ),
                           ),
+                        ),
                       ],
+                      h2,
+                      if (yachtVm.allCharters
+                          .where((element) => element.location!.city!
+                              .toLowerCase()
+                              .contains("dubai".toLowerCase()))
+                          .isNotEmpty) ...[
+                        GeneralWidgets.seeAllWidget(context, "dubai",
+                            onTap: () {
+                          Get.toNamed(SearchSeeAll.route, arguments: {
+                            "isReserve": false,
+                            "index": 0,
+                            "seeAllType": SeeAllType.charter.index
+                          });
+                        }),
+                        h2,
+                        Padding(
+                          padding: EdgeInsets.only(left: 10.0),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: List.generate(
+                                  yachtVm.allCharters
+                                              .where((element) => element
+                                                  .location!.city!
+                                                  .toLowerCase()
+                                                  .contains(
+                                                      "dubai".toLowerCase()))
+                                              .length >
+                                          3
+                                      ? 3
+                                      : yachtVm.allCharters
+                                          .where((element) => element
+                                              .location!.city!
+                                              .toLowerCase()
+                                              .contains("dubai".toLowerCase()))
+                                          .length, (index) {
+                                CharterModel charterModel = yachtVm.allCharters
+                                    .where((element) => element.location!.city!
+                                        .toLowerCase()
+                                        .contains("dubai".toLowerCase()))
+                                    .toList()[index];
+                                return Padding(
+                                  padding: EdgeInsets.only(right: 10),
+                                  child: GestureDetector(
+                                      onTap: () {
+                                        bookingVm.bookingsModel =
+                                            BookingsModel();
+                                        bookingVm.bookingsModel.durationType =
+                                            CharterDayType.halfDay.index;
+                                        provider.selectedCharterDayType =
+                                            CharterDayModel(
+                                                "Half Day Charter",
+                                                "4 Hours",
+                                                R.images.v2,
+                                                CharterDayType.halfDay.index);
+                                        bookingVm.totalMembersCount = 0;
+                                        provider.adultsCount = 0;
+                                        provider.childrenCount = 0;
+                                        provider.infantsCount = 0;
+                                        provider.petsCount = 0;
+                                        provider.selectedBookingTime =
+                                            TimeSlotModel("", "");
+                                        provider.selectedBookingDays?.clear();
+                                        bookingVm.splitList.clear();
+                                        provider.update();
+                                        bookingVm.update();
+                                        Get.toNamed(CharterDetail.route,
+                                            arguments: {
+                                              "yacht": charterModel,
+                                              "isReserve": false,
+                                              "index": index,
+                                              "isEdit":
+                                                  charterModel.createdBy ==
+                                                          FirebaseAuth.instance
+                                                              .currentUser?.uid
+                                                      ? true
+                                                      : false
+                                            });
+                                      },
+                                      child: CharterWidget(
+                                        charter: charterModel,
+                                        width: Get.width * .6,
+                                        height: Get.height * .17,
+                                        isSmall: true,
+                                        isShowStar: true,
+                                        isFav: yachtVm.userFavouritesList.any(
+                                            (element) =>
+                                                element.favouriteItemId ==
+                                                    charterModel.id &&
+                                                element.type ==
+                                                    FavouriteType
+                                                        .charter.index),
+                                        isFavCallBack: () async {
+                                          FavouriteModel favModel =
+                                              FavouriteModel(
+                                                  creaatedAt: Timestamp.now(),
+                                                  favouriteItemId:
+                                                      charterModel.id,
+                                                  id: charterModel.id,
+                                                  type: FavouriteType
+                                                      .charter.index);
+                                          if (yachtVm.userFavouritesList.any(
+                                              (element) =>
+                                                  element.id ==
+                                                  charterModel.id)) {
+                                            yachtVm.userFavouritesList
+                                                .removeAt(index);
+                                            yachtVm.update();
+                                            await FbCollections.user
+                                                .doc(FirebaseAuth
+                                                    .instance.currentUser?.uid)
+                                                .collection("favourite")
+                                                .doc(charterModel.id)
+                                                .delete();
+                                          } else {
+                                            await FbCollections.user
+                                                .doc(FirebaseAuth
+                                                    .instance.currentUser?.uid)
+                                                .collection("favourite")
+                                                .doc(charterModel.id)
+                                                .set(favModel.toJson());
+                                          }
+                                          provider.update();
+                                        },
+                                      )),
+                                );
+                              }),
+                            ),
+                          ),
+                        ),
+                      ],
+                      h2,
+
+                      // if (yachtVm.allServicesList.isEmpty)
+                      //   SizedBox()
+                      // else
+                      //   Padding(
+                      //       padding: EdgeInsets.only(
+                      //         left: Get.width * .03,
+                      //         right: Get.width * .03,
+                      //       ),
+                      //       child: SizedBox(
+                      //         height: Get.height * .29,
+                      //         child: SingleChildScrollView(
+                      //           scrollDirection: Axis.horizontal,
+                      //           child: Row(
+                      //             mainAxisAlignment: MainAxisAlignment.center,
+                      //             children: List.generate(
+                      //                 yachtVm.allServicesList.length > 3
+                      //                     ? 3
+                      //                     : yachtVm.allServicesList.length,
+                      //                 (index) {
+                      //               ServiceModel service =
+                      //                   yachtVm.allServicesList[index];
+                      //               return GestureDetector(
+                      //                 onTap: () {
+                      //                   Get.toNamed(ServiceDetail.route,
+                      //                       arguments: {
+                      //                         "service": service,
+                      //                         "isHostView": service.createdBy ==
+                      //                                 FirebaseAuth.instance
+                      //                                     .currentUser?.uid
+                      //                             ? true
+                      //                             : false,
+                      //                         "index": index
+                      //                       });
+                      //                 },
+                      //                 child: Padding(
+                      //                   padding: EdgeInsets.only(right: 10),
+                      //                   child: HostWidget(
+                      //                     service: service,
+                      //                     width: Get.width * .3,
+                      //                     height: Get.height * .2,
+                      //                     isShowRating: false,
+                      //                     isShowStar: true,
+                      //                     isFav: yachtVm.userFavouritesList.any(
+                      //                         (element) =>
+                      //                             element.favouriteItemId ==
+                      //                                 service.id &&
+                      //                             element.type ==
+                      //                                 FavouriteType
+                      //                                     .service.index),
+                      //                     isFavCallBack: () async {
+                      //                       FavouriteModel favModel =
+                      //                           FavouriteModel(
+                      //                               creaatedAt: Timestamp.now(),
+                      //                               favouriteItemId: service.id,
+                      //                               id: service.id,
+                      //                               type: FavouriteType
+                      //                                   .service.index);
+                      //                       if (yachtVm.userFavouritesList.any(
+                      //                           (element) =>
+                      //                               element.id == service.id)) {
+                      //                         yachtVm.userFavouritesList
+                      //                             .removeAt(index);
+                      //                         yachtVm.update();
+                      //                         await FbCollections.user
+                      //                             .doc(FirebaseAuth.instance
+                      //                                 .currentUser?.uid)
+                      //                             .collection("favourite")
+                      //                             .doc(service.id)
+                      //                             .delete();
+                      //                       } else {
+                      //                         await FbCollections.user
+                      //                             .doc(FirebaseAuth.instance
+                      //                                 .currentUser?.uid)
+                      //                             .collection("favourite")
+                      //                             .doc(service.id)
+                      //                             .set(favModel.toJson());
+                      //                       }
+                      //                       provider.update();
+                      //                     },
+                      //                   ),
+                      //                 ),
+                      //               );
+                      //             }),
+                      //           ),
+                      //         ),
+                      //       )),
+                      // if (yachtVm.allHosts.isNotEmpty) ...[
+                      //   h2,
+                      //   GeneralWidgets.seeAllWidget(context, "superhosts",
+                      //       onTap: () {
+                      //     Get.toNamed(
+                      //       SeeAllHost.route,
+                      //     );
+                      //   }),
+                      //   h2,
+                      //   if (yachtVm.allHosts.isEmpty)
+                      //     SizedBox()
+                      //   else
+                      //     Padding(
+                      //       padding: EdgeInsets.symmetric(
+                      //         horizontal: Get.width * .03,
+                      //       ),
+                      //       child: SingleChildScrollView(
+                      //         scrollDirection: Axis.horizontal,
+                      //         child: Row(
+                      //             mainAxisAlignment: MainAxisAlignment.center,
+                      //             children: List.generate(
+                      //                 yachtVm.allHosts.length > 3
+                      //                     ? 3
+                      //                     : yachtVm.allHosts.length, (index) {
+                      //               UserModel user = yachtVm.allHosts[index];
+                      //               return host(
+                      //                 user,
+                      //                 index,
+                      //                 yachtVm.userFavouritesList.any(
+                      //                     (element) =>
+                      //                         element.favouriteItemId ==
+                      //                             user.uid &&
+                      //                         element.type ==
+                      //                             FavouriteType.host.index),
+                      //                 () async {
+                      //                   FavouriteModel favModel =
+                      //                       FavouriteModel(
+                      //                           creaatedAt: Timestamp.now(),
+                      //                           favouriteItemId: user.uid,
+                      //                           id: user.uid,
+                      //                           type: FavouriteType.host.index);
+                      //                   if (yachtVm.userFavouritesList.any(
+                      //                       (element) =>
+                      //                           element.id == user.uid)) {
+                      //                     yachtVm.userFavouritesList
+                      //                         .removeAt(index);
+                      //                     yachtVm.update();
+                      //                     await FbCollections.user
+                      //                         .doc(FirebaseAuth
+                      //                             .instance.currentUser?.uid)
+                      //                         .collection("favourite")
+                      //                         .doc(user.uid)
+                      //                         .delete();
+                      //                   } else {
+                      //                     await FbCollections.user
+                      //                         .doc(FirebaseAuth
+                      //                             .instance.currentUser?.uid)
+                      //                         .collection("favourite")
+                      //                         .doc(user.uid)
+                      //                         .set(favModel.toJson());
+                      //                   }
+                      //                   provider.update();
+                      //                 },
+                      //               );
+                      //             })),
+                      //       ),
+                      //     ),
+                      // ],
                       h2,
                       if (yachtVm.allYachts.isEmpty)
                         SizedBox()

@@ -34,8 +34,9 @@ class _AllBookingsState extends State<AllBookings> {
   void initState() {
     // TODO: implement initState
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      var bookingsVm=Provider.of<BookingsVm>(context,listen: false);
-      var args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+      var bookingsVm = Provider.of<BookingsVm>(context, listen: false);
+      var args =
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
       isHost = args["isHost"];
       log("____________isHost:${isHost}");
       setState(() {});
@@ -49,7 +50,8 @@ class _AllBookingsState extends State<AllBookings> {
 
   @override
   Widget build(BuildContext context) {
-    var args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+    var args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
     isHost = args["isHost"];
     return Consumer2<HomeVm, BookingsVm>(
         builder: (context, provider, bookingsVm, _) {
@@ -84,7 +86,8 @@ class _AllBookingsState extends State<AllBookings> {
                       child: Container(
                         child: Row(
                           children: List.generate(userTab.length, (index) {
-                            return userTabsWidget(userTab[index], index,bookingsVm);
+                            return userTabsWidget(
+                                userTab[index], index, bookingsVm);
                           }),
                         ),
                       ),
@@ -104,31 +107,31 @@ class _AllBookingsState extends State<AllBookings> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(tabsList.length, (index) {
-                  return tabs(tabsList[index], index,bookingsVm);
+                  return tabs(tabsList[index], index, bookingsVm);
                 }),
               ),
             ),
             h2,
             Expanded(
                 child: bookingsVm.selectedUserTab == 1
-                    ? myBookings(provider,bookingsVm)
-                    : hostBookings(provider,bookingsVm)),
+                    ? myBookings(provider, bookingsVm)
+                    : hostBookings(provider, bookingsVm)),
           ],
         ),
       );
     });
   }
 
-  Widget myBookings(HomeVm provider,BookingsVm bookingVm) {
+  Widget myBookings(HomeVm provider, BookingsVm bookingVm) {
     if (bookingVm.selectedUserTab == 1 &&
         bookingVm.selectedTabIndex == BookingStatus.ongoing.index &&
         provider.allBookings
             .where((element) =>
-        element.bookingStatus == BookingStatus.ongoing.index &&
-            element.createdBy == FirebaseAuth.instance.currentUser!.uid)
+                element.bookingStatus == BookingStatus.ongoing.index &&
+                element.createdBy == FirebaseAuth.instance.currentUser!.uid)
             .toList()
             .isEmpty) {
-      return  EmptyScreen(
+      return EmptyScreen(
         title: "no_ongoing_booking",
         subtitle: "no_ongoing_booking_has_been_made_yet",
         img: R.images.emptyBook,
@@ -137,24 +140,22 @@ class _AllBookingsState extends State<AllBookings> {
         bookingVm.selectedTabIndex == BookingStatus.ongoing.index &&
         provider.allBookings
             .where((element) =>
-        element.bookingStatus == BookingStatus.ongoing.index &&
-            element.createdBy == FirebaseAuth.instance.currentUser!.uid)
+                element.bookingStatus == BookingStatus.ongoing.index &&
+                element.createdBy == FirebaseAuth.instance.currentUser!.uid)
             .toList()
             .isNotEmpty) {
       return ListView(
         children: List.generate(
             provider.allBookings
                 .where((element) =>
-            element.bookingStatus == BookingStatus.ongoing.index &&
-                element.createdBy ==
-                    FirebaseAuth.instance.currentUser!.uid)
+                    element.bookingStatus == BookingStatus.ongoing.index &&
+                    element.createdBy == FirebaseAuth.instance.currentUser!.uid)
                 .toList()
                 .length, (index) {
           BookingsModel bookingModel = provider.allBookings
               .where((element) =>
-          element.bookingStatus == BookingStatus.ongoing.index &&
-              element.createdBy ==
-                  FirebaseAuth.instance.currentUser!.uid)
+                  element.bookingStatus == BookingStatus.ongoing.index &&
+                  element.createdBy == FirebaseAuth.instance.currentUser!.uid)
               .toList()[index];
           return Padding(
             padding: EdgeInsets.symmetric(horizontal: 5.w),
@@ -176,8 +177,8 @@ class _AllBookingsState extends State<AllBookings> {
     } else if (bookingVm.selectedTabIndex == BookingStatus.completed.index &&
         provider.allBookings
             .where((element) =>
-        element.bookingStatus == BookingStatus.completed.index &&
-            element.createdBy == FirebaseAuth.instance.currentUser!.uid)
+                element.bookingStatus == BookingStatus.completed.index &&
+                element.createdBy == FirebaseAuth.instance.currentUser!.uid)
             .toList()
             .isEmpty) {
       return EmptyScreen(
@@ -188,25 +189,22 @@ class _AllBookingsState extends State<AllBookings> {
     } else if (bookingVm.selectedTabIndex == BookingStatus.completed.index &&
         provider.allBookings
             .where((element) =>
-        element.bookingStatus == BookingStatus.completed.index &&
-            element.createdBy == FirebaseAuth.instance.currentUser!.uid)
+                element.bookingStatus == BookingStatus.completed.index &&
+                element.createdBy == FirebaseAuth.instance.currentUser!.uid)
             .toList()
             .isNotEmpty) {
       return ListView(
         children: List.generate(
             provider.allBookings
                 .where((element) =>
-            element.bookingStatus ==
-                BookingStatus.completed.index &&
-                element.createdBy ==
-                    FirebaseAuth.instance.currentUser!.uid)
+                    element.bookingStatus == BookingStatus.completed.index &&
+                    element.createdBy == FirebaseAuth.instance.currentUser!.uid)
                 .toList()
                 .length, (index) {
           BookingsModel bookingModel = provider.allBookings
               .where((element) =>
-          element.bookingStatus == BookingStatus.completed.index &&
-              element.createdBy ==
-                  FirebaseAuth.instance.currentUser!.uid)
+                  element.bookingStatus == BookingStatus.completed.index &&
+                  element.createdBy == FirebaseAuth.instance.currentUser!.uid)
               .toList()[index];
           return Padding(
             padding: EdgeInsets.symmetric(horizontal: 5.w),
@@ -228,8 +226,8 @@ class _AllBookingsState extends State<AllBookings> {
     } else if (bookingVm.selectedTabIndex == BookingStatus.canceled.index &&
         provider.allBookings
             .where((element) =>
-        element.bookingStatus == BookingStatus.canceled.index &&
-            element.createdBy == FirebaseAuth.instance.currentUser!.uid)
+                element.bookingStatus == BookingStatus.canceled.index &&
+                element.createdBy == FirebaseAuth.instance.currentUser!.uid)
             .toList()
             .isEmpty) {
       return EmptyScreen(
@@ -238,20 +236,18 @@ class _AllBookingsState extends State<AllBookings> {
         img: R.images.emptyBook,
       );
     } else {
-      return  ListView(
+      return ListView(
         children: List.generate(
             provider.allBookings
                 .where((element) =>
-            element.bookingStatus == BookingStatus.canceled.index &&
-                element.createdBy ==
-                    FirebaseAuth.instance.currentUser!.uid)
+                    element.bookingStatus == BookingStatus.canceled.index &&
+                    element.createdBy == FirebaseAuth.instance.currentUser!.uid)
                 .toList()
                 .length, (index) {
           BookingsModel bookingModel = provider.allBookings
               .where((element) =>
-          element.bookingStatus == BookingStatus.canceled.index &&
-              element.createdBy ==
-                  FirebaseAuth.instance.currentUser!.uid)
+                  element.bookingStatus == BookingStatus.canceled.index &&
+                  element.createdBy == FirebaseAuth.instance.currentUser!.uid)
               .toList()[index];
           return Padding(
             padding: EdgeInsets.symmetric(horizontal: 5.w),
@@ -273,16 +269,15 @@ class _AllBookingsState extends State<AllBookings> {
     }
   }
 
-  Widget hostBookings(HomeVm provider,BookingsVm bookingVm) {
+  Widget hostBookings(HomeVm provider, BookingsVm bookingVm) {
     if (bookingVm.selectedTabIndex == BookingStatus.ongoing.index &&
         provider.allBookings
             .where((element) =>
-        element.bookingStatus == BookingStatus.ongoing.index &&
-            element.hostUserUid ==
-                FirebaseAuth.instance.currentUser?.uid)
+                element.bookingStatus == BookingStatus.ongoing.index &&
+                element.hostUserUid == FirebaseAuth.instance.currentUser?.uid)
             .toList()
             .isEmpty) {
-      return  EmptyScreen(
+      return EmptyScreen(
         title: "no_ongoing_booking",
         subtitle: "no_ongoing_booking_has_been_made_yet",
         img: R.images.emptyBook,
@@ -290,25 +285,23 @@ class _AllBookingsState extends State<AllBookings> {
     } else if (bookingVm.selectedTabIndex == BookingStatus.ongoing.index &&
         provider.allBookings
             .where((element) =>
-        element.bookingStatus == BookingStatus.ongoing.index &&
-            element.hostUserUid ==
-                FirebaseAuth.instance.currentUser?.uid)
+                element.bookingStatus == BookingStatus.ongoing.index &&
+                element.hostUserUid == FirebaseAuth.instance.currentUser?.uid)
             .toList()
             .isNotEmpty) {
       return ListView(
         children: List.generate(
             provider.allBookings
                 .where((element) =>
-            element.bookingStatus == BookingStatus.ongoing.index &&
-                element.hostUserUid ==
-                    FirebaseAuth.instance.currentUser?.uid)
+                    element.bookingStatus == BookingStatus.ongoing.index &&
+                    element.hostUserUid ==
+                        FirebaseAuth.instance.currentUser?.uid)
                 .toList()
                 .length, (index) {
           BookingsModel bookingModel = provider.allBookings
               .where((element) =>
-          element.bookingStatus == BookingStatus.ongoing.index &&
-              element.hostUserUid ==
-                  FirebaseAuth.instance.currentUser?.uid)
+                  element.bookingStatus == BookingStatus.ongoing.index &&
+                  element.hostUserUid == FirebaseAuth.instance.currentUser?.uid)
               .toList()[index];
           return Padding(
             padding: EdgeInsets.symmetric(horizontal: 5.w),
@@ -330,12 +323,11 @@ class _AllBookingsState extends State<AllBookings> {
     } else if (bookingVm.selectedTabIndex == BookingStatus.completed.index &&
         provider.allBookings
             .where((element) =>
-        element.bookingStatus == BookingStatus.completed.index &&
-            element.hostUserUid ==
-                FirebaseAuth.instance.currentUser?.uid)
+                element.bookingStatus == BookingStatus.completed.index &&
+                element.hostUserUid == FirebaseAuth.instance.currentUser?.uid)
             .toList()
             .isEmpty) {
-      return  EmptyScreen(
+      return EmptyScreen(
         title: "no_completed_booking",
         subtitle: "no_bookings_has_been_completed_yet",
         img: R.images.emptyBook,
@@ -343,21 +335,20 @@ class _AllBookingsState extends State<AllBookings> {
     } else if (bookingVm.selectedTabIndex == BookingStatus.completed.index &&
         provider.allBookings
             .where((element) =>
-        element.bookingStatus == BookingStatus.completed.index &&
-            element.hostUserUid ==
-                FirebaseAuth.instance.currentUser?.uid)
+                element.bookingStatus == BookingStatus.completed.index &&
+                element.hostUserUid == FirebaseAuth.instance.currentUser?.uid)
             .toList()
             .isNotEmpty) {
       return ListView(
         children: List.generate(
             provider.allBookings
                 .where((element) =>
-            element.bookingStatus == BookingStatus.completed.index)
+                    element.bookingStatus == BookingStatus.completed.index)
                 .toList()
                 .length, (index) {
           BookingsModel bookingModel = provider.allBookings
               .where((element) =>
-          element.bookingStatus == BookingStatus.completed.index)
+                  element.bookingStatus == BookingStatus.completed.index)
               .toList()[index];
           return Padding(
             padding: EdgeInsets.symmetric(horizontal: 5.w),
@@ -379,9 +370,8 @@ class _AllBookingsState extends State<AllBookings> {
     } else if (bookingVm.selectedTabIndex == BookingStatus.canceled.index &&
         provider.allBookings
             .where((element) =>
-        element.bookingStatus == BookingStatus.canceled.index &&
-            element.hostUserUid ==
-                FirebaseAuth.instance.currentUser?.uid)
+                element.bookingStatus == BookingStatus.canceled.index &&
+                element.hostUserUid == FirebaseAuth.instance.currentUser?.uid)
             .toList()
             .isEmpty) {
       return EmptyScreen(
@@ -394,16 +384,15 @@ class _AllBookingsState extends State<AllBookings> {
         children: List.generate(
             provider.allBookings
                 .where((element) =>
-            element.bookingStatus == BookingStatus.canceled.index &&
-                element.hostUserUid ==
-                    FirebaseAuth.instance.currentUser?.uid)
+                    element.bookingStatus == BookingStatus.canceled.index &&
+                    element.hostUserUid ==
+                        FirebaseAuth.instance.currentUser?.uid)
                 .toList()
                 .length, (index) {
           BookingsModel bookingModel = provider.allBookings
               .where((element) =>
-          element.bookingStatus == BookingStatus.canceled.index &&
-              element.hostUserUid ==
-                  FirebaseAuth.instance.currentUser?.uid)
+                  element.bookingStatus == BookingStatus.canceled.index &&
+                  element.hostUserUid == FirebaseAuth.instance.currentUser?.uid)
               .toList()[index];
           return Padding(
             padding: EdgeInsets.symmetric(horizontal: 5.w),
@@ -425,7 +414,7 @@ class _AllBookingsState extends State<AllBookings> {
     }
   }
 
-  Widget tabs(String title, int index,BookingsVm bookingVm) {
+  Widget tabs(String title, int index, BookingsVm bookingVm) {
     return Expanded(
       child: GestureDetector(
         onTap: () {
@@ -465,13 +454,13 @@ class _AllBookingsState extends State<AllBookings> {
     );
   }
 
-  Widget userTabsWidget(String title, int index,BookingsVm bookingVm) {
+  Widget userTabsWidget(String title, int index, BookingsVm bookingVm) {
     return Expanded(
       child: GestureDetector(
         onTap: () {
           setState(() {
             bookingVm.selectedUserTab = index;
-            bookingVm.selectedTabIndex=0;
+            bookingVm.selectedTabIndex = 0;
           });
         },
         child: Container(

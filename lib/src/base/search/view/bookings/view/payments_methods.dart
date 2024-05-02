@@ -36,7 +36,6 @@ import 'package:yacht_master/utils/general_app_bar.dart';
 import 'package:yacht_master/utils/heights_widths.dart';
 import 'package:yacht_master/utils/helper.dart';
 
-
 class PaymentMethods extends StatefulWidget {
   static String route = "/paymentMethods";
 
@@ -46,15 +45,15 @@ class PaymentMethods extends StatefulWidget {
   _PaymentMethodsState createState() => _PaymentMethodsState();
 }
 
-
 class _PaymentMethodsState extends State<PaymentMethods> {
   bool isDeposit = false;
   double splitAmount = 0.0;
-  double userPaidAmount = 0.0;
+  double userPaidAmount = 0;
   BookingsModel? bookingsModel;
   bool? isCompletePayment = false;
   bool isLoading = false;
   SplitPaymentModel? splitPerson;
+  bool? isTip;
   @override
   void initState() {
     // TODO: implement initState
@@ -67,16 +66,15 @@ class _PaymentMethodsState extends State<PaymentMethods> {
 
   @override
   Widget build(BuildContext context) {
-    
     return Consumer2<BookingsVm, HomeVm>(
         builder: (context, provider, homeVm, _) {
-          var _paymentItems = [
-  pay.PaymentItem(
-    label: 'Jessy Artman',
-    amount: userPaidAmount.toStringAsFixed(2),
-    status: pay.PaymentItemStatus.final_price,
-  )
-];
+      var _paymentItems = [
+        pay.PaymentItem(
+          label: 'Jessy Artman',
+          amount: userPaidAmount.toStringAsFixed(2),
+          status: pay.PaymentItemStatus.final_price,
+        )
+      ];
       log("_____key:${publishableKey}");
       return ModalProgressHUD(
         inAsyncCall: isLoading,
@@ -134,7 +132,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                                 color: R.colors.whiteColor, fontSize: 14.sp),
                           ),
                           Text(
-                            "\$${Helper.numberFormatter(double.parse(userPaidAmount.toStringAsFixed(2)))}",
+                            "\$${Helper.numberFormatter(double.parse(userPaidAmount!.toStringAsFixed(2)))}",
                             style: R.textStyle.helveticaBold().copyWith(
                                   color: R.colors.yellowDark,
                                   fontSize: 15.sp,
@@ -142,12 +140,14 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                           ),
                         ],
                       ),
-                      if ((splitPerson != null &&
-                              removeSign(splitPerson?.payWithWallet) !=
-                                  "0.0") ||
-                          provider.bookingsModel.paymentDetail?.payWithWallet
-                                  .toStringAsFixed(1) !=
-                              "0.0")
+                      if (((splitPerson != null &&
+                                  removeSign(splitPerson?.payWithWallet) !=
+                                      "0.0") ||
+                              provider.bookingsModel.paymentDetail
+                                      ?.payWithWallet
+                                      .toStringAsFixed(1) !=
+                                  "0.0") &&
+                          isTip != true)
                         Column(
                           children: [
                             Divider(
@@ -373,18 +373,20 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                   ),
                 ),
                 h2,
-                if ((provider.bookingsModel.paymentDetail?.remainingAmount !=
-                            null &&
-                        removeSign(provider.bookingsModel.paymentDetail
-                                ?.remainingAmount) ==
-                            "0.0") ||
-                    (provider.bookingsModel.paymentDetail?.isSplit == true &&
-                            splitPerson?.paymentMethod ==
-                                PaymentMethodEnum.wallet.index &&
-                            splitPerson?.depositStatus ==
-                                DepositStatus.nothingPaid.index) &&
-                        removeSign(splitPerson?.remainingDeposit) ==
-                            removeSign(splitPerson?.payWithWallet))
+                if (((provider.bookingsModel.paymentDetail?.remainingAmount !=
+                                null &&
+                            removeSign(provider.bookingsModel.paymentDetail
+                                    ?.remainingAmount) ==
+                                "0.0") ||
+                        (provider.bookingsModel.paymentDetail?.isSplit ==
+                                    true &&
+                                splitPerson?.paymentMethod ==
+                                    PaymentMethodEnum.wallet.index &&
+                                splitPerson?.depositStatus ==
+                                    DepositStatus.nothingPaid.index) &&
+                            removeSign(splitPerson?.remainingDeposit) ==
+                                removeSign(splitPerson?.payWithWallet)) &&
+                    isTip == false)
                   Container(
                     decoration: BoxDecoration(
                         color: R.colors.blackDull,
@@ -529,7 +531,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                       ],
                     ),
                   )
-                else if ((provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
+                else if ((isTip == true) ||
+                    (provider.bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
                         provider.bookingsModel.paymentDetail?.isSplit ==
                             false &&
                         provider.bookingsModel.paymentDetail?.remainingAmount !=
@@ -546,7 +549,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                             "0.0") ||
                     (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
                         provider.bookingsModel.paymentDetail?.isSplit == true &&
-                        provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingDeposit.toStringAsFixed(1) !=
+                        provider.bookingsModel.paymentDetail?.splitPayment?.first.remainingDeposit
+                                .toStringAsFixed(1) !=
                             "0.0" &&
                         provider.bookingsModel.paymentDetail?.paymentMethod ==
                             PaymentMethodEnum.wallet.index) ||
@@ -559,9 +563,12 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                         provider.bookingsModel.paymentDetail?.paymentMethod ==
                             PaymentMethodEnum.wallet.index) ||
                     (provider.bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
-                        provider.bookingsModel.paymentDetail?.isSplit == false &&
-                        provider.bookingsModel.paymentDetail?.paymentStatus != PaymentStatus.confirmBooking.index &&
-                        provider.bookingsModel.paymentDetail?.paymentMethod == PaymentMethodEnum.wallet.index) ||
+                        provider.bookingsModel.paymentDetail?.isSplit ==
+                            false &&
+                        provider.bookingsModel.paymentDetail?.paymentStatus !=
+                            PaymentStatus.confirmBooking.index &&
+                        provider.bookingsModel.paymentDetail?.paymentMethod ==
+                            PaymentMethodEnum.wallet.index) ||
                     (provider.bookingsModel.paymentDetail?.paymentMethod == -1))
                   Column(
                     children: [
@@ -576,15 +583,14 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                           width: 200,
                           height: 50,
                           margin: const EdgeInsets.only(top: 15.0),
-
-                          onPressed:() {
-                            provider.selectedPaymentMethod=1;
+                          onPressed: () {
+                            provider.selectedPaymentMethod = 1;
                           },
-
                           onPaymentResult: (value) async {
                             print("payment was success");
                             StripeService stripe = StripeService();
-                            final token = await Stripe.instance.createApplePayToken(value);
+                            final token = await Stripe.instance
+                                .createApplePayToken(value);
                             print(value);
                             final paymentIntentResult =
                                 await stripe.createPaymentIntents(
@@ -592,26 +598,32 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                               currency: 'usd', // mocked data
                               secretKey: secretKey!,
                             );
-                             print('Fetched Payment Intent');
-                             //print(value["token"]["data"]);
-                             print('Did that Successfully');
+                            print('Fetched Payment Intent');
+                            //print(value["token"]["data"]);
+                            print('Did that Successfully');
                             //  print(value["token"]["data"]);
                             //var token = value[2]["data"];
-                              // print('About to Add Token');
-                              // final tokenJson = Map.castFrom(json.decode(value));
+                            // print('About to Add Token');
+                            // final tokenJson = Map.castFrom(json.decode(value));
                             final params = PaymentMethodParams.cardFromToken(
                                 paymentMethodData:
                                     PaymentMethodDataCardFromToken(
                                         token: token.id));
-                                      print('About to Make Call to Strip');
+                            print('About to Make Call to Strip');
 
                             // Confirm Google pay payment method
                             await Stripe.instance.confirmPayment(
                                 paymentIntentClientSecret:
-                                paymentIntentResult?['client_secret'],
+                                    paymentIntentResult?['client_secret'],
                                 data: params);
-                                print('Stripe Call Made');
-                            await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
+                            print('Stripe Call Made');
+
+                            await provider.onClickPaymentMethods(
+                                "",
+                                context,
+                                isCompletePayment,
+                                splitAmount,
+                                userPaidAmount!);
                           },
                           onError: (error) {
                             print(error);
@@ -817,7 +829,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                     onTap: () async {
                       startLoader();
                       await provider.onClickPaymentMethods("", context,
-                          isCompletePayment, splitAmount, userPaidAmount);
+                          isCompletePayment, splitAmount, userPaidAmount!);
                       stopLoader();
                     },
                     child: Container(
@@ -874,7 +886,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                       print("Here I am about to pay now");
                       startLoader();
                       await provider.onClickPaymentMethods("", context,
-                          isCompletePayment, splitAmount, userPaidAmount);
+                          isCompletePayment, splitAmount, userPaidAmount!);
                       stopLoader();
                     },
                     child: Container(
@@ -912,7 +924,9 @@ class _PaymentMethodsState extends State<PaymentMethods> {
             provider.bookingsModel.paymentDetail?.paymentMethod =
                 PaymentMethodEnum.card.index;
             provider.update();
-             await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
+            await provider.onClickPaymentMethods(
+                "", context, isCompletePayment, splitAmount, userPaidAmount,
+                isTip: isTip ?? false);
             // Get.toNamed(AddCreditCard.route);
             break;
           case 1:
@@ -920,7 +934,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
               Get.bottomSheet(AppleStoreSheet(
                 callBack: () async {
                   await provider.onClickPaymentMethods("", context,
-                      isCompletePayment, splitAmount, userPaidAmount);
+                      isCompletePayment, splitAmount, userPaidAmount,
+                      isTip: isTip ?? false);
                 },
               ), barrierColor: Colors.grey.withOpacity(.20));
             }
@@ -941,7 +956,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                 "isCompletePayment": isCompletePayment,
                 "userPaidAmount": userPaidAmount,
                 "splitAmount": splitAmount,
-                "isBitcoin": true
+                "isBitcoin": true,
+                "isTip": isTip,
               });
             }
             break;
@@ -952,12 +968,16 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                 "isCompletePayment": isCompletePayment,
                 "userPaidAmount": userPaidAmount,
                 "splitAmount": splitAmount,
-                "isBitcoin": false
+                "isBitcoin": false,
+                "isTip": isTip
               });
             }
             break;
           case 4:
-            Get.toNamed(PayWithWallet.route);
+            Get.toNamed(
+              PayWithWallet.route,
+              arguments: {"isTip": isTip, "amount": userPaidAmount},
+            );
         }
         provider.update();
       },
@@ -1010,6 +1030,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
           .applySettings()
           .whenComplete(() => setInitialBookingData());
     } catch (e) {
+      log("error aagya");
       log(e.toString());
     }
   }
@@ -1021,6 +1042,9 @@ class _PaymentMethodsState extends State<PaymentMethods> {
     isDeposit = args["isDeposit"];
     bookingsModel = args["bookingsModel"];
     isCompletePayment = args["isCompletePayment"];
+    isTip = args["isTip"] ?? false;
+    userPaidAmount = args["userPaidAmount"] ?? 0.0;
+    setState(() {});
     bookingVm.selectedPaymentMethod = -1;
     if (bookingVm.bookingsModel.paymentDetail?.isSplit == true) {
       splitPerson = bookingVm.bookingsModel.paymentDetail?.splitPayment
@@ -1061,16 +1085,14 @@ class _PaymentMethodsState extends State<PaymentMethods> {
     } else {
       splitAmount = bookingsModel?.priceDetaill?.totalPrice ?? 0.0;
     }
-    userPaidAmount = bookingsModel?.priceDetaill?.totalPrice ?? 0.0;
+    userPaidAmount == 0
+        ? userPaidAmount = bookingsModel?.priceDetaill?.totalPrice ?? 0.0
+        : userPaidAmount = userPaidAmount;
     bookingsModel?.paymentDetail?.paidAmount =
         bookingVm.bookingsModel.paymentDetail?.paidAmount ?? 0.0;
     bookingsModel?.paymentDetail?.payWithWallet =
         bookingVm.bookingsModel.paymentDetail?.payWithWallet ?? 0.0;
+    log(bookingsModel!.paymentDetail.toString());
     setState(() {});
   }
-  // Future<void> getCards()
-  // async {
-  //   Map<String, dynamic>? result=await  StripeService().getCard(secretKey: secretKey??"", customerID: context.read<AuthVm>().userModel?.stripeCustomerID ?? "", );
-  //   log("____RESULT:${result}");
-  // }
 }

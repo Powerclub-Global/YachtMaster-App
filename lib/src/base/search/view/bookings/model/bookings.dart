@@ -63,6 +63,7 @@ class BookingsModel {
     String? createdBy,
     String? hostUserUid,
     PriceDetaill? priceDetaill,
+    bool? isPending,
   }) =>
       BookingsModel(
         totalGuest: totalGuest ?? this.totalGuest,
