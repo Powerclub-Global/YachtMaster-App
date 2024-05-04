@@ -77,7 +77,6 @@ class BaseVm extends ChangeNotifier {
       settingsVm.fetchContent(),
       yachtVm.fetchServices(),
       yachtVm.fetchUserFavourites(),
-      yachtVm.fetchCharters(),
       yachtVm.fetchYachts(),
       homeVm.fetchAllBookings(),
       inboxVm.fetchNotificatoins(),

@@ -188,7 +188,6 @@ class _SearchScreenState extends State<SearchScreen> {
         );
       }
     });
-
     searchVm.selectedCharterDayType = searchVm.charterDayList[0];
   }
 

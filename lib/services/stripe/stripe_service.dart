@@ -222,69 +222,71 @@ class StripeService {
           // error in onoarding starting again
           Get.bottomSheet(Container(
             color: Colors.black,
-            child: Column(
-              children: [
-                Text(
-                  getTranslated(context, "fail_prev_intro")!,
-                  softWrap: true,
-                  style: TextStyle(color: Colors.white),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  getTranslated(context, "read_instructions")!,
-                  style: TextStyle(color: Colors.white),
-                  softWrap: true,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                BulletedList(
-                    style: TextStyle(
-                        color: const Color.fromARGB(188, 255, 255, 255)),
-                    listItems: [
-                      getTranslated(context, "first_time_intro_bullet_text_1")!,
-                      getTranslated(context, "first_time_intro_bullet_text_2")!,
-                      getTranslated(context, "first_time_intro_bullet_text_3")!
-                    ]),
-                SizedBox(
-                  height: 20,
-                ),
-                GestureDetector(
-                  onTap: () async {
-                    ZBotToast.loadingShow();
-                    String accountLink =
-                        await createAccountLink(connectedAccount);
-                    if (accountLink == 'internet error') {
-                      // ignore: use_build_context_synchronously
-                      Get.dialog(AlertDialog(
-                        content: Text(
-                            getTranslated(context, "no_internet_onboarding")!),
-                      ));
-                      return;
-                    }
-                    ZBotToast.loadingClose();
-                    launchUrl(Uri.parse(accountLink));
-                  },
-                  child: Container(
-                    height: Get.height * .05,
-                    width: Get.width * .65,
-                    margin:
-                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 2.h),
-                    decoration: AppDecorations.gradientButton(radius: 30),
-                    child: Center(
-                      child: Text(
-                        getTranslated(context, "proceed") ?? "",
-                        style: R.textStyle.helvetica().copyWith(
-                            color: R.colors.black,
-                            fontSize: 10.5.sp,
-                            fontWeight: FontWeight.bold),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Text(
+                    getTranslated(context, "fail_prev_intro")!,
+                    softWrap: true,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    getTranslated(context, "read_instructions")!,
+                    style: TextStyle(color: Colors.white),
+                    softWrap: true,
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  BulletedList(
+                      style: TextStyle(
+                          color: const Color.fromARGB(188, 255, 255, 255)),
+                      listItems: [
+                        getTranslated(context, "first_time_intro_bullet_text_1")!,
+                        getTranslated(context, "first_time_intro_bullet_text_2")!,
+                        getTranslated(context, "first_time_intro_bullet_text_3")!
+                      ]),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      ZBotToast.loadingShow();
+                      String accountLink =
+                          await createAccountLink(connectedAccount);
+                      if (accountLink == 'internet error') {
+                        // ignore: use_build_context_synchronously
+                        Get.dialog(AlertDialog(
+                          content: Text(
+                              getTranslated(context, "no_internet_onboarding")!),
+                        ));
+                        return;
+                      }
+                      ZBotToast.loadingClose();
+                      launchUrl(Uri.parse(accountLink));
+                    },
+                    child: Container(
+                      height: Get.height * .05,
+                      width: Get.width * .65,
+                      margin:
+                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 2.h),
+                      decoration: AppDecorations.gradientButton(radius: 30),
+                      child: Center(
+                        child: Text(
+                          getTranslated(context, "proceed") ?? "",
+                          style: R.textStyle.helvetica().copyWith(
+                              color: R.colors.black,
+                              fontSize: 10.5.sp,
+                              fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
-                  ),
-                )
-              ],
+                  )
+                ],
+              ),
             ),
           ));
         }
