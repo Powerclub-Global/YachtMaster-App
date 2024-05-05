@@ -781,15 +781,7 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
                             // });
 
                             if (formKey.currentState!.validate()) {
-                              if (provider
-                                      .charterModel?.chartersOffers?.isEmpty ==
-                                  true) {
-                                Helper.inSnackBar(
-                                    "Error",
-                                    "Please select charter offers",
-                                    R.colors.themeMud);
-                              } else if (provider.charterModel?.availability ==
-                                      null ||
+                              if (provider.charterModel?.availability == null ||
                                   provider.charterModel?.availability?.dates
                                           ?.isEmpty ==
                                       true) {
