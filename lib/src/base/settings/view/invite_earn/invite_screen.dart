@@ -4,11 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../../../../../localization/app_localization.dart';
+import '../../../../../resources/decorations.dart';
+import '../../../../../resources/resources.dart';
+import '../../../../../utils/heights_widths.dart';
+import '../../../../../utils/helper.dart';
 
 class InviteScreen extends StatefulWidget {
   @override

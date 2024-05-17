@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/src/base/favourites/view/charters.dart';
-import 'package:yacht_master/src/base/favourites/view/experiences.dart';
-import 'package:yacht_master/src/base/favourites/view/hosts.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/resources.dart';
+import 'charters.dart';
+import 'experiences.dart';
+import 'hosts.dart';
+import '../../../../utils/heights_widths.dart';
 
 class FavouritesView extends StatefulWidget {
   static String route = "/favouritesView";

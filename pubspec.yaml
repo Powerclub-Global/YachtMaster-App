@@ -22,7 +22,7 @@ dependencies:
   fluttertoast: ^8.0.9
   connectivity_plus: ^2.2.1
   intl: 
-  pin_code_fields: ^7.4.0
+  pin_code_fields: ^8.0.1
   paged_vertical_calendar: ^1.0.6
   circular_profile_avatar: ^2.0.5
   image_picker: ^1.0.8
@@ -76,8 +76,9 @@ dependencies:
   keyboard_actions: ^4.2.0
   time_picker_spinner: ^0.0.1
   pay: ^2.0.0
-  package_info_plus: ^4.2.0
+  package_info_plus: ^8.0.0
   bulleted_list: ^0.0.1+0.1a
+  appwrite: ^12.0.3
 
 
 
@@ -105,6 +106,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/
     - assets/images/
     - assets/translations/
     #   - images/a_dot_ham.jpeg

@@ -2,40 +2,40 @@ import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/home/view/previous_bookings.dart';
-import 'package:yacht_master/src/base/profile/model/review_model.dart';
-import 'package:yacht_master/src/base/profile/view/review_screen.dart';
-import 'package:yacht_master/src/base/profile/widgets/edit_profile_bottomsheet.dart';
-import 'package:yacht_master/src/base/search/model/services_model.dart';
-import 'package:yacht_master/src/base/search/view_model/search_vm.dart';
-import 'package:yacht_master/src/base/search/widgets/charter_widget.dart';
-import 'package:yacht_master/src/base/search/widgets/host_widget.dart';
-import 'package:yacht_master/src/base/search/widgets/yacht_widget.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/src/base/yacht/view/add_charter_fleet.dart';
-import 'package:yacht_master/src/base/yacht/view/add_services.dart';
-import 'package:yacht_master/src/base/yacht/view/add_yacht_for_sale.dart';
-import 'package:yacht_master/src/base/yacht/view/charter_detail.dart';
-import 'package:yacht_master/src/base/yacht/view/service_detail.dart';
-import 'package:yacht_master/src/base/yacht/view/yacht_detail.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
-import 'package:yacht_master/src/base/yacht/widgets/rating_reviews_card.dart';
-import 'package:yacht_master/utils/empty_screem.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../appwrite.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/decorations.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../auth/view_model/auth_vm.dart';
+import '../../base_vm.dart';
+import '../../home/home_vm/home_vm.dart';
+import '../../home/view/previous_bookings.dart';
+import '../model/review_model.dart';
+import 'review_screen.dart';
+import '../widgets/edit_profile_bottomsheet.dart';
+import '../../search/model/services_model.dart';
+import '../../search/view_model/search_vm.dart';
+import '../../search/widgets/charter_widget.dart';
+import '../../search/widgets/host_widget.dart';
+import '../../search/widgets/yacht_widget.dart';
+import '../../settings/view_model/settings_vm.dart';
+import '../../yacht/view/add_charter_fleet.dart';
+import '../../yacht/view/add_services.dart';
+import '../../yacht/view/add_yacht_for_sale.dart';
+import '../../yacht/view/charter_detail.dart';
+import '../../yacht/view/service_detail.dart';
+import '../../yacht/view/yacht_detail.dart';
+import '../../yacht/view_model/yacht_vm.dart';
+import '../../yacht/widgets/rating_reviews_card.dart';
+import '../../../../utils/empty_screem.dart';
+import '../../../../utils/general_app_bar.dart';
+import '../../../../utils/heights_widths.dart';
 
 class HostProfile extends StatefulWidget {
   static String route = "/hostProfile";
@@ -75,7 +75,7 @@ class _HostProfileState extends State<HostProfile> {
           reviewsQuery.docs.map((e) => ReviewModel.fromJson(e.data())).toList();
       averageRating = settingsVm.averageRating(settingsVm.allReviews
           .where((element) =>
-              element.hostId == FirebaseAuth.instance.currentUser?.uid)
+              element.hostId == appwrite.user.$id)
           .toList());
       setState(() {});
       log("______________AEVRAGE RATING:${averageRating}");
@@ -259,7 +259,7 @@ class _HostProfileState extends State<HostProfile> {
                               child: Column(
                                 children: [
                                   Text(
-                                    "${homeVm.allBookings.where((element) => element.hostUserUid == FirebaseAuth.instance.currentUser?.uid).toList().length}",
+                                    "${homeVm.allBookings.where((element) => element.hostUserUid == appwrite.user.$id).toList().length}",
                                     style: R.textStyle.helveticaBold().copyWith(
                                         color: R.colors.whiteColor,
                                         fontSize: 17.sp,
@@ -282,7 +282,7 @@ class _HostProfileState extends State<HostProfile> {
                                 "reviews": settingsVm.allReviews
                                     .where((element) =>
                                         element.hostId ==
-                                        FirebaseAuth.instance.currentUser?.uid)
+                                        appwrite.user.$id)
                                     .toList()
                               });
                             },
@@ -539,14 +539,14 @@ class _HostProfileState extends State<HostProfile> {
                   "reviews": settingsVm.allReviews
                       .where((element) =>
                           element.hostId ==
-                          FirebaseAuth.instance.currentUser?.uid)
+                          appwrite.user.$id)
                       .toList()
                 });
               },
                   isSeeAll: settingsVm.allReviews
                           .where((element) =>
                               element.hostId ==
-                              FirebaseAuth.instance.currentUser?.uid)
+                              appwrite.user.$id)
                           .toList()
                           .isEmpty
                       ? false
@@ -557,7 +557,7 @@ class _HostProfileState extends State<HostProfile> {
                 child: settingsVm.allReviews
                             .where((element) =>
                                 element.hostId ==
-                                FirebaseAuth.instance.currentUser?.uid)
+                                appwrite.user.$id)
                             .toList()
                             .isEmpty ==
                         true
@@ -576,13 +576,13 @@ class _HostProfileState extends State<HostProfile> {
                                 settingsVm.allReviews
                                     .where((element) =>
                                         element.hostId ==
-                                        FirebaseAuth.instance.currentUser?.uid)
+                                        appwrite.user.$id)
                                     .toList()
                                     .length, (index) {
                           ReviewModel review = settingsVm.allReviews
                               .where((element) =>
                                   element.hostId ==
-                                  FirebaseAuth.instance.currentUser?.uid)
+                                  appwrite.user.$id)
                               .toList()[index];
                           return RatingReviewsCard(
                             reviewModel: review,

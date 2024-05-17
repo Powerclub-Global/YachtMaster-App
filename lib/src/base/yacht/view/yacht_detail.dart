@@ -14,33 +14,34 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/dummy.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
-import 'package:yacht_master/src/base/inbox/model/chat_heads_model.dart';
-import 'package:yacht_master/src/base/inbox/view/chat.dart';
-import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
-import 'package:yacht_master/src/base/search/model/city_model.dart';
-import 'package:yacht_master/src/base/search/model/services_model.dart';
-import 'package:yacht_master/src/base/search/view/what_looking_for.dart';
-import 'package:yacht_master/src/base/search/view/where_going.dart';
-import 'package:yacht_master/src/base/widgets/exit_sheet.dart';
-import 'package:yacht_master/src/base/yacht/model/yachts_model.dart';
-import 'package:yacht_master/src/base/search/view_model/search_vm.dart';
-import 'package:yacht_master/src/base/yacht/view/add_charter_fleet.dart';
-import 'package:yacht_master/src/base/yacht/view/add_yacht_for_sale.dart';
-import 'package:yacht_master/src/base/yacht/view/rules_regulations.dart';
-import 'package:yacht_master/src/base/yacht/widgets/rating_reviews_card.dart';
-import 'package:yacht_master/src/base/yacht/widgets/view_all_service_images.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../appwrite.dart';
+import '../../../../constant/enums.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/decorations.dart';
+import '../../../../resources/dummy.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../base_vm.dart';
+import '../../inbox/model/chat_heads_model.dart';
+import '../../inbox/view/chat.dart';
+import '../../inbox/view_model/inbox_vm.dart';
+import '../../search/model/city_model.dart';
+import '../../search/model/services_model.dart';
+import '../../search/view/what_looking_for.dart';
+import '../../search/view/where_going.dart';
+import '../../widgets/exit_sheet.dart';
+import '../model/yachts_model.dart';
+import '../../search/view_model/search_vm.dart';
+import 'add_charter_fleet.dart';
+import 'add_yacht_for_sale.dart';
+import 'rules_regulations.dart';
+import '../widgets/rating_reviews_card.dart';
+import '../widgets/view_all_service_images.dart';
+import '../../../../utils/general_app_bar.dart';
+import '../../../../utils/heights_widths.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:yacht_master/utils/helper.dart';
-import 'package:yacht_master/utils/mapstyle.dart';
+import '../../../../utils/helper.dart';
+import '../../../../utils/mapstyle.dart';
 class YachtDetail extends StatefulWidget {
   static String route="/yachtDetail";
   const YachtDetail({Key? key}) : super(key: key);
@@ -113,7 +114,7 @@ class _YachtDetailState extends State<YachtDetail> {
                                   Share.share("Here you can download Yacht Master! \n https://apps.apple.com/us/app/yachtmaster-app/id6449384419");
                                 },child: Image.asset(R.images.share,scale: 11,color: Colors.white,)),
                             w3,
-                            if (yacht?.createdBy==FirebaseAuth.instance.currentUser?.uid) GestureDetector(
+                            if (yacht?.createdBy==appwrite.user.$id) GestureDetector(
                                 onTap: (){
                                   Get.bottomSheet(SureBottomSheet(title: "Delete Yacht",
                                     subTitle: "Are you sure you want to delete this yacht?",
@@ -559,14 +560,14 @@ class _YachtDetailState extends State<YachtDetail> {
   }
   Future<ChatHeadModel?> createChatHead(InboxVm chatVm) async {
     ChatHeadModel? chatHeadModel;
-    List<String> tempSort = [FirebaseAuth.instance.currentUser?.uid ?? "", yacht?.createdBy??""];
+    List<String> tempSort = [appwrite.user.$id ?? "", yacht?.createdBy??""];
     tempSort.sort();
     ChatHeadModel chatData =
     ChatHeadModel(
       createdAt: Timestamp.now(),
       lastMessageTime: Timestamp.now(),
       lastMessage: "",
-      createdBy: FirebaseAuth.instance.currentUser?.uid,
+      createdBy: appwrite.user.$id,
       id: tempSort.join('_'),
       status: 0,
       peerId:yacht?.createdBy??"",

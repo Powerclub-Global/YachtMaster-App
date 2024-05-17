@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+import 'package:yacht_master/appwrite.dart';
 import 'package:yacht_master/resources/decorations.dart';
 import 'package:yacht_master/resources/resources.dart';
 import 'package:yacht_master/src/base/search/model/services_model.dart';
@@ -119,7 +120,7 @@ class HostWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  if (isShowStar==false || service?.createdBy==FirebaseAuth.instance.currentUser?.uid) SizedBox() else Positioned(top: 1,right: 1.w,
+                  if (isShowStar==false || service?.createdBy==appwrite.user.$id) SizedBox() else Positioned(top: 1,right: 1.w,
                       child: GestureDetector(
                         onTap:isFavCallBack,
                         child: Container(

@@ -9,15 +9,15 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/search/model/charter_model.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/src/base/search/view_model/search_vm.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
-import 'package:yacht_master/utils/date_utils.dart';
+import '../../../../constant/enums.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/time_schedule_service.dart';
+import '../../home/home_vm/home_vm.dart';
+import '../../search/model/charter_model.dart';
+import '../../search/view/bookings/view_model/bookings_vm.dart';
+import '../../search/view_model/search_vm.dart';
+import '../view_model/yacht_vm.dart';
+import '../../../../utils/date_utils.dart';
 
 
 class AvailabilityCalendar extends StatefulWidget {

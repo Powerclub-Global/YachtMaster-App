@@ -10,25 +10,26 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:yacht_master/constant/constant.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/services/image_picker_services.dart';
-import 'package:yacht_master/src/auth/model/favourite_model.dart';
-import 'package:yacht_master/src/auth/model/user_model.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/search/model/charter_model.dart';
-import 'package:yacht_master/src/base/search/model/services_model.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/src/base/search/view_model/search_vm.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/src/base/yacht/model/choose_offers.dart';
-import 'package:yacht_master/src/base/yacht/model/yachts_model.dart';
-import 'package:yacht_master/utils/helper.dart';
-import 'package:yacht_master/utils/zbot_toast.dart';
+import '../../../../appwrite.dart';
+import '../../../../constant/constant.dart';
+import '../../../../constant/enums.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../../services/image_picker_services.dart';
+import '../../../auth/model/favourite_model.dart';
+import '../../../auth/model/user_model.dart';
+import '../../../auth/view_model/auth_vm.dart';
+import '../../home/home_vm/home_vm.dart';
+import '../../search/model/charter_model.dart';
+import '../../search/model/services_model.dart';
+import '../../search/view/bookings/model/bookings.dart';
+import '../../search/view/bookings/view_model/bookings_vm.dart';
+import '../../search/view_model/search_vm.dart';
+import '../../settings/view_model/settings_vm.dart';
+import '../model/choose_offers.dart';
+import '../model/yachts_model.dart';
+import '../../../../utils/helper.dart';
+import '../../../../utils/zbot_toast.dart';
 
 class YachtVm extends ChangeNotifier {
   bool isLoading = false;
@@ -68,14 +69,14 @@ class YachtVm extends ChangeNotifier {
         if (services.isNotEmpty) {
           allServicesList =
               services.where((element) => element.status == 0).toList();
-          log("__________HOST UID:${FirebaseAuth.instance.currentUser?.uid}");
+          log("__________HOST UID:${appwrite.user.$id}");
           hostServicesList = services
               .where((element) =>
-                  element.createdBy == FirebaseAuth.instance.currentUser?.uid &&
+                  element.createdBy == appwrite.user.$id &&
                   element.status == 0)
               .toList();
           notifyListeners();
-          log("//////////////////////////////////////////////All SERVICES :${allServicesList.length}/////host SERVICES :${hostServicesList.length}/////${FirebaseAuth.instance.currentUser?.uid}");
+          log("//////////////////////////////////////////////All SERVICES :${allServicesList.length}/////host SERVICES :${hostServicesList.length}/////${appwrite.user.$id}");
         }
         notifyListeners();
       });
@@ -117,7 +118,7 @@ class YachtVm extends ChangeNotifier {
           }).toList();
           hostCharters = charters
               .where((element) =>
-                  element.createdBy == FirebaseAuth.instance.currentUser?.uid &&
+                  element.createdBy == appwrite.user.$id &&
                   element.status == CharterStatus.active.index)
               .toList();
           log("Test");
@@ -215,7 +216,7 @@ class YachtVm extends ChangeNotifier {
           allYachts = yachts.where((element) => element.status == 0).toList();
           hostYachts = yachts
               .where((element) =>
-                  element.createdBy == FirebaseAuth.instance.currentUser?.uid &&
+                  element.createdBy == appwrite.user.$id &&
                   element.status == 0)
               .toList();
           notifyListeners();
@@ -233,10 +234,10 @@ class YachtVm extends ChangeNotifier {
   }
 
   Future<void> fetchUserFavourites() async {
-    log("/////////////////////IN FETCH Fav${FirebaseAuth.instance.currentUser?.uid}");
+    log("/////////////////////IN FETCH Fav${appwrite.user.$id}");
     userFavouritesList = [];
     var ref = FbCollections.user
-        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .doc(appwrite.user.$id)
         .collection("favourite")
         .snapshots()
         .asBroadcastStream();
@@ -556,7 +557,7 @@ class YachtVm extends ChangeNotifier {
         // });
         // servicesList[index]=serviceModel??ServiceModel();
       } else {
-        charterModel?.createdBy = FirebaseAuth.instance.currentUser?.uid;
+        charterModel?.createdBy = appwrite.user.$id;
         charterModel?.id = docID;
         charterModel?.createdAt = Timestamp.now();
         charterModel?.status = 0;

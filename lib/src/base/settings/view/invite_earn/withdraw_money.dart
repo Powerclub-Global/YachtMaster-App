@@ -6,17 +6,17 @@ import 'package:get/get.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/stripe/stripe_service.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/src/base/yacht/widgets/congo_bottomSheet.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
-import 'package:yacht_master/utils/validation.dart';
+import '../../../../../localization/app_localization.dart';
+import '../../../../../resources/decorations.dart';
+import '../../../../../resources/resources.dart';
+import '../../../../../services/stripe/stripe_service.dart';
+import '../../../../auth/view_model/auth_vm.dart';
+import '../../../search/view/bookings/view_model/bookings_vm.dart';
+import '../../../yacht/widgets/congo_bottomSheet.dart';
+import '../../../../../utils/general_app_bar.dart';
+import '../../../../../utils/heights_widths.dart';
+import '../../../../../utils/helper.dart';
+import '../../../../../utils/validation.dart';
 
 class WithdrawMoney extends StatefulWidget {
   static String route = "/withdrawMoney";

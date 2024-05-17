@@ -1,6 +1,5 @@
 import 'dart:developer';
-
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -10,12 +9,12 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
+import '../../../localization/app_localization.dart';
+import '../../../resources/decorations.dart';
 
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../view_model/auth_vm.dart';
+import '../../../utils/heights_widths.dart';
+import '../../../utils/helper.dart';
 
 import '../../../resources/resources.dart';
 import '../../../utils/keyboard_actions.dart';
@@ -33,13 +32,8 @@ class _SocialSignupState extends State<SocialSignup> {
   FocusNode phoneNumFn = FocusNode();
   TextEditingController phoneNumController = TextEditingController();
   String countryCode = "US";
-  User? user;
-  bool isApple = false;
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context)!.settings.arguments as Map;
-    user = args["user"];
-    isApple = args["isApple"];
     return Consumer<AuthVm>(builder: (context, provider, _) {
       return ModalProgressHUD(
         inAsyncCall: provider.isLoading,
@@ -168,32 +162,30 @@ class _SocialSignupState extends State<SocialSignup> {
                               },
                             ),
                           ),
-                                          h9,
-                GestureDetector(
-                  onTap: () async {
-                    if (formKey.currentState!.validate()) {
-                      await provider.onClickSocialSignup(
-                          user,
-                          countryCode.trim(),
-                        phoneNumController.text.trim(),
-                          true,
-                          isApple: isApple);
-                    }
-                  },
-                  child: Container(
-                    height: Get.height * .06,
-                    decoration: AppDecorations.gradientButton(radius: 30),
-                    child: Center(
-                      child: Text(
-                        "${getTranslated(context, "sign_up")?.toUpperCase()}",
-                        style: R.textStyle.helvetica().copyWith(
-                            color: R.colors.black,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ),
+                          h9,
+                          GestureDetector(
+                            onTap: () async {
+                              if (formKey.currentState!.validate()) {
+                                await provider.onClickSocialSignup(
+                                    countryCode.trim(),
+                                    phoneNumController.text.trim());
+                              }
+                            },
+                            child: Container(
+                              height: Get.height * .06,
+                              decoration:
+                                  AppDecorations.gradientButton(radius: 30),
+                              child: Center(
+                                child: Text(
+                                  "${getTranslated(context, "sign_up")?.toUpperCase()}",
+                                  style: R.textStyle.helvetica().copyWith(
+                                      color: R.colors.black,
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     )

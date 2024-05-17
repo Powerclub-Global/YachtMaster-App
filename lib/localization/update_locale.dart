@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:yacht_master/localization/locale_contants.dart';
-import 'package:yacht_master/main.dart';
+import 'locale_contants.dart';
+import '../main.dart';
 
 
 bool isRTL = false;

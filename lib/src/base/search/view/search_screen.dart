@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:yacht_master/appwrite.dart';
 import 'package:yacht_master/services/firebase_collections.dart';
 import 'package:yacht_master/services/time_schedule_service.dart';
 import 'package:flutter/material.dart';
@@ -112,7 +113,7 @@ class _SearchScreenState extends State<SearchScreen> {
           .map((e) => BookingsModel.fromJson(e.data() as Map<String, dynamic>))
           .toList()
           .where((element) =>
-              element.createdBy == FirebaseAuth.instance.currentUser?.uid &&
+              element.createdBy == appwrite.user.$id &&
               element.bookingStatus == BookingStatus.completed.index &&
               element.paymentDetail?.paymentStatus ==
                   PaymentStatus.giveRating.index)
@@ -142,7 +143,7 @@ class _SearchScreenState extends State<SearchScreen> {
               String docId = Timestamp.now().millisecondsSinceEpoch.toString();
               ReviewModel reviewModel = ReviewModel(
                 bookingId: bookingsModel?.id,
-                userId: FirebaseAuth.instance.currentUser?.uid,
+                userId: appwrite.user.$id,
                 rating: rat,
                 description: desc,
                 createdAt: Timestamp.now(),
@@ -856,8 +857,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                               "index": index,
                                               "isEdit":
                                                   charterModel.createdBy ==
-                                                          FirebaseAuth.instance
-                                                              .currentUser?.uid
+                                                          appwrite.user.$id
                                                       ? true
                                                       : false
                                             });
@@ -892,15 +892,13 @@ class _SearchScreenState extends State<SearchScreen> {
                                                 .removeAt(index);
                                             yachtVm.update();
                                             await FbCollections.user
-                                                .doc(FirebaseAuth
-                                                    .instance.currentUser?.uid)
+                                                .doc(appwrite.user.$id)
                                                 .collection("favourite")
                                                 .doc(charterModel.id)
                                                 .delete();
                                           } else {
                                             await FbCollections.user
-                                                .doc(FirebaseAuth
-                                                    .instance.currentUser?.uid)
+                                                .doc(appwrite.user.$id)
                                                 .collection("favourite")
                                                 .doc(charterModel.id)
                                                 .set(favModel.toJson());
@@ -987,8 +985,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                               "index": index,
                                               "isEdit":
                                                   charterModel.createdBy ==
-                                                          FirebaseAuth.instance
-                                                              .currentUser?.uid
+                                                          appwrite.user.$id
                                                       ? true
                                                       : false
                                             });
@@ -1023,15 +1020,13 @@ class _SearchScreenState extends State<SearchScreen> {
                                                 .removeAt(index);
                                             yachtVm.update();
                                             await FbCollections.user
-                                                .doc(FirebaseAuth
-                                                    .instance.currentUser?.uid)
+                                                .doc(appwrite.user.$id)
                                                 .collection("favourite")
                                                 .doc(charterModel.id)
                                                 .delete();
                                           } else {
                                             await FbCollections.user
-                                                .doc(FirebaseAuth
-                                                    .instance.currentUser?.uid)
+                                                .doc(appwrite.user.$id)
                                                 .collection("favourite")
                                                 .doc(charterModel.id)
                                                 .set(favModel.toJson());
@@ -1118,8 +1113,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                               "index": index,
                                               "isEdit":
                                                   charterModel.createdBy ==
-                                                          FirebaseAuth.instance
-                                                              .currentUser?.uid
+                                                          appwrite.user.$id
                                                       ? true
                                                       : false
                                             });
@@ -1154,15 +1148,13 @@ class _SearchScreenState extends State<SearchScreen> {
                                                 .removeAt(index);
                                             yachtVm.update();
                                             await FbCollections.user
-                                                .doc(FirebaseAuth
-                                                    .instance.currentUser?.uid)
+                                                .doc(appwrite.user.$id)
                                                 .collection("favourite")
                                                 .doc(charterModel.id)
                                                 .delete();
                                           } else {
                                             await FbCollections.user
-                                                .doc(FirebaseAuth
-                                                    .instance.currentUser?.uid)
+                                                .doc(appwrite.user.$id)
                                                 .collection("favourite")
                                                 .doc(charterModel.id)
                                                 .set(favModel.toJson());
@@ -1361,8 +1353,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                     "yacht": yachtVm.allYachts[index],
                                     "isEdit":
                                         yachtVm.allYachts[index].createdBy ==
-                                                FirebaseAuth
-                                                    .instance.currentUser?.uid
+                                                appwrite.user.$id
                                             ? true
                                             : false,
                                     "index": -1
@@ -1574,7 +1565,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget host(UserModel user, int index, bool isFav, Function() isFavCallBack) {
     return GestureDetector(
       onTap: () {
-        user.uid == FirebaseAuth.instance.currentUser?.uid
+        user.uid == appwrite.user.$id
             ? Get.toNamed(HostProfile.route)
             : Get.toNamed(HostProfileOthers.route, arguments: {"host": user});
       },
@@ -1634,7 +1625,7 @@ class _SearchScreenState extends State<SearchScreen> {
               ],
             ),
           ),
-          if (user.uid == FirebaseAuth.instance.currentUser?.uid)
+          if (user.uid == appwrite.user.$id)
             SizedBox()
           else
             Positioned(
@@ -1821,7 +1812,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Future<ChatHeadModel?> createChatHead(InboxVm chatVm, YachtVm yachtVm) async {
     ChatHeadModel? chatHeadModel;
     List<String> tempSort = [
-      FirebaseAuth.instance.currentUser?.uid ?? "",
+      appwrite.user.$id ?? "",
       yachtVm.allHosts.first.uid ?? ""
     ];
     tempSort.sort();
@@ -1829,7 +1820,7 @@ class _SearchScreenState extends State<SearchScreen> {
       createdAt: Timestamp.now(),
       lastMessageTime: Timestamp.now(),
       lastMessage: "",
-      createdBy: FirebaseAuth.instance.currentUser?.uid,
+      createdBy: appwrite.user.$id,
       id: tempSort.join('_'),
       status: 0,
       peerId: yachtVm.allHosts.first.uid ?? "",

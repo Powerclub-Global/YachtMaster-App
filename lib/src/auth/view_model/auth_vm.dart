@@ -1,41 +1,36 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
+import 'package:appwrite/appwrite.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import 'package:yacht_master/constant/constant.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/services/image_picker_services.dart';
-import 'package:yacht_master/services/stripe/stripe_service.dart';
-import 'package:yacht_master/src/auth/model/user_model.dart';
-import 'package:yacht_master/src/auth/view/create_username.dart';
-import 'package:yacht_master/src/auth/view/social_signup.dart';
-import 'package:yacht_master/src/base/base_view.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
-import 'package:yacht_master/src/base/search/model/charter_model.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/wallet_model.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/src/base/yacht/view/charter_detail.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
-import 'package:yacht_master/src/landing_page/view/vanilla.dart';
+import '../../../appwrite.dart';
+import '../../../constant/constant.dart';
+import '../../../constant/enums.dart';
+import '../../../services/firebase_collections.dart';
+import '../../../services/image_picker_services.dart';
+import '../model/user_model.dart';
+import '../view/create_username.dart';
+import '../view/social_signup.dart';
+import '../../base/base_view.dart';
+import '../../base/home/home_vm/home_vm.dart';
+import '../../base/inbox/view_model/inbox_vm.dart';
+import '../../base/search/model/charter_model.dart';
+import '../../base/search/view/bookings/model/wallet_model.dart';
+import '../../base/settings/view_model/settings_vm.dart';
+import '../../base/yacht/view/charter_detail.dart';
+import '../../base/yacht/view_model/yacht_vm.dart';
+import '../../landing_page/view/vanilla.dart';
 import '../../../resources/resources.dart';
-import '../../../services/apple_service.dart';
 import '../../../utils/helper.dart';
 import '../view/login.dart';
 import '../widgets/otp_dialog.dart';
-import 'package:yacht_master/utils/zbot_toast.dart';
+import '../../../utils/zbot_toast.dart';
 
 class AuthVm extends ChangeNotifier {
   bool isLoading = false;
@@ -47,7 +42,7 @@ class AuthVm extends ChangeNotifier {
   StreamSubscription<DocumentSnapshot<UserModel>>? currentUserStream;
 
   final GoogleSignIn googleSignIn = GoogleSignIn();
-  FirebaseAuth auth = FirebaseAuth.instance;
+
   FirebaseFirestore db = FirebaseFirestore.instance;
   StreamSubscription<List<WalletModel>>? walletStream;
   startLoader() {
@@ -105,16 +100,60 @@ class AuthVm extends ChangeNotifier {
   onClickGoogleLogin() async {
     try {
       startLoader();
-      await signInWithGoogle().then((User user) async {
+      await appwrite.signInGoogle();
+      await Future.delayed(Duration(seconds: 1));
+      await appwrite.getUser();
+      bool isUserExist = false;
+      isUserExist =
+          await chechUserCollectionExists(appwrite.user.$id, isEmail: true);
+      if (isUserExist == true) {
+        await fetchUser();
+        Future.delayed(Duration(seconds: 2), () async {
+          if (userModel != null) {
+            if (userModel?.status == UserStatus.blocked) {
+              appwrite.account.deleteSession(sessionId: 'current');
+              Fluttertoast.showToast(msg: "You have been blocked by admin");
+            } else {
+              userModel?.fcm = Constants.fcmToken;
+              // userModel?.isActiveUser = true;
+              await updateUser(userModel);
+              ZBotToast.loadingClose();
+              Get.offAllNamed(BaseView.route);
+            }
+          } else {
+            stopLoader();
+          }
+        });
+      } else {
+        stopLoader();
+        print("Here before navigating to social sign up");
+        Get.toNamed(SocialSignup.route);
+      }
+    } on AppwriteException catch (e) {
+      log("THIS IS ERRROR $e");
+      Fluttertoast.showToast(msg: "$e");
+      if (appwrite.user != null) {
+        logoutUser();
+      }
+    }
+  }
+
+  onClickAppleLogin() async {
+    try {
+      startLoader();
+      await appwrite.signInApple();
+      await Future.delayed(Duration(seconds: 1));
+      await appwrite.getUser();
+      if (appwrite.user != null) {
         bool isUserExist = false;
-        isUserExist = await chechUserCollectionExists(user.uid, isEmail: true);
+        isUserExist =
+            await chechUserCollectionExists(appwrite.user.$id, isEmail: true);
         if (isUserExist == true) {
           await fetchUser();
           Future.delayed(Duration(seconds: 2), () async {
             if (userModel != null) {
               if (userModel?.status == UserStatus.blocked) {
-                GoogleSignIn().signOut();
-                FirebaseAuth.instance.signOut();
+                appwrite.account.deleteSession(sessionId: 'current');
                 Fluttertoast.showToast(msg: "You have been blocked by admin");
               } else {
                 userModel?.fcm = Constants.fcmToken;
@@ -130,62 +169,20 @@ class AuthVm extends ChangeNotifier {
         } else {
           stopLoader();
           Get.toNamed(SocialSignup.route,
-              arguments: {"user": user, "isApple": false});
+              arguments: {"user": appwrite.user, "isApple": true});
         }
-      });
-    } on FirebaseAuthException catch (e) {
-      log("THIS IS ERRROR$e");
-      Fluttertoast.showToast(msg: "$e");
-      if (FirebaseAuth.instance.currentUser != null) {
-        logoutUser();
       }
-    }
-  }
-
-  onClickAppleLogin() async {
-    try {
-      startLoader();
-      await AuthWithApple().apple().then((User? user) async {
-        if (user != null) {
-          bool isUserExist = false;
-          isUserExist =
-              await chechUserCollectionExists(user.uid, isEmail: true);
-          if (isUserExist == true) {
-            await fetchUser();
-            Future.delayed(Duration(seconds: 2), () async {
-              if (userModel != null) {
-                if (userModel?.status == UserStatus.blocked) {
-                  FirebaseAuth.instance.signOut();
-                  Fluttertoast.showToast(msg: "You have been blocked by admin");
-                } else {
-                  userModel?.fcm = Constants.fcmToken;
-                  // userModel?.isActiveUser = true;
-                  await updateUser(userModel);
-                  ZBotToast.loadingClose();
-                  Get.offAllNamed(BaseView.route);
-                }
-              } else {
-                stopLoader();
-              }
-            });
-          } else {
-            stopLoader();
-            Get.toNamed(SocialSignup.route,
-                arguments: {"user": user, "isApple": true});
-          }
-        }
-      });
-    } on FirebaseAuthException catch (e) {
+    } on AppwriteException catch (e) {
       log("THIS IS ERRROR$e");
       Fluttertoast.showToast(msg: "$e");
-      if (FirebaseAuth.instance.currentUser != null) {
+      if (appwrite.user != null) {
         logoutUser();
       }
     }
   }
 
   onClickSignup(String email, String firstName, String lastName,
-      String countryCode, String phoneNumController, bool isSocialLogin) async {
+      String countryCode, String phoneNumController) async {
     log("____HERE");
     bool isUserExist =
         await chechUserCollectionExists("$countryCode$phoneNumController");
@@ -195,16 +192,16 @@ class AuthVm extends ChangeNotifier {
       stopLoader();
       return;
     } else {
-      await signupWithOtp(countryCode, phoneNumController, email, firstName,
-          lastName, isSocialLogin);
-
-      // authPro.numberController.clear();
+      print("Signing up with OTP");
+      await signupWithOtp(
+          countryCode, phoneNumController, email, firstName, lastName);
     }
   }
 
-  onClickSocialSignup(User? user, String countryCode, String phoneNumController,
-      bool isSocialLogin,
-      {bool isApple = false}) async {
+  onClickSocialSignup(
+    String countryCode,
+    String phoneNumController,
+  ) async {
     bool isUserExist =
         await chechUserCollectionExists("$countryCode$phoneNumController");
 
@@ -212,20 +209,18 @@ class AuthVm extends ChangeNotifier {
       Helper.inSnackBar('Error', "User already exist", R.colors.themeMud);
       stopLoader();
     } else {
-      startLoader();
-      log("____USER display name:${user?.displayName}");
+      log("____USER display name:${appwrite.user.name}");
       print("Starting registration");
-      await registerUserGoogle(
-          user!, countryCode, phoneNumController, isSocialLogin,
-          isApple: isApple);
+      await registerUserSocial(countryCode, phoneNumController);
     }
   }
 
+// Migrated to Appwrite
   checkCurrentUser(BuildContext context) async {
     try {
       log("////////////////in check current user");
-      User? user = auth.currentUser;
-      if (user?.phoneNumber?.isNotEmpty == true) {
+      await appwrite.getUser();
+      if (appwrite.user.phoneVerification) {
         await fetchUser();
         Future.delayed(Duration(seconds: 2), () async {
           if (Constants.fcmToken.isEmpty) {
@@ -236,8 +231,7 @@ class AuthVm extends ChangeNotifier {
           }
           if (userModel != null) {
             if (userModel?.status == UserStatus.blocked) {
-              GoogleSignIn().signOut();
-              FirebaseAuth.instance.signOut();
+              appwrite.account.deleteSession(sessionId: 'current');
               Fluttertoast.showToast(msg: "You have been blocked by admin");
             } else {
               userModel?.fcm = Constants.fcmToken;
@@ -249,7 +243,6 @@ class AuthVm extends ChangeNotifier {
               String? yachtId = Get.parameters["yachtId"];
               if (yachtId == null) {
                 /// Pasting code
-
                 if (Get.parameters['status'] != null) {
                   handleReturnRedirectFromStripeAccountLink(
                       context, Get.parameters['status']!);
@@ -272,17 +265,11 @@ class AuthVm extends ChangeNotifier {
                   "yacht": yacht,
                   "isReserve": false,
                   "index": index,
-                  "isEdit":
-                      yacht.createdBy == FirebaseAuth.instance.currentUser?.uid
-                          ? true
-                          : false,
+                  "isEdit": yacht.createdBy == appwrite.user.$id ? true : false,
                   "isLink": true
                 });
                 String? senderId = Get.parameters["from"];
-                var inviteData = {
-                  'from': senderId,
-                  'to': FirebaseAuth.instance.currentUser?.uid
-                };
+                var inviteData = {'from': senderId, 'to': appwrite.user.$id};
                 await FbCollections.invites.add(inviteData);
               }
             }
@@ -302,8 +289,7 @@ class AuthVm extends ChangeNotifier {
 
   getUserWallet() async {
     WalletModel? walletModel;
-    print(
-        "==========In FETCH USER WALLET:${FirebaseAuth.instance.currentUser!.uid}");
+    print("==========In FETCH USER WALLET:${appwrite.user.$id}");
     var ref = await FbCollections.wallet.snapshots().asBroadcastStream();
     var res = ref.map((list) =>
         list.docs.map((e) => WalletModel.fromJson(e.data())).toList());
@@ -312,8 +298,8 @@ class AuthVm extends ChangeNotifier {
       walletStream ??= res.listen((event) async {
         log("____len:${event.length}");
         if (event.isNotEmpty) {
-          walletModel = event.firstWhereOrNull((element) =>
-              element.uid == FirebaseAuth.instance.currentUser?.uid);
+          walletModel = event
+              .firstWhereOrNull((element) => element.uid == appwrite.user.$id);
           wallet = walletModel;
           update();
         }
@@ -330,7 +316,7 @@ class AuthVm extends ChangeNotifier {
     try {
       print("==========In UPDATE USER WALLET}");
       await FbCollections.wallet
-          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .doc(appwrite.user.$id)
           .update({"amount": amount});
       await getUserWallet();
     } catch (e) {
@@ -339,141 +325,26 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
-  Future<User> signInWithGoogle() async {
-    googleSignIn.signOut();
-    log("__________________IN GOOGLE SIGN IN");
-    GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
-
-    GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount!.authentication;
-
-    AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleSignInAuthentication.accessToken,
-      idToken: googleSignInAuthentication.idToken,
-    );
-    print("printing ID token");
-    print(googleSignInAuthentication.idToken);
-    UserCredential authResult = await auth.signInWithCredential(credential);
-
-    User? user = authResult.user;
-
-    assert(!user!.isAnonymous);
-
-    assert(await user!.getIdToken() != null);
-
-    User? currentUser = auth.currentUser;
-    Get.forceAppUpdate();
-    assert(user!.uid == currentUser!.uid);
-    var p = Provider.of<AuthVm>(Get.context!, listen: false);
-
-    p.userModel?.firstName = user?.displayName?.split(" ").first;
-    p.userModel?.lastName = user?.displayName?.split(" ").first;
-    log("____USER here:${user?.displayName}");
-
-    p.update();
-    return user!;
-  }
-
-  Future registerUserGoogle(
-      User user, String countryCode, String number, bool isSocialLogin,
-      {bool isApple = false}) async {
+  Future registerUserSocial(String countryCode, String number) async {
     try {
       print("About to verify phone number");
-
-      await auth.verifyPhoneNumber(
-          phoneNumber: "$countryCode $number",
-          timeout: const Duration(seconds: 60),
-          verificationCompleted: (AuthCredential authCredential) async {
-            UserCredential? userCredential =
-                await linkPhoneNumber(authCredential);
-            print(userCredential);
-            print("bool for user creds");
-            if (userCredential != null) {
-              log("____USER:${user.displayName}");
-              print("Verification completed");
-              // await setSignupUserData(
-              //         user,
-              //         countryCode,
-              //         number,
-              //         isApple ? appleUserEmail ?? "" : user.email!,
-              //         isApple
-              //             ? appleUserName ?? ""
-              //             : user.displayName?.contains(" ") == true
-              //                 ? user.displayName?.split(" ").first ?? ""
-              //                 : user.displayName ?? "",
-              //         user.displayName?.contains(" ") == true
-              //             ? user.displayName?.split(" ").last ?? ""
-              //             : "",
-              //         isSocialLogin)
-              //     .then((value) async {
-              //   log("///////////////////////////CODE VERIFIED");
-
-              //   await fetchUser();
-              //   if (userModel?.status == UserStatus.blocked) {
-              //     GoogleSignIn().signOut();
-              //     FirebaseAuth.instance.signOut();
-              //     Fluttertoast.showToast(msg: "You have been blocked by admin");
-              //   } else {
-              //     userModel?.fcm = Constants.fcmToken;
-              //     // userModel?.isActiveUser = true;
-              //     await updateUser(userModel);
-              //     ZBotToast.loadingClose();
-              //     Get.offAllNamed(BaseView.route);
-              //   }
-              // });
-            }
-          },
-          verificationFailed: (authException) {
-            if (authException.message!.contains("17010")) {
-              Fluttertoast.showToast(
-                  msg:
-                      "This request is missing a valid app identifier, meaning that neither SafetyNet checks nor reCAPTCHA checks succeeded. Please try again, or check the logcat for more details.");
-            } else if (authException.message!
-                .contains("We have blocked all requests")) {
-              Fluttertoast.showToast(
-                  msg:
-                      "We have blocked all requests from this device due to unusual activity. Try again later.");
-            } else if (authException.message!.contains(
-                "The format of the phone number provided is incorrect")) {
-              Fluttertoast.showToast(
-                  msg: "The format of the phone number provided is incorrect.");
-              log("+++++++++++++++++++++++++++++++++++++++++++++++++${authException.message}");
-            } else {
-              Fluttertoast.showToast(msg: authException.message!);
-              log("+++++++++++++++++++++++++++++++++++++++++++++++++${authException.message}");
-            }
-            // dashPro.stopLoginLoader();
-
-            log("+++++++++++++++++++++++++++++++++++++++++++++++++${authException.message}");
-            stopLoader();
-          },
-          codeSent: (String verificationId, [int? forceResendingToken]) {
-            //show dialog to take input from the user
-            log("_______________________WHEN COMP");
-            stopLoader();
-            Get.dialog(
-                OTP("$countryCode $number", true, (otpCode) async {
-                  startLoader();
-                  await verifySignUpOtpGoogle(
-                          user, countryCode, verificationId, number, otpCode,
-                          isApple: isApple)
-                      .whenComplete(() {
-                    stopLoader();
-                  });
-                }, () async {
-                  startLoader();
-                  await registerUserGoogle(
-                      user, countryCode, number, isSocialLogin,
-                      isApple: isApple);
-                }),
-                barrierDismissible: true,
-                barrierColor: Colors.grey.withOpacity(.25));
-          },
-          codeAutoRetrievalTimeout: (String verificationId) {
-            verificationId = verificationId;
-            log(verificationId);
-            log("Timeout");
-          });
+      // Different Stuff needs to be used here
+      print("Updating phone and sending message");
+      await appwrite.updateAndVerifyPhoneNumber(countryCode + number);
+      print("sms sent");
+      Get.dialog(
+          OTP(countryCode + number, true, (otpCode) async {
+            startLoader();
+            await verifySignUpOtpSocial(countryCode, number, otpCode)
+                .whenComplete(() {
+              stopLoader();
+            });
+          }, () async {
+            startLoader();
+            await registerUserSocial(countryCode, number);
+          }),
+          barrierDismissible: true,
+          barrierColor: Colors.grey.withOpacity(.25));
     } catch (e) {
       debugPrintStack();
       if (e.toString().contains("firebase_auth/session-expired")) {
@@ -492,36 +363,26 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
-  addUsernameFinishSignUp(User user, String countryCode, String number,
-      bool isApple, bool isSocialLogin, String username) async {
+  addUsernameFinishSignUp(
+      String countryCode, String number, String username) async {
     await setSignupUserData(
-            user,
             countryCode,
             number,
-            isApple ? appleUserEmail ?? "" : user.email!,
-            isApple
-                ? appleUserName ?? ""
-                : user.displayName?.contains(" ") == true
-                    ? user.displayName?.split(" ").first ?? ""
-                    : user.displayName ?? "",
-            user.displayName?.contains(" ") == true
-                ? user.displayName?.split(" ").last ?? ""
+            appwrite.user.email,
+            appwrite.user.name.contains(" ") == true
+                ? appwrite.user.name.split(" ").first
+                : appwrite.user.name,
+            appwrite.user.name.contains(" ") == true
+                ? appwrite.user.name.split(" ").last
                 : "",
-            isSocialLogin,
             username)
         .then((value) async {
-      log("///////////////////////////CODE VERIFIED");
-
       await fetchUser();
-      print("I am here now user is fetched ");
       if (userModel?.status == UserStatus.blocked) {
-        GoogleSignIn().signOut();
-        FirebaseAuth.instance.signOut();
+        appwrite.account.deleteSession(sessionId: 'current');
         Fluttertoast.showToast(msg: "You have been blocked by admin");
       } else {
         userModel?.fcm = Constants.fcmToken;
-        // userModel?.isActiveUser = true;
-        print("Helllo about to update user model after fetching and a;; ");
         print(userModel!.toJson());
         await updateUser(userModel);
         ZBotToast.loadingClose();
@@ -531,29 +392,18 @@ class AuthVm extends ChangeNotifier {
     });
   }
 
-  verifySignUpOtpGoogle(User user, String countryCode, String verificationId,
-      String number, String code,
-      {bool isApple = false, bool isSocialLogin = false}) async {
+  verifySignUpOtpSocial(
+    String countryCode,
+    String number,
+    String code,
+  ) async {
     startLoader();
-
-    AuthCredential _credential;
-
-    _credential = PhoneAuthProvider.credential(
-        verificationId: verificationId, smsCode: code);
-
-    await linkPhoneNumber(_credential).then((cred) async {
-      log("___CRED:${cred}___USER:$user");
-      if (cred != null) {
-        // PLEASEEEEE MAKE SURE TO EDIT THIS IN NEAR FUTURE
-        // *******************************************************************************************************
-        // IMPORTANT VERY VERY
-        // print("Now here --- hahahahahaha");
-        Get.offNamed(CreateUsername.route, arguments: {
-          "user": user,
-          "isApple": isApple,
-          "phoneNo": number,
-          "countryCode": countryCode
-        });
+    // start work here
+    await appwrite.updatePhoneVerification(code).then((cred) async {
+      await appwrite.getUser();
+      if (appwrite.user != null) {
+        Get.offNamed(CreateUsername.route,
+            arguments: {"phoneNo": number, "countryCode": countryCode});
       }
     }).catchError((e) {
       if (e.toString().contains("firebase_auth/session-expired")) {
@@ -571,119 +421,26 @@ class AuthVm extends ChangeNotifier {
     });
   }
 
-  Future<User?> signInWithFb() async {
-    try {
-      startLoader();
-      final LoginResult loginResult = await FacebookAuth.instance
-          .login(permissions: ['email', 'public_profile', 'user_birthday']);
-      final OAuthCredential fbAuthCredentials =
-          FacebookAuthProvider.credential(loginResult.accessToken!.token);
-      UserCredential? credential =
-          await FirebaseAuth.instance.signInWithCredential(fbAuthCredentials);
-      stopLoader();
-      return credential.user;
-    } catch (e) {
-      stopLoader();
-      Fluttertoast.showToast(msg: e.toString());
-      return null;
-    }
-  }
-
   signInWithOtp(String countryCode, String number) async {
     print("+++++++++++++++++++++++++++++++MOBILE:$countryCode $number");
     try {
-      await auth.verifyPhoneNumber(
-          phoneNumber: "$countryCode $number",
-          timeout: const Duration(seconds: 60),
-          verificationCompleted: (AuthCredential authCredential) async {
-            print("////////////////AUTH CRED$authCredential");
-            await auth
-                .signInWithCredential(authCredential)
-                .then((result) async {
-              if (result.user != null) {
-                print("About to fetch User");
-                await fetchUser();
-                Future.delayed(Duration(seconds: 2), () async {
-                  if (userModel?.status == UserStatus.blocked) {
-                    GoogleSignIn().signOut();
-                    FirebaseAuth.instance.signOut();
-                    Fluttertoast.showToast(
-                        msg: "You have been blocked by admin");
-                  } else {
-                    userModel?.fcm = Constants.fcmToken;
-                    // userModel?.isActiveUser = true;
-                    print("Updating user info");
-                    print(userModel!.toJson());
-                    await updateUser(userModel);
-                    ZBotToast.loadingClose();
-                    Get.offAllNamed(BaseView.route);
-                  }
-                });
-              }
-            }).catchError((e) {
-              log("++++++++++++++++++++++++++++++++++$e");
-              if (e.toString().contains("firebase_auth/session-expired")) {
-                Fluttertoast.showToast(
-                    msg:
-                        "The sms code has expired. Please re-send the verification code to try again.");
-              } else if (e
-                  .toString()
-                  .contains("firebase_auth/invalid-verification-code")) {
-                Helper.inSnackBar("Error", "Wrong OTP", R.colors.themeMud);
-              } else {
-                Fluttertoast.showToast(msg: "$e");
-              }
-              ZBotToast.loadingClose();
-
-              // dashPro.stopOtpLoader();
-            });
-          },
-          verificationFailed: (authException) {
+      appwrite.sendSMS(countryCode + number);
+      log("___________CODE SENT:");
+      print("I am here code is sent");
+      Get.dialog(
+          OTP(countryCode + number, false,
+              // verification call back
+              (otpCode) async {
             stopLoader();
-            if (authException.message!.contains("17010")) {
-              Fluttertoast.showToast(
-                  msg:
-                      "This request is missing a valid app identifier, meaning that neither SafetyNet checks nor reCAPTCHA checks succeeded. Please try again, or check the logcat for more details.");
-            } else if (authException.message!
-                .contains("We have blocked all requests")) {
-              Fluttertoast.showToast(
-                  msg:
-                      "We have blocked all requests from this device due to unusual activity. Try again later.");
-            } else if (authException.message!.contains(
-                "The format of the phone number provided is incorrect")) {
-              Fluttertoast.showToast(
-                  msg: "The format of the phone number provided is incorrect.");
-              log("+++++++++++++++++++++++++++++++++++++++++++++++++${authException.message}");
-            } else {
-              Fluttertoast.showToast(msg: authException.message!);
-              log("+++++++++++++++++++++++++++++++++++++++++++++++++${authException.message}");
-            }
-            // dashPro.stopLoginLoader();
-
-            log("+++++++++++++++++++++++++++++++++++++++++++++++++${authException.message}");
+            print("about to verify otp");
+            await verifyOtp("", countryCode, number, otpCode);
           },
-          codeSent: (String verificationId, [int? forceResendingToken]) {
-            log("___________CODE SENT:");
-            print("I am here code is sent");
-            Get.dialog(
-                OTP("$countryCode $number", false, (otpCode) async {
-                  stopLoader();
-                  print("about to verify otp");
-                  await verifyOtp(
-                      "", verificationId, countryCode, number, otpCode);
-                }, () async {
-                  await signInWithOtp(countryCode, number);
-                }),
-                barrierDismissible: true,
-                barrierColor: Colors.grey.withOpacity(.25));
-            // ZBotToast.loadingClose();
-          },
-          codeAutoRetrievalTimeout: (String verificationId) {
-            verificationId = verificationId;
-            log(verificationId);
-            log("Timeout");
-            Fluttertoast.showToast(msg: "Timeout");
-          });
+              // resend call back
+              () async {
+            await signInWithOtp(countryCode, number);
+          }),
+          barrierDismissible: true,
+          barrierColor: Colors.grey.withOpacity(.25));
     } catch (e) {
       debugPrintStack();
       if (e.toString().contains("firebase_auth/session-expired")) {
@@ -703,79 +460,34 @@ class AuthVm extends ChangeNotifier {
   }
 
   Future signupWithOtp(String countryCode, String num, String email,
-      String firstName, String lastName, bool isSocialLogin) async {
+      String firstName, String lastName) async {
     try {
-      await auth.verifyPhoneNumber(
-          phoneNumber: "$countryCode $num",
-          timeout: const Duration(seconds: 60),
-          verificationCompleted: (AuthCredential authCredential) async {
-            print("////////////////AUTH CRED$authCredential");
-            await auth
-                .signInWithCredential(authCredential)
-                .then((result) async {
-              if (result.user != null) {
-                // PLEASEEEEE MAKE SURE TO EDIT THIS IN NEAR FUTURE
-                // *******************************************************************************************************
-                // IMPORTANT VERY VERY
+      print(countryCode + num);
+      String phono = countryCode + num;
+      print("Sending SMS");
+      await appwrite.sendSMS(phono);
+      print("Sent SMS");
+      log("_______________________WHEN COMP");
+      stopLoader();
+      Get.dialog(
+          OTP(countryCode + num, true, (otpCode) async {
+            startLoader();
+            print(otpCode);
 
-                await setSignupUserData(result.user!, countryCode, num, email,
-                    firstName, lastName, isSocialLogin, "DUMMY");
-
-                Get.offAllNamed(BaseView.route);
-              }
+            await verifySignUpOtp(
+                    countryCode, email, firstName, lastName, num, otpCode)
+                .whenComplete(() {
+              stopLoader();
             });
-          },
-          verificationFailed: (authException) {
-            if (authException.message!.contains("17010")) {
-              Fluttertoast.showToast(
-                  msg:
-                      "This request is missing a valid app identifier, meaning that neither SafetyNet checks nor reCAPTCHA checks succeeded. Please try again, or check the logcat for more details.");
-            } else if (authException.message!
-                .contains("We have blocked all requests")) {
-              Fluttertoast.showToast(
-                  msg:
-                      "We have blocked all requests from this device due to unusual activity. Try again later.");
-            } else if (authException.message!.contains(
-                "The format of the phone number provided is incorrect")) {
-              Fluttertoast.showToast(
-                  msg: "The format of the phone number provided is incorrect.");
-              log("+++++++++++++++++++++++++++++++++++++++++++++++++${authException.message}");
-            } else {
-              Fluttertoast.showToast(msg: authException.message!);
-              log("+++++++++++++++++++++++++++++++++++++++++++++++++${authException.message}");
-            }
-
-            log("+++++++++++++++++++++++++++++++++++++++++++++++++${authException.message}");
-            stopLoader();
-          },
-          codeSent: (String verificationId, [int? forceResendingToken]) {
-            //show dialog to take input from the user
-            log("_______________________WHEN COMP");
-            stopLoader();
-            Get.dialog(
-                OTP("$countryCode $num", true, (otpCode) async {
-                  startLoader();
-                  await verifySignUpOtp(countryCode, verificationId, email,
-                          firstName, lastName, num, otpCode, isSocialLogin)
-                      .whenComplete(() {
-                    stopLoader();
-                  });
-                }, () async {
-                  startLoader();
-                  await signupWithOtp(countryCode, num, email, firstName,
-                          lastName, isSocialLogin)
-                      .whenComplete(() {
-                    stopLoader();
-                  });
-                }),
-                barrierDismissible: true,
-                barrierColor: Colors.grey.withOpacity(.25));
-          },
-          codeAutoRetrievalTimeout: (String verificationId) {
-            verificationId = verificationId;
-            log(verificationId);
-            log("Timeout");
-          });
+          }, () async {
+            startLoader();
+            await signupWithOtp(countryCode, num, email, firstName, lastName)
+                .whenComplete(() {
+              stopLoader();
+            });
+          }),
+          barrierDismissible: true,
+          barrierColor: Colors.grey.withOpacity(.25));
     } catch (e) {
       debugPrintStack();
       if (e.toString().contains("firebase_auth/session-expired")) {
@@ -794,38 +506,19 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
-  verifySignUpOtp(
-      String countryCode,
-      String verificationId,
-      String email,
-      String firstName,
-      String lastName,
-      String num,
-      String code,
-      bool isSocialLogin) async {
+  verifySignUpOtp(String countryCode, String email, String firstName,
+      String lastName, String num, String code) async {
     try {
       startLoader();
-
-      FirebaseAuth auth = FirebaseAuth.instance;
-      AuthCredential _credential;
-      log("////////////////////////VERIF ID$verificationId");
-      _credential = PhoneAuthProvider.credential(
-          verificationId: verificationId, smsCode: code);
-      log("////////////////////////CRED$_credential");
-      await auth.signInWithCredential(_credential).then((result) async {
-        // PLEASEEEEE MAKE SURE TO EDIT THIS IN NEAR FUTURE
-        // *******************************************************************************************************
-        // IMPORTANT VERY VERY
-
-        if (result.user != null) {
-          await setSignupUserData(result.user!, countryCode, num, email,
-                  firstName, lastName, isSocialLogin, "Dummy")
-              .then((value) async {
-            log("///////////////////////////CODE VERIFIED:${FirebaseAuth.instance.currentUser!.uid}");
-            Get.offAllNamed(
-              BaseView.route,
-            );
-          });
+      await appwrite.verifySMS(code).then((result) async {
+        await appwrite.getUser();
+        print(appwrite.user.$id);
+        if (appwrite.user != null) {
+          await setSignupUserData(
+              countryCode, num, email, firstName, lastName, "Dummy");
+          Get.offAllNamed(
+            BaseView.route,
+          );
         }
         // Get.offAll(DashboardPage());
       }).catchError((e) {
@@ -849,23 +542,15 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
-  verifyOtp(String uid, String verificationId, String countryCode,
-      String number, String code) async {
+  verifyOtp(String uid, String countryCode, String number, String code) async {
     try {
       startLoader();
-      FirebaseAuth auth = FirebaseAuth.instance;
-      AuthCredential _credential;
-      print("starting verification");
-      log("////////////////////////VERIF ID$verificationId");
-      _credential = PhoneAuthProvider.credential(
-          verificationId: verificationId, smsCode: code);
-      log("////////////////////////CRED$_credential");
-      await auth.signInWithCredential(_credential).then((result) async {
-        if (result.user != null) {
+      await appwrite.verifySMS(code).then((result) async {
+        await appwrite.getUser();
+        if (appwrite.user != null) {
           Future.delayed(Duration(seconds: 2), () async {
             if (userModel?.status == UserStatus.blocked) {
-              GoogleSignIn().signOut();
-              FirebaseAuth.instance.signOut();
+              appwrite.account.deleteSession(sessionId: 'current');
               Fluttertoast.showToast(msg: "You have been blocked by admin");
             } else {
               userModel?.fcm = Constants.fcmToken;
@@ -880,6 +565,7 @@ class AuthVm extends ChangeNotifier {
           });
         }
       }).catchError((e) {
+        // yet to configure appwrite error message
         if (e.toString().contains("firebase_auth/session-expired")) {
           Fluttertoast.showToast(
               msg:
@@ -901,26 +587,22 @@ class AuthVm extends ChangeNotifier {
   }
 
   setSignupUserData(
-    User user,
     String countryCode,
     String number,
     String email,
     String firstName,
     String lastName,
-    bool isSocialLogin,
     String username,
   ) async {
     try {
       bool isUserExist = false;
-
       isUserExist = await chechUserCollectionExists("$countryCode$num");
-      log("/////////////////////////Current user in db:$isUserExist................aut:${auth.currentUser}");
+      print("printing user id before collection creation");
+      print(appwrite.user.$id);
 
       if (isUserExist == false) {
-        print("I am here about to add it lessgoooo");
-        print(username);
-        await FbCollections.user.doc(user.uid).set({
-          "uid": user.uid,
+        await FbCollections.user.doc(appwrite.user.$id).set({
+          "uid": appwrite.user.$id,
           "username": username,
           "created_at": Timestamp.now(),
           "email": email.replaceAll(' ', ''),
@@ -928,17 +610,20 @@ class AuthVm extends ChangeNotifier {
           "dial_code": countryCode,
           "first_name": firstName,
           "last_name": lastName,
-          "image_url": user.photoURL ?? R.images.dummyDp,
+          "image_url": R.images.dummyDp,
           "phone_number": "$countryCode$number",
           "fcm": Constants.fcmToken,
           "role": UserType.user.index,
           "status": UserStatus.active.index,
-          "is_social_login": isSocialLogin,
           "request_status": RequestStatus.notHost.index,
           "invite_status": 0
         });
-        WalletModel walletModel = WalletModel(amount: 0.0, uid: user.uid);
-        await FbCollections.wallet.doc(user.uid).set(walletModel.toJson());
+        print("made collection");
+        WalletModel walletModel =
+            WalletModel(amount: 0.0, uid: appwrite.user.$id);
+        await FbCollections.wallet
+            .doc(appwrite.user.$id)
+            .set(walletModel.toJson());
       } else {
         Helper.inSnackBar("Error", "User already exist", R.colors.themeMud);
       }
@@ -974,29 +659,29 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
-  Future<UserCredential?> linkPhoneNumber(AuthCredential credential) async {
-    try {
-      UserCredential? cred = await FirebaseAuth.instance.currentUser
-          ?.linkWithCredential(credential);
-      return cred;
-    } catch (e) {
-      log("++++++++++++++++++++++++++++++++++$e");
-      if (e.toString().contains("firebase_auth/session-expired")) {
-        Fluttertoast.showToast(
-            msg:
-                "The sms code has expired. Please re-send the verification code to try again.");
-      } else if (e
-          .toString()
-          .contains("firebase_auth/invalid-verification-code")) {
-        Helper.inSnackBar("Error", "Wrong OTP code", R.colors.themeMud);
-      } else {
-        Fluttertoast.showToast(msg: "$e");
-      }
-      stopLoader();
-      debugPrintStack();
-    }
-    return null;
-  }
+  // Future<UserCredential?> linkPhoneNumber(AuthCredential credential) async {
+  //   try {
+  //     UserCredential? cred = await FirebaseAuth.instance.currentUser
+  //         ?.linkWithCredential(credential);
+  //     return cred;
+  //   } catch (e) {
+  //     log("++++++++++++++++++++++++++++++++++$e");
+  //     if (e.toString().contains("firebase_auth/session-expired")) {
+  //       Fluttertoast.showToast(
+  //           msg:
+  //               "The sms code has expired. Please re-send the verification code to try again.");
+  //     } else if (e
+  //         .toString()
+  //         .contains("firebase_auth/invalid-verification-code")) {
+  //       Helper.inSnackBar("Error", "Wrong OTP code", R.colors.themeMud);
+  //     } else {
+  //       Fluttertoast.showToast(msg: "$e");
+  //     }
+  //     stopLoader();
+  //     debugPrintStack();
+  //   }
+  //   return null;
+  // }
 
   Future<String> uploadUserImage(File pickedImage) async {
     var imageUrl = await ImagePickerServices().uploadSingleImage(pickedImage);
@@ -1074,19 +759,20 @@ class AuthVm extends ChangeNotifier {
 
   Future<void> fetchUser() async {
     try {
-      log("___HERE IN STREAM:${FirebaseAuth.instance.currentUser?.uid}");
-      print(FirebaseAuth.instance.currentUser?.uid);
+      log("___HERE IN STREAM:${appwrite.user.$id}");
+      print(appwrite.user.$id);
 
       var ref = FbCollections.user
-          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .doc(appwrite.user.$id)
           .snapshots()
           .asBroadcastStream();
-      print("about to listen to stream");
+
       currentUserStream ??
           ref.listen((event) async {
             if (event != null) {
               print("Putting values fetched into usermodel structure");
               print(event.data());
+
               userModel = UserModel.fromJson(event.data());
               print("values put hogyi hai nothing to worry");
               print(userModel!.toJson());
@@ -1150,10 +836,8 @@ class AuthVm extends ChangeNotifier {
       Provider.of<AuthVm>(Get.context!, listen: false)
         ..walletStream?.cancel()
         ..walletStream = null;
+      appwrite.account.deleteSession(sessionId: 'current');
       stopLoader();
-      await FirebaseAuth.instance.signOut();
-      await googleSignIn.signOut();
-      await FacebookAuth.instance.logOut();
     } catch (e) {
       stopLoader();
       debugPrintStack();

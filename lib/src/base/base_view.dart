@@ -39,6 +39,7 @@ class _BaseViewState extends State<BaseView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       ZBotToast.loadingShow();
+      
       var bookingsVm = Provider.of<BookingsVm>(Get.context!, listen: false);
       await bookingsVm.fetchAppUrls();
       if (bookingsVm.appUrlModel?.is_enable_permission_dialog == true) {
@@ -58,7 +59,6 @@ class _BaseViewState extends State<BaseView> {
   @override
   Widget build(BuildContext context) {
     return Consumer2<AuthVm, BaseVm>(builder: (context, authVm, provider, _) {
-      log("___ISSOCIALLOGIN:${authVm.userModel?.isSocialLogin}");
       return WillPopScope(
         onWillPop: () async {
           Get.bottomSheet(

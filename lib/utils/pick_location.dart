@@ -1,25 +1,20 @@
 import 'dart:developer';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/src/base/search/view_model/search_vm.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-// import 'package:location/location.dart' as locations;
-import 'package:google_maps_webservice/places.dart';
-import 'package:yacht_master/utils/helper.dart';
-import 'package:yacht_master/utils/mapstyle.dart';
-import 'package:yacht_master/utils/permission_dialog.dart';
+import '../resources/decorations.dart';
+import '../resources/resources.dart';
+import '../src/base/search/view_model/search_vm.dart';
+import '../src/base/settings/view_model/settings_vm.dart';
+import 'helper.dart';
+import 'mapstyle.dart';
+import 'permission_dialog.dart';
 
 class PickLocation extends StatefulWidget {
   LatLng? selectedLatLng;

@@ -85,5 +85,18 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleTypeRole</key>
+    <string>Editor</string>
+    <key>CFBundleURLName</key>
+    <string>io.appwrite</string>
+    <key>CFBundleURLSchemes</key>
+    <array>
+	<string>appwrite-callback-66322b1f002a454ae73f</string>
+    </array>
+  </dict>
+</array>
 </dict>
 </plist>

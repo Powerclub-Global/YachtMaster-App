@@ -15,30 +15,31 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/src/auth/model/favourite_model.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/search/model/charter_model.dart';
-import 'package:yacht_master/src/base/search/model/services_model.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/src/base/search/view_model/search_vm.dart';
-import 'package:yacht_master/src/base/search/widgets/charter_widget.dart';
-import 'package:yacht_master/src/base/search/widgets/host_widget.dart';
-import 'package:yacht_master/src/base/search/widgets/yacht_widget.dart';
-import 'package:yacht_master/src/base/yacht/model/yachts_model.dart';
-import 'package:yacht_master/src/base/yacht/view/charter_detail.dart';
-import 'package:yacht_master/src/base/yacht/view/service_detail.dart';
-import 'package:yacht_master/src/base/yacht/view/yacht_detail.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
-import 'package:yacht_master/utils/data/result.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
-import 'package:yacht_master/utils/data/error.dart';
-import 'package:yacht_master/utils/mapstyle.dart';
+import '../../../../appwrite.dart';
+import '../../../../constant/enums.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../../services/time_schedule_service.dart';
+import '../../../auth/model/favourite_model.dart';
+import '../../home/home_vm/home_vm.dart';
+import '../model/charter_model.dart';
+import '../model/services_model.dart';
+import 'bookings/view_model/bookings_vm.dart';
+import '../view_model/search_vm.dart';
+import '../widgets/charter_widget.dart';
+import '../widgets/host_widget.dart';
+import '../widgets/yacht_widget.dart';
+import '../../yacht/model/yachts_model.dart';
+import '../../yacht/view/charter_detail.dart';
+import '../../yacht/view/service_detail.dart';
+import '../../yacht/view/yacht_detail.dart';
+import '../../yacht/view_model/yacht_vm.dart';
+import '../../../../utils/data/result.dart';
+import '../../../../utils/heights_widths.dart';
+import '../../../../utils/helper.dart';
+import '../../../../utils/data/error.dart';
+import '../../../../utils/mapstyle.dart';
 
 import '../../../../utils/empty_screem.dart';
 
@@ -791,13 +792,13 @@ class _SearchSeeAllState extends State<SearchSeeAll> {
                         yachtVm.userFavouritesList.removeAt(index);
                         yachtVm.update();
                         await FbCollections.user
-                            .doc(FirebaseAuth.instance.currentUser?.uid)
+                            .doc(appwrite.user.$id)
                             .collection("favourite")
                             .doc(charter.id)
                             .delete();
                       } else {
                         await FbCollections.user
-                            .doc(FirebaseAuth.instance.currentUser?.uid)
+                            .doc(appwrite.user.$id)
                             .collection("favourite")
                             .doc(charter.id)
                             .set(favModel.toJson());
@@ -845,13 +846,13 @@ class _SearchSeeAllState extends State<SearchSeeAll> {
                 yachtVm.userFavouritesList.removeAt(index);
                 yachtVm.update();
                 await FbCollections.user
-                    .doc(FirebaseAuth.instance.currentUser?.uid)
+                    .doc(appwrite.user.$id)
                     .collection("favourite")
                     .doc(service.id)
                     .delete();
               } else {
                 await FbCollections.user
-                    .doc(FirebaseAuth.instance.currentUser?.uid)
+                    .doc(appwrite.user.$id)
                     .collection("favourite")
                     .doc(service.id)
                     .set(favModel.toJson());

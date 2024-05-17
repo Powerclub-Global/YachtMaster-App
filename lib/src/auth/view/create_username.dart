@@ -1,10 +1,12 @@
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+import 'package:yacht_master/appwrite.dart';
 import 'package:yacht_master/localization/app_localization.dart';
 import 'package:yacht_master/resources/decorations.dart';
 import 'package:yacht_master/resources/resources.dart';
@@ -18,8 +20,6 @@ class CreateUsername extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final args = ModalRoute.of(context)!.settings.arguments as Map;
-    User? user = args["user"];
-    bool isApple = args["isApple"];
     String phoneNo = args["phoneNo"];
     String countryCode = args["countryCode"];
     final formKey = GlobalKey<FormState>();
@@ -111,11 +111,8 @@ class CreateUsername extends StatelessWidget {
                     if (formKey.currentState!.validate()) {
                       print("starting account creation");
                       provider.addUsernameFinishSignUp(
-                          user!,
                           countryCode,
                           phoneNo,
-                          isApple,
-                          true,
                           usernameController.text.trim());
                     }
                   },

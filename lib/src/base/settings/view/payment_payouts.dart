@@ -7,20 +7,21 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/src/base/settings/model/payment_payouts_model.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/utils/empty_screem.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../../../../appwrite.dart';
+import '../../../../constant/enums.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../../services/time_schedule_service.dart';
+import '../../home/home_vm/home_vm.dart';
+import '../../search/view/bookings/model/bookings.dart';
+import '../../search/view/bookings/view_model/bookings_vm.dart';
+import '../model/payment_payouts_model.dart';
+import '../view_model/settings_vm.dart';
+import '../../../../utils/empty_screem.dart';
+import '../../../../utils/general_app_bar.dart';
+import '../../../../utils/heights_widths.dart';
+import '../../../../utils/helper.dart';
 
 class PaymentPayouts extends StatefulWidget {
   static String route="/paymentPayouts";
@@ -52,7 +53,7 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
                 Expanded(
                     child:
                     selectedTabIndex==PaymentPayoutsStatus.pending.index &&
-                        homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.ongoing.index && element.hostUserUid==FirebaseAuth.instance.currentUser?.uid)
+                        homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.ongoing.index && element.hostUserUid==appwrite.user.$id)
                             .toList().isEmpty?
                     EmptyScreen(
                       title: "no_payment",
@@ -61,13 +62,13 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
 
                     ):
                     selectedTabIndex==PaymentPayoutsStatus.pending.index &&
-                        homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.ongoing.index && element.hostUserUid==FirebaseAuth.instance.currentUser?.uid && element.paymentDetail?.remainingAmount.toStringAsFixed(1)!="0.0")
+                        homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.ongoing.index && element.hostUserUid==appwrite.user.$id && element.paymentDetail?.remainingAmount.toStringAsFixed(1)!="0.0")
                             .toList().isNotEmpty?
                     ListView(
-                      children: List.generate( homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.ongoing.index && element.hostUserUid==FirebaseAuth.instance.currentUser?.uid && element.paymentDetail?.remainingAmount.toStringAsFixed(1)!="0.0")
+                      children: List.generate( homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.ongoing.index && element.hostUserUid==appwrite.user.$id && element.paymentDetail?.remainingAmount.toStringAsFixed(1)!="0.0")
                           .toList().length,
                               (index) {
-                           BookingsModel bookingModel=homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.ongoing.index && element.hostUserUid==FirebaseAuth.instance.currentUser?.uid && element.paymentDetail?.remainingAmount.toStringAsFixed(1)!="0.0")
+                           BookingsModel bookingModel=homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.ongoing.index && element.hostUserUid==appwrite.user.$id && element.paymentDetail?.remainingAmount.toStringAsFixed(1)!="0.0")
                                .toList()[index];
                             PaymentModel model=PaymentModel(
                               status: 0,
@@ -86,7 +87,7 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
                             return payoutsCard(model);
                           }),):
                     selectedTabIndex==PaymentPayoutsStatus.paid.index &&
-                        homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.completed.index && element.createdBy==FirebaseAuth.instance.currentUser?.uid && element.paymentDetail?.remainingAmount.toStringAsFixed(1)=="0.0")
+                        homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.completed.index && element.createdBy==appwrite.user.$id && element.paymentDetail?.remainingAmount.toStringAsFixed(1)=="0.0")
                             .toList().isEmpty?
                     EmptyScreen(
                       title: "no_payment",
@@ -96,13 +97,13 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
 
                     ):
                     selectedTabIndex==PaymentPayoutsStatus.paid.index &&
-                        homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.completed.index && element.createdBy==FirebaseAuth.instance.currentUser?.uid && element.paymentDetail?.remainingAmount.toStringAsFixed(1)=="0.0")
+                        homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.completed.index && element.createdBy==appwrite.user.$id && element.paymentDetail?.remainingAmount.toStringAsFixed(1)=="0.0")
                             .toList().isNotEmpty?
                     ListView(
-                      children: List.generate(homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.completed.index && element.createdBy==FirebaseAuth.instance.currentUser?.uid && element.paymentDetail?.remainingAmount.toStringAsFixed(1)=="0.0")
+                      children: List.generate(homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.completed.index && element.createdBy==appwrite.user.$id && element.paymentDetail?.remainingAmount.toStringAsFixed(1)=="0.0")
                           .toList().length,
                               (index) {
-                            BookingsModel bookingModel=homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.completed.index && element.createdBy==FirebaseAuth.instance.currentUser?.uid && element.paymentDetail?.remainingAmount.toStringAsFixed(1)=="0.0")
+                            BookingsModel bookingModel=homeVm.allBookings.where((element) => element.bookingStatus==BookingStatus.completed.index && element.createdBy==appwrite.user.$id && element.paymentDetail?.remainingAmount.toStringAsFixed(1)=="0.0")
                                 .toList()[index];
                             PaymentModel model=PaymentModel(
                               status: 0,
@@ -121,7 +122,7 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
                             return payoutsCard(model);
                           }),):
                     selectedTabIndex==PaymentPayoutsStatus.received.index &&
-                        homeVm.allBookings.where((element) =>  element.hostUserUid==FirebaseAuth.instance.currentUser?.uid && element.paymentDetail?.remainingAmount.toStringAsFixed(1)=="0.0")
+                        homeVm.allBookings.where((element) =>  element.hostUserUid==appwrite.user.$id && element.paymentDetail?.remainingAmount.toStringAsFixed(1)=="0.0")
                             .toList().isEmpty?
                     EmptyScreen(
                       title: "no_payment",
@@ -131,10 +132,10 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
                     ):
 
                   ListView(
-            children: List.generate( homeVm.allBookings.where((element) =>  element.hostUserUid==FirebaseAuth.instance.currentUser?.uid && element.paymentDetail?.remainingAmount.toStringAsFixed(1)=="0.0")
+            children: List.generate( homeVm.allBookings.where((element) =>  element.hostUserUid==appwrite.user.$id && element.paymentDetail?.remainingAmount.toStringAsFixed(1)=="0.0")
                 .toList().length,
                     (index) {
-                  BookingsModel bookingModel=homeVm.allBookings.where((element) =>  element.hostUserUid==FirebaseAuth.instance.currentUser?.uid && element.paymentDetail?.remainingAmount.toStringAsFixed(1)=="0.0")
+                  BookingsModel bookingModel=homeVm.allBookings.where((element) =>  element.hostUserUid==appwrite.user.$id && element.paymentDetail?.remainingAmount.toStringAsFixed(1)=="0.0")
                       .toList()[index];
                   PaymentModel model=PaymentModel(
                     status: 0,

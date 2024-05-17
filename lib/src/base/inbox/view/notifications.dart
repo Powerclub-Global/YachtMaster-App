@@ -1,23 +1,21 @@
-import 'dart:developer';
-
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/inbox/model/notification_model.dart';
-import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
-import 'package:yacht_master/src/base/profile/view/host_profile.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/bookings_detail_customer.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/host_booking_detail.dart';
-import 'package:yacht_master/src/base/settings/view/become_a_host.dart';
-import 'package:yacht_master/utils/empty_screem.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../appwrite.dart';
+import '../../../../constant/enums.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../auth/view_model/auth_vm.dart';
+import '../model/notification_model.dart';
+import '../view_model/inbox_vm.dart';
+import '../../profile/view/host_profile.dart';
+import '../../search/view/bookings/model/bookings.dart';
+import '../../search/view/bookings/view/bookings_detail_customer.dart';
+import '../../search/view/bookings/view/host_booking_detail.dart';
+import '../../settings/view/become_a_host.dart';
+import '../../../../utils/empty_screem.dart';
+import '../../../../utils/heights_widths.dart';
 
 class Notifications extends StatefulWidget {
   const Notifications({Key? key}) : super(key: key);
@@ -59,7 +57,7 @@ class _NotificationsState extends State<Notifications> {
                           BookingsModel bookingsModel=BookingsModel.fromJson(doc.data());
 
                           setState(() {});
-                          e.hostUserId==FirebaseAuth.instance.currentUser?.uid?
+                          e.hostUserId==appwrite.user.$id?
                           Get.toNamed(HostBookingDetail.route,
                               arguments: {
                                 "bookingsModel":bookingsModel,

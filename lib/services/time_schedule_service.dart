@@ -1,7 +1,7 @@
 
 import 'package:date_format/date_format.dart';
 import 'package:intl/intl.dart';
-import 'package:yacht_master/utils/date_utils.dart';
+import '../utils/date_utils.dart';
 DateTime now=DateTime.now();
 
 

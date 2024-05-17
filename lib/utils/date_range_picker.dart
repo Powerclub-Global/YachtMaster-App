@@ -1,23 +1,20 @@
 import 'dart:collection';
 import 'dart:developer';
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:async_foreach/async_foreach.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/date_picker_services.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/search/model/charter_model.dart';
-import 'package:yacht_master/src/base/search/view_model/search_vm.dart';
-import 'package:yacht_master/utils/date_utils.dart';
+import '../constant/enums.dart';
+import '../resources/resources.dart';
+import '../services/date_picker_services.dart';
+import '../services/time_schedule_service.dart';
+import '../src/base/home/home_vm/home_vm.dart';
+import '../src/base/search/model/charter_model.dart';
+import '../src/base/search/view_model/search_vm.dart';
 
 class DatePickerCalendar extends StatefulWidget {
   final int type;

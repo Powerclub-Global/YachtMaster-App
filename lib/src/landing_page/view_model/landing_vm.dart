@@ -4,9 +4,9 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
-import 'package:yacht_master/src/landing_page/view/splash_view.dart';
+import '../../auth/view_model/auth_vm.dart';
+import '../../base/yacht/view_model/yacht_vm.dart';
+import '../view/splash_view.dart';
 
 class LandingVm extends ChangeNotifier {
   goToLogin(BuildContext context) {

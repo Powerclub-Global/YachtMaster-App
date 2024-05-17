@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../localization/app_localization.dart';
+import '../services/time_schedule_service.dart';
 
 class FieldValidator {
   static String? validateEmail(String? value) {

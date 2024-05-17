@@ -11,26 +11,27 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/src/auth/model/user_model.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/base_view.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
-import 'package:yacht_master/src/base/profile/model/review_model.dart';
-import 'package:yacht_master/src/base/search/model/charter_model.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/payments_methods.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/src/base/settings/widgets/feedback_bottomsheet.dart';
-import 'package:yacht_master/src/base/yacht/widgets/congo_bottomSheet.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../../../../../../appwrite.dart';
+import '../../../../../../constant/enums.dart';
+import '../../../../../../localization/app_localization.dart';
+import '../../../../../../resources/decorations.dart';
+import '../../../../../../resources/resources.dart';
+import '../../../../../../services/firebase_collections.dart';
+import '../../../../../../services/time_schedule_service.dart';
+import '../../../../../auth/model/user_model.dart';
+import '../../../../../auth/view_model/auth_vm.dart';
+import '../../../../base_view.dart';
+import '../../../../base_vm.dart';
+import '../../../../profile/model/review_model.dart';
+import '../../../model/charter_model.dart';
+import '../model/bookings.dart';
+import 'payments_methods.dart';
+import '../view_model/bookings_vm.dart';
+import '../../../../settings/widgets/feedback_bottomsheet.dart';
+import '../../../../yacht/widgets/congo_bottomSheet.dart';
+import '../../../../../../utils/general_app_bar.dart';
+import '../../../../../../utils/heights_widths.dart';
+import '../../../../../../utils/helper.dart';
 
 class BookingsDetail extends StatefulWidget {
   static String route = "/bookingsDetail";
@@ -57,7 +58,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
       if (bookingsModel?.paymentDetail?.isSplit == true) {
         firstSlpliter = bookingsModel?.paymentDetail?.splitPayment
             ?.where((element) =>
-                element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                element.userUid == appwrite.user.$id)
             .first;
         bookingsModel?.paymentDetail?.splitPayment?.forEach((element) {
           if (element.depositStatus == 1) {
@@ -671,8 +672,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                     bookingsModel?.paymentDetail?.splitPayment
                                             ?.where((element) =>
                                                 element.userUid ==
-                                                FirebaseAuth
-                                                    .instance.currentUser?.uid)
+                                                appwrite.user.$id)
                                             .toList()
                                             .first
                                             .paymentStatus ==
@@ -842,8 +842,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                             ?.paymentDetail?.splitPayment
                                             ?.where((element) =>
                                                 element.userUid ==
-                                                FirebaseAuth
-                                                    .instance.currentUser?.uid)
+                                                appwrite.user.$id)
                                             .first
                                             .depositStatus ==
                                         DepositStatus.nothingPaid.index) {
@@ -853,9 +852,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                               bookingsModel
                                                   ?.paymentDetail?.splitPayment
                                                   ?.where((element) =>
-                                                      element.userUid ==
-                                                      FirebaseAuth.instance
-                                                          .currentUser?.uid)
+                                                      element.userUid == appwrite.user.$id)
                                                   .first
                                                   .remainingDeposit;
                                       bookingsModel?.paymentDetail
@@ -865,16 +862,14 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                               ?.paymentDetail?.splitPayment
                                               ?.where((element) =>
                                                   element.userUid ==
-                                                  FirebaseAuth.instance
-                                                      .currentUser?.uid)
+                                                  appwrite.user.$id)
                                               .first
                                               .remainingDeposit;
                                     } else if (bookingsModel
                                             ?.paymentDetail?.splitPayment
                                             ?.where((element) =>
                                                 element.userUid ==
-                                                FirebaseAuth
-                                                    .instance.currentUser?.uid)
+                                                appwrite.user.$id)
                                             .first
                                             .depositStatus ==
                                         DepositStatus.twentyFivePaid.index) {
@@ -885,8 +880,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                                   ?.paymentDetail?.splitPayment
                                                   ?.where((element) =>
                                                       element.userUid ==
-                                                      FirebaseAuth.instance
-                                                          .currentUser?.uid)
+appwrite.user.$id)
                                                   .first
                                                   .remainingAmount;
                                       bookingsModel?.paymentDetail
@@ -896,57 +890,51 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                               ?.paymentDetail?.splitPayment
                                               ?.where((element) =>
                                                   element.userUid ==
-                                                  FirebaseAuth.instance
-                                                      .currentUser?.uid)
+                                                  appwrite.user.$id)
                                               .first
                                               .remainingAmount;
                                     }
                                     bookingsModel?.paymentDetail?.splitPayment
                                             ?.where((element) =>
                                                 element.userUid ==
-                                                FirebaseAuth
-                                                    .instance.currentUser?.uid)
+                                                appwrite.user.$id)
                                             .first
                                             .paymentType =
                                         PaymentType.payCash.index;
-                                    bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid == FirebaseAuth.instance.currentUser?.uid).first.amount = bookingsModel
+                                    bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid == appwrite.user.$id).first.amount = bookingsModel
                                                 ?.paymentDetail?.payInType ==
                                             PayType.fullPay.index
                                         ? bookingsModel?.paymentDetail?.splitPayment
                                             ?.where((element) =>
                                                 element.userUid ==
-                                                FirebaseAuth
-                                                    .instance.currentUser?.uid)
+                                                appwrite.user.$id)
                                             .first
                                             .amount
-                                        : bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid == FirebaseAuth.instance.currentUser?.uid).first.depositStatus ==
+                                        : bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid == appwrite.user.$id).first.depositStatus ==
                                                 DepositStatus.nothingPaid.index
                                             ? bookingsModel
                                                 ?.paymentDetail?.splitPayment
                                                 ?.where((element) =>
                                                     element.userUid ==
-                                                    FirebaseAuth.instance
-                                                        .currentUser?.uid)
+                                                    appwrite.user.$id)
                                                 .first
                                                 .remainingDeposit
-                                            : bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid == FirebaseAuth.instance.currentUser?.uid).first.amount +
+                                            : bookingsModel?.paymentDetail?.splitPayment?.where((element) => element.userUid == appwrite.user.$id).first.amount +
                                                 bookingsModel?.paymentDetail
                                                     ?.splitPayment
-                                                    ?.where((element) => element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                                                    ?.where((element) => element.userUid == appwrite.user.$id)
                                                     .first
                                                     .remainingAmount;
                                     bookingsModel?.paymentDetail?.splitPayment
                                         ?.where((element) =>
                                             element.userUid ==
-                                            FirebaseAuth
-                                                .instance.currentUser?.uid)
+                                            appwrite.user.$id)
                                         .first
                                         .remainingAmount = bookingsModel
                                                 ?.paymentDetail?.splitPayment
                                                 ?.where((element) =>
                                                     element.userUid ==
-                                                    FirebaseAuth.instance
-                                                        .currentUser?.uid)
+                                                    appwrite.user.$id)
                                                 .first
                                                 .depositStatus ==
                                             DepositStatus.twentyFivePaid.index
@@ -955,29 +943,25 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                             ?.paymentDetail?.splitPayment
                                             ?.where((element) =>
                                                 element.userUid ==
-                                                FirebaseAuth
-                                                    .instance.currentUser?.uid)
+                                                appwrite.user.$id)
                                             .first
                                             .remainingAmount;
                                     bookingsModel?.paymentDetail?.splitPayment
                                         ?.where((element) =>
                                             element.userUid ==
-                                            FirebaseAuth
-                                                .instance.currentUser?.uid)
+                                            appwrite.user.$id)
                                         .first
                                         .remainingDeposit = 0.0;
                                     bookingsModel?.paymentDetail?.splitPayment
                                         ?.where((element) =>
                                             element.userUid ==
-                                            FirebaseAuth
-                                                .instance.currentUser?.uid)
+                                            appwrite.user.$id)
                                         .first
                                         .depositStatus = bookingsModel
                                                 ?.paymentDetail?.splitPayment
                                                 ?.where((element) =>
                                                     element.userUid ==
-                                                    FirebaseAuth.instance
-                                                        .currentUser?.uid)
+                                                    appwrite.user.$id)
                                                 .first
                                                 .depositStatus ==
                                             DepositStatus.twentyFivePaid.index
@@ -986,8 +970,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                     bookingsModel?.paymentDetail?.splitPayment
                                             ?.where((element) =>
                                                 element.userUid ==
-                                                FirebaseAuth
-                                                    .instance.currentUser?.uid)
+                                                appwrite.user.$id)
                                             .first
                                             .paymentStatus =
                                         PaymentStatus.payInAppOrCash.index;
@@ -1148,7 +1131,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
               String docId = Timestamp.now().millisecondsSinceEpoch.toString();
               ReviewModel reviewModel = ReviewModel(
                 bookingId: bookingsModel?.id,
-                userId: FirebaseAuth.instance.currentUser?.uid,
+                userId: appwrite.user.$id,
                 rating: rat,
                 description: desc,
                 createdAt: Timestamp.now(),

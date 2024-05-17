@@ -11,22 +11,23 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/main.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/services/stripe/stripe_service.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/host_booking_detail.dart';
-import 'package:yacht_master/src/base/settings/view/become_verified.dart';
-import 'package:yacht_master/src/base/settings/view/invite_earn/withdraw_money.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
-import 'package:yacht_master/utils/zbot_toast.dart';
+import '../../../../../appwrite.dart';
+import '../../../../../localization/app_localization.dart';
+import '../../../../../main.dart';
+import '../../../../../resources/decorations.dart';
+import '../../../../../resources/resources.dart';
+import '../../../../../services/firebase_collections.dart';
+import '../../../../../services/stripe/stripe_service.dart';
+import '../../../../../services/time_schedule_service.dart';
+import '../../../../auth/view_model/auth_vm.dart';
+import '../../../home/home_vm/home_vm.dart';
+import '../../../search/view/bookings/model/bookings.dart';
+import '../../../search/view/bookings/view/host_booking_detail.dart';
+import '../become_verified.dart';
+import 'withdraw_money.dart';
+import '../../../../../utils/heights_widths.dart';
+import '../../../../../utils/helper.dart';
+import '../../../../../utils/zbot_toast.dart';
 
 class StatusScreen extends StatefulWidget {
   @override
@@ -78,7 +79,7 @@ class _StatusScreenState extends State<StatusScreen> {
                   ZBotToast.loadingShow();
                   var data = await db
                       .collection("users")
-                      .doc(FirebaseAuth.instance.currentUser?.uid)
+                      .doc(appwrite.user.$id)
                       .get();
                   var data1 = data.data();
                   var inviteStatus = data1!["invite_status"];

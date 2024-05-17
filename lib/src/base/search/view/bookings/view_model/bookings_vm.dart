@@ -11,6 +11,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:yacht_master/appwrite.dart';
 import 'package:yacht_master/constant/enums.dart';
 import 'package:yacht_master/localization/app_localization.dart';
 import 'package:yacht_master/main.dart';
@@ -731,7 +732,7 @@ class BookingsVm extends ChangeNotifier {
     if (bookingsModel.paymentDetail?.isSplit == true) {
       splitPerson = bookingsModel.paymentDetail?.splitPayment
           ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+              element.userUid == appwrite.user.$id)
           .first;
     }
     if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
@@ -758,7 +759,7 @@ class BookingsVm extends ChangeNotifier {
         splitPerson?.cryptoScreenShot = screenShotUrl;
       }
       bookingsModel.createdAt = Timestamp.now();
-      bookingsModel.createdBy = FirebaseAuth.instance.currentUser?.uid;
+      bookingsModel.createdBy = appwrite.user.$id;
       bookingsModel.paymentDetail
           ?.paymentType = bookingsModel.paymentDetail?.isSplit == false &&
               bookingsModel.paymentDetail?.payInType == PayType.fullPay.index
@@ -831,7 +832,7 @@ class BookingsVm extends ChangeNotifier {
       });
       await FbCollections.bookings.doc(docID).set(bookingsModel.toJson());
       var invite = await FbCollections.invites
-          .where('to', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .where('to', isEqualTo: appwrite.user.$id)
           .get();
       if (invite.docs.last != null) {
         var invite_doc = invite.docs.last.data() as Map<String, dynamic>;
@@ -1273,7 +1274,7 @@ class BookingsVm extends ChangeNotifier {
         ? NotificationModel(
             bookingId: docID,
             id: ref.id,
-            sender: FirebaseAuth.instance.currentUser?.uid,
+            sender: appwrite.user.$id,
             createdAt: Timestamp.now(),
             isSeen: false,
             type: NotificationReceiverType.person.index,
@@ -1283,14 +1284,14 @@ class BookingsVm extends ChangeNotifier {
                 "${authVm.userModel?.firstName ?? ""} have made the Split Payment for booking in ${payInTypeList[bookingsModel.paymentDetail?.payInType ?? 0]} at ${DateFormat("hh:mm a").format(bookingsModel.createdAt?.toDate() ?? now)} on ${DateFormat("dd MMM,yyyy").format(bookingsModel.createdAt?.toDate() ?? now)}",
             receiver: bookingsModel.paymentDetail?.splitPayment
                 ?.where((element) =>
-                    element.userUid != FirebaseAuth.instance.currentUser?.uid)
+                    element.userUid != appwrite.user.$id)
                 .toList()
                 .map((e) => e.userUid)
                 .toList())
         : NotificationModel(
             bookingId: docID,
             id: ref.id,
-            sender: FirebaseAuth.instance.currentUser?.uid,
+            sender: appwrite.user.$id,
             createdAt: Timestamp.now(),
             isSeen: false,
             type: NotificationReceiverType.host.index,
@@ -1299,12 +1300,12 @@ class BookingsVm extends ChangeNotifier {
             text:
                 "${authVm.userModel?.firstName ?? ""} you have 1 minute left in starting your booking for charter ${charter.get("name")}",
             receiver: [
-                FirebaseAuth.instance.currentUser?.uid,
+                appwrite.user.$id,
               ]);
     NotificationModel notificationModelHost = NotificationModel(
         bookingId: docID,
         id: refHost.id,
-        sender: FirebaseAuth.instance.currentUser?.uid,
+        sender: appwrite.user.$id,
         createdAt: Timestamp.now(),
         isSeen: false,
         type: NotificationReceiverType.host.index,
@@ -1355,7 +1356,7 @@ class BookingsVm extends ChangeNotifier {
     if (bookingsModel.paymentDetail?.isSplit == true) {
       bookingsModel.paymentDetail?.splitPayment
           ?.where((element) =>
-              element.userUid != FirebaseAuth.instance.currentUser?.uid)
+              element.userUid != appwrite.user.$id)
           .toList()
           .forEach((element) async {
         ///PUSH NOTIFICATION TO SPLIT CUSTOMERS
@@ -1384,7 +1385,7 @@ class BookingsVm extends ChangeNotifier {
     if (bookingsModel.paymentDetail?.isSplit == true) {
       if (bookingsModel.paymentDetail?.splitPayment
               ?.where((element) =>
-                  element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                  element.userUid == appwrite.user.$id)
               .first
               .depositStatus ==
           DepositStatus.nothingPaid.index) {
@@ -1392,19 +1393,19 @@ class BookingsVm extends ChangeNotifier {
                 .paymentDetail?.paidAmount +
             bookingsModel.paymentDetail?.splitPayment
                 ?.where((element) =>
-                    element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                    element.userUid == appwrite.user.$id)
                 .first
                 .remainingDeposit;
         bookingsModel.paymentDetail?.remainingAmount = bookingsModel
                 .paymentDetail?.remainingAmount -
             bookingsModel.paymentDetail?.splitPayment
                 ?.where((element) =>
-                    element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                    element.userUid == appwrite.user.$id)
                 .first
                 .remainingDeposit;
       } else if (bookingsModel.paymentDetail?.splitPayment
               ?.where((element) =>
-                  element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                  element.userUid == appwrite.user.$id)
               .first
               .depositStatus ==
           DepositStatus.twentyFivePaid.index) {
@@ -1412,85 +1413,85 @@ class BookingsVm extends ChangeNotifier {
                 .paymentDetail?.paidAmount +
             bookingsModel.paymentDetail?.splitPayment
                 ?.where((element) =>
-                    element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                    element.userUid == appwrite.user.$id)
                 .first
                 .remainingAmount;
         bookingsModel.paymentDetail?.remainingAmount = bookingsModel
                 .paymentDetail?.remainingAmount -
             bookingsModel.paymentDetail?.splitPayment
                 ?.where((element) =>
-                    element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                    element.userUid == appwrite.user.$id)
                 .first
                 .remainingAmount;
       }
       bookingsModel.paymentDetail?.splitPayment
           ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+              element.userUid == appwrite.user.$id)
           .first
           .paymentType = PaymentType.payInApp.index;
       bookingsModel.paymentDetail?.splitPayment
           ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+              element.userUid == appwrite.user.$id)
           .first
           .amount = bookingsModel.paymentDetail?.payInType ==
               PayType.fullPay.index
           ? bookingsModel.paymentDetail?.splitPayment
               ?.where((element) =>
-                  element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                  element.userUid == appwrite.user.$id)
               .first
               .amount
           : bookingsModel.paymentDetail?.splitPayment
                       ?.where((element) =>
                           element.userUid ==
-                          FirebaseAuth.instance.currentUser?.uid)
+                          appwrite.user.$id)
                       .first
                       .depositStatus ==
                   DepositStatus.nothingPaid.index
               ? bookingsModel.paymentDetail?.splitPayment
                   ?.where((element) =>
-                      element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                      element.userUid == appwrite.user.$id)
                   .first
                   .remainingDeposit
               : bookingsModel.paymentDetail?.splitPayment
                       ?.where((element) =>
                           element.userUid ==
-                          FirebaseAuth.instance.currentUser?.uid)
+                          appwrite.user.$id)
                       .first
                       .amount +
                   bookingsModel.paymentDetail?.splitPayment
                       ?.where((element) =>
                           element.userUid ==
-                          FirebaseAuth.instance.currentUser?.uid)
+                          appwrite.user.$id)
                       .first
                       .remainingAmount;
       bookingsModel.paymentDetail?.splitPayment
           ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+              element.userUid == appwrite.user.$id)
           .first
           .remainingAmount = bookingsModel.paymentDetail?.splitPayment
                   ?.where((element) =>
-                      element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                      element.userUid == appwrite.user.$id)
                   .first
                   .depositStatus ==
               DepositStatus.twentyFivePaid.index
           ? 0.0
           : bookingsModel.paymentDetail?.splitPayment
               ?.where((element) =>
-                  element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                  element.userUid == appwrite.user.$id)
               .first
               .remainingAmount;
       bookingsModel.paymentDetail?.splitPayment
           ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+              element.userUid == appwrite.user.$id)
           .first
           .remainingDeposit = 0.0;
       bookingsModel.paymentDetail?.splitPayment
           ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+              element.userUid == appwrite.user.$id)
           .first
           .depositStatus = bookingsModel.paymentDetail?.splitPayment
                   ?.where((element) =>
-                      element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                      element.userUid == appwrite.user.$id)
                   .first
                   .depositStatus ==
               DepositStatus.twentyFivePaid.index
@@ -1498,22 +1499,22 @@ class BookingsVm extends ChangeNotifier {
           : DepositStatus.twentyFivePaid.index;
       bookingsModel.paymentDetail?.splitPayment
           ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+              element.userUid == appwrite.user.$id)
           .first
           .paymentStatus = PaymentStatus.payInAppOrCash.index;
       bookingsModel.paymentDetail?.splitPayment
           ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+              element.userUid == appwrite.user.$id)
           .first
           .paymentMethod = selectedPaymentMethod;
       bookingsModel.paymentDetail?.splitPayment
           ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+              element.userUid == appwrite.user.$id)
           .first
           .cryptoReceiverEmail = appUrlModel?.adminCryptoEmail ?? "";
       bookingsModel.paymentDetail?.splitPayment
           ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+              element.userUid == appwrite.user.$id)
           .first
           .cryptoScreenShot = screenShotUrl;
     } else {

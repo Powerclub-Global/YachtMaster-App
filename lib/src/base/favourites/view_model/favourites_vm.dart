@@ -1,7 +1,7 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:yacht_master/src/base/search/model/services_model.dart';
+import '../../search/model/services_model.dart';
 
 class FavouritesVm extends ChangeNotifier {
 

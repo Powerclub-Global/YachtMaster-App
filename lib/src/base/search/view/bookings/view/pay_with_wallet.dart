@@ -6,20 +6,21 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/base_view.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/src/base/search/view/search_screen.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
-import 'package:yacht_master/utils/validation.dart';
+import '../../../../../../appwrite.dart';
+import '../../../../../../constant/enums.dart';
+import '../../../../../../localization/app_localization.dart';
+import '../../../../../../resources/decorations.dart';
+import '../../../../../../resources/resources.dart';
+import '../../../../../../services/firebase_collections.dart';
+import '../../../../../auth/view_model/auth_vm.dart';
+import '../../../../base_view.dart';
+import '../model/bookings.dart';
+import '../view_model/bookings_vm.dart';
+import '../../search_screen.dart';
+import '../../../../../../utils/general_app_bar.dart';
+import '../../../../../../utils/heights_widths.dart';
+import '../../../../../../utils/helper.dart';
+import '../../../../../../utils/validation.dart';
 
 class PayWithWallet extends StatefulWidget {
   static String route = "/payWithWallet";
@@ -58,7 +59,7 @@ class _PayWithWalletState extends State<PayWithWallet> {
       if (bookingsVm.bookingsModel.paymentDetail?.isSplit == true) {
         splitPerson = bookingsVm.bookingsModel.paymentDetail?.splitPayment
             ?.where((element) =>
-                element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                element.userUid == appwrite.user.$id)
             .first;
       }
       walletAmount = double.parse(authVm.wallet?.amount.toString() ?? "0.0");

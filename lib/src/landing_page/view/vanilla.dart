@@ -4,16 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/services/stripe/stripe_service.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/search/model/charter_model.dart';
-import 'package:yacht_master/src/base/yacht/view/charter_detail.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/zbot_toast.dart';
+import '../../../appwrite.dart';
+import '../../../localization/app_localization.dart';
+import '../../../resources/resources.dart';
+import '../../../services/firebase_collections.dart';
+import '../../../services/stripe/stripe_service.dart';
+import '../../auth/view_model/auth_vm.dart';
+import '../../base/search/model/charter_model.dart';
+import '../../base/yacht/view/charter_detail.dart';
+import '../../base/yacht/view_model/yacht_vm.dart';
+import '../../../utils/general_app_bar.dart';
+import '../../../utils/zbot_toast.dart';
 
 class Vanilla extends StatefulWidget {
   const Vanilla({super.key});
@@ -71,7 +72,7 @@ class _VanillaState extends State<Vanilla> {
           "yacht": yacht,
           "isReserve": false,
           "index": index,
-          "isEdit": yacht.createdBy == FirebaseAuth.instance.currentUser?.uid
+          "isEdit": yacht.createdBy == appwrite.user.$id
               ? true
               : false,
           "isLink": true,
@@ -80,10 +81,10 @@ class _VanillaState extends State<Vanilla> {
       String? senderId = Get.parameters["from"];
       var inviteData = {
         'from': senderId,
-        'to': FirebaseAuth.instance.currentUser?.uid
+        'to': appwrite.user.$id
       };
       await FbCollections.invites.add(inviteData);
-    }
+}
     if (Get.parameters['status'] != null) {
       await handleReturnRedirectFromStripeAccountLink(
           context, Get.parameters['status']!);

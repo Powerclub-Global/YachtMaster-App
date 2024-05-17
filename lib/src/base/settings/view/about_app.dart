@@ -7,16 +7,16 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/base/settings/model/content_model.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/helper.dart';
-import 'package:yacht_master/utils/launch_url.dart';
-import 'package:yacht_master/utils/zbot_toast.dart';
+import '../../../../constant/enums.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../model/content_model.dart';
+import '../view_model/settings_vm.dart';
+import '../../../../utils/general_app_bar.dart';
+import '../../../../utils/helper.dart';
+import '../../../../utils/launch_url.dart';
+import '../../../../utils/zbot_toast.dart';
 
 class AboutApp extends StatefulWidget {
   static String route="/aboutApp";

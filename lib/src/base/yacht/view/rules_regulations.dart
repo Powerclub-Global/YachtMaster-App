@@ -4,11 +4,11 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/resources/dummy.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../resources/dummy.dart';
+import '../../../../resources/resources.dart';
+import '../../settings/view_model/settings_vm.dart';
+import '../../../../utils/general_app_bar.dart';
+import '../../../../utils/heights_widths.dart';
 
 import '../../../../constant/enums.dart';
 

@@ -10,34 +10,35 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/auth/model/favourite_model.dart';
-import 'package:yacht_master/src/auth/model/user_model.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/inbox/model/chat_heads_model.dart';
-import 'package:yacht_master/src/base/inbox/view/chat.dart';
-import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
-import 'package:yacht_master/src/base/profile/model/review_model.dart';
-import 'package:yacht_master/src/base/profile/view/review_screen.dart';
-import 'package:yacht_master/src/base/search/model/services_model.dart';
-import 'package:yacht_master/src/base/search/view_model/search_vm.dart';
-import 'package:yacht_master/src/base/search/widgets/charter_widget.dart';
-import 'package:yacht_master/src/base/search/widgets/host_widget.dart';
-import 'package:yacht_master/src/base/search/widgets/yacht_widget.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/src/base/yacht/view/charter_detail.dart';
-import 'package:yacht_master/src/base/yacht/view/service_detail.dart';
-import 'package:yacht_master/src/base/yacht/view/yacht_detail.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
-import 'package:yacht_master/src/base/yacht/widgets/rating_reviews_card.dart';
-import 'package:yacht_master/utils/empty_screem.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../appwrite.dart';
+import '../../../../constant/enums.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/decorations.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../auth/model/favourite_model.dart';
+import '../../../auth/model/user_model.dart';
+import '../../base_vm.dart';
+import '../../home/home_vm/home_vm.dart';
+import '../../inbox/model/chat_heads_model.dart';
+import '../../inbox/view/chat.dart';
+import '../../inbox/view_model/inbox_vm.dart';
+import '../model/review_model.dart';
+import 'review_screen.dart';
+import '../../search/model/services_model.dart';
+import '../../search/view_model/search_vm.dart';
+import '../../search/widgets/charter_widget.dart';
+import '../../search/widgets/host_widget.dart';
+import '../../search/widgets/yacht_widget.dart';
+import '../../settings/view_model/settings_vm.dart';
+import '../../yacht/view/charter_detail.dart';
+import '../../yacht/view/service_detail.dart';
+import '../../yacht/view/yacht_detail.dart';
+import '../../yacht/view_model/yacht_vm.dart';
+import '../../yacht/widgets/rating_reviews_card.dart';
+import '../../../../utils/empty_screem.dart';
+import '../../../../utils/general_app_bar.dart';
+import '../../../../utils/heights_widths.dart';
 
 class HostProfileOthers extends StatefulWidget {
   static String route = "/hostProfileOthers";
@@ -221,15 +222,13 @@ class _HostProfileOthersState extends State<HostProfileOthers> {
                                     yachtVm.userFavouritesList.removeWhere((element)=> element.id == host?.uid);
                                     yachtVm.update();
                                     await FbCollections.user
-                                        .doc(FirebaseAuth
-                                            .instance.currentUser?.uid)
+                                        .doc(appwrite.user.$id)
                                         .collection("favourite")
                                         .doc(host?.uid)
                                         .delete();
                                   } else {
                                     await FbCollections.user
-                                        .doc(FirebaseAuth
-                                            .instance.currentUser?.uid)
+                                        .doc(appwrite.user.$id)
                                         .collection("favourite")
                                         .doc(host?.uid)
                                         .set(favModel.toJson());
@@ -605,14 +604,14 @@ class _HostProfileOthersState extends State<HostProfileOthers> {
 
   Future<ChatHeadModel?> createChatHead(InboxVm chatVm) async {
     ChatHeadModel? chatHeadModel;
-    List<String> tempSort = [FirebaseAuth.instance.currentUser?.uid ?? "", host?.uid??""];
+    List<String> tempSort = [appwrite.user.$id ?? "", host?.uid??""];
     tempSort.sort();
     ChatHeadModel chatData =
     ChatHeadModel(
       createdAt: Timestamp.now(),
       lastMessageTime: Timestamp.now(),
       lastMessage: "",
-      createdBy: FirebaseAuth.instance.currentUser?.uid,
+      createdBy: appwrite.user.$id,
       id: tempSort.join('_'),
       status: 0,
       peerId:host?.uid,

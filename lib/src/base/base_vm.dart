@@ -4,16 +4,16 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/auth/model/user_model.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
-import 'package:yacht_master/src/base/profile/model/review_model.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
+import '../../constant/enums.dart';
+import '../../resources/resources.dart';
+import '../../services/firebase_collections.dart';
+import '../auth/model/user_model.dart';
+import 'home/home_vm/home_vm.dart';
+import 'inbox/view_model/inbox_vm.dart';
+import 'profile/model/review_model.dart';
+import 'search/view/bookings/view_model/bookings_vm.dart';
+import 'settings/view_model/settings_vm.dart';
+import 'yacht/view_model/yacht_vm.dart';
 
 class BaseVm extends ChangeNotifier {
   List<String> bottomIcons = [

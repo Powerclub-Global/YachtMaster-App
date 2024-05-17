@@ -7,15 +7,16 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/auth/model/favourite_model.dart';
-import 'package:yacht_master/src/base/search/model/charter_model.dart';
-import 'package:yacht_master/src/base/search/widgets/charter_widget.dart';
-import 'package:yacht_master/src/base/yacht/view/charter_detail.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
-import 'package:yacht_master/utils/empty_screem.dart';
+import '../../../../appwrite.dart';
+import '../../../../constant/enums.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../auth/model/favourite_model.dart';
+import '../../search/model/charter_model.dart';
+import '../../search/widgets/charter_widget.dart';
+import '../../yacht/view/charter_detail.dart';
+import '../../yacht/view_model/yacht_vm.dart';
+import '../../../../utils/empty_screem.dart';
 
 class ChartersView extends StatefulWidget {
   const ChartersView({Key? key}) : super(key: key);
@@ -116,8 +117,7 @@ class _ChartersViewState extends State<ChartersView> {
                                         yachtVm.update();
                                         try {
                                           await FbCollections.user
-                                              .doc(FirebaseAuth
-                                              .instance.currentUser?.uid)
+                                              .doc(appwrite.user.$id)
                                               .collection("favourite")
                                               .doc(charter.id)
                                               .delete();
@@ -128,8 +128,7 @@ class _ChartersViewState extends State<ChartersView> {
                                       } else {
                                         try {
                                           await FbCollections.user
-                                              .doc(FirebaseAuth
-                                              .instance.currentUser?.uid)
+                                              .doc(appwrite.user.$id)
                                               .collection("favourite")
                                               .doc(charter.id)
                                               .set(favModel.toJson());

@@ -10,16 +10,16 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/settings/view/privacy_policy.dart';
-import 'package:yacht_master/src/base/settings/view/terms_of_services.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
-import 'package:yacht_master/utils/validation.dart';
-import 'package:yacht_master/utils/zbot_toast.dart';
+import '../../../localization/app_localization.dart';
+import '../../../resources/decorations.dart';
+import '../view_model/auth_vm.dart';
+import '../../base/settings/view/privacy_policy.dart';
+import '../../base/settings/view/terms_of_services.dart';
+import '../../base/settings/view_model/settings_vm.dart';
+import '../../../utils/heights_widths.dart';
+import '../../../utils/helper.dart';
+import '../../../utils/validation.dart';
+import '../../../utils/zbot_toast.dart';
 
 import '../../../resources/resources.dart';
 import '../../../utils/keyboard_actions.dart';
@@ -354,7 +354,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     firstNameController.text,
                                     lastNameController.text,
                                     countryCode.trim(),
-                                    phoneNumController.text.trim(),false);
+                                    phoneNumController.text.trim());
                               }
                             },
                             child: Container(

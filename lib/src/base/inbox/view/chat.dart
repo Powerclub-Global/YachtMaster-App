@@ -12,16 +12,17 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
-import 'package:yacht_master/src/base/inbox/model/chat_heads_model.dart';
-import 'package:yacht_master/src/base/inbox/model/chat_model.dart';
-import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
+import '../../../../appwrite.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../../services/time_schedule_service.dart';
+import '../../../auth/view_model/auth_vm.dart';
+import '../../base_vm.dart';
+import '../model/chat_heads_model.dart';
+import '../model/chat_model.dart';
+import '../view_model/inbox_vm.dart';
 
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../utils/heights_widths.dart';
 import 'dart:ui' as ui;
 
 import '../../../../services/notification_service.dart';
@@ -95,7 +96,7 @@ class _ChatViewState extends State<ChatView> {
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 centerTitle: true,
-                title: Text(baseVm.allUsers.firstWhereOrNull((element) => chatHeadModel?.users?.where((element) => element!=FirebaseAuth.instance.currentUser?.uid).first==element.uid)?.firstName??"",
+                title: Text(baseVm.allUsers.firstWhereOrNull((element) => chatHeadModel?.users?.where((element) => element!=appwrite.user.$id).first==element.uid)?.firstName??"",
                       style: R.textStyle
                       .helveticaBold()
                           .copyWith(color: R.colors.whiteDull)),
@@ -153,7 +154,7 @@ class _ChatViewState extends State<ChatView> {
                       ChatModel chatModel=ChatModel.fromJson(snapshot.data?.docs[index].data());
 
                       return
-                        chatModel.senderId==FirebaseAuth.instance.currentUser?.uid?
+                        chatModel.senderId==appwrite.user.$id?
                         senderBubble(chatModel,baseVm):
                       receiverBubble(chatModel,baseVm);
                     },
@@ -227,7 +228,7 @@ Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
                                 style: R.textStyle
                                     .helvetica()
                                     .copyWith(
-                                    color: chatModel.senderId == FirebaseAuth.instance.currentUser?.uid
+                                    color: chatModel.senderId == appwrite.user.$id
                                         ? R.colors.whiteColor
                                         : R.colors.blackDull,
                                     fontSize:
@@ -246,7 +247,7 @@ Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
                   child: Text(
                       "${DateFormat.jm().format(chatModel.createdAt?.toDate()??now).toString().toLowerCase()}",
                       style: R.textStyle.helvetica().copyWith(
-                          color: chatModel.senderId == FirebaseAuth.instance.currentUser?.uid
+                          color: chatModel.senderId == appwrite.user.$id
                               ? R.colors.whiteColor
                               : R.colors.black,
                           fontSize: 7.sp)),
@@ -277,14 +278,14 @@ Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
   Widget receiverBubble(ChatModel chatModel,BaseVm baseVm)
   {
     return
-      baseVm.allUsers.firstWhereOrNull((element) => element.uid==chatHeadModel?.users?.firstWhereOrNull((e) => e!=FirebaseAuth.instance.currentUser?.uid))==null?
+      baseVm.allUsers.firstWhereOrNull((element) => element.uid==chatHeadModel?.users?.firstWhereOrNull((e) => e!=appwrite.user.$id))==null?
           SizedBox():
       Row(crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         GestureDetector(
           onTap: (){
-            Get.toNamed(HostProfileOthers.route,arguments: {"host":baseVm.allUsers.firstWhereOrNull((element) => chatHeadModel?.users?.where((element) => element!=FirebaseAuth.instance.currentUser?.uid).first==element.uid)});
+            Get.toNamed(HostProfileOthers.route,arguments: {"host":baseVm.allUsers.firstWhereOrNull((element) => chatHeadModel?.users?.where((element) => element!=appwrite.user.$id).first==element.uid)});
 
           },
           child: CircularProfileAvatar(
@@ -293,7 +294,7 @@ Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
             child:
             CachedNetworkImage(
               imageUrl:
-              baseVm.allUsers.where((element) => element.uid==chatHeadModel!.users!.where((element) => element!=FirebaseAuth.instance.currentUser!.uid).first).first.imageUrl??"",
+              baseVm.allUsers.where((element) => element.uid==chatHeadModel!.users!.where((element) => element!=appwrite.user.$id).first).first.imageUrl??"",
               // peerSnap.data?.get("image_url"),
               fit: BoxFit.cover,
               progressIndicatorBuilder: (context, url, downloadProgress) =>
@@ -340,7 +341,7 @@ Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
                               Padding(
                                 padding:  EdgeInsets.only(bottom: 8.0),
                                 child: Text(
-                                    baseVm.allUsers.where((element) => element.uid==chatHeadModel!.users!.where((element) => element!=FirebaseAuth.instance.currentUser!.uid).first).first.firstName??"",
+                                    baseVm.allUsers.where((element) => element.uid==chatHeadModel!.users!.where((element) => element!=appwrite.user.$id).first).first.firstName??"",
 
                                     style: R.textStyle
                                         .helvetica()
@@ -354,7 +355,7 @@ Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
                                   style: R.textStyle
                                       .helvetica()
                                       .copyWith(
-                                      color: chatModel.senderId == FirebaseAuth.instance.currentUser?.uid
+                                      color: chatModel.senderId == appwrite.user.$id
                                           ? R.colors.whiteColor
                                           : R.colors.blackDull,
                                       fontSize:
@@ -458,11 +459,11 @@ Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
                      // DateFormat("hh:mm a")
                      //     .format(DateTime.now())
                      //     .toLowerCase(),
-                     senderId: FirebaseAuth.instance.currentUser?.uid,
+                     senderId: appwrite.user.$id,
                      chatHeadId: chatHeadModel?.id,
                      type: 0,
                      isSeen: false,
-                     receiverId:chatHeadModel?.users?.where((element) => element!=FirebaseAuth.instance.currentUser?.uid).toList().first
+                     receiverId:chatHeadModel?.users?.where((element) => element!=appwrite.user.$id).toList().first
                  );
                     chatHeadModel?.lastMessageTime=lastMessageTime;
                     chatHeadModel?.lastMessage=msgCon.text;
@@ -510,7 +511,7 @@ Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
       ) async {
     try {
       await  NotificationService.sendNotification(
-            fcmToken: baseVm.allUsers.firstWhereOrNull((element) => chatHeadModel?.users?.where((element) => element!=FirebaseAuth.instance.currentUser?.uid).first==element.uid)?.fcm??"",
+            fcmToken: baseVm.allUsers.firstWhereOrNull((element) => chatHeadModel?.users?.where((element) => element!=appwrite.user.$id).first==element.uid)?.fcm??"",
             title: "New Message",
             body: notficationBody);
 

@@ -7,16 +7,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:yacht_master/constant/constant.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/localization/update_locale.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/auth/model/user_model.dart';
-import 'package:yacht_master/src/base/profile/model/review_model.dart';
-import 'package:yacht_master/src/base/settings/model/content_model.dart';
-import 'package:yacht_master/src/base/settings/model/payment_payouts_model.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
+import '../../../../appwrite.dart';
+import '../../../../constant/constant.dart';
+import '../../../../constant/enums.dart';
+import '../../../../localization/update_locale.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../auth/model/user_model.dart';
+import '../../profile/model/review_model.dart';
+import '../model/content_model.dart';
+import '../model/payment_payouts_model.dart';
+import '../../yacht/view_model/yacht_vm.dart';
 
 class SettingsVm extends ChangeNotifier {
   bool isLoading = false;
@@ -81,7 +82,7 @@ class SettingsVm extends ChangeNotifier {
           allReviews = reviews;
           hostReviews = reviews
               .where((element) =>
-                  element.hostId == FirebaseAuth.instance.currentUser?.uid)
+                  element.hostId == appwrite.user.$id)
               .toList();
           await reviews.asyncForEach((element) async {
             log(")))))))))))))))))HOSTS:${hosts?.length}");
@@ -102,12 +103,12 @@ class SettingsVm extends ChangeNotifier {
           hosts?.sort((a, b) => b.rating!.compareTo(a.rating!));
           notifyListeners();
           // hosts?.forEach((element) {
-          //   log("_____${element.uid}=====${FirebaseAuth.instance.currentUser?.uid}");
-          //   if(element.uid!=FirebaseAuth.instance.currentUser?.uid)
+          //   log("_____${element.uid}=====${appwrite.user.$id}");
+          //   if(element.uid!=appwrite.user.$id)
           //     {
           //       yachtVm.allHosts.add(element);
           //     }
-          //   // element.uid!=FirebaseAuth.instance.currentUser?.uid;
+          //   // element.uid!=appwrite.user.$id;
           // });
           yachtVm.allHosts = List.from(hosts?.toList() ?? []);
           notifyListeners();

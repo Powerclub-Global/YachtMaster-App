@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:yacht_master/constant/enums.dart';
+import '../../../constant/enums.dart';
 
 class UserModel {
   UserModel(
@@ -25,7 +25,6 @@ class UserModel {
       this.isCardSaved = false,
       this.role,
       this.requestStatus,
-      this.isSocialLogin,
       this.inviteStatus,});
 
   UserModel.fromJson(dynamic json) {
@@ -48,7 +47,6 @@ class UserModel {
     inviteStatus = json['invite_status'];
     status = UserStatus.values[json['status'] ?? 0];
     hostDocumentUrl = json['host_document_url'];
-    isSocialLogin = json['is_social_login'];
     inviteStatus = json['invite_status'];
   }
   String? uid;
@@ -67,7 +65,6 @@ class UserModel {
   String? stripeCustomerID;
   bool? isFav;
   bool? isActiveUser;
-  bool? isSocialLogin;
   UserStatus? status;
   UserType? role;
   RequestStatus? requestStatus;
@@ -87,7 +84,6 @@ class UserModel {
     bool? isCardSaved,
     UserStatus? status,
     bool? isActiveUser,
-    bool? isSocialLogin,
     String? phoneNumber,
     String? firstName,
     String? stripeCustomerID,
@@ -101,7 +97,6 @@ class UserModel {
         fcm: fcm ?? this.fcm,
         username: username ?? this.username,
         isCardSaved: isCardSaved ?? this.isCardSaved,
-        isSocialLogin: isSocialLogin ?? this.isSocialLogin,
         isActiveUser: isActiveUser ?? this.isActiveUser,
         hostDocumentUrl: hostDocumentUrl ?? this.hostDocumentUrl,
         status: status ?? this.status,
@@ -124,7 +119,6 @@ class UserModel {
     map['uid'] = uid;
     map["username"] = username;
     map['is_card_saved'] = isCardSaved;
-    map['is_social_login'] = isSocialLogin;
     map['host_document_url'] = hostDocumentUrl;
     map['isActiveUser'] = isActiveUser;
     map['fcm'] = fcm;

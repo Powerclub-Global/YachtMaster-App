@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/dummy.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
+import '../../../../constant/enums.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/dummy.dart';
+import '../../../../resources/resources.dart';
+import '../view_model/settings_vm.dart';
+import '../../../../utils/general_app_bar.dart';
 
 class PrivacySharing extends StatefulWidget {
   static String route="/privacySharing";

@@ -52,7 +52,7 @@
 //                     bookingsVm.selectedHostBookingTab==BookingStatus.ongoing.index &&
 //                             provider.allBookings.
 //                             where((element) => element.bookingStatus==BookingStatus.ongoing.index
-//                                 && element.hostUserUid==FirebaseAuth.instance.currentUser?.uid
+//                                 && element.hostUserUid==appwrite.user.$id
 //                             ).toList().isEmpty?
 //                     EmptyScreen(
 //                       title: "no_ongoing_booking",
@@ -63,16 +63,16 @@
 //                     bookingsVm.selectedHostBookingTab==BookingStatus.ongoing.index &&
 //                             provider.allBookings.
 //                             where((element) => element.bookingStatus==BookingStatus.ongoing.index
-//                                 && element.hostUserUid==FirebaseAuth.instance.currentUser?.uid
+//                                 && element.hostUserUid==appwrite.user.$id
 //                             ).toList().isNotEmpty?
 //                     ListView(
 //                       children: List.generate(provider.allBookings.
 //                       where((element) => element.bookingStatus==BookingStatus.ongoing.index
-//                           && element.hostUserUid==FirebaseAuth.instance.currentUser?.uid
+//                           && element.hostUserUid==appwrite.user.$id
 //                       ).toList().length,
 //                               (index) {
 //                             BookingsModel bookingModel=provider.allBookings.
-//                             where((element) => element.bookingStatus==BookingStatus.ongoing.index  && element.hostUserUid==FirebaseAuth.instance.currentUser?.uid).toList()[index];
+//                             where((element) => element.bookingStatus==BookingStatus.ongoing.index  && element.hostUserUid==appwrite.user.$id).toList()[index];
 //                             return Padding(
 //                               padding:  EdgeInsets.symmetric(horizontal: 5.w),
 //                               child: GestureDetector(
@@ -91,7 +91,7 @@
 //                           }),):
 //                     bookingsVm.selectedHostBookingTab==BookingStatus.completed.index &&
 //                         provider.allBookings.
-//                         where((element) => element.bookingStatus==BookingStatus.completed.index  && element.hostUserUid==FirebaseAuth.instance.currentUser?.uid).toList().isEmpty?
+//                         where((element) => element.bookingStatus==BookingStatus.completed.index  && element.hostUserUid==appwrite.user.$id).toList().isEmpty?
 //                     EmptyScreen(
 //                       title: "no_completed_booking",
 //                       subtitle: "no_bookings_has_been_completed_yet",
@@ -100,7 +100,7 @@
 //                     ):
 //                     bookingsVm.selectedHostBookingTab==BookingStatus.completed.index &&
 //                         provider.allBookings.
-//                         where((element) => element.bookingStatus==BookingStatus.completed.index && element.hostUserUid==FirebaseAuth.instance.currentUser?.uid).toList().isNotEmpty?
+//                         where((element) => element.bookingStatus==BookingStatus.completed.index && element.hostUserUid==appwrite.user.$id).toList().isNotEmpty?
 //                     ListView(
 //                       children: List.generate(provider.allBookings.
 //                       where((element) => element.bookingStatus==BookingStatus.completed.index).toList().length,
@@ -125,7 +125,7 @@
 //                           }),):
 //                     bookingsVm.selectedHostBookingTab==BookingStatus.canceled.index &&
 //                         provider.allBookings.
-//                         where((element) => element.bookingStatus==BookingStatus.canceled.index && element.hostUserUid==FirebaseAuth.instance.currentUser?.uid).toList().isEmpty?
+//                         where((element) => element.bookingStatus==BookingStatus.canceled.index && element.hostUserUid==appwrite.user.$id).toList().isEmpty?
 //                     EmptyScreen(
 //                       title: "no_canceled_booking",
 //                       subtitle: "no_bookings_has_been_canceled_yet",
@@ -134,10 +134,10 @@
 //                     ):
 //                     ListView(
 //                       children: List.generate(provider.allBookings.
-//                       where((element) => element.bookingStatus==BookingStatus.canceled.index && element.hostUserUid==FirebaseAuth.instance.currentUser?.uid).toList().length,
+//                       where((element) => element.bookingStatus==BookingStatus.canceled.index && element.hostUserUid==appwrite.user.$id).toList().length,
 //                               (index) {
 //                             BookingsModel bookingModel=provider.allBookings.
-//                             where((element) => element.bookingStatus==BookingStatus.canceled.index && element.hostUserUid==FirebaseAuth.instance.currentUser?.uid).toList()[index];
+//                             where((element) => element.bookingStatus==BookingStatus.canceled.index && element.hostUserUid==appwrite.user.$id).toList()[index];
 //                             return Padding(
 //                               padding:  EdgeInsets.symmetric(horizontal: 5.w),
 //                               child: GestureDetector(

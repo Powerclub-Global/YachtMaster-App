@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../utils/helper.dart';
 
 import '../resources/resources.dart';
 

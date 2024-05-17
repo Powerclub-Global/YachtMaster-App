@@ -12,42 +12,43 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/constant.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/auth/view/login.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/admin_chat/model/admin_chat_head_model.dart';
-import 'package:yacht_master/src/base/admin_chat/view/admin_chat_view.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
-import 'package:yacht_master/src/base/home/view/help_center.dart';
-import 'package:yacht_master/src/base/inbox/model/chat_heads_model.dart';
-import 'package:yacht_master/src/base/inbox/view/chat.dart';
-import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
-import 'package:yacht_master/src/base/profile/view/host_profile.dart';
-import 'package:yacht_master/src/base/profile/view/user_profile.dart';
-import 'package:yacht_master/src/base/profile/widgets/edit_profile_bottomsheet.dart';
-import 'package:yacht_master/src/base/search/model/charter_model.dart';
-import 'package:yacht_master/src/base/settings/model/app_feedback_model.dart';
-import 'package:yacht_master/src/base/settings/view/about_app.dart';
-import 'package:yacht_master/src/base/settings/view/ask_a_superhost.dart';
-import 'package:yacht_master/src/base/settings/view/become_verified.dart';
-import 'package:yacht_master/src/base/settings/view/invite_earn/invite_earn.dart';
-import 'package:yacht_master/src/base/settings/view/payment_payouts.dart';
-import 'package:yacht_master/src/base/settings/view/privacy_policy.dart';
-import 'package:yacht_master/src/base/settings/view/privacy_sharing.dart';
-import 'package:yacht_master/src/base/settings/view/safety_center.dart';
-import 'package:yacht_master/src/base/settings/view/terms_of_services.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/src/base/settings/widgets/feedback_bottomsheet.dart';
-import 'package:yacht_master/src/base/settings/widgets/logout_sheet.dart';
-import 'package:yacht_master/src/base/settings/widgets/translate_bottomsheet.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
-import 'package:yacht_master/utils/zbot_toast.dart';
+import '../../../../appwrite.dart';
+import '../../../../constant/constant.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/decorations.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../auth/view/login.dart';
+import '../../../auth/view_model/auth_vm.dart';
+import '../../admin_chat/model/admin_chat_head_model.dart';
+import '../../admin_chat/view/admin_chat_view.dart';
+import '../../base_vm.dart';
+import '../../home/view/help_center.dart';
+import '../../inbox/model/chat_heads_model.dart';
+import '../../inbox/view/chat.dart';
+import '../../inbox/view_model/inbox_vm.dart';
+import '../../profile/view/host_profile.dart';
+import '../../profile/view/user_profile.dart';
+import '../../profile/widgets/edit_profile_bottomsheet.dart';
+import '../../search/model/charter_model.dart';
+import '../model/app_feedback_model.dart';
+import 'about_app.dart';
+import 'ask_a_superhost.dart';
+import 'become_verified.dart';
+import 'invite_earn/invite_earn.dart';
+import 'payment_payouts.dart';
+import 'privacy_policy.dart';
+import 'privacy_sharing.dart';
+import 'safety_center.dart';
+import 'terms_of_services.dart';
+import '../view_model/settings_vm.dart';
+import '../widgets/feedback_bottomsheet.dart';
+import '../widgets/logout_sheet.dart';
+import '../widgets/translate_bottomsheet.dart';
+import '../../yacht/view_model/yacht_vm.dart';
+import '../../../../utils/heights_widths.dart';
+import '../../../../utils/helper.dart';
+import '../../../../utils/zbot_toast.dart';
 
 import '../../../../constant/enums.dart';
 import '../../admin_chat/model/admin_chat_model.dart';
@@ -381,7 +382,7 @@ class _SettingsViewState extends State<SettingsView> {
                 AppFeedbackModel appFeedbackModel = AppFeedbackModel(
                     id: docID,
                     feedback: desc,
-                    userId: FirebaseAuth.instance.currentUser?.uid,
+                    userId: appwrite.user.$id,
                     rating: rating,
                     createdAt: Timestamp.now());
                 try {
@@ -507,13 +508,13 @@ class _SettingsViewState extends State<SettingsView> {
       InboxVm chatVm, YachtVm yachtVm) async {
     AdminChatHeadModel? chatHeadModel;
     AdminChatHeadModel chatData = AdminChatHeadModel(
-      id: FirebaseAuth.instance.currentUser?.uid,
+      id: appwrite.user.$id,
       createdAt: Timestamp.now(),
       lastMessage: AdminChatModel(
           message: "",
           createdAt: Timestamp.now(),
-          senderId: FirebaseAuth.instance.currentUser?.uid,
-          chatHeadId: FirebaseAuth.instance.currentUser?.uid,
+          senderId: appwrite.user.$id,
+          chatHeadId: appwrite.user.$id,
           type: 0,
           isSeen: false,
           receiverId: Provider.of<BaseVm>(context, listen: false)
@@ -523,7 +524,7 @@ class _SettingsViewState extends State<SettingsView> {
               ""),
       status: 0,
       users: [
-        FirebaseAuth.instance.currentUser?.uid ?? "",
+        appwrite.user.$id ?? "",
         Provider.of<BaseVm>(context, listen: false)
                 .allUsers
                 .firstWhereOrNull((element) => element.role == UserType.admin)
@@ -546,12 +547,12 @@ class _SettingsViewState extends State<SettingsView> {
       if (doc.data() == null) {
         chatHeadModel = AdminChatHeadModel(
           createdAt: Timestamp.now(),
-          id: FirebaseAuth.instance.currentUser?.uid,
+          id: appwrite.user.$id,
           lastMessage: AdminChatModel(
               message: "",
               createdAt: Timestamp.now(),
-              senderId: FirebaseAuth.instance.currentUser?.uid,
-              chatHeadId: FirebaseAuth.instance.currentUser?.uid,
+              senderId: appwrite.user.$id,
+              chatHeadId: appwrite.user.$id,
               type: 0,
               isSeen: false,
               receiverId: Provider.of<BaseVm>(context, listen: false)
@@ -562,7 +563,7 @@ class _SettingsViewState extends State<SettingsView> {
                   ""),
           status: 0,
           users: [
-            FirebaseAuth.instance.currentUser?.uid ?? "",
+            appwrite.user.$id ?? "",
             Provider.of<BaseVm>(context, listen: false)
                     .allUsers
                     .firstWhereOrNull(

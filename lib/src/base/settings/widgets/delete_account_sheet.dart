@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/src/auth/view/login.dart';
+import '../../../../appwrite.dart';
+import '../../../auth/view/login.dart';
 
 import '../../../../../../../resources/resources.dart';
 import '../../../../../../../utils/heights_widths.dart';
@@ -33,18 +34,16 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
   Widget build(BuildContext context) {
     return Consumer<AuthVm>(builder: (context, vm, _) {
       return GestureDetector(
-        onTap: (){
+        onTap: () {
           FocusScope.of(context).requestFocus(FocusNode());
-          setState(() {
-
-          });
+          setState(() {});
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
               color: R.colors.black,
               borderRadius:
-              const BorderRadius.vertical(top: Radius.circular(26))),
+                  const BorderRadius.vertical(top: Radius.circular(26))),
           child: Form(
             key: _formKey,
             child: Column(
@@ -53,25 +52,25 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
                 h3,
                 Image.asset(
                   R.images.bin,
-                  scale: 2,color: R.colors.whiteColor,
+                  scale: 2,
+                  color: R.colors.whiteColor,
                 ),
                 h3,
                 Text(
-                  getTranslated(context,"delete_account")??"",
+                  getTranslated(context, "delete_account") ?? "",
                   style: R.textStyle
                       .helveticaBold()
                       .copyWith(color: R.colors.whiteColor, fontSize: 16.sp),
                 ),
                 h2,
                 Text(
-                  getTranslated(context,"delete_account_desc")??"",
+                  getTranslated(context, "delete_account_desc") ?? "",
                   style: R.textStyle.helvetica().copyWith(
                       color: R.colors.whiteDull,
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w600),
                   textAlign: TextAlign.center,
                 ),
-
                 h5,
                 Row(
                   children: [
@@ -126,7 +125,6 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
                     ),
                   ],
                 ),
-
                 h2,
               ],
             ),
@@ -137,30 +135,30 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
   }
 
   Future<void> onTapDeleteFN(AuthVm vm) async {
-    if (vm.userModel?.isSocialLogin ?? false) {
-      await deleteUserAccount(isSocialLogin:true);
-    } else {
-      await deleteUserAccount();
-    }
+          await deleteUserAccount();
   }
-  Future<void> deleteUserAccount({bool isSocialLogin=false}) async {
+
+  Future<void> deleteUserAccount() async {
     try {
-      AuthVm vm=Provider.of(context,listen: false);
-      if (FirebaseAuth.instance.currentUser != null || isSocialLogin==true) {
+      AuthVm vm = Provider.of(context, listen: false);
+      if (appwrite.user != null) {
+        // implement delete account code
+        // write delete account code 
+
         await FirebaseAuth.instance.currentUser!.delete();
         await FbCollections.user
-            .doc(vm.userModel?.uid)
+            .doc(appwrite.user.$id)
             .update({"status": UserStatus.deleted.index});
         await vm.logoutUser(isUpdateUser: false);
         Get.offAllNamed(LoginScreen.route);
-        ZBotToast.showToastSuccess(message:getTranslated(context,"user_has_been_deleted_successfully"));
+        ZBotToast.showToastSuccess(
+            message:
+                getTranslated(context, "user_has_been_deleted_successfully"));
 
         ZBotToast.loadingClose();
-      }
-      else{
+      } else {
         await reAuthenticateAndDelete();
       }
-
     } on FirebaseAuthException catch (e) {
       log(e.toString());
 
@@ -172,23 +170,23 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
     } catch (e) {
       ZBotToast.loadingClose();
       debugPrint(e.toString());
-      if(e.toString().contains("The given sign-in provider is disabled for this Firebase project"))
-      {
-        ZBotToast.showToastError(message: "Kindly login again to complete the process");
-
-      }
-      else{
+      if (e.toString().contains(
+          "The given sign-in provider is disabled for this Firebase project")) {
+        ZBotToast.showToastError(
+            message: "Kindly login again to complete the process");
+      } else {
         ZBotToast.showToastError(message: e.toString().split('] ').last);
-
       }
     }
   }
+
   Future reAuthenticateAndDelete() async {
     try {
-      AuthVm vm=Provider.of(context,listen: false);
+      AuthVm vm = Provider.of(context, listen: false);
 
       ZBotToast.loadingShow();
-      UserCredential? credentials=  await FirebaseAuth.instance.currentUser?.reauthenticateWithProvider(PhoneAuthProvider());
+      UserCredential? credentials = await FirebaseAuth.instance.currentUser
+          ?.reauthenticateWithProvider(PhoneAuthProvider());
 
       if (credentials!.user != null) {
         await FbCollections.user
@@ -197,7 +195,9 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
         FirebaseAuth.instance.currentUser!.delete();
         Get.offAllNamed(LoginScreen.route);
         await vm.logoutUser(isUpdateUser: false);
-        ZBotToast.showToastSuccess(message: getTranslated(context,"user_has_been_deleted_successfully"));
+        ZBotToast.showToastSuccess(
+            message:
+                getTranslated(context, "user_has_been_deleted_successfully"));
 
         ZBotToast.loadingClose();
         return true;
@@ -206,18 +206,14 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
     } catch (e) {
       ZBotToast.loadingClose();
       debugPrint(e.toString());
-      if(e.toString().contains("The given sign-in provider is disabled for this Firebase project"))
-        {
-          ZBotToast.showToastError(message: "Kindly login again to complete the process");
-
-        }
-      else{
+      if (e.toString().contains(
+          "The given sign-in provider is disabled for this Firebase project")) {
+        ZBotToast.showToastError(
+            message: "Kindly login again to complete the process");
+      } else {
         ZBotToast.showToastError(message: e.toString().split('] ').last);
-
       }
       return null;
     }
   }
-
-
 }

@@ -14,27 +14,28 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:pay/pay.dart' as pay;
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/main.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/services/stripe/stripe_service.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/src/base/base_view.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/search/model/stripe_card_model.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/add_credit_card.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/apple_store_sheet.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/pay_with_crypto.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/pay_with_wallet.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/src/base/yacht/widgets/congo_bottomSheet.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../../../../../../appwrite.dart';
+import '../../../../../../constant/enums.dart';
+import '../../../../../../localization/app_localization.dart';
+import '../../../../../../main.dart';
+import '../../../../../../resources/decorations.dart';
+import '../../../../../../resources/resources.dart';
+import '../../../../../../services/firebase_collections.dart';
+import '../../../../../../services/stripe/stripe_service.dart';
+import '../../../../../../services/time_schedule_service.dart';
+import '../../../../base_view.dart';
+import '../../../../home/home_vm/home_vm.dart';
+import '../../../model/stripe_card_model.dart';
+import '../model/bookings.dart';
+import 'add_credit_card.dart';
+import 'apple_store_sheet.dart';
+import 'pay_with_crypto.dart';
+import 'pay_with_wallet.dart';
+import '../view_model/bookings_vm.dart';
+import '../../../../yacht/widgets/congo_bottomSheet.dart';
+import '../../../../../../utils/general_app_bar.dart';
+import '../../../../../../utils/heights_widths.dart';
+import '../../../../../../utils/helper.dart';
 
 class PaymentMethods extends StatefulWidget {
   static String route = "/paymentMethods";
@@ -1049,7 +1050,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
     if (bookingVm.bookingsModel.paymentDetail?.isSplit == true) {
       splitPerson = bookingVm.bookingsModel.paymentDetail?.splitPayment
           ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+              element.userUid == appwrite.user.$id)
           .first;
       splitPerson?.payWithWallet = splitPerson?.payWithWallet ?? 0.0;
     }
@@ -1064,7 +1065,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
         bookingVm.bookingsModel.paymentDetail?.paymentMethod = -1;
         splitPerson = bookingVm.bookingsModel.paymentDetail?.splitPayment
             ?.where((element) =>
-                element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                element.userUid == appwrite.user.$id)
             .toList()
             .first;
         bookingVm.selectedPaymentMethod = splitPerson?.paymentMethod ?? -1;

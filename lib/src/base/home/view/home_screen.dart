@@ -4,22 +4,23 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
+import '../../../../appwrite.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/decorations.dart';
+import '../../../../resources/resources.dart';
 import 'package:get/get.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/home/view/help_center.dart';
-import 'package:yacht_master/src/base/home/view/previous_bookings.dart';
-import 'package:yacht_master/src/base/home/widgets/bookings_widget.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/bookings_detail_customer.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/host_booking_detail.dart';
-import 'package:yacht_master/src/base/search/view/where_going.dart';
-import 'package:yacht_master/utils/empty_screem.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../home_vm/home_vm.dart';
+import 'help_center.dart';
+import 'previous_bookings.dart';
+import '../widgets/bookings_widget.dart';
+import '../../search/view/bookings/model/bookings.dart';
+import '../../search/view/bookings/view/bookings_detail_customer.dart';
+import '../../search/view/bookings/view/host_booking_detail.dart';
+import '../../search/view/where_going.dart';
+import '../../../../utils/empty_screem.dart';
+import '../../../../utils/general_app_bar.dart';
+import '../../../../utils/heights_widths.dart';
+import '../../../../utils/helper.dart';
 
 class HomeView extends StatefulWidget {
   static String route = "/homeView";
@@ -94,10 +95,8 @@ class _HomeViewState extends State<HomeView> {
             },
             body: provider.allBookings
                     .where((element) =>
-                        element.createdBy ==
-                            FirebaseAuth.instance.currentUser!.uid ||
-                        element.hostUserUid ==
-                            FirebaseAuth.instance.currentUser!.uid)
+                        element.createdBy == appwrite.user.$id ||
+                        element.hostUserUid == appwrite.user.$id)
                     .toList()
                     .isEmpty
                 ? Padding(
@@ -112,12 +111,8 @@ class _HomeViewState extends State<HomeView> {
                           isPadding: false,
                           isSeeAll: provider.allBookings
                                   .where((element) =>
-                                      element.createdBy ==
-                                          FirebaseAuth
-                                              .instance.currentUser!.uid ||
-                                      element.hostUserUid ==
-                                          FirebaseAuth
-                                              .instance.currentUser!.uid)
+                                      element.createdBy == appwrite.user.$id ||
+                                      element.hostUserUid == appwrite.user.$id)
                                   .toList()
                                   .isEmpty
                               ? false
@@ -171,11 +166,9 @@ class _HomeViewState extends State<HomeView> {
                               isSeeAll: provider.allBookings
                                       .where((element) =>
                                           element.createdBy ==
-                                              FirebaseAuth
-                                                  .instance.currentUser!.uid ||
+                                              appwrite.user.$id ||
                                           element.hostUserUid ==
-                                              FirebaseAuth
-                                                  .instance.currentUser!.uid)
+                                              appwrite.user.$id)
                                       .toList()
                                       .isEmpty
                                   ? false
@@ -186,11 +179,9 @@ class _HomeViewState extends State<HomeView> {
                                 provider.allBookings
                                             .where((element) =>
                                                 element.createdBy ==
-                                                    FirebaseAuth.instance
-                                                        .currentUser!.uid ||
+                                                    appwrite.user.$id ||
                                                 element.hostUserUid ==
-                                                    FirebaseAuth.instance
-                                                        .currentUser!.uid)
+                                                    appwrite.user.$id)
                                             .toList()
                                             .length >=
                                         3
@@ -198,21 +189,14 @@ class _HomeViewState extends State<HomeView> {
                                     : provider.allBookings
                                         .where((element) =>
                                             element.createdBy ==
-                                                FirebaseAuth.instance
-                                                    .currentUser!.uid ||
-                                            element.hostUserUid ==
-                                                FirebaseAuth
-                                                    .instance.currentUser!.uid)
+appwrite.user.$id ||
+                                            element.hostUserUid == appwrite.user.$id)
                                         .toList()
                                         .length, (index) {
                               BookingsModel booking = provider.allBookings
                                   .where((element) =>
-                                      element.createdBy ==
-                                          FirebaseAuth
-                                              .instance.currentUser!.uid ||
-                                      element.hostUserUid ==
-                                          FirebaseAuth
-                                              .instance.currentUser!.uid)
+                                      element.createdBy == appwrite.user.$id ||
+                                      element.hostUserUid == appwrite.user.$id)
                                   .toList()[index];
                               return InkWell(
                                 onTap: () {
@@ -223,13 +207,12 @@ class _HomeViewState extends State<HomeView> {
                                         R.colors.themeMud);
                                     return;
                                   }
-                                  log("____here:HOST ID${booking.hostUserUid}______CURRENT:${FirebaseAuth.instance.currentUser?.uid}___CREATEDBY:${booking.createdBy}_____YACHTID:${booking.id}");
-                                  if (booking.createdBy ==
-                                      FirebaseAuth.instance.currentUser?.uid) {
+                                  log("____here:HOST ID${booking.hostUserUid}______CURRENT:${appwrite.user.$id}___CREATEDBY:${booking.createdBy}_____YACHTID:${booking.id}");
+                                  if (booking.createdBy == appwrite.user.$id) {
                                     Get.toNamed(BookingsDetail.route,
                                         arguments: {"bookingsModel": booking});
                                   } else if (booking.hostUserUid ==
-                                      FirebaseAuth.instance.currentUser?.uid) {
+                                      appwrite.user.$id) {
                                     Get.toNamed(HostBookingDetail.route,
                                         arguments: {"bookingsModel": booking});
                                   }

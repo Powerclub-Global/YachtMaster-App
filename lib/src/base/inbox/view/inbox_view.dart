@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/src/base/inbox/view/messages.dart';
-import 'package:yacht_master/src/base/inbox/view/notifications.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/resources.dart';
+import 'messages.dart';
+import 'notifications.dart';
+import '../../../../utils/heights_widths.dart';
 
 class InboxView extends StatefulWidget {
   static String route="/inboxView";

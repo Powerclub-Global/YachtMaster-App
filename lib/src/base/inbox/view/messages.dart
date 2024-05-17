@@ -9,14 +9,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/auth/model/user_model.dart';
-import 'package:yacht_master/src/base/inbox/model/chat_heads_model.dart';
-import 'package:yacht_master/src/base/inbox/view/chat.dart';
-import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
-import 'package:yacht_master/utils/empty_screem.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../appwrite.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../auth/model/user_model.dart';
+import '../model/chat_heads_model.dart';
+import 'chat.dart';
+import '../view_model/inbox_vm.dart';
+import '../../../../utils/empty_screem.dart';
+import '../../../../utils/heights_widths.dart';
 
 class Messages extends StatefulWidget {
   const Messages({Key? key}) : super(key: key);
@@ -38,7 +39,7 @@ class _MessagesState extends State<Messages> {
           return
             StreamBuilder(
               stream: FbCollections.chatHeads.
-              where("users",arrayContains: FirebaseAuth.instance.currentUser?.uid).
+              where("users",arrayContains: appwrite.user.$id).
               orderBy("last_message_time",descending:true).
               snapshots(),
               builder: (context,AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -92,7 +93,7 @@ class _MessagesState extends State<Messages> {
       child: Container(
         color: Colors.transparent,
         child: FutureBuilder(
-          future: FbCollections.user.doc(chatHead.users!.where((element) => element!=FirebaseAuth.instance.currentUser!.uid).first).get(),
+          future: FbCollections.user.doc(chatHead.users!.where((element) => element!=appwrite.user.$id).first).get(),
           builder: (context,AsyncSnapshot<DocumentSnapshot> snapshot) {
             if(!snapshot.hasData)
               {

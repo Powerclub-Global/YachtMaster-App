@@ -5,15 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/resources/dummy.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/src/auth/model/user_model.dart';
-import 'package:yacht_master/src/base/profile/model/review_model.dart';
-import 'package:yacht_master/src/base/search/model/charter_model.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../../../../resources/dummy.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../../services/time_schedule_service.dart';
+import '../../../auth/model/user_model.dart';
+import '../../profile/model/review_model.dart';
+import '../../search/model/charter_model.dart';
+import '../../../../utils/heights_widths.dart';
+import '../../../../utils/helper.dart';
 
 class RatingReviewsCard extends StatefulWidget {
   ReviewModel? reviewModel;

@@ -17,47 +17,48 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/constant.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/dummy.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/auth/model/favourite_model.dart';
-import 'package:yacht_master/src/base/base_view.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
-import 'package:yacht_master/src/base/inbox/model/chat_heads_model.dart';
-import 'package:yacht_master/src/base/inbox/view/chat.dart';
-import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
-import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
-import 'package:yacht_master/src/base/profile/model/review_model.dart';
-import 'package:yacht_master/src/base/profile/view/review_screen.dart';
-import 'package:yacht_master/src/base/search/model/charter_model.dart';
-import 'package:yacht_master/src/base/search/model/charters_day_model.dart';
-import 'package:yacht_master/src/base/search/model/city_model.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view/yacht_reserve_payment.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/src/base/search/view/search_screen.dart';
-import 'package:yacht_master/src/base/search/view/what_looking_for.dart';
-import 'package:yacht_master/src/base/search/view/when_will_be_there.dart';
-import 'package:yacht_master/src/base/search/view/where_going.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/src/base/widgets/exit_sheet.dart';
-import 'package:yacht_master/src/base/yacht/model/choose_offers.dart';
-import 'package:yacht_master/src/base/yacht/model/yachts_model.dart';
-import 'package:yacht_master/src/base/search/view_model/search_vm.dart';
-import 'package:yacht_master/src/base/yacht/view/add_charter_fleet.dart';
-import 'package:yacht_master/src/base/yacht/view/define_availibility.dart';
-import 'package:yacht_master/src/base/yacht/view/rules_regulations.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
-import 'package:yacht_master/src/base/yacht/widgets/rating_reviews_card.dart';
-import 'package:yacht_master/src/base/yacht/widgets/view_all_services.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
-import 'package:yacht_master/utils/mapstyle.dart';
+import '../../../../appwrite.dart';
+import '../../../../constant/constant.dart';
+import '../../../../constant/enums.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/decorations.dart';
+import '../../../../resources/dummy.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../auth/model/favourite_model.dart';
+import '../../base_view.dart';
+import '../../base_vm.dart';
+import '../../inbox/model/chat_heads_model.dart';
+import '../../inbox/view/chat.dart';
+import '../../inbox/view_model/inbox_vm.dart';
+import '../../inbox/view_model/inbox_vm.dart';
+import '../../profile/model/review_model.dart';
+import '../../profile/view/review_screen.dart';
+import '../../search/model/charter_model.dart';
+import '../../search/model/charters_day_model.dart';
+import '../../search/model/city_model.dart';
+import '../../search/view/bookings/model/bookings.dart';
+import '../../search/view/bookings/view/yacht_reserve_payment.dart';
+import '../../search/view/bookings/view_model/bookings_vm.dart';
+import '../../search/view/search_screen.dart';
+import '../../search/view/what_looking_for.dart';
+import '../../search/view/when_will_be_there.dart';
+import '../../search/view/where_going.dart';
+import '../../settings/view_model/settings_vm.dart';
+import '../../widgets/exit_sheet.dart';
+import '../model/choose_offers.dart';
+import '../model/yachts_model.dart';
+import '../../search/view_model/search_vm.dart';
+import 'add_charter_fleet.dart';
+import 'define_availibility.dart';
+import 'rules_regulations.dart';
+import '../view_model/yacht_vm.dart';
+import '../widgets/rating_reviews_card.dart';
+import '../widgets/view_all_services.dart';
+import '../../../../utils/general_app_bar.dart';
+import '../../../../utils/heights_widths.dart';
+import '../../../../utils/helper.dart';
+import '../../../../utils/mapstyle.dart';
 
 import '../../inbox/view_model/inbox_vm.dart';
 
@@ -195,8 +196,7 @@ class _CharterDetailState extends State<CharterDetail> {
                                   color: Colors.white,
                                 )),
                             w3,
-                            if (charter?.createdBy ==
-                                FirebaseAuth.instance.currentUser?.uid)
+                            if (charter?.createdBy == appwrite.user.$id)
                               GestureDetector(
                                   onTap: () {
                                     Get.bottomSheet(SureBottomSheet(
@@ -237,15 +237,13 @@ class _CharterDetailState extends State<CharterDetail> {
                                     yachtVm.userFavouritesList.removeAt(index);
                                     yachtVm.update();
                                     await FbCollections.user
-                                        .doc(FirebaseAuth
-                                            .instance.currentUser?.uid)
+                                        .doc(appwrite.user.$id)
                                         .collection("favourite")
                                         .doc(charter?.id)
                                         .delete();
                                   } else {
                                     await FbCollections.user
-                                        .doc(FirebaseAuth
-                                            .instance.currentUser?.uid)
+                                        .doc(appwrite.user.$id)
                                         .collection("favourite")
                                         .doc(charter?.id)
                                         .set(favModel.toJson());
@@ -693,9 +691,7 @@ class _CharterDetailState extends State<CharterDetail> {
                               ),
                               if (settingsVm.allReviews
                                   .where((element) =>
-                                      element.hostId ==
-                                          FirebaseAuth
-                                              .instance.currentUser?.uid &&
+                                      element.hostId == appwrite.user.$id &&
                                       element.charterFleetDetail?.id ==
                                           charter?.id)
                                   .toList()
@@ -705,9 +701,7 @@ class _CharterDetailState extends State<CharterDetail> {
                                 h4,
                               if (settingsVm.allReviews
                                   .where((element) =>
-                                      element.hostId ==
-                                          FirebaseAuth
-                                              .instance.currentUser?.uid &&
+                                      element.hostId == appwrite.user.$id &&
                                       element.charterFleetDetail?.id ==
                                           charter?.id)
                                   .toList()
@@ -721,8 +715,7 @@ class _CharterDetailState extends State<CharterDetail> {
                                     "reviews": settingsVm.allReviews
                                         .where((element) =>
                                             element.hostId ==
-                                                FirebaseAuth.instance
-                                                    .currentUser?.uid &&
+                                                appwrite.user.$id &&
                                             element.charterFleetDetail?.id ==
                                                 charter?.id)
                                         .toList()
@@ -736,10 +729,7 @@ class _CharterDetailState extends State<CharterDetail> {
                                         settingsVm.allReviews
                                                     .where((element) =>
                                                         element.hostId ==
-                                                            FirebaseAuth
-                                                                .instance
-                                                                .currentUser
-                                                                ?.uid &&
+                                                            appwrite.user.$id &&
                                                         element.charterFleetDetail
                                                                 ?.id ==
                                                             charter?.id)
@@ -750,8 +740,7 @@ class _CharterDetailState extends State<CharterDetail> {
                                             : settingsVm.allReviews
                                                 .where((element) =>
                                                     element.hostId ==
-                                                        FirebaseAuth.instance
-                                                            .currentUser?.uid &&
+                                                        appwrite.user.$id &&
                                                     element.charterFleetDetail
                                                             ?.id ==
                                                         charter?.id)
@@ -760,8 +749,7 @@ class _CharterDetailState extends State<CharterDetail> {
                                   ReviewModel review = settingsVm.allReviews
                                       .where((element) =>
                                           element.hostId ==
-                                              FirebaseAuth
-                                                  .instance.currentUser?.uid &&
+                                              appwrite.user.$id &&
                                           element.charterFleetDetail?.id ==
                                               charter?.id)
                                       .toList()[index];
@@ -982,7 +970,7 @@ class _CharterDetailState extends State<CharterDetail> {
                 ),
               )),
           bottomNavigationBar: isEdit == true ||
-                  charter?.createdBy == FirebaseAuth.instance.currentUser?.uid
+                  charter?.createdBy == appwrite.user.$id
               ? GestureDetector(
                   onTap: () {
                     Get.toNamed(AddfeaturedCharters.route, arguments: {
@@ -1223,16 +1211,13 @@ class _CharterDetailState extends State<CharterDetail> {
 
   Future<ChatHeadModel?> createChatHead(InboxVm chatVm) async {
     ChatHeadModel? chatHeadModel;
-    List<String> tempSort = [
-      FirebaseAuth.instance.currentUser?.uid ?? "",
-      charter?.createdBy ?? ""
-    ];
+    List<String> tempSort = [appwrite.user.$id ?? "", charter?.createdBy ?? ""];
     tempSort.sort();
     ChatHeadModel chatData = ChatHeadModel(
       createdAt: Timestamp.now(),
       lastMessageTime: Timestamp.now(),
       lastMessage: "",
-      createdBy: FirebaseAuth.instance.currentUser?.uid,
+      createdBy: appwrite.user.$id,
       id: tempSort.join('_'),
       status: 0,
       peerId: charter?.createdBy,
