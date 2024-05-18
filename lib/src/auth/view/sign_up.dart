@@ -37,10 +37,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController lastNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   FocusNode emailFn = FocusNode();
+  FocusNode usernameFn = FocusNode();
 
   TextEditingController phoneNumController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPassController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
   FocusNode passwordFn = FocusNode();
   FocusNode firstNameFn = FocusNode();
   FocusNode lastNameFn = FocusNode();
@@ -171,6 +173,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         : R.colors.charcoalColor)),
                           ),
                           h2,
+                          label(
+                              getTranslated(context, "create_username") ?? ""),
+                          h0P5,
+                          TextFormField(
+                            focusNode: usernameFn,
+                            textInputAction: TextInputAction.next,
+                            onChanged: (value) async {
+                              print(value);
+                              await provider.isUsernameAvailable(value);
+                              setState(() {});
+                            },
+                            onTap: () {
+                              setState(() {});
+                            },
+                            onFieldSubmitted: (a) {
+                              setState(() {
+                                FocusScope.of(Get.context!)
+                                    .requestFocus(phoneNumFn);
+                              });
+                            },
+                            controller: usernameController,
+                            validator: (value) =>
+                                FieldValidator.validateUsername(
+                                    usernameController.text),
+                            decoration: AppDecorations.suffixTextField(
+                                "create_username",
+                                R.textStyle.helvetica().copyWith(
+                                    color: usernameFn.hasFocus
+                                        ? R.colors.themeMud
+                                        : R.colors.charcoalColor,
+                                    fontSize: 10.sp),
+                                provider.usernameIsAvailable
+                                    ? Icon(
+                                        Icons.verified_outlined,
+                                        size: 23.sp,
+                                        color: Colors.green,
+                                      )
+                                    : null,
+                                prefix: '@'),
+                          ),
+                          h2,
                           label(getTranslated(context, "email") ?? ""),
                           h0P5,
                           TextFormField(
@@ -185,7 +228,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             onFieldSubmitted: (a) {
                               setState(() {
                                 FocusScope.of(Get.context!)
-                                    .requestFocus(phoneNumFn);
+                                    .requestFocus(usernameFn);
                               });
                             },
                             controller: emailController,
@@ -226,8 +269,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               // disableLengthCheck: true,
 
                               decoration: InputDecoration(
-                                hintText:
-                                    getTranslated(Get.context!, "0000000000000"),
+                                hintText: getTranslated(
+                                    Get.context!, "0000000000000"),
                                 hintStyle: R.textStyle.helvetica().copyWith(
                                     color: emailFn.hasFocus
                                         ? R.colors.themeMud
@@ -263,7 +306,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                               initialCountryCode: countryCode,
                               inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp("[0-9]"))
+                                FilteringTextInputFormatter.allow(
+                                    RegExp("[0-9]"))
                               ],
                               dropdownTextStyle: R.textStyle
                                   .helveticaBold()
@@ -354,7 +398,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     firstNameController.text,
                                     lastNameController.text,
                                     countryCode.trim(),
-                                    phoneNumController.text.trim());
+                                    phoneNumController.text.trim(),
+                                    usernameController.text.trim());
                               }
                             },
                             child: Container(

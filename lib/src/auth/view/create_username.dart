@@ -12,6 +12,7 @@ import 'package:yacht_master/resources/decorations.dart';
 import 'package:yacht_master/resources/resources.dart';
 import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
 import 'package:yacht_master/utils/heights_widths.dart';
+import 'package:yacht_master/utils/validation.dart';
 
 class CreateUsername extends StatelessWidget {
   static String route = "/createUsername";
@@ -22,6 +23,7 @@ class CreateUsername extends StatelessWidget {
     final args = ModalRoute.of(context)!.settings.arguments as Map;
     String phoneNo = args["phoneNo"];
     String countryCode = args["countryCode"];
+    FocusNode usernameFn = FocusNode();
     final formKey = GlobalKey<FormState>();
     TextEditingController usernameController = TextEditingController();
     return Consumer<AuthVm>(builder: (context, provider, _) {
@@ -64,46 +66,33 @@ class CreateUsername extends StatelessWidget {
                   ),
                 ),
                 h4,
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 23.sp),
-                  child: TextFormField(
-                    cursorRadius: const Radius.circular(10),
-                    cursorHeight: 14,
-                    style: TextStyle(fontSize: 14.sp, color: Colors.white),
-                    validator: (value) {
-                      if (value!.length > 5) {
-                        return null;
-                      } else {
-                        return "Username should contain more than 5 characters.";
-                      }
-                    },
-                    controller: usernameController,
-                    onChanged: (value) async {
-                      await provider.isUsernameAvailable(value);
-                    },
-                    keyboardType: TextInputType.text,
-                    autocorrect: false,
-                    decoration: InputDecoration(
-                        floatingLabelStyle:
-                            TextStyle(fontSize: 14.sp, color: Colors.amber),
-                        prefixStyle: TextStyle(fontSize: 14.sp),
-                        errorStyle: TextStyle(fontSize: 14.sp),
-                        contentPadding: EdgeInsets.symmetric(vertical: 1.sp),
-                        icon: Icon(
-                          Icons.account_circle,
-                          size: 23.sp,
-                        ),
-                        labelText: "Username",
-                        prefixText: "@",
-                        labelStyle: TextStyle(fontSize: 13.sp),
-                        suffixIcon: provider.usernameIsAvailable
-                            ? Icon(
-                                Icons.verified_outlined,
-                                size: 23.sp,
-                                color: Colors.green,
-                              )
-                            : null),
-                  ),
+                label(getTranslated(context, "create_username") ?? ""),
+                h0P5,
+                TextFormField(
+                  focusNode: usernameFn,
+                  textInputAction: TextInputAction.next,
+                  onChanged: (value) async {
+                    print(value);
+                    await provider.isUsernameAvailable(value);
+                  },
+                  controller: usernameController,
+                  validator: (value) =>
+                      FieldValidator.validateUsername(usernameController.text),
+                  decoration: AppDecorations.suffixTextField(
+                      "create_username",
+                      R.textStyle.helvetica().copyWith(
+                          color: usernameFn.hasFocus
+                              ? R.colors.themeMud
+                              : R.colors.charcoalColor,
+                          fontSize: 10.sp),
+                      provider.usernameIsAvailable
+                          ? Icon(
+                              Icons.verified_outlined,
+                              size: 23.sp,
+                              color: Colors.green,
+                            )
+                          : null,
+                      prefix: '@'),
                 ),
                 h9,
                 GestureDetector(
@@ -111,9 +100,7 @@ class CreateUsername extends StatelessWidget {
                     if (formKey.currentState!.validate()) {
                       print("starting account creation");
                       provider.addUsernameFinishSignUp(
-                          countryCode,
-                          phoneNo,
-                          usernameController.text.trim());
+                          countryCode, phoneNo, usernameController.text.trim());
                     }
                   },
                   child: Container(

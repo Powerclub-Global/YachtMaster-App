@@ -60,10 +60,8 @@ class AuthVm extends ChangeNotifier {
         (QuerySnapshot doc) {
           print(doc.docs);
           if (doc.docs.isEmpty) {
-            print("Should Change to true ");
             usernameIsAvailable = true;
           } else {
-            print("Should Change to false inner ");
             usernameIsAvailable = false;
           }
           notifyListeners();
@@ -182,7 +180,7 @@ class AuthVm extends ChangeNotifier {
   }
 
   onClickSignup(String email, String firstName, String lastName,
-      String countryCode, String phoneNumController) async {
+      String countryCode, String phoneNumController, String username) async {
     log("____HERE");
     bool isUserExist =
         await chechUserCollectionExists("$countryCode$phoneNumController");
@@ -193,8 +191,8 @@ class AuthVm extends ChangeNotifier {
       return;
     } else {
       print("Signing up with OTP");
-      await signupWithOtp(
-          countryCode, phoneNumController, email, firstName, lastName);
+      await signupWithOtp(countryCode, phoneNumController, email, firstName,
+          lastName, username);
     }
   }
 
@@ -460,7 +458,7 @@ class AuthVm extends ChangeNotifier {
   }
 
   Future signupWithOtp(String countryCode, String num, String email,
-      String firstName, String lastName) async {
+      String firstName, String lastName, String username) async {
     try {
       print(countryCode + num);
       String phono = countryCode + num;
@@ -473,15 +471,15 @@ class AuthVm extends ChangeNotifier {
           OTP(countryCode + num, true, (otpCode) async {
             startLoader();
             print(otpCode);
-
-            await verifySignUpOtp(
-                    countryCode, email, firstName, lastName, num, otpCode)
+            await verifySignUpOtp(countryCode, email, firstName, lastName, num,
+                    otpCode, username)
                 .whenComplete(() {
               stopLoader();
             });
           }, () async {
             startLoader();
-            await signupWithOtp(countryCode, num, email, firstName, lastName)
+            await signupWithOtp(
+                    countryCode, num, email, firstName, lastName, username)
                 .whenComplete(() {
               stopLoader();
             });
@@ -507,7 +505,7 @@ class AuthVm extends ChangeNotifier {
   }
 
   verifySignUpOtp(String countryCode, String email, String firstName,
-      String lastName, String num, String code) async {
+      String lastName, String num, String code, String username) async {
     try {
       startLoader();
       await appwrite.verifySMS(code).then((result) async {
@@ -515,7 +513,7 @@ class AuthVm extends ChangeNotifier {
         print(appwrite.user.$id);
         if (appwrite.user != null) {
           await setSignupUserData(
-              countryCode, num, email, firstName, lastName, "Dummy");
+              countryCode, num, email, firstName, lastName, username);
           Get.offAllNamed(
             BaseView.route,
           );
