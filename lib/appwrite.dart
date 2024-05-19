@@ -21,23 +21,23 @@ class Appwrite {
   }
 
   Future<void> getUser() async {
-    user = await appwrite.account.get();
+    user = await account.get();
   }
 
   Future<void> sendSMS(String phone) async {
-    sessionToken = await appwrite.account
+    sessionToken = await account
         .createPhoneToken(userId: appwrite.uniqueId, phone: phone);
   }
 
   Future<void> updateAndVerifyPhoneNumber(String phone) async {
     print("updating phone no");
-    await appwrite.account.updatePhone(phone: phone, password: 'passwords');
-    await appwrite.account.createPhoneVerification();
+    await account.updatePhone(phone: phone, password: 'passwords');
+    await account.createPhoneVerification();
   }
 
   Future<void> updatePhoneVerification(String code) async {
     print("updating verification");
-    appwrite.account
+    account
         .updatePhoneVerification(userId: appwrite.user.$id, secret: code);
   }
 
@@ -48,7 +48,7 @@ class Appwrite {
 
   Future<void> signInApple() async {
     print("creating session");
-    await appwrite.account.createOAuth2Session(
+    await account.createOAuth2Session(
       provider: OAuthProvider.apple,
     );
     print("session created");
@@ -57,7 +57,7 @@ class Appwrite {
   Future<void> signInGoogle() async {
     print("creating session");
 
-    await appwrite.account.createOAuth2Session(
+    await account.createOAuth2Session(
       provider: OAuthProvider.google,
     );
     print("session created");

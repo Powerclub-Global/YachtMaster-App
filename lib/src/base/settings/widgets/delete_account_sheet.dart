@@ -142,8 +142,10 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
     try {
       AuthVm vm = Provider.of(context, listen: false);
       if (appwrite.user != null) {
+
         // implement delete account code
         // write delete account code 
+        
 
         await FirebaseAuth.instance.currentUser!.delete();
         await FbCollections.user
