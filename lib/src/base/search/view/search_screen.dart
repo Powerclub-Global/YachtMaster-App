@@ -89,9 +89,6 @@ class _SearchScreenState extends State<SearchScreen> {
     var homeVm = Provider.of<HomeVm>(context, listen: false);
     var yachtVm = Provider.of<YachtVm>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      var globalDoc = await FbCollections.settings.doc("global").get();
-      Map<String, dynamic>? gdData = globalDoc.data() as Map<String, dynamic>?;
-      picLink = gdData!['resURL'];
       setState(() {});
       yachtVm.allCharters
           .where((element) =>
@@ -264,19 +261,9 @@ class _SearchScreenState extends State<SearchScreen> {
                                       topRight: Radius.circular(16),
                                       topLeft: Radius.circular(16)),
                                   child: AspectRatio(
-                                    aspectRatio: 810 / 293,
-                                    child: CachedNetworkImage(
-                                      imageUrl: picLink ?? "",
-                                      fit: BoxFit.cover,
-                                      progressIndicatorBuilder:
-                                          (context, url, downloadProgress) =>
-                                              SpinKitPulse(
-                                        color: R.colors.themeMud,
-                                      ),
-                                      errorWidget: (context, url, error) =>
-                                          Icon(Icons.error),
-                                    ),
-                                  )),
+                                      aspectRatio: 810 / 293,
+                                      child: Image.asset(
+                                          'assets/images/search_back.png'))),
                             ),
                             Text(
                               getTranslated(context, "book_your_yacht") ?? "",

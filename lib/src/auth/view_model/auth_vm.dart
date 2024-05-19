@@ -711,24 +711,26 @@ class AuthVm extends ChangeNotifier {
     return imageUrl;
   }
 
-  updateProfileDataToDB(String firstName, String lastName) async {
+  updateProfileDataToDB(String firstName, String lastName, String username) async {
     await FbCollections.user.doc(userModel!.uid).update({
       "first_name": firstName,
       "last_name": lastName,
+      "username": username
     });
     update();
   }
 
   ///EDIT PROFILE
-  onClickEditProfile(String firstName, String lastName, File? pickedImage,
-      BuildContext context) async {
+  onClickEditProfile(String firstName, String lastName, String username,
+      File? pickedImage, BuildContext context) async {
     startLoader();
     userModel?.firstName = firstName;
     userModel?.lastName = lastName;
+    userModel?.username = username;
     if (pickedImage != null) {
       userModel?.imageUrl = await uploadUserImage(pickedImage);
     }
-    await updateProfileDataToDB(firstName, lastName);
+    await updateProfileDataToDB(firstName, lastName, username);
     update();
     stopLoader();
     Navigator.pop(context);

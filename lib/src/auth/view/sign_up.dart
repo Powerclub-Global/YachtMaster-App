@@ -38,7 +38,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController emailController = TextEditingController();
   FocusNode emailFn = FocusNode();
   FocusNode usernameFn = FocusNode();
-
   TextEditingController phoneNumController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPassController = TextEditingController();

@@ -174,7 +174,8 @@ class _SettingsViewState extends State<SettingsView> {
                         h2,
                         GestureDetector(
                           onTap: () {
-                            Get.bottomSheet(EditProfile());
+                            Get.bottomSheet(EditProfile(),
+                                isScrollControlled: true);
                           },
                           child: Container(
                             height: Get.height * .05,
