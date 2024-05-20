@@ -4,6 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
@@ -391,14 +392,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           GestureDetector(
                             onTap: () async {
                               if (signupKey.currentState!.validate()) {
-                                ZBotToast.loadingShow();
-                                await provider.onClickSignup(
-                                    emailController.text,
-                                    firstNameController.text,
-                                    lastNameController.text,
-                                    countryCode.trim(),
-                                    phoneNumController.text.trim(),
-                                    usernameController.text.trim());
+                                if (provider.usernameIsAvailable) {
+                                  ZBotToast.loadingShow();
+                                  await provider.onClickSignup(
+                                      emailController.text,
+                                      firstNameController.text,
+                                      lastNameController.text,
+                                      countryCode.trim(),
+                                      phoneNumController.text.trim(),
+                                      usernameController.text.trim());
+                                }
+                                Fluttertoast.showToast(
+                                    msg: "This username is not available");
                               }
                             },
                             child: Container(

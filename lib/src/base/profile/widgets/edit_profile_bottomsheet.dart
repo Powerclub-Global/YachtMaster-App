@@ -7,6 +7,7 @@ import 'package:circular_profile_avatar/circular_profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
@@ -265,7 +266,8 @@ class _EditProfileState extends State<EditProfile> {
                                 TextFormField(
                                   focusNode: usernameFn,
                                   textInputAction: TextInputAction.next,
-                                  onChanged: (v) {
+                                  onChanged: (v) async {
+                                    await authVm.isUsernameAvailable(v);
                                     setState(() {});
                                   },
                                   onTap: () {
@@ -287,11 +289,13 @@ class _EditProfileState extends State<EditProfile> {
                                               ? R.colors.themeMud
                                               : R.colors.charcoalColor,
                                           fontSize: 10.sp),
-                                      Image.asset(R.images.name,
-                                          scale: 14,
-                                          color: usernameFn.hasFocus
-                                              ? R.colors.themeMud
-                                              : R.colors.charcoalColor)),
+                                      authVm.usernameIsAvailable
+                                          ? Icon(
+                                              Icons.verified_outlined,
+                                              size: 23.sp,
+                                              color: Colors.green,
+                                            )
+                                          : null),
                                 ),
                               ],
                             ),
@@ -303,12 +307,16 @@ class _EditProfileState extends State<EditProfile> {
                           GestureDetector(
                             onTap: () async {
                               if (formKey.currentState!.validate()) {
-                                await authVm.onClickEditProfile(
-                                    firstNameController.text,
-                                    lastNameController.text,
-                                    usernameController.text,
-                                    pickedImage,
-                                    context);
+                                if (authVm.usernameIsAvailable) {
+                                  await authVm.onClickEditProfile(
+                                      firstNameController.text,
+                                      lastNameController.text,
+                                      usernameController.text,
+                                      pickedImage,
+                                      context);
+                                }
+                                Fluttertoast.showToast(
+                                    msg: "This username is not available");
                               }
                             },
                             child: Container(
