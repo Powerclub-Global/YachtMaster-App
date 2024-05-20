@@ -142,29 +142,24 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
 
   Future<void> deleteUserAccount() async {
     try {
-      AuthVm vm = Provider.of(context, listen: false);
       if (appwrite.user != null) {
-        appwrite.deleteUser();
-
+        await appwrite.deleteUser();
+        print(appwrite.delete_user_response.statusCode);
         if (appwrite.delete_user_response.statusCode == 200) {
-
-          await FirebaseAuth.instance.currentUser!.delete();
           await FbCollections.user
               .doc(appwrite.user.$id)
               .update({"status": UserStatus.deleted.index});
-          await vm.logoutUser(isUpdateUser: false);
           Get.offAllNamed(LoginScreen.route);
           ZBotToast.showToastSuccess(
               message:
                   getTranslated(context, "user_has_been_deleted_successfully"));
 
           ZBotToast.loadingClose();
-          
         } else {
           log(appwrite.delete_user_response.reasonPhrase!);
-           ZBotToast.showToastError(
-            message: "An Unexpected Error Occured");
+          ZBotToast.showToastError(message: "An Unexpected Error Occured");
         }
+        
       } else {
         await reAuthenticateAndDelete();
       }

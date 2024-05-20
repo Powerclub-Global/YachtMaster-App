@@ -66,9 +66,10 @@ class Appwrite {
   }
 
   Future<void> deleteUser() async {
-    delete_user_request = http.Request('GET',
-        Uri.parse('https://deleteuser-ribsvsftyq-uc.a.run.app?userId=aarush'));
+    delete_user_request = http.Request(
+        'GET',
+        Uri.parse(
+            'https://deleteuser-ribsvsftyq-uc.a.run.app?userId=${user.$id}'));
     delete_user_response = await delete_user_request.send();
   }
-  
 }
