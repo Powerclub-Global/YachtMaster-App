@@ -1,6 +1,7 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/enums.dart';
 import 'package:appwrite/models.dart';
+import 'package:http/http.dart' as http;
 
 Appwrite appwrite = Appwrite();
 
@@ -14,6 +15,8 @@ class Appwrite {
   late Token sessionToken;
   late Session session;
   late User user;
+  late http.StreamedResponse delete_user_response;
+  late http.Request delete_user_request;
 
   void initialiseAppwrite() {
     account = Account(client);
@@ -25,8 +28,8 @@ class Appwrite {
   }
 
   Future<void> sendSMS(String phone) async {
-    sessionToken = await account
-        .createPhoneToken(userId: appwrite.uniqueId, phone: phone);
+    sessionToken =
+        await account.createPhoneToken(userId: appwrite.uniqueId, phone: phone);
   }
 
   Future<void> updateAndVerifyPhoneNumber(String phone) async {
@@ -37,8 +40,7 @@ class Appwrite {
 
   Future<void> updatePhoneVerification(String code) async {
     print("updating verification");
-    account
-        .updatePhoneVerification(userId: appwrite.user.$id, secret: code);
+    account.updatePhoneVerification(userId: appwrite.user.$id, secret: code);
   }
 
   Future<void> verifySMS(String sms) async {
@@ -62,4 +64,11 @@ class Appwrite {
     );
     print("session created");
   }
+
+  Future<void> deleteUser() async {
+    delete_user_request = http.Request('GET',
+        Uri.parse('https://deleteuser-ribsvsftyq-uc.a.run.app?userId=aarush'));
+    delete_user_response = await delete_user_request.send();
+  }
+  
 }

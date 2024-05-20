@@ -1,7 +1,9 @@
 import 'dart:developer';
 
+import 'package:appwrite/appwrite.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
@@ -135,40 +137,39 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
   }
 
   Future<void> onTapDeleteFN(AuthVm vm) async {
-          await deleteUserAccount();
+    await deleteUserAccount();
   }
 
   Future<void> deleteUserAccount() async {
     try {
       AuthVm vm = Provider.of(context, listen: false);
       if (appwrite.user != null) {
+        appwrite.deleteUser();
 
-        // implement delete account code
-        // write delete account code 
-        
+        if (appwrite.delete_user_response.statusCode == 200) {
 
-        await FirebaseAuth.instance.currentUser!.delete();
-        await FbCollections.user
-            .doc(appwrite.user.$id)
-            .update({"status": UserStatus.deleted.index});
-        await vm.logoutUser(isUpdateUser: false);
-        Get.offAllNamed(LoginScreen.route);
-        ZBotToast.showToastSuccess(
-            message:
-                getTranslated(context, "user_has_been_deleted_successfully"));
+          await FirebaseAuth.instance.currentUser!.delete();
+          await FbCollections.user
+              .doc(appwrite.user.$id)
+              .update({"status": UserStatus.deleted.index});
+          await vm.logoutUser(isUpdateUser: false);
+          Get.offAllNamed(LoginScreen.route);
+          ZBotToast.showToastSuccess(
+              message:
+                  getTranslated(context, "user_has_been_deleted_successfully"));
 
-        ZBotToast.loadingClose();
+          ZBotToast.loadingClose();
+          
+        } else {
+          log(appwrite.delete_user_response.reasonPhrase!);
+           ZBotToast.showToastError(
+            message: "An Unexpected Error Occured");
+        }
       } else {
         await reAuthenticateAndDelete();
       }
-    } on FirebaseAuthException catch (e) {
+    } on AppwriteException catch (e) {
       log(e.toString());
-
-      if (e.code == "requires-recent-login") {
-        await reAuthenticateAndDelete();
-      } else {
-        // Handle other Firebase exceptions
-      }
     } catch (e) {
       ZBotToast.loadingClose();
       debugPrint(e.toString());
