@@ -146,9 +146,7 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
         await appwrite.deleteUser();
         print(appwrite.delete_user_response.statusCode);
         if (appwrite.delete_user_response.statusCode == 200) {
-          await FbCollections.user
-              .doc(appwrite.user.$id)
-              .update({"status": UserStatus.deleted.index});
+          await FbCollections.user.doc(appwrite.user.$id).delete();
           Get.offAllNamed(LoginScreen.route);
           ZBotToast.showToastSuccess(
               message:
@@ -159,7 +157,6 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
           log(appwrite.delete_user_response.reasonPhrase!);
           ZBotToast.showToastError(message: "An Unexpected Error Occured");
         }
-        
       } else {
         await reAuthenticateAndDelete();
       }
