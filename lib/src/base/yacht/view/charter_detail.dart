@@ -188,7 +188,7 @@ class _CharterDetailState extends State<CharterDetail> {
                             GestureDetector(
                                 onTap: () {
                                   Share.share(
-                                      'Share this yachts to your Friends and Family! \n https://yachtmasterapp.com?yachtId=${charter!.id}');
+                                      'Share this yachts to your Friends and Family! \n https://yachtmasterapp.com?yachtId=${charter!.id}&from=${appwrite.user.$id}');
                                 },
                                 child: Image.asset(
                                   R.images.share,
