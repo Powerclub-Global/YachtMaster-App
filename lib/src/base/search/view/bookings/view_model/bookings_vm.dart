@@ -835,13 +835,13 @@ class BookingsVm extends ChangeNotifier {
           .where('to', isEqualTo: appwrite.user.$id)
           .get();
       if (invite.docs.last != null) {
-        var invite_doc = invite.docs.last.data() as Map<String, dynamic>;
-        var from = invite_doc['from'];
-        var fetch_user_wallet = await FbCollections.wallet.doc(from).get();
-        var user_wallet = fetch_user_wallet.data() as Map<String, dynamic>;
+        var inviteDoc = invite.docs.last.data() as Map<String, dynamic>;
+        var from = inviteDoc['from'];
+        var fetchUserWallet = await FbCollections.wallet.doc(from).get();
+        var userWallet = fetchUserWallet.data() as Map<String, dynamic>;
         await FbCollections.wallet
             .doc(from)
-            .set({'amount': user_wallet['amount'] + 50});
+            .set({'amount': userWallet['amount'] + 50});
         await FbCollections.wallet_history.add({
           'uid': from,
           'type': 'CashIn_Invite',
@@ -853,12 +853,12 @@ class BookingsVm extends ChangeNotifier {
           }
         });
       }
-      var fetch_host_wallet =
+      var fetchHostWallet =
           await FbCollections.wallet.doc(bookingsModel.hostUserUid).get();
-      var host_wallet = fetch_host_wallet.data() as Map<String, dynamic>;
+      var hostWallet = fetchHostWallet.data() as Map<String, dynamic>;
       await FbCollections.wallet
           .doc(bookingsModel.hostUserUid)
-          .set({'amount': host_wallet['amount'] + 50});
+          .set({'amount': hostWallet['amount'] + 50});
       await FbCollections.wallet_history.add({
         'uid': bookingsModel.hostUserUid,
         'type': 'CashIn_Booking',
