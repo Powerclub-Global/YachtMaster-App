@@ -142,23 +142,19 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
 
   Future<void> deleteUserAccount() async {
     try {
-      if (appwrite.user != null) {
-        await appwrite.deleteUser();
-        print(appwrite.delete_user_response.statusCode);
-        if (appwrite.delete_user_response.statusCode == 200) {
-          await FbCollections.user.doc(appwrite.user.$id).delete();
-          Get.offAllNamed(LoginScreen.route);
-          ZBotToast.showToastSuccess(
-              message:
-                  getTranslated(context, "user_has_been_deleted_successfully"));
+      await appwrite.deleteUser();
+      print(appwrite.delete_user_response.statusCode);
+      if (appwrite.delete_user_response.statusCode == 200) {
+        await FbCollections.user.doc(appwrite.user.$id).delete();
+        Get.offAllNamed(LoginScreen.route);
+        ZBotToast.showToastSuccess(
+            message:
+                getTranslated(context, "user_has_been_deleted_successfully"));
 
-          ZBotToast.loadingClose();
-        } else {
-          log(appwrite.delete_user_response.reasonPhrase!);
-          ZBotToast.showToastError(message: "An Unexpected Error Occured");
-        }
+        ZBotToast.loadingClose();
       } else {
-        await reAuthenticateAndDelete();
+        log(appwrite.delete_user_response.reasonPhrase!);
+        ZBotToast.showToastError(message: "An Unexpected Error Occured");
       }
     } on AppwriteException catch (e) {
       log(e.toString());
@@ -172,43 +168,6 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
       } else {
         ZBotToast.showToastError(message: e.toString().split('] ').last);
       }
-    }
-  }
-
-  Future reAuthenticateAndDelete() async {
-    try {
-      AuthVm vm = Provider.of(context, listen: false);
-
-      ZBotToast.loadingShow();
-      UserCredential? credentials = await FirebaseAuth.instance.currentUser
-          ?.reauthenticateWithProvider(PhoneAuthProvider());
-
-      if (credentials!.user != null) {
-        await FbCollections.user
-            .doc(vm.userModel?.uid)
-            .update({"status": UserStatus.deleted.index});
-        FirebaseAuth.instance.currentUser!.delete();
-        Get.offAllNamed(LoginScreen.route);
-        await vm.logoutUser(isUpdateUser: false);
-        ZBotToast.showToastSuccess(
-            message:
-                getTranslated(context, "user_has_been_deleted_successfully"));
-
-        ZBotToast.loadingClose();
-        return true;
-      }
-      ZBotToast.loadingClose();
-    } catch (e) {
-      ZBotToast.loadingClose();
-      debugPrint(e.toString());
-      if (e.toString().contains(
-          "The given sign-in provider is disabled for this Firebase project")) {
-        ZBotToast.showToastError(
-            message: "Kindly login again to complete the process");
-      } else {
-        ZBotToast.showToastError(message: e.toString().split('] ').last);
-      }
-      return null;
     }
   }
 }
