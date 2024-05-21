@@ -99,7 +99,7 @@ class AuthVm extends ChangeNotifier {
     try {
       startLoader();
       await appwrite.signInGoogle();
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(Duration(seconds: 2));
       await appwrite.getUser();
       bool isUserExist = false;
       isUserExist =
@@ -140,7 +140,7 @@ class AuthVm extends ChangeNotifier {
     try {
       startLoader();
       await appwrite.signInApple();
-      await Future.delayed(Duration(seconds: 1));
+      await Future.delayed(Duration(seconds: 2));
       await appwrite.getUser();
       if (appwrite.user != null) {
         bool isUserExist = false;
@@ -511,6 +511,7 @@ class AuthVm extends ChangeNotifier {
       await appwrite.verifySMS(code).then((result) async {
         await appwrite.getUser();
         print(appwrite.user.$id);
+        await Future.delayed(Duration(seconds: 1));
         if (appwrite.user != null) {
           await setSignupUserData(
               countryCode, num, email, firstName, lastName, username);
@@ -711,12 +712,10 @@ class AuthVm extends ChangeNotifier {
     return imageUrl;
   }
 
-  updateProfileDataToDB(String firstName, String lastName, String username) async {
-    await FbCollections.user.doc(userModel!.uid).update({
-      "first_name": firstName,
-      "last_name": lastName,
-      "username": username
-    });
+  updateProfileDataToDB(
+      String firstName, String lastName, String username) async {
+    await FbCollections.user.doc(userModel!.uid).update(
+        {"first_name": firstName, "last_name": lastName, "username": username});
     update();
   }
 
