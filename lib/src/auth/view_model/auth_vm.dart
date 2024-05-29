@@ -39,6 +39,7 @@ class AuthVm extends ChangeNotifier {
   String? appleUserName;
   String? appleUserEmail;
   WalletModel? wallet;
+  String? yachtId;
   StreamSubscription<DocumentSnapshot<UserModel>>? currentUserStream;
 
   final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -48,6 +49,13 @@ class AuthVm extends ChangeNotifier {
   startLoader() {
     isLoading = true;
     notifyListeners();
+  }
+
+  bool checkIfInvite() {
+    if (yachtId != null) {
+      return true;
+    }
+    return false;
   }
 
   Future<void> isUsernameAvailable(String username) async {
@@ -184,7 +192,6 @@ class AuthVm extends ChangeNotifier {
     log("____HERE");
     bool isUserExist =
         await chechUserCollectionExists("$countryCode$phoneNumController");
-
     if (isUserExist == true) {
       Helper.inSnackBar('Error', "User already exist", R.colors.themeMud);
       stopLoader();
@@ -216,13 +223,19 @@ class AuthVm extends ChangeNotifier {
 // Migrated to Appwrite
   checkCurrentUser(BuildContext context) async {
     try {
-      log("////////////////in check current user");
+      print("////////////////in check current user");
       await appwrite.getUser();
+      Future.delayed(Duration(seconds: 1));
       if (appwrite.user.phoneVerification) {
+        print("phone verification has been done");
         await fetchUser();
+        var yachtProvider = Provider.of<YachtVm>(Get.context!, listen: false);
+        await yachtProvider.fetchCharters();
+        print("Fetched YATCHS PRINTING LENGTH");
+        print(yachtProvider.allCharters.length);
         Future.delayed(Duration(seconds: 2), () async {
           if (Constants.fcmToken.isEmpty) {
-            print("Hi bro");
+            print("Fetched YATCHS PRINTING LENGTH");
             // userModel?.fcm = await FirebaseMessaging.instance.getToken();
           } else {
             userModel?.fcm = Constants.fcmToken;
@@ -238,13 +251,16 @@ class AuthVm extends ChangeNotifier {
               // userModel?.isActiveUser = true;
               await updateUser(userModel);
               ZBotToast.loadingClose();
-              String? yachtId = Get.parameters["yachtId"];
+              yachtId = Get.parameters["yachtId"];
               if (yachtId == null) {
                 /// Pasting code
                 if (Get.parameters['status'] != null) {
                   handleReturnRedirectFromStripeAccountLink(
                       context, Get.parameters['status']!);
                 } else {
+                  print("Now navigating to base view");
+                  print("Fetched YATCHS PRINTING LENGTH");
+                  print(yachtProvider.allCharters.length);
                   Get.offAllNamed(BaseView.route);
                 }
 

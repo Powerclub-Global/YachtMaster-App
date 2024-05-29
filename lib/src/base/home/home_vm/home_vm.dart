@@ -16,7 +16,6 @@ class HomeVm extends ChangeNotifier {
     allBookings = [];
     try {
       var ref = FbCollections.bookings.snapshots().asBroadcastStream();
-      print(allBookings);
       var res = ref.map((list) =>
           list.docs.map((e) => BookingsModel.fromJson(e.data())).toList());
       bookingsStream ??= res.listen((bookings) async {

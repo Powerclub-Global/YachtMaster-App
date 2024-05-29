@@ -72,8 +72,7 @@ class YachtVm extends ChangeNotifier {
           log("__________HOST UID:${appwrite.user.$id}");
           hostServicesList = services
               .where((element) =>
-                  element.createdBy == appwrite.user.$id &&
-                  element.status == 0)
+                  element.createdBy == appwrite.user.$id && element.status == 0)
               .toList();
           notifyListeners();
           log("//////////////////////////////////////////////All SERVICES :${allServicesList.length}/////host SERVICES :${hostServicesList.length}/////${appwrite.user.$id}");
@@ -107,29 +106,31 @@ class YachtVm extends ChangeNotifier {
 
     try {
       hostCharters = [];
+      print("clearing charters");
       allCharters = [];
+      print("cleared charters");
       var ref = FbCollections.charterFleet.snapshots().asBroadcastStream();
       var res = ref.map((list) =>
           list.docs.map((e) => CharterModel.fromJson(e.data())).toList());
-      charterStream ??= res.listen((charters) async {
+      charterStream = res.listen((charters) async {
         if (charters.isNotEmpty) {
           allCharters = charters.where((element) {
             return element.status == CharterStatus.active.index;
           }).toList();
+          print("I am here Just got all charters here");
+          print(allCharters.length);
           hostCharters = charters
               .where((element) =>
                   element.createdBy == appwrite.user.$id &&
                   element.status == CharterStatus.active.index)
               .toList();
-          log("Test");
           List<UserModel>? hosts = await fetchAllHost(charters);
           notifyListeners();
-          log("Test2");
-          log("About to fetch reviews");
           await settingsVm.fetchReviews(hosts);
           notifyListeners();
           await getCitiesList();
-          log("//////////////////////All Charters :${allCharters.length}/////host charters :${hostCharters.length}____hosts:${hosts?.length}____");
+          print(
+              "//////////////////////All Charters :${allCharters.length}/////host charters :${hostCharters.length}____hosts:${hosts?.length}____");
         }
       });
       notifyListeners();
@@ -216,8 +217,7 @@ class YachtVm extends ChangeNotifier {
           allYachts = yachts.where((element) => element.status == 0).toList();
           hostYachts = yachts
               .where((element) =>
-                  element.createdBy == appwrite.user.$id &&
-                  element.status == 0)
+                  element.createdBy == appwrite.user.$id && element.status == 0)
               .toList();
           notifyListeners();
           log("//////////////////////////////////////////////All YACHT :${allYachts.length}/////host yachts :${hostYachts.length}");

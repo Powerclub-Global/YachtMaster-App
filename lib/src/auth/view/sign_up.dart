@@ -401,9 +401,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                       countryCode.trim(),
                                       phoneNumController.text.trim(),
                                       usernameController.text.trim());
+                                } else {
+                                  Fluttertoast.showToast(
+                                      msg: "This username is not available");
                                 }
-                                Fluttertoast.showToast(
-                                    msg: "This username is not available");
                               }
                             },
                             child: Container(

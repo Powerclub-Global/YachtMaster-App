@@ -189,30 +189,39 @@ class _HomeViewState extends State<HomeView> {
                                     : provider.allBookings
                                         .where((element) =>
                                             element.createdBy ==
-appwrite.user.$id ||
-                                            element.hostUserUid == appwrite.user.$id)
+                                                appwrite.user.$id ||
+                                            element.hostUserUid ==
+                                                appwrite.user.$id)
                                         .toList()
                                         .length, (index) {
+                              print("printing index");
+                              print(index);
+
                               BookingsModel booking = provider.allBookings
                                   .where((element) =>
                                       element.createdBy == appwrite.user.$id ||
                                       element.hostUserUid == appwrite.user.$id)
                                   .toList()[index];
+                              print(booking.id);
+                              print("about to show bookings");
                               return InkWell(
                                 onTap: () {
-                                  if (booking.isPending!) {
-                                    Helper.inSnackBar(
-                                        "Pending Payment Approval",
-                                        "Booking Confirmation still pending, please wait",
-                                        R.colors.themeMud);
-                                    return;
-                                  }
                                   log("____here:HOST ID${booking.hostUserUid}______CURRENT:${appwrite.user.$id}___CREATEDBY:${booking.createdBy}_____YACHTID:${booking.id}");
                                   if (booking.createdBy == appwrite.user.$id) {
+                                    print(
+                                        "I am here now means the booking was created bt me ");
+                                    if (booking.isPending!) {
+                                      Helper.inSnackBar(
+                                          "Pending Payment Approval",
+                                          "Booking Confirmation still pending, please wait",
+                                          R.colors.themeMud);
+                                      return;
+                                    }
                                     Get.toNamed(BookingsDetail.route,
                                         arguments: {"bookingsModel": booking});
                                   } else if (booking.hostUserUid ==
                                       appwrite.user.$id) {
+                                    print("booking model was hosted by me");
                                     Get.toNamed(HostBookingDetail.route,
                                         arguments: {"bookingsModel": booking});
                                   }

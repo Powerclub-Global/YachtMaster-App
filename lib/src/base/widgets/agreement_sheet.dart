@@ -72,7 +72,7 @@ class _AgreementBottomSheetState extends State<AgreementBottomSheet> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "I agree to everything",
+                "I agree to all terms",
                 style: R.textStyle.helveticaBold().copyWith(
                     color: R.colors.whiteColor, fontSize: 10.sp, height: 1.5),
               ),

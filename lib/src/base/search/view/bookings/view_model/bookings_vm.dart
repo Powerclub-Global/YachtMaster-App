@@ -41,6 +41,7 @@ import 'package:yacht_master/src/base/search/view/whos_coming.dart';
 import 'package:yacht_master/src/base/search/view_model/search_vm.dart';
 import 'package:yacht_master/src/base/settings/model/app_url_model.dart';
 import 'package:yacht_master/src/base/yacht/model/split_payment_person_model.dart';
+import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
 import 'package:yacht_master/src/base/yacht/widgets/congo_bottomSheet.dart';
 import 'package:yacht_master/utils/helper.dart';
 import 'package:yacht_master/utils/zbot_toast.dart';
@@ -722,6 +723,7 @@ class BookingsVm extends ChangeNotifier {
       {bool isTip = false}) async {
     print("Your payment was success");
     var baseVm = Provider.of<BaseVm>(context, listen: false);
+    var yatchVm = Provider.of<YachtVm>(context, listen: false);
     var homeVm = Provider.of<HomeVm>(context, listen: false);
     var authVm = Provider.of<AuthVm>(context, listen: false);
     var searchVm = Provider.of<SearchVm>(context, listen: false);
@@ -731,8 +733,7 @@ class BookingsVm extends ChangeNotifier {
         .get();
     if (bookingsModel.paymentDetail?.isSplit == true) {
       splitPerson = bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first;
     }
     if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
@@ -744,7 +745,6 @@ class BookingsVm extends ChangeNotifier {
     String? docID = isCompletePayment == true
         ? bookingsModel.id
         : Timestamp.now().millisecondsSinceEpoch.toString();
-
     if (isCompletePayment == true) {
       print("Your payment was success less");
       completePaymentFunction(screenShotUrl, context);
@@ -834,16 +834,21 @@ class BookingsVm extends ChangeNotifier {
       var invite = await FbCollections.invites
           .where('to', isEqualTo: appwrite.user.$id)
           .get();
-      if (invite.docs.last != null) {
+
+      if (invite.docs == []) {
         var inviteDoc = invite.docs.last.data() as Map<String, dynamic>;
         var from = inviteDoc['from'];
-        var fetchUserWallet = await FbCollections.wallet.doc(from).get();
+        var fetchSenderDoc =
+            await FbCollections.user.where('username', isEqualTo: from).get();
+        var senderDoc = fetchSenderDoc.docs[0].data() as Map<String, dynamic>;
+        var senderUid = senderDoc['uid'];
+        var fetchUserWallet = await FbCollections.wallet.doc(senderUid).get();
         var userWallet = fetchUserWallet.data() as Map<String, dynamic>;
         await FbCollections.wallet
-            .doc(from)
+            .doc(senderUid)
             .set({'amount': userWallet['amount'] + 50});
         await FbCollections.wallet_history.add({
-          'uid': from,
+          'uid': senderUid,
           'type': 'CashIn_Invite',
           'data': {
             'created_at': DateTime.now().toString(),
@@ -1177,6 +1182,8 @@ class BookingsVm extends ChangeNotifier {
     selectedPayIn = 0;
     selectedPaymentMethod = -1;
     update();
+    print("printing charter list length");
+    print(yatchVm.allCharters.length);
     baseVm.update();
     searchVm.update();
     if (isTip == true) {
@@ -1283,8 +1290,7 @@ class BookingsVm extends ChangeNotifier {
             text:
                 "${authVm.userModel?.firstName ?? ""} have made the Split Payment for booking in ${payInTypeList[bookingsModel.paymentDetail?.payInType ?? 0]} at ${DateFormat("hh:mm a").format(bookingsModel.createdAt?.toDate() ?? now)} on ${DateFormat("dd MMM,yyyy").format(bookingsModel.createdAt?.toDate() ?? now)}",
             receiver: bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) =>
-                    element.userUid != appwrite.user.$id)
+                ?.where((element) => element.userUid != appwrite.user.$id)
                 .toList()
                 .map((e) => e.userUid)
                 .toList())
@@ -1355,8 +1361,7 @@ class BookingsVm extends ChangeNotifier {
 
     if (bookingsModel.paymentDetail?.isSplit == true) {
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid != appwrite.user.$id)
+          ?.where((element) => element.userUid != appwrite.user.$id)
           .toList()
           .forEach((element) async {
         ///PUSH NOTIFICATION TO SPLIT CUSTOMERS
@@ -1384,137 +1389,111 @@ class BookingsVm extends ChangeNotifier {
     var homeVm = Provider.of<HomeVm>(context, listen: false);
     if (bookingsModel.paymentDetail?.isSplit == true) {
       if (bookingsModel.paymentDetail?.splitPayment
-              ?.where((element) =>
-                  element.userUid == appwrite.user.$id)
+              ?.where((element) => element.userUid == appwrite.user.$id)
               .first
               .depositStatus ==
           DepositStatus.nothingPaid.index) {
-        bookingsModel.paymentDetail?.paidAmount = bookingsModel
-                .paymentDetail?.paidAmount +
-            bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) =>
-                    element.userUid == appwrite.user.$id)
-                .first
-                .remainingDeposit;
-        bookingsModel.paymentDetail?.remainingAmount = bookingsModel
-                .paymentDetail?.remainingAmount -
-            bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) =>
-                    element.userUid == appwrite.user.$id)
-                .first
-                .remainingDeposit;
+        bookingsModel.paymentDetail?.paidAmount =
+            bookingsModel.paymentDetail?.paidAmount +
+                bookingsModel.paymentDetail?.splitPayment
+                    ?.where((element) => element.userUid == appwrite.user.$id)
+                    .first
+                    .remainingDeposit;
+        bookingsModel.paymentDetail?.remainingAmount =
+            bookingsModel.paymentDetail?.remainingAmount -
+                bookingsModel.paymentDetail?.splitPayment
+                    ?.where((element) => element.userUid == appwrite.user.$id)
+                    .first
+                    .remainingDeposit;
       } else if (bookingsModel.paymentDetail?.splitPayment
-              ?.where((element) =>
-                  element.userUid == appwrite.user.$id)
+              ?.where((element) => element.userUid == appwrite.user.$id)
               .first
               .depositStatus ==
           DepositStatus.twentyFivePaid.index) {
-        bookingsModel.paymentDetail?.paidAmount = bookingsModel
-                .paymentDetail?.paidAmount +
-            bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) =>
-                    element.userUid == appwrite.user.$id)
-                .first
-                .remainingAmount;
-        bookingsModel.paymentDetail?.remainingAmount = bookingsModel
-                .paymentDetail?.remainingAmount -
-            bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) =>
-                    element.userUid == appwrite.user.$id)
-                .first
-                .remainingAmount;
+        bookingsModel.paymentDetail?.paidAmount =
+            bookingsModel.paymentDetail?.paidAmount +
+                bookingsModel.paymentDetail?.splitPayment
+                    ?.where((element) => element.userUid == appwrite.user.$id)
+                    .first
+                    .remainingAmount;
+        bookingsModel.paymentDetail?.remainingAmount =
+            bookingsModel.paymentDetail?.remainingAmount -
+                bookingsModel.paymentDetail?.splitPayment
+                    ?.where((element) => element.userUid == appwrite.user.$id)
+                    .first
+                    .remainingAmount;
       }
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .paymentType = PaymentType.payInApp.index;
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .amount = bookingsModel.paymentDetail?.payInType ==
               PayType.fullPay.index
           ? bookingsModel.paymentDetail?.splitPayment
-              ?.where((element) =>
-                  element.userUid == appwrite.user.$id)
+              ?.where((element) => element.userUid == appwrite.user.$id)
               .first
               .amount
           : bookingsModel.paymentDetail?.splitPayment
-                      ?.where((element) =>
-                          element.userUid ==
-                          appwrite.user.$id)
+                      ?.where((element) => element.userUid == appwrite.user.$id)
                       .first
                       .depositStatus ==
                   DepositStatus.nothingPaid.index
               ? bookingsModel.paymentDetail?.splitPayment
-                  ?.where((element) =>
-                      element.userUid == appwrite.user.$id)
+                  ?.where((element) => element.userUid == appwrite.user.$id)
                   .first
                   .remainingDeposit
               : bookingsModel.paymentDetail?.splitPayment
-                      ?.where((element) =>
-                          element.userUid ==
-                          appwrite.user.$id)
+                      ?.where((element) => element.userUid == appwrite.user.$id)
                       .first
                       .amount +
                   bookingsModel.paymentDetail?.splitPayment
-                      ?.where((element) =>
-                          element.userUid ==
-                          appwrite.user.$id)
+                      ?.where((element) => element.userUid == appwrite.user.$id)
                       .first
                       .remainingAmount;
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .remainingAmount = bookingsModel.paymentDetail?.splitPayment
-                  ?.where((element) =>
-                      element.userUid == appwrite.user.$id)
+                  ?.where((element) => element.userUid == appwrite.user.$id)
                   .first
                   .depositStatus ==
               DepositStatus.twentyFivePaid.index
           ? 0.0
           : bookingsModel.paymentDetail?.splitPayment
-              ?.where((element) =>
-                  element.userUid == appwrite.user.$id)
+              ?.where((element) => element.userUid == appwrite.user.$id)
               .first
               .remainingAmount;
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .remainingDeposit = 0.0;
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .depositStatus = bookingsModel.paymentDetail?.splitPayment
-                  ?.where((element) =>
-                      element.userUid == appwrite.user.$id)
+                  ?.where((element) => element.userUid == appwrite.user.$id)
                   .first
                   .depositStatus ==
               DepositStatus.twentyFivePaid.index
           ? DepositStatus.fullPaid.index
           : DepositStatus.twentyFivePaid.index;
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .paymentStatus = PaymentStatus.payInAppOrCash.index;
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .paymentMethod = selectedPaymentMethod;
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .cryptoReceiverEmail = appUrlModel?.adminCryptoEmail ?? "";
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .cryptoScreenShot = screenShotUrl;
     } else {

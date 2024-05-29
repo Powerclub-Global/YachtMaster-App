@@ -152,7 +152,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           onTap: () async {
                             if (_loginKey.currentState!.validate()) {
                               FocusScope.of(context).unfocus();
-                              ZBotToast.loadingShow();
                               await provider.onClickLoginOTP(countryCode.trim(),
                                   phoneNumController.text.trim());
                             }

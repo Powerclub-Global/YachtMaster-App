@@ -17,6 +17,7 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sizer/sizer.dart';
+import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
 import '../../../../appwrite.dart';
 import '../../../../constant/constant.dart';
 import '../../../../constant/enums.dart';
@@ -139,6 +140,7 @@ class _CharterDetailState extends State<CharterDetail> {
     isEdit = args["isEdit"];
     bool? isLink = args["isLink"];
 
+    var authVm = Provider.of<AuthVm>(context, listen: false);
     return Consumer6<InboxVm, BaseVm, SettingsVm, SearchVm, YachtVm,
             BookingsVm>(
         builder: (context, inboxVm, baseVm, settingsVm, provider, yachtVm,
@@ -188,7 +190,7 @@ class _CharterDetailState extends State<CharterDetail> {
                             GestureDetector(
                                 onTap: () {
                                   Share.share(
-                                      'Share this yachts to your Friends and Family! \n https://yachtmasterapp.com?yachtId=${charter!.id}&from=${appwrite.user.$id}');
+                                      'Share this yachts to your Friends and Family! \n https://yachtmasterapp.com?yachtId=${charter!.id}&from=${authVm.userModel!.username}');
                                 },
                                 child: Image.asset(
                                   R.images.share,
@@ -748,8 +750,7 @@ class _CharterDetailState extends State<CharterDetail> {
                                                 .length, (index) {
                                   ReviewModel review = settingsVm.allReviews
                                       .where((element) =>
-                                          element.hostId ==
-                                              appwrite.user.$id &&
+                                          element.hostId == appwrite.user.$id &&
                                           element.charterFleetDetail?.id ==
                                               charter?.id)
                                       .toList()[index];

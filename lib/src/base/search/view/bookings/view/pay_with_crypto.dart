@@ -18,6 +18,7 @@ import 'package:yacht_master/resources/resources.dart';
 import 'package:yacht_master/services/image_picker_services.dart';
 import 'package:yacht_master/src/base/search/view/bookings/model/document_model.dart';
 import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
+import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
 import 'package:yacht_master/utils/general_app_bar.dart';
 import 'package:yacht_master/utils/heights_widths.dart';
 import 'package:yacht_master/utils/helper.dart';
@@ -169,7 +170,7 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
                         Flexible(
                           flex: 8,
                           child: Text(
-                            "${isBitcoin ? ((userPaidAmount + (userPaidAmount * 0.05)) * converRate).toStringAsPrecision(21) : userPaidAmount.toStringAsFixed(2)} ${isBitcoin ? 'BTC' : 'USDT'}",
+                            "${isBitcoin ? ((userPaidAmount + (userPaidAmount * 0.05)) * converRate).toStringAsPrecision(2) : userPaidAmount.toStringAsFixed(2)} ${isBitcoin ? 'BTC' : 'USDT'}",
                             style: R.textStyle.helvetica().copyWith(
                                 color: R.colors.whiteDull, fontSize: 10.sp),
                           ),
@@ -304,17 +305,18 @@ class _PayWithCryptoState extends State<PayWithCrypto> {
             onTap: () async {
               if (screenShot != null) {
                 startLoader();
+                print("uploading image");
                 String screenShotUrl = await ImagePickerServices()
                     .uploadSingleImage(screenShot!.file,
                         bucketName: "CryptoReceipt");
-                await provider.onClickPaymentMethods(
-                  screenShotUrl,
-                  context,
-                  isCompletePayment,
-                  splitAmount,
-                  userPaidAmount,
-                  isTip: isTip ?? false
-                );
+
+                print("uploaded file now doing what is required after it");
+                var yatchVm = Provider.of<YachtVm>(context, listen: false);
+                print("printing charter list length");
+                print(yatchVm.allCharters.length);
+                await provider.onClickPaymentMethods(screenShotUrl, context,
+                    isCompletePayment, splitAmount, userPaidAmount,
+                    isTip: isTip ?? false);
                 stopLoader();
               } else {
                 Helper.inSnackBar(

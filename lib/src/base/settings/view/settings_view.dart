@@ -370,6 +370,7 @@ class _SettingsViewState extends State<SettingsView> {
             Get.toNamed(AboutApp.route);
             break;
           case 7:
+            print("navigating to safety screen");
             Get.toNamed(SafetyCenter.route);
             break;
           case 8:
