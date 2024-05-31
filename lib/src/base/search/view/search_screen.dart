@@ -1392,7 +1392,8 @@ class _SearchScreenState extends State<SearchScreen> {
                           style: R.textStyle.helvetica().copyWith(
                               color: R.colors.themeMud,
                               fontSize: 18.sp,
-                              fontStyle: FontStyle.italic),
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Arial-Narrow'),
                           textAlign: TextAlign.center,
                         ),
                         h2,

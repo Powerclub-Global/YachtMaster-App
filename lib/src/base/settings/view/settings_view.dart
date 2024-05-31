@@ -12,6 +12,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+import 'package:yacht_master/src/auth/view/manage_account.dart';
 import '../../../../appwrite.dart';
 import '../../../../constant/constant.dart';
 import '../../../../localization/app_localization.dart';
@@ -311,8 +312,8 @@ class _SettingsViewState extends State<SettingsView> {
                       horizontal: Get.width * .04, vertical: Get.height * .02),
                   child: Column(
                     children: [
-                      tiles(15, "delete_account", R.images.bin,
-                          isDivider: true, isShowArrow: false),
+                      tiles(15, "manage_account", R.images.lock,
+                          isDivider: true, isShowArrow: true),
                       tiles(12, "logout", R.images.logout,
                           isDivider: false, isShowArrow: false),
                     ],
@@ -454,7 +455,7 @@ class _SettingsViewState extends State<SettingsView> {
 
             break;
           case 15:
-            Get.bottomSheet(DeleteAccountSheet());
+            Get.toNamed(ManageAccount.route);
         }
       },
       child: Container(

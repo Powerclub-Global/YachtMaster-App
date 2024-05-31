@@ -61,7 +61,7 @@ class _AgreementBottomSheetState extends State<AgreementBottomSheet> {
             child: SingleChildScrollView(
               child: Text(
                 widget.isBooking ? bookingText : hostingText,
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.left,
                 style: R.textStyle.helveticaBold().copyWith(
                     color: R.colors.whiteColor, fontSize: 9.sp, height: 1.5),
               ),

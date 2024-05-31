@@ -177,7 +177,7 @@
   "rating_and_reviews": "Rating & Reviews",
   "hosted_by": "Hosted by",
   "verified_booking_reviews": "Verified Booking Reviews",
-  "contact_host": "Contact Host",
+  "message_host": "Message Host",
   "availability": "Availability",
   "define_availability": "Define Availability",
   "yacht_rules": "Yacht Rules",
@@ -304,7 +304,7 @@
   "concierge_experiences": "Concierge Experiences",
   "yacht_for_sale": "Yacht For Sale",
   "have_questions_about_hosting": "Have questions about hosting on",
-  "yacht_master": "YachtMaster",
+  "yacht_master": "YACHTMASTER",
   "translate": "Translate",
   "privacy_sharing": "Privacy & Sharing",
   "charter_fleet": "Charter Fleet",
@@ -438,6 +438,7 @@
   "contact": "Contact Support",
   "please_enter_your_full_name": "Please enter your full name",
   "delete_account": "Delete Account",
+  "manage_account": "Manage Account",
   "user_has_been_deleted_successfully": "User has been deleted successfully",
   "delete_account_desc":   "Deleting your account will remove all your data from our database. It can not be undone."
 }

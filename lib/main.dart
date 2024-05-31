@@ -16,6 +16,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
+import 'package:yacht_master/src/auth/view/manage_account.dart';
 import 'appwrite.dart';
 import 'blocs/bloc_exports.dart';
 import 'localization/app_localization.dart';
@@ -413,7 +414,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             GetPage(name: SeeAllHost.route, page: () => SeeAllHost()),
             GetPage(name: SocialSignup.route, page: () => SocialSignup()),
             GetPage(
-                name: TipPaymentMethods.route, page: () => TipPaymentMethods())
+                name: TipPaymentMethods.route, page: () => TipPaymentMethods()),
+            GetPage(name: ManageAccount.route, page: () => ManageAccount()),
           ],
           title: "YachtMaster App",
         ),

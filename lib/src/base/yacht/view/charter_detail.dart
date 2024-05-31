@@ -851,7 +851,7 @@ class _CharterDetailState extends State<CharterDetail> {
                                                   radius: 30),
                                           child: Center(
                                             child: Text(
-                                              "${getTranslated(context, "contact_host")?.toUpperCase()}",
+                                              "${getTranslated(context, "message_host")?.toUpperCase()}",
                                               style: R.textStyle
                                                   .helvetica()
                                                   .copyWith(

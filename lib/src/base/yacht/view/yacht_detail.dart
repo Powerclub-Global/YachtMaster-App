@@ -438,7 +438,7 @@ class _YachtDetailState extends State<YachtDetail> {
                                         height: Get.height*.05,width: Get.width*.6,
                                         decoration: AppDecorations.gradientButton(radius: 30),
                                         child: Center(
-                                          child: Text("${getTranslated(context, "contact_host")?.toUpperCase()}",
+                                          child: Text("${getTranslated(context, "message_host")?.toUpperCase()}",
                                             style: R.textStyle.helvetica().copyWith(color: R.colors.black,
                                                 fontSize: 12.sp,fontWeight: FontWeight.bold
                                             ) ,),
