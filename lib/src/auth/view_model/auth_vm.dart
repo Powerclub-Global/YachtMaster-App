@@ -323,7 +323,9 @@ class AuthVm extends ChangeNotifier {
                   "isEdit": yacht.createdBy == appwrite.user.$id ? true : false,
                   "isLink": true
                 });
-                String? senderId = Get.parameters["from"];
+              }
+              String? senderId = Get.parameters["from"];
+              if (senderId != null) {
                 var inviteData = {'from': senderId, 'to': appwrite.user.$id};
                 await FbCollections.invites.add(inviteData);
               }

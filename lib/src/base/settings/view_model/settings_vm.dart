@@ -47,14 +47,17 @@ class SettingsVm extends ChangeNotifier {
 
   Future<void> fetchContent() async {
     log("/////////////////////IN FETCH CONTENT");
+
     try {
       allContent = [];
       QuerySnapshot snapshot = await FbCollections.content.get();
+      print(snapshot.docs);
       if (snapshot.docs.isNotEmpty) {
         allContent =
             snapshot.docs.map((e) => ContentModel.fromJson(e.data())).toList();
         notifyListeners();
       }
+
       log("__________ Data ${allContent.length}");
     } catch (e) {
       debugPrintStack();
@@ -81,8 +84,7 @@ class SettingsVm extends ChangeNotifier {
         if (reviews.isNotEmpty) {
           allReviews = reviews;
           hostReviews = reviews
-              .where((element) =>
-                  element.hostId == appwrite.user.$id)
+              .where((element) => element.hostId == appwrite.user.$id)
               .toList();
           await reviews.asyncForEach((element) async {
             log(")))))))))))))))))HOSTS:${hosts?.length}");

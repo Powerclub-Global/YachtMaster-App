@@ -72,7 +72,7 @@ class BaseVm extends ChangeNotifier {
     var settingsVm = Provider.of<SettingsVm>(Get.context!, listen: false);
 
     await Future.wait([
-            yachtVm.fetchCharters(),
+      yachtVm.fetchCharters(),
       bookingsVm.fetchTaxes(),
       yachtVm.fetchCharterOffers(),
       fetchAllUsers(),

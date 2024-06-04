@@ -58,11 +58,10 @@ class _PayWithWalletState extends State<PayWithWallet> {
       var authVm = Provider.of<AuthVm>(context, listen: false);
       if (bookingsVm.bookingsModel.paymentDetail?.isSplit == true) {
         splitPerson = bookingsVm.bookingsModel.paymentDetail?.splitPayment
-            ?.where((element) =>
-                element.userUid == appwrite.user.$id)
+            ?.where((element) => element.userUid == appwrite.user.$id)
             .first;
       }
-      walletAmount = double.parse(authVm.wallet?.amount.toString() ?? "0.0");
+      walletAmount = double.parse(authVm.wallet?.amount.toString() ?? "0.00");
       log("_________________WALLET AMOUNT:${authVm.wallet?.amount.toString()}____");
       setState(() {});
     });

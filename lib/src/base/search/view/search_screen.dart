@@ -24,6 +24,7 @@ import 'package:yacht_master/src/auth/model/favourite_model.dart';
 import 'package:yacht_master/src/auth/model/user_model.dart';
 import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
 import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
+import 'package:yacht_master/src/base/home/view/help_center.dart';
 import 'package:yacht_master/src/base/inbox/model/chat_heads_model.dart';
 import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
 import 'package:yacht_master/src/base/profile/model/review_model.dart';
@@ -1391,7 +1392,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           getTranslated(context, "yacht_master") ?? "",
                           style: R.textStyle.helvetica().copyWith(
                               color: R.colors.themeMud,
-                              fontSize: 18.sp,
+                              fontSize: 28.sp,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'Arial-Narrow'),
                           textAlign: TextAlign.center,
@@ -1465,7 +1466,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             supportWidget(
                                 "help_center", "get_support", 5, settingsVm),
                             supportWidget("health_and_safety",
-                                "covid_responses", 7, settingsVm),
+                                "covid_responses", 2, settingsVm),
                           ],
                         ),
                       ),
@@ -1512,22 +1513,26 @@ class _SearchScreenState extends State<SearchScreen> {
       children: [
         GestureDetector(
           onTap: () {
-            Get.toNamed(RulesRegulations.route, arguments: {
-              "appBarTitle": settingsVm.allContent
-                      .where((element) => element.type == index)
-                      .first
-                      .title ??
-                  "",
-              "title": "",
-              "desc": settingsVm.allContent
-                      .where((element) => element.type == index)
-                      .first
-                      .content ??
-                  "",
-              "textStyle": R.textStyle
-                  .helvetica()
-                  .copyWith(color: R.colors.whiteDull, fontSize: 14.sp)
-            });
+            if (index == 5) {
+              Get.toNamed(HelpCenter.route);
+            } else {
+              Get.toNamed(RulesRegulations.route, arguments: {
+                "appBarTitle": settingsVm.allContent
+                        .where((element) => element.type == index)
+                        .first
+                        .title ??
+                    "",
+                "title": "",
+                "desc": settingsVm.allContent
+                        .where((element) => element.type == index)
+                        .first
+                        .content ??
+                    "",
+                "textStyle": R.textStyle
+                    .helvetica()
+                    .copyWith(color: R.colors.whiteDull, fontSize: 14.sp)
+              });
+            }
           },
           child: Text(
             getTranslated(context, title) ?? "",

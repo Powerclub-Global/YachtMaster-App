@@ -2,8 +2,11 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sizer/sizer.dart';
+import 'package:yacht_master/appwrite.dart';
+import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
 import '../../../../../localization/app_localization.dart';
 import '../../../../../resources/decorations.dart';
 import '../../../../../resources/resources.dart';
@@ -18,6 +21,7 @@ class InviteScreen extends StatefulWidget {
 class _InviteScreenState extends State<InviteScreen> {
   @override
   Widget build(BuildContext context) {
+    var authVm = Provider.of<AuthVm>(context, listen: false);
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Center(
@@ -69,7 +73,7 @@ class _InviteScreenState extends State<InviteScreen> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Text(
-                            "https://apps.apple.com/us/app/yachtmaster-app/id6449384419",
+                            'https://apps.apple.com/us/app/yachtmaster-app/from=${authVm.userModel!.username}',
                             style: R.textStyle.helvetica().copyWith(
                                 color: R.colors.whiteColor, fontSize: 12.5.sp),
                           ),
@@ -78,9 +82,9 @@ class _InviteScreenState extends State<InviteScreen> {
                       w1,
                       GestureDetector(
                         onTap: () {
-                          Clipboard.setData(const ClipboardData(
+                          Clipboard.setData( ClipboardData(
                               text:
-                                  "https://apps.apple.com/us/app/yachtmaster-app/id6449384419"));
+                                  "https://apps.apple.com/us/app/yachtmaster-app/from=${authVm.userModel!.username}"));
                           Helper.inSnackBar("Copied",
                               "Your text has been copied", R.colors.themeMud);
                         },

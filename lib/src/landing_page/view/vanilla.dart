@@ -72,19 +72,16 @@ class _VanillaState extends State<Vanilla> {
           "yacht": yacht,
           "isReserve": false,
           "index": index,
-          "isEdit": yacht.createdBy == appwrite.user.$id
-              ? true
-              : false,
+          "isEdit": yacht.createdBy == appwrite.user.$id ? true : false,
           "isLink": true,
         });
       });
-      String? senderId = Get.parameters["from"];
-      var inviteData = {
-        'from': senderId,
-        'to': appwrite.user.$id
-      };
+    }
+    String? senderId = Get.parameters["from"];
+    if (senderId != null) {
+      var inviteData = {'from': senderId, 'to': appwrite.user.$id};
       await FbCollections.invites.add(inviteData);
-}
+    }
     if (Get.parameters['status'] != null) {
       await handleReturnRedirectFromStripeAccountLink(
           context, Get.parameters['status']!);
