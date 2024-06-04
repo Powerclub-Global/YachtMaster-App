@@ -103,6 +103,47 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
+  onClickFacebookLogin() async {
+    try {
+      startLoader();
+      await appwrite.signInFacebook();
+      await Future.delayed(Duration(seconds: 2));
+      await appwrite.getUser();
+      bool isUserExist = false;
+      isUserExist =
+          await chechUserCollectionExists(appwrite.user.$id, isEmail: true);
+      if (isUserExist == true) {
+        await fetchUser();
+        Future.delayed(Duration(seconds: 2), () async {
+          if (userModel != null) {
+            if (userModel?.status == UserStatus.blocked) {
+              appwrite.account.deleteSession(sessionId: 'current');
+              Fluttertoast.showToast(msg: "You have been blocked by admin");
+            } else {
+              userModel?.fcm = Constants.fcmToken;
+              // userModel?.isActiveUser = true;
+              await updateUser(userModel);
+              ZBotToast.loadingClose();
+              Get.offAllNamed(BaseView.route);
+            }
+          } else {
+            stopLoader();
+          }
+        });
+      } else {
+        stopLoader();
+        print("Here before navigating to social sign up");
+        Get.toNamed(SocialSignup.route);
+      }
+    } on AppwriteException catch (e) {
+      log("THIS IS ERRROR $e");
+      Fluttertoast.showToast(msg: "$e");
+      if (appwrite.user != null) {
+        logoutUser();
+      }
+    }
+  }
+
   onClickGoogleLogin() async {
     try {
       startLoader();

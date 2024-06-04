@@ -211,6 +211,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               w6,
                               socialLinks(R.images.google, () async {
                                 await provider.onClickGoogleLogin();
+                              }),
+                              w6,
+                              socialLinks(R.images.facebook, () async {
+                                await provider.onClickFacebookLogin();
                               })
                             ],
                           )

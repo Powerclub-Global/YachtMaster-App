@@ -65,6 +65,16 @@ class Appwrite {
     print("session created");
   }
 
+
+  Future<void> signInFacebook() async {
+    print("creating session");
+
+    await account.createOAuth2Session(
+      provider: OAuthProvider.facebook,
+    );
+    print("session created");
+  }
+
   Future<void> deleteUser() async {
     delete_user_request = http.Request(
         'GET',
