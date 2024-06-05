@@ -824,13 +824,19 @@ class BookingsVm extends ChangeNotifier {
           bookingsModel.priceDetaill!.tip ?? 0 + finalPaidAmount;
       homeVm.update();
     }
+    String bookingsDocId = docID!;
     try {
       await authVm.updateUserWallet(authVm.wallet?.amount);
       await FbCollections.user.doc(authVm.userModel!.uid).update({
         "stripe_customer_id": authVm.userModel?.stripeCustomerID ?? "",
         "is_card_saved": isSaveThisCard,
       });
-      await FbCollections.bookings.doc(docID).set(bookingsModel.toJson());
+      print("Creating booking doc");
+      print(bookingsDocId);
+      await FbCollections.bookings
+          .doc(bookingsDocId)
+          .set(bookingsModel.toJson());
+      print("created booking doc");
       var invite = await FbCollections.invites
           .where('to', isEqualTo: appwrite.user.$id)
           .get();
@@ -879,7 +885,7 @@ class BookingsVm extends ChangeNotifier {
           await FbCollections.user.doc(charter.get("created_by")).get();
       UserModel hostUser = UserModel.fromJson(hostDoc.data());
       if (isTip == false) {
-        await sendNotificationOnBooking(context, docID!, charter);
+        await sendNotificationOnBooking(context, bookingsDocId, charter);
         await FbCollections.mail.add({
           "to": [hostUser.email],
           "message": {
@@ -1195,7 +1201,12 @@ class BookingsVm extends ChangeNotifier {
         });
       }));
     } else if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
-      await FbCollections.bookings.doc(docID).update({"isPending": false});
+      print("about to update is pending stuff");
+      print(bookingsDocId);
+      await FbCollections.bookings
+          .doc(bookingsDocId)
+          .update({"isPending": false});
+      print("updated pending stuff");
       Get.bottomSheet(Congoratulations(
           getTranslated(
                   context, "your_booking_has_been_confirmed_successfully") ??
@@ -1206,7 +1217,12 @@ class BookingsVm extends ChangeNotifier {
         });
       }));
     } else if (selectedPaymentMethod == PaymentMethodEnum.appStore.index) {
-      await FbCollections.bookings.doc(docID).update({"isPending": false});
+      print("about to update is pending stuff");
+      print(bookingsDocId);
+      await FbCollections.bookings
+          .doc(bookingsDocId)
+          .update({"isPending": false});
+      print("updated pending stuff");
       Timer(Duration(seconds: 2), () {
         Get.back();
         Get.bottomSheet(Congoratulations(
@@ -1220,7 +1236,9 @@ class BookingsVm extends ChangeNotifier {
         }));
       });
     } else {
-      await FbCollections.bookings.doc(docID).update({"isPending": true});
+      await FbCollections.bookings
+          .doc(bookingsDocId)
+          .update({"isPending": true});
       Get.bottomSheet(Congoratulations(
           getTranslated(context,
                   "your_booking_has_been_confirmed_successfully_crypto") ??
