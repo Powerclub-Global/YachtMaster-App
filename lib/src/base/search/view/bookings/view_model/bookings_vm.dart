@@ -841,7 +841,7 @@ class BookingsVm extends ChangeNotifier {
           .where('to', isEqualTo: appwrite.user.$id)
           .get();
 
-      if (invite.docs == []) {
+      if (invite.docs != []) {
         var inviteDoc = invite.docs.last.data() as Map<String, dynamic>;
         var from = inviteDoc['from'];
         var fetchSenderDoc =
@@ -1178,21 +1178,9 @@ class BookingsVm extends ChangeNotifier {
       debugPrintStack();
       log(e.toString());
     }
-    baseVm.selectedPage = -1;
-    baseVm.isHome = true;
-    splitList.clear();
-    searchVm.selectedBookingDays?.clear();
-    searchVm.selectedBookingTime = null;
-    searchVm.selectedCharterDayType = searchVm.charterDayList[0];
-    totalMembersCount = 0;
-    selectedPayIn = 0;
-    selectedPaymentMethod = -1;
-    update();
-    print("printing charter list length");
-    print(yatchVm.allCharters.length);
-    baseVm.update();
-    searchVm.update();
+
     if (isTip == true) {
+      print("Inside is trip");
       Get.bottomSheet(Congoratulations(
           getTranslated(context, "tip_payment_done") ?? "", () {
         Timer(Duration(seconds: 2), () async {
@@ -1201,6 +1189,7 @@ class BookingsVm extends ChangeNotifier {
         });
       }));
     } else if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
+      print("inside card");
       print("about to update is pending stuff");
       print(bookingsDocId);
       await FbCollections.bookings
@@ -1217,6 +1206,7 @@ class BookingsVm extends ChangeNotifier {
         });
       }));
     } else if (selectedPaymentMethod == PaymentMethodEnum.appStore.index) {
+      print("inside apple");
       print("about to update is pending stuff");
       print(bookingsDocId);
       await FbCollections.bookings
@@ -1250,6 +1240,22 @@ class BookingsVm extends ChangeNotifier {
         });
       }));
     }
+    baseVm.selectedPage = -1;
+    baseVm.isHome = true;
+    splitList.clear();
+    searchVm.selectedBookingDays?.clear();
+    searchVm.selectedBookingTime = null;
+    searchVm.selectedCharterDayType = searchVm.charterDayList[0];
+
+    update();
+    print("printing charter list length");
+    print(yatchVm.allCharters.length);
+    print(selectedPaymentMethod);
+    baseVm.update();
+    searchVm.update();
+    totalMembersCount = 0;
+    selectedPayIn = 0;
+    selectedPaymentMethod = -1;
   }
 
   Future<bool> sendNotification(
