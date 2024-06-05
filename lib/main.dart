@@ -128,7 +128,7 @@ void main() async {
       AndroidInitializationSettings('@mipmap/launcher_icon');
 
   final DarwinInitializationSettings initializationSettingsDarwin =
-  DarwinInitializationSettings(
+      DarwinInitializationSettings(
     requestSoundPermission: false,
     requestBadgePermission: false,
     requestAlertPermission: false,

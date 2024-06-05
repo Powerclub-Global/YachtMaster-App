@@ -61,7 +61,7 @@ dependencies:
   hydrated_bloc: ^8.1.0
   path_provider: ^2.0.11
   bot_toast: ^4.0.3
-  flutter_stripe: ^9.4.0
+  flutter_stripe: ^10.1.1
   firebase_remote_config: ^4.2.5
   flutter_email_sender: ^6.0.1
   flutter_datetime_picker:

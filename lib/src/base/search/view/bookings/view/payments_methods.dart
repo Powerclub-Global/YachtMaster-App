@@ -588,11 +588,11 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                             provider.selectedPaymentMethod = 1;
                           },
                           onPaymentResult: (value) async {
-                            print("payment was success");
                             StripeService stripe = StripeService();
+                            print(
+                                "Here we have got the value from Apple pay now just gotta Process it");
                             final token = await Stripe.instance
                                 .createApplePayToken(value);
-                            print(value);
                             final paymentIntentResult =
                                 await stripe.createPaymentIntents(
                               amount: (userPaidAmount * 100).toString(),
@@ -610,7 +610,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                                 paymentMethodData:
                                     PaymentMethodDataCardFromToken(
                                         token: token.id));
-                            print('About to Make Call to Strip');
+                            print('About to Make Call to Stripe');
 
                             // Confirm Google pay payment method
                             await Stripe.instance.confirmPayment(
@@ -618,13 +618,8 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                                     paymentIntentResult?['client_secret'],
                                 data: params);
                             print('Stripe Call Made');
-
-                            await provider.onClickPaymentMethods(
-                                "",
-                                context,
-                                isCompletePayment,
-                                splitAmount,
-                                userPaidAmount!);
+                            await provider.onClickPaymentMethods("", context,
+                                isCompletePayment, splitAmount, userPaidAmount);
                           },
                           onError: (error) {
                             print(error);
@@ -636,7 +631,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                               pay.PaymentConfiguration.fromJsonString('''{
   "provider": "apple_pay",
   "data": {
-    "merchantIdentifier": "merchant.com.yachtmaster.app", 
+    "merchantIdentifier": "merchant.com.yachtmaster.app",
     "displayName": "Yacht Master",
     "merchantCapabilities": [
       "3DS",
@@ -1049,8 +1044,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
     bookingVm.selectedPaymentMethod = -1;
     if (bookingVm.bookingsModel.paymentDetail?.isSplit == true) {
       splitPerson = bookingVm.bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first;
       splitPerson?.payWithWallet = splitPerson?.payWithWallet ?? 0.0;
     }
@@ -1064,8 +1058,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
       if (bookingVm.bookingsModel.paymentDetail?.isSplit == true) {
         bookingVm.bookingsModel.paymentDetail?.paymentMethod = -1;
         splitPerson = bookingVm.bookingsModel.paymentDetail?.splitPayment
-            ?.where((element) =>
-                element.userUid == appwrite.user.$id)
+            ?.where((element) => element.userUid == appwrite.user.$id)
             .toList()
             .first;
         bookingVm.selectedPaymentMethod = splitPerson?.paymentMethod ?? -1;

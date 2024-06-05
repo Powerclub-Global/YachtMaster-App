@@ -22,12 +22,15 @@ class BookingsModel {
     charterFleetDetail = json['charter_fleet_detail'] != null
         ? CharterFleetDetail.fromJson(json['charter_fleet_detail'])
         : null;
+    print("serialised charter fleet");
     paymentDetail = json['payment_detail'] != null
         ? PaymentDetail.fromJson(json['payment_detail'])
         : null;
+    print("serialised Payment Detials");
     schedule = json['schedule '] != null
         ? BookingScheduleModel.fromJson(json['schedule '])
         : null;
+    print("serialised Booking Schedule Model");
     durationType = json['duration_type'];
     createdAt = json['created_at'];
     bookingStatus = json['booking_status'];
@@ -203,28 +206,42 @@ class PaymentDetail {
 
   PaymentDetail.fromJson(dynamic json) {
     paymentType = json['payment_type'];
+    print("print serialised till here 1");
     payWithWallet = json['pay_with_wallet'];
+    print("print serialised till here 2");
     payInType = json['pay_in_type'];
+    print("print serialised till here 3");
     paymentStatus = json['payment_status'];
+    print("print serialised till here 4");
     remainingAmount = json['remaining_amount'];
+    print("print serialised till here 5");
     isSplit = json['is_split'];
+    print("print serialised till here 6");
     paidAmount = json['paid_amount'];
+    print("print serialised till here 7");
     if (json['split_payment'] != null) {
       splitPayment = [];
       json['split_payment'].forEach((v) {
         splitPayment?.add(SplitPaymentModel.fromJson(v));
       });
     }
-    if (json['payment_intents'] != null) {
-      paymentIntents = [];
-      json['payment_intents'].forEach((v) {
-        paymentIntents?.add(PaymentIntents.fromJson(v));
-      });
-    }
+    print("Split Payment serialised");
+    // if (json['payment_intents'] != null) {
+    //   paymentIntents = [];
+    //   json['payment_intents'].forEach((v) {
+
+    //     paymentIntents?.add(PaymentIntents.fromJson(v));
+    //   });
+    // }
+    print("print serialised till here 8");
     paymentMethod = json['payment_method'];
+    print("print serialised till here 9");
     currentUserCardNum = json['current_user_card_num'];
+    print("print serialised till here 10");
     cryptoReceiverEmail = json['crypto_receiver_email'];
+    print("print serialised till here 11");
     cryptoScreenShot = json['crypto_screenshot'];
+    print("print serialised till here 12");
   }
   int? paymentType;
   int? payInType;
@@ -281,9 +298,9 @@ class PaymentDetail {
     if (splitPayment != null) {
       map['split_payment'] = splitPayment?.map((v) => v.toJson()).toList();
     }
-    if (paymentIntents != null) {
-      map['payment_intents'] = paymentIntents?.map((v) => v.toJson()).toList();
-    }
+    // if (paymentIntents != null) {
+    //   map['payment_intents'] = paymentIntents?.map((v) => v.toJson()).toList();
+    // }
     map['payment_method'] = paymentMethod;
     map['current_user_card_num'] = currentUserCardNum;
     map['crypto_receiver_email'] = cryptoReceiverEmail;

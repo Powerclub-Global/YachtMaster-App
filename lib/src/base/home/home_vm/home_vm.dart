@@ -16,8 +16,14 @@ class HomeVm extends ChangeNotifier {
     allBookings = [];
     try {
       var ref = FbCollections.bookings.snapshots().asBroadcastStream();
-      var res = ref.map((list) =>
-          list.docs.map((e) => BookingsModel.fromJson(e.data())).toList());
+
+      var res = ref.map((list) {
+        print("bookings are being printed");
+        return list.docs.map((e) {
+          print(e.data());
+          return BookingsModel.fromJson(e.data());
+        }).toList();
+      });
       bookingsStream ??= res.listen((bookings) async {
         if (bookings.isNotEmpty) {
           allBookings = bookings;
