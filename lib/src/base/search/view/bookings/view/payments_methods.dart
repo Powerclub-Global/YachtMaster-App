@@ -593,9 +593,10 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                                 "Here we have got the value from Apple pay now just gotta Process it");
                             final token = await Stripe.instance
                                 .createApplePayToken(value);
+                            print((userPaidAmount * 100).toInt().toString());
                             final paymentIntentResult =
                                 await stripe.createPaymentIntents(
-                              amount: (userPaidAmount * 100).toString(),
+                              amount: (userPaidAmount * 100).toInt().toString(),
                               currency: 'usd', // mocked data
                               secretKey: secretKey!,
                             );
