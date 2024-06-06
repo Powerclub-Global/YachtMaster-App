@@ -1178,7 +1178,20 @@ class BookingsVm extends ChangeNotifier {
       debugPrintStack();
       log(e.toString());
     }
-
+    baseVm.selectedPage = -1;
+    baseVm.isHome = true;
+    splitList.clear();
+    searchVm.selectedBookingDays?.clear();
+    searchVm.selectedBookingTime = null;
+    searchVm.selectedCharterDayType = searchVm.charterDayList[0];
+    totalMembersCount = 0;
+    selectedPayIn = 0;
+    selectedPaymentMethod = -1;
+    update();
+    baseVm.update();
+    searchVm.update();
+    print("printing payment method");
+    print(bookingsModel.paymentDetail!.paymentMethod);
     if (isTip == true) {
       print("Inside is trip");
       Get.bottomSheet(Congoratulations(
@@ -1188,7 +1201,7 @@ class BookingsVm extends ChangeNotifier {
           Get.offAllNamed(BaseView.route);
         });
       }));
-    } else if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
+    } else if (bookingsModel.paymentDetail!.paymentMethod == PaymentMethodEnum.card.index) {
       print("inside card");
       print("about to update is pending stuff");
       print(bookingsDocId);
@@ -1205,7 +1218,7 @@ class BookingsVm extends ChangeNotifier {
           Get.offAllNamed(BaseView.route);
         });
       }));
-    } else if (selectedPaymentMethod == PaymentMethodEnum.appStore.index) {
+    } else if (bookingsModel.paymentDetail!.paymentMethod == PaymentMethodEnum.appStore.index) {
       print("inside apple");
       print("about to update is pending stuff");
       print(bookingsDocId);
@@ -1240,22 +1253,6 @@ class BookingsVm extends ChangeNotifier {
         });
       }));
     }
-    baseVm.selectedPage = -1;
-    baseVm.isHome = true;
-    splitList.clear();
-    searchVm.selectedBookingDays?.clear();
-    searchVm.selectedBookingTime = null;
-    searchVm.selectedCharterDayType = searchVm.charterDayList[0];
-
-    update();
-    print("printing charter list length");
-    print(yatchVm.allCharters.length);
-    print(selectedPaymentMethod);
-    baseVm.update();
-    searchVm.update();
-    totalMembersCount = 0;
-    selectedPayIn = 0;
-    selectedPaymentMethod = -1;
   }
 
   Future<bool> sendNotification(
