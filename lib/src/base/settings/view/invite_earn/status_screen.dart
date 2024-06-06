@@ -66,7 +66,7 @@ class _StatusScreenState extends State<StatusScreen> {
                     ),
                     h1P5,
                     Text(
-                      "\$ ${authVm.wallet?.amount?.toFixed(2) ?? "0.00"}",
+                      "\$ ${authVm.wallet?.amount.toStringAsFixed(2) ?? "0.00"}",
                       style: R.textStyle
                           .helvetica()
                           .copyWith(color: Colors.white, fontSize: 18.sp),
