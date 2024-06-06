@@ -1706,12 +1706,12 @@ ${hostUser.firstName} ${hostUser.lastName}</p>
     searchVm.selectedCharterDayType = searchVm.charterDayList[0];
     totalMembersCount = 0;
     selectedPayIn = 0;
-    selectedPaymentMethod = -1;
+
     update();
     baseVm.update();
     searchVm.update();
     print("printing payment method");
-    print(bookingsModel.paymentDetail!.paymentMethod);
+    print(selectedPaymentMethod);
     if (isTip == true) {
       print("Inside is trip");
       Get.bottomSheet(Congoratulations(
@@ -1721,7 +1721,7 @@ ${hostUser.firstName} ${hostUser.lastName}</p>
           Get.offAllNamed(BaseView.route);
         });
       }));
-    } else if (bookingsModel.paymentDetail!.paymentMethod ==
+    } else if (selectedPaymentMethod ==
         PaymentMethodEnum.card.index) {
       print("inside card");
       print("about to update is pending stuff");
@@ -1739,7 +1739,7 @@ ${hostUser.firstName} ${hostUser.lastName}</p>
           Get.offAllNamed(BaseView.route);
         });
       }));
-    } else if (bookingsModel.paymentDetail!.paymentMethod ==
+    } else if (selectedPaymentMethod ==
         PaymentMethodEnum.appStore.index) {
       print("inside apple");
       print("about to update is pending stuff");
@@ -1775,6 +1775,7 @@ ${hostUser.firstName} ${hostUser.lastName}</p>
         });
       }));
     }
+        selectedPaymentMethod = -1;
   }
 
   Future<bool> sendNotification(

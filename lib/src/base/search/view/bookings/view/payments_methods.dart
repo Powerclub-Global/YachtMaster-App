@@ -588,6 +588,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                             provider.selectedPaymentMethod = 1;
                           },
                           onPaymentResult: (value) async {
+                            provider.selectedPaymentMethod = 1;
                             StripeService stripe = StripeService();
                             print(
                                 "Here we have got the value from Apple pay now just gotta Process it");
