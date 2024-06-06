@@ -196,7 +196,8 @@ class _HomeViewState extends State<HomeView> {
                                         .length, (index) {
                               print("printing index");
                               print(index);
-
+                              print("Printing the entire booking data");
+                              print(provider.allBookings[index].toJson());
                               BookingsModel booking = provider.allBookings
                                   .where((element) =>
                                       element.createdBy == appwrite.user.$id ||
@@ -210,7 +211,7 @@ class _HomeViewState extends State<HomeView> {
                                   if (booking.createdBy == appwrite.user.$id) {
                                     print(
                                         "I am here now means the booking was created bt me ");
-                                    if (booking.isPending!) {
+                                    if (booking.isPending ?? false) {
                                       Helper.inSnackBar(
                                           "Pending Payment Approval",
                                           "Booking Confirmation still pending, please wait",

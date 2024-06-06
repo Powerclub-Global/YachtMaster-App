@@ -837,11 +837,13 @@ class BookingsVm extends ChangeNotifier {
           .doc(bookingsDocId)
           .set(bookingsModel.toJson());
       print("created booking doc");
+      print(appwrite.user.$id);
       var invite = await FbCollections.invites
           .where('to', isEqualTo: appwrite.user.$id)
           .get();
-
-      if (invite.docs != []) {
+      print("is now  here 1");
+      if (invite.docs.isNotEmpty) {
+        print("I am inside invites section");
         var inviteDoc = invite.docs.last.data() as Map<String, dynamic>;
         var from = inviteDoc['from'];
         var fetchSenderDoc =
@@ -864,12 +866,15 @@ class BookingsVm extends ChangeNotifier {
           }
         });
       }
+      print("is now  here 2");
       var fetchHostWallet =
           await FbCollections.wallet.doc(bookingsModel.hostUserUid).get();
       var hostWallet = fetchHostWallet.data() as Map<String, dynamic>;
+      print("is now  here 3");
       await FbCollections.wallet
           .doc(bookingsModel.hostUserUid)
           .set({'amount': hostWallet['amount'] + 50});
+      print("is now  here 4");
       await FbCollections.wallet_history.add({
         'uid': bookingsModel.hostUserUid,
         'type': 'CashIn_Booking',
@@ -881,9 +886,12 @@ class BookingsVm extends ChangeNotifier {
           'booking_id': bookingsModel.id
         }
       });
+      print("is now  here 5");
       DocumentSnapshot hostDoc =
           await FbCollections.user.doc(charter.get("created_by")).get();
+      print("is now  here 6");
       UserModel hostUser = UserModel.fromJson(hostDoc.data());
+      print("is now  here 7");
       if (isTip == false) {
         await sendNotificationOnBooking(context, bookingsDocId, charter);
         await FbCollections.mail.add({
@@ -1705,6 +1713,7 @@ ${hostUser.firstName} ${hostUser.lastName}</p>
     searchVm.selectedBookingTime = null;
     searchVm.selectedCharterDayType = searchVm.charterDayList[0];
     totalMembersCount = 0;
+
     selectedPayIn = 0;
 
     update();
@@ -1721,8 +1730,7 @@ ${hostUser.firstName} ${hostUser.lastName}</p>
           Get.offAllNamed(BaseView.route);
         });
       }));
-    } else if (selectedPaymentMethod ==
-        PaymentMethodEnum.card.index) {
+    } else if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
       print("inside card");
       print("about to update is pending stuff");
       print(bookingsDocId);
@@ -1739,8 +1747,7 @@ ${hostUser.firstName} ${hostUser.lastName}</p>
           Get.offAllNamed(BaseView.route);
         });
       }));
-    } else if (selectedPaymentMethod ==
-        PaymentMethodEnum.appStore.index) {
+    } else if (selectedPaymentMethod == PaymentMethodEnum.appStore.index) {
       print("inside apple");
       print("about to update is pending stuff");
       print(bookingsDocId);
@@ -1775,7 +1782,7 @@ ${hostUser.firstName} ${hostUser.lastName}</p>
         });
       }));
     }
-        selectedPaymentMethod = -1;
+    selectedPaymentMethod = -1;
   }
 
   Future<bool> sendNotification(

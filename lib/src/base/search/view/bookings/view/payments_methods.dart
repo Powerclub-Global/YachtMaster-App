@@ -586,9 +586,15 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                           margin: const EdgeInsets.only(top: 15.0),
                           onPressed: () {
                             provider.selectedPaymentMethod = 1;
+                                            provider.bookingsModel.paymentDetail
+                                    ?.paymentMethod =
+                                PaymentMethodEnum.appStore.index;
                           },
                           onPaymentResult: (value) async {
-                            provider.selectedPaymentMethod = 1;
+            
+                            provider.update();
+                            print("Payment Method Set");
+                            print(bookingsModel!.paymentDetail!.paymentMethod);
                             StripeService stripe = StripeService();
                             print(
                                 "Here we have got the value from Apple pay now just gotta Process it");
@@ -940,6 +946,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
             break;
           case 2:
             {
+              // remove this line after testing
               var response = await http.get(
                 Uri.parse('https://rest.coinapi.io/v1/exchangerate/USD/BTC'),
                 headers: {
