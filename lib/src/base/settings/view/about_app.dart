@@ -228,7 +228,7 @@ class _AboutAppState extends State<AboutApp> {
               Padding(
                 padding: EdgeInsets.symmetric(
                     horizontal: Get.width * .04, vertical: Get.height * .02),
-                child: Text(desc.replaceAll("\\n", "\n"),
+                child: Text(desc.replaceAll("/n", "\n"),
                     style: R.textStyle.helvetica().copyWith(
                         color: R.colors.whiteDull,
                         fontSize: 11.5.sp,

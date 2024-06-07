@@ -24,7 +24,9 @@ class Appwrite {
   }
 
   Future<void> getUser() async {
+    print("Getting user");
     user = await account.get();
+    print("User has been getted");
   }
 
   Future<void> sendSMS(String phone) async {
@@ -64,7 +66,6 @@ class Appwrite {
     );
     print("session created");
   }
-
 
   Future<void> signInFacebook() async {
     print("creating session");

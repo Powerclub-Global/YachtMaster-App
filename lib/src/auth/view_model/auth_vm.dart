@@ -146,31 +146,29 @@ class AuthVm extends ChangeNotifier {
 
   onClickGoogleLogin() async {
     try {
-      startLoader();
       await appwrite.signInGoogle();
-      await Future.delayed(Duration(seconds: 2));
+      ZBotToast.loadingShow();
+      await Future.delayed(Duration(milliseconds: 100));
       await appwrite.getUser();
       bool isUserExist = false;
       isUserExist =
           await chechUserCollectionExists(appwrite.user.$id, isEmail: true);
       if (isUserExist == true) {
         await fetchUser();
-        Future.delayed(Duration(seconds: 2), () async {
-          if (userModel != null) {
-            if (userModel?.status == UserStatus.blocked) {
-              appwrite.account.deleteSession(sessionId: 'current');
-              Fluttertoast.showToast(msg: "You have been blocked by admin");
-            } else {
-              userModel?.fcm = Constants.fcmToken;
-              // userModel?.isActiveUser = true;
-              await updateUser(userModel);
-              ZBotToast.loadingClose();
-              Get.offAllNamed(BaseView.route);
-            }
+        if (userModel != null) {
+          if (userModel?.status == UserStatus.blocked) {
+            appwrite.account.deleteSession(sessionId: 'current');
+            Fluttertoast.showToast(msg: "You have been blocked by admin");
           } else {
-            stopLoader();
+            userModel?.fcm = Constants.fcmToken;
+            // userModel?.isActiveUser = true;
+            await updateUser(userModel);
+            ZBotToast.loadingClose();
+            Get.offAllNamed(BaseView.route);
           }
-        });
+        } else {
+          stopLoader();
+        }
       } else {
         stopLoader();
         print("Here before navigating to social sign up");
@@ -841,7 +839,6 @@ class AuthVm extends ChangeNotifier {
               }
             }
           });
-      await Future.delayed(Duration(seconds: 2));
       print("ab toh wapis jaane wale hai");
       print(userModel!.toJson());
       getUserWallet();

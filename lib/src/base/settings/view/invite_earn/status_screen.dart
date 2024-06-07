@@ -40,6 +40,7 @@ class _StatusScreenState extends State<StatusScreen> {
   @override
   Widget build(BuildContext context) {
     return Consumer2<AuthVm, HomeVm>(builder: (context, authVm, homeVm, _) {
+      print('Wallet Amount type: ${authVm.wallet?.amount}');
       return Scaffold(
         backgroundColor: Colors.transparent,
         body: Padding(
@@ -77,10 +78,8 @@ class _StatusScreenState extends State<StatusScreen> {
               GestureDetector(
                 onTap: () async {
                   ZBotToast.loadingShow();
-                  var data = await db
-                      .collection("users")
-                      .doc(appwrite.user.$id)
-                      .get();
+                  var data =
+                      await db.collection("users").doc(appwrite.user.$id).get();
                   var data1 = data.data();
                   var inviteStatus = data1!["invite_status"];
                   if (inviteStatus == 2) {
@@ -120,12 +119,12 @@ class _StatusScreenState extends State<StatusScreen> {
                               ),
                               SingleChildScrollView(
                                 child: BulletedList(listItems: [
-                                  getTranslated(
-                                      context, "first_time_intro_bullet_text_1")!,
-                                  getTranslated(
-                                      context, "first_time_intro_bullet_text_2")!,
-                                  getTranslated(
-                                      context, "first_time_intro_bullet_text_3")!
+                                  getTranslated(context,
+                                      "first_time_intro_bullet_text_1")!,
+                                  getTranslated(context,
+                                      "first_time_intro_bullet_text_2")!,
+                                  getTranslated(context,
+                                      "first_time_intro_bullet_text_3")!
                                 ]),
                               ),
                               SizedBox(
@@ -148,7 +147,7 @@ class _StatusScreenState extends State<StatusScreen> {
                                   print("connected account Id");
                                   print(accountId);
                                   print("about to make account link");
-                          
+
                                   String accountLink =
                                       await stripe.createAccountLink(accountId);
                                   if (accountLink == 'internet error') {
