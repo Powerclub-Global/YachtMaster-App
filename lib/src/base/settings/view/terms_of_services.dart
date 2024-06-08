@@ -64,7 +64,10 @@ class _TermsOfServicesState extends State<TermsOfServices> {
                       TextStyle(fontSize: 14, color: R.colors.whiteColor),
                   customStylesBuilder: (element) {
                     if (element.localName == 'a') {
-                      return {'color': 'gold'}; // Set the link color to gold
+                      return {
+                        'color': 'gold',
+                        'text-decoration-color': 'gold'
+                      }; // Set the link color to gold
                     }
                     return null;
                   },
