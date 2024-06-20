@@ -154,7 +154,7 @@ class _AboutAppState extends State<AboutApp> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          // links(R.images.facebook,fb??"",),
+                          links(R.images.facebook,fb??"",),
                           // links(R.images.google,google??"",),
                           links(
                             R.images.twitter,

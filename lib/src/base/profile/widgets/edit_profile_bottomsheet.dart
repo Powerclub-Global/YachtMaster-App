@@ -259,7 +259,7 @@ class _EditProfileState extends State<EditProfile> {
                                 h1P5,
                                 label(getTranslated(
                                       context,
-                                      "new_username",
+                                      "username",
                                     ) ??
                                     ""),
                                 h0P5,
@@ -283,7 +283,7 @@ class _EditProfileState extends State<EditProfile> {
                                   validator: (val) =>
                                       FieldValidator.validateUsername(val),
                                   decoration: AppDecorations.suffixTextField(
-                                      "enter_new_username",
+                                      "enter_username",
                                       R.textStyle.helvetica().copyWith(
                                           color: usernameFn.hasFocus
                                               ? R.colors.themeMud
