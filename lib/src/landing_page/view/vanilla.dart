@@ -1,9 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:sizer/sizer.dart';
 import '../../../appwrite.dart';
 import '../../../localization/app_localization.dart';
 import '../../../resources/resources.dart';
@@ -13,8 +11,8 @@ import '../../auth/view_model/auth_vm.dart';
 import '../../base/search/model/charter_model.dart';
 import '../../base/yacht/view/charter_detail.dart';
 import '../../base/yacht/view_model/yacht_vm.dart';
-import '../../../utils/general_app_bar.dart';
 import '../../../utils/zbot_toast.dart';
+
 
 class Vanilla extends StatefulWidget {
   const Vanilla({super.key});
@@ -92,7 +90,7 @@ class _VanillaState extends State<Vanilla> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       routeToYacht();
     });
   }

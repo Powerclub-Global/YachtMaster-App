@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
+import 'package:yacht_master/src/auth/widgets/edit_username_bottomsheet.dart';
 import 'package:yacht_master/src/base/settings/widgets/delete_account_sheet.dart';
 import 'package:yacht_master/utils/heights_widths.dart';
 import '../../../../localization/app_localization.dart';
@@ -18,7 +19,6 @@ class ManageAccount extends StatefulWidget {
 class _ManageAccountState extends State<ManageAccount> {
   @override
   Widget build(BuildContext context) {
-    print("here in safety screen");
     return Scaffold(
       backgroundColor: R.colors.black,
       appBar: GeneralAppBar.simpleAppBar(
@@ -35,6 +35,8 @@ class _ManageAccountState extends State<ManageAccount> {
               child: Column(
                 children: [
                   tiles(0, "delete_account", R.images.bin,
+                      isDivider: true, isShowArrow: false),
+                  tiles(1, "edit_username", R.images.personalInfo,
                       isDivider: false, isShowArrow: false)
                 ],
               ),
@@ -53,6 +55,8 @@ class _ManageAccountState extends State<ManageAccount> {
           case 0:
             Get.bottomSheet(DeleteAccountSheet());
             break;
+          case 1:
+            Get.bottomSheet(EditUsername());
         }
       },
       child: Container(

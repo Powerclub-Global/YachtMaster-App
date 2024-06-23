@@ -1,16 +1,12 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:circular_profile_avatar/circular_profile_avatar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
@@ -23,9 +19,7 @@ import '../../base_vm.dart';
 import '../../../../utils/heights_widths.dart';
 import '../../../../utils/helper.dart';
 import '../../../../utils/validation.dart';
-
 import '../../../../utils/countryCodeConverter.dart';
-import '../../../../utils/keyboard_actions.dart';
 
 class EditProfile extends StatefulWidget {
   @override
@@ -314,6 +308,7 @@ class _EditProfileState extends State<EditProfile> {
                                       usernameController.text,
                                       pickedImage,
                                       context);
+                                  return;
                                 }
                                 Fluttertoast.showToast(
                                     msg: "This username is not available");

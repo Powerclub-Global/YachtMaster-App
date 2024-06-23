@@ -54,7 +54,6 @@ import '../../../../utils/zbot_toast.dart';
 import '../../../../constant/enums.dart';
 import '../../admin_chat/model/admin_chat_model.dart';
 import '../../yacht/view/rules_regulations.dart';
-import '../widgets/delete_account_sheet.dart';
 import 'become_a_host.dart';
 
 class SettingsView extends StatefulWidget {

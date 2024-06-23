@@ -73,7 +73,7 @@ class _InviteScreenState extends State<InviteScreen> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Text(
-                            'https://apps.apple.com/us/app/yachtmaster-app/from=${authVm.userModel!.username}',
+                            'https://yachtmasterapp.com?from=${authVm.userModel!.username}',
                             style: R.textStyle.helvetica().copyWith(
                                 color: R.colors.whiteColor, fontSize: 12.5.sp),
                           ),
@@ -84,7 +84,7 @@ class _InviteScreenState extends State<InviteScreen> {
                         onTap: () {
                           Clipboard.setData( ClipboardData(
                               text:
-                                  "https://apps.apple.com/us/app/yachtmaster-app/from=${authVm.userModel!.username}"));
+                                  "https://yachtmasterapp.com?from=${authVm.userModel!.username}"));
                           Helper.inSnackBar("Copied",
                               "Your text has been copied", R.colors.themeMud);
                         },
@@ -114,7 +114,7 @@ class _InviteScreenState extends State<InviteScreen> {
             GestureDetector(
               onTap: () {
                 Share.share(
-                    "Here you can download Yacht Master! \n https://apps.apple.com/us/app/yachtmaster-app/id6449384419");
+                    "Start Exploring the Magic of Yacht Master! \n https://yachtmasterapp.com?from=${authVm.userModel!.username}");
               },
               child: Container(
                 height: Get.height * .055,

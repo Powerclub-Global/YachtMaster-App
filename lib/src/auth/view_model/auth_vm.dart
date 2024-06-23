@@ -776,6 +776,12 @@ class AuthVm extends ChangeNotifier {
     update();
   }
 
+  updateUsernameDataToDB(String username) async {
+    await FbCollections.user.doc(userModel!.uid).update(
+        {"username": username});
+    update();
+  }
+
   ///EDIT PROFILE
   onClickEditProfile(String firstName, String lastName, String username,
       File? pickedImage, BuildContext context) async {
