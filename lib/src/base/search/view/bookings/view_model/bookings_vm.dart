@@ -226,8 +226,6 @@ class BookingsVm extends ChangeNotifier {
       bookingsModel.durationType = provider.selectedCharterDayType?.type;
       provider.selectedCharterDayType = CharterDayModel("Half Day Charter",
           "4 Hours", R.images.v2, CharterDayType.halfDay.index);
-      print("printing host ID");
-      print(charter!.createdBy);
       bookingsModel.hostUserUid = charter!.createdBy;
       provider.update();
       DocumentSnapshot? charterDoc;
@@ -746,7 +744,6 @@ class BookingsVm extends ChangeNotifier {
         ? bookingsModel.id
         : Timestamp.now().millisecondsSinceEpoch.toString();
     if (isCompletePayment == true) {
-      print("Your payment was success less");
       completePaymentFunction(screenShotUrl, context);
     } else if (isTip == false) {
       bookingsModel.bookingStatus = BookingStatus.ongoing.index;
@@ -886,12 +883,9 @@ class BookingsVm extends ChangeNotifier {
           'booking_id': bookingsModel.id
         }
       });
-      print("is now  here 5");
       DocumentSnapshot hostDoc =
           await FbCollections.user.doc(charter.get("created_by")).get();
-      print("is now  here 6");
       UserModel hostUser = UserModel.fromJson(hostDoc.data());
-      print("is now  here 7");
       if (isTip == false) {
         await sendNotificationOnBooking(context, bookingsDocId, charter);
         await FbCollections.mail.add({

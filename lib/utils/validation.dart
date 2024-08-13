@@ -193,10 +193,10 @@ class FieldValidator {
   }
 
   static String? validateUsername(String? value) {
-    if (value!.length < 5) {
+    if (value!.length < 4) {
       return getTranslated(Get.context!, "username_needs_more");
     }
-    if (value.length > 8) {
+    if (value.length > 16) {
       return getTranslated(Get.context!, "username_needs_less");
     }
     if (!RegExp(r"^[a-zA-Z0-9_]+$").hasMatch(value)) {

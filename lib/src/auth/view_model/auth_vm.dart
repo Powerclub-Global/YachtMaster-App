@@ -59,7 +59,7 @@ class AuthVm extends ChangeNotifier {
   }
 
   Future<void> isUsernameAvailable(String username) async {
-    if (username.length > 5) {
+    if (username.length >= 4  && username.length <= 16) {
       await db
           .collection("users")
           .where("username", isEqualTo: username)
