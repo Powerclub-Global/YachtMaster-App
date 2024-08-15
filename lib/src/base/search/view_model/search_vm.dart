@@ -5,21 +5,21 @@ import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:provider/provider.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/time_slot_model.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../../../../services/time_schedule_service.dart';
+import '../view/bookings/model/bookings.dart';
+import '../view/bookings/model/time_slot_model.dart';
+import '../view/bookings/view_model/bookings_vm.dart';
+import '../../../../utils/helper.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/base/search/model/charter_model.dart';
-import 'package:yacht_master/src/base/search/model/charters_day_model.dart';
-import 'package:yacht_master/src/base/search/model/city_model.dart';
+import '../../../../constant/enums.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../model/charter_model.dart';
+import '../model/charters_day_model.dart';
+import '../model/city_model.dart';
 
 class SearchVm extends ChangeNotifier {
   ///HOLIDAY

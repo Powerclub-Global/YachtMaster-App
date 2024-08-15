@@ -2,8 +2,8 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/base/admin_chat/model/admin_chat_model.dart';
+import '../../../../services/firebase_collections.dart';
+import '../model/admin_chat_model.dart';
 
 import '../../../../utils/zbot_toast.dart';
 import '../model/admin_chat_head_model.dart';

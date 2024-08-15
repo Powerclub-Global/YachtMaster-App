@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/src/base/yacht/widgets/congo_bottomSheet.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/validation.dart';
+
+import '../../../localization/app_localization.dart';
+import '../../../resources/decorations.dart';
+import '../../../resources/resources.dart';
+import '../../../utils/heights_widths.dart';
+import '../../../utils/validation.dart';
+import '../../base/yacht/widgets/congo_bottomSheet.dart';
 
 class NewPasswordDialog extends StatefulWidget {
 

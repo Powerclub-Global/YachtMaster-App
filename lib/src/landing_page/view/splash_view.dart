@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/src/landing_page/view_model/landing_vm.dart';
+import '../../../resources/resources.dart';
+import '../../auth/view_model/auth_vm.dart';
+import '../../base/base_vm.dart';
+import '../../base/search/view/bookings/view_model/bookings_vm.dart';
+import '../view_model/landing_vm.dart';
 
 class SplashScreen extends StatefulWidget {
   static String route = "/splashScreen";

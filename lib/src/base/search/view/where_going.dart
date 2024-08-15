@@ -6,15 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/blocs/bloc_exports.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/src/base/search/view_model/search_vm.dart';
-import 'package:yacht_master/src/base/search/view/what_looking_for.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
-import 'package:yacht_master/utils/empty_screem.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../../../../blocs/bloc_exports.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/resources.dart';
+import '../view_model/search_vm.dart';
+import 'what_looking_for.dart';
+import '../../yacht/view_model/yacht_vm.dart';
+import '../../../../utils/empty_screem.dart';
+import '../../../../utils/heights_widths.dart';
+import '../../../../utils/helper.dart';
 
 class WhereGoing extends StatefulWidget {
   static String route = "/whereGoing";

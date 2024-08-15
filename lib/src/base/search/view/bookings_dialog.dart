@@ -3,13 +3,13 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/date_picker_services.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/search/model/charter_model.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
-import 'package:yacht_master/utils/extensions.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/date_picker_services.dart';
+import '../../home/home_vm/home_vm.dart';
+import '../model/charter_model.dart';
+import 'bookings/model/bookings.dart';
+import '../../../../utils/extensions.dart';
+import '../../../../utils/heights_widths.dart';
 
 class BookingsDialog extends StatefulWidget {
   final CharterModel charter;

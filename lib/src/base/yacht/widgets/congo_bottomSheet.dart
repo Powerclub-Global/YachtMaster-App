@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/resources.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/resources.dart';
 
 class Congoratulations extends StatefulWidget {
   final String mesg;

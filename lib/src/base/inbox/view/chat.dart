@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'dart:developer'as msg;
+import 'dart:developer' as msg;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:circular_profile_avatar/circular_profile_avatar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,16 +12,17 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
-import 'package:yacht_master/src/base/inbox/model/chat_heads_model.dart';
-import 'package:yacht_master/src/base/inbox/model/chat_model.dart';
-import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
+import '../../../../appwrite.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../../services/time_schedule_service.dart';
+import '../../../auth/view_model/auth_vm.dart';
+import '../../base_vm.dart';
+import '../model/chat_heads_model.dart';
+import '../model/chat_model.dart';
+import '../view_model/inbox_vm.dart';
 
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../utils/heights_widths.dart';
 import 'dart:ui' as ui;
 
 import '../../../../services/notification_service.dart';
@@ -44,24 +45,24 @@ class _ChatViewState extends State<ChatView> {
     // TODO: implement initState
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       var args =
-      ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
       chatHeadModel = args["chatHeadModel"];
       try {
-        QuerySnapshot chatDocsLen= await FbCollections.chat.where("chat_head_id",isEqualTo: chatHeadModel?.id).get();
+        QuerySnapshot chatDocsLen = await FbCollections.chat
+            .where("chat_head_id", isEqualTo: chatHeadModel?.id)
+            .get();
         msg.log("))))${chatDocsLen.docs.length}");
-        if(chatDocsLen.docs.isNotEmpty)
-          {
-            Future.delayed(const Duration(seconds: 2), () {
-              scrollController?.animateTo(scrollController?.position.minScrollExtent??0,
-                  duration: const Duration(microseconds: 1), curve: Curves.easeIn);
-            });
-          }
-        else{
-         scrollController= ScrollController(initialScrollOffset: 0.0);
+        if (chatDocsLen.docs.isNotEmpty) {
+          Future.delayed(const Duration(seconds: 2), () {
+            scrollController?.animateTo(
+                scrollController?.position.minScrollExtent ?? 0,
+                duration: const Duration(microseconds: 1),
+                curve: Curves.easeIn);
+          });
+        } else {
+          scrollController = ScrollController(initialScrollOffset: 0.0);
         }
-        setState(() {
-
-        });
+        setState(() {});
       } on Exception catch (e) {
         // TODO
         debugPrintStack();
@@ -72,13 +73,12 @@ class _ChatViewState extends State<ChatView> {
     super.initState();
   }
 
-  
   @override
   Widget build(BuildContext context) {
     var args =
-    ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
     chatHeadModel = args["chatHeadModel"];
-    return Consumer2<BaseVm,InboxVm>(builder: (context, baseVm,model, _) {
+    return Consumer2<BaseVm, InboxVm>(builder: (context, baseVm, model, _) {
       msg.log("____id:${baseVm.allUsers.length}");
       return GestureDetector(
         onTap: () {
@@ -95,10 +95,19 @@ class _ChatViewState extends State<ChatView> {
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 centerTitle: true,
-                title: Text(baseVm.allUsers.firstWhereOrNull((element) => chatHeadModel?.users?.where((element) => element!=FirebaseAuth.instance.currentUser?.uid).first==element.uid)?.firstName??"",
-                      style: R.textStyle
-                      .helveticaBold()
-                          .copyWith(color: R.colors.whiteDull)),
+                title: Text(
+                    baseVm.allUsers
+                            .firstWhereOrNull((element) =>
+                                chatHeadModel?.users
+                                    ?.where((element) =>
+                                        element != appwrite.user.$id)
+                                    .first ==
+                                element.uid)
+                            ?.firstName ??
+                        "",
+                    style: R.textStyle
+                        .helveticaBold()
+                        .copyWith(color: R.colors.whiteDull)),
                 leading: GestureDetector(
                     onTap: () {
                       Get.back();
@@ -114,13 +123,14 @@ class _ChatViewState extends State<ChatView> {
             children: [
               h2,
               Text(
-                (chatHeadModel?.createdAt?.toDate()??now).formateDateChatNow(),
+                (chatHeadModel?.createdAt?.toDate() ?? now)
+                    .formateDateChatNow(),
                 style: R.textStyle
                     .helveticaBold()
                     .copyWith(fontSize: 8.sp, color: R.colors.whiteDull),
               ),
               h2,
-              conversation(model,baseVm),
+              conversation(model, baseVm),
               customTextFieldMessage(model)
             ],
           ),
@@ -129,179 +139,50 @@ class _ChatViewState extends State<ChatView> {
     });
   }
 
-  Widget conversation(InboxVm model,BaseVm baseVm) {
-    return
-      Expanded(
-        child:baseVm.allUsers.isEmpty?SizedBox():
-        StreamBuilder(
-            stream: FbCollections.chat.
-            where("chat_head_id",isEqualTo: chatHeadModel?.id).
-            orderBy("created_at",descending:false).
-            snapshots(),
-            builder: (context,AsyncSnapshot<QuerySnapshot> snapshot) {
-              if(!snapshot.hasData)
-              {
-                return SizedBox();
-              }
-            else{
-                return
-                  ScrollConfiguration(
-                  behavior: const ScrollBehavior().copyWith(overscroll: false),
-                  child: ListView.separated(
-                    padding: EdgeInsets.all(10.0),
-                    itemBuilder: (context, index) {
-                      ChatModel chatModel=ChatModel.fromJson(snapshot.data?.docs[index].data());
+  Widget conversation(InboxVm model, BaseVm baseVm) {
+    return Expanded(
+      child: baseVm.allUsers.isEmpty
+          ? SizedBox()
+          : StreamBuilder(
+              stream: FbCollections.chat
+                  .where("chat_head_id", isEqualTo: chatHeadModel?.id)
+                  .orderBy("created_at", descending: false)
+                  .snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                if (!snapshot.hasData) {
+                  return SizedBox();
+                } else {
+                  return ScrollConfiguration(
+                    behavior:
+                        const ScrollBehavior().copyWith(overscroll: false),
+                    child: ListView.separated(
+                      padding: EdgeInsets.all(10.0),
+                      itemBuilder: (context, index) {
+                        ChatModel chatModel = ChatModel.fromJson(
+                            snapshot.data?.docs[index].data());
 
-                      return
-                        chatModel.senderId==FirebaseAuth.instance.currentUser?.uid?
-                        senderBubble(chatModel,baseVm):
-                      receiverBubble(chatModel,baseVm);
-                    },
-                    itemCount: snapshot.data?.docs.length??0,
-                    controller: scrollController,
-                    physics: const ClampingScrollPhysics(),
-
-                    separatorBuilder: (BuildContext context, int index) {
-                      return Container();
-                    },
-                  ),
-                );
-              }
-          }
-        ),
-      );
-  }
-Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
-{
-  return Row(crossAxisAlignment: CrossAxisAlignment.end,
-    mainAxisAlignment: MainAxisAlignment.end,
-    children: [
-        Padding(
-        padding: EdgeInsets.only(bottom: 10, left: 10, right: 10),
-        child: Container(
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(.30),
-                blurRadius: 8,
-                spreadRadius: .002,
-                offset: Offset(0, 4),
-              ),
-            ],
-          ),
-          width: Get.width * .7,
-          child: Container(
-            decoration: BoxDecoration(
-                color:R.colors.blackDull,
-                borderRadius:
-                BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
-                    bottomLeft: Radius.circular(12))),
-            child: Stack(
-              alignment: Alignment.bottomRight,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: Get.width * .6,
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: Get.width * .02,),
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            h1P5,
-                            Padding(
-                              padding:  EdgeInsets.only(bottom: 8.0),
-                              child: Text(
-                                  baseVm.allUsers.where((element) => element.uid==chatModel.senderId).first.firstName??"",
-                                  style: R.textStyle
-                                      .helvetica()
-                                      .copyWith(
-                                      color: Colors.white,
-                                      fontSize:
-                                      Get.width * .04)),
-                            ),
-                            Text(
-                                "${chatModel.message}",
-                                style: R.textStyle
-                                    .helvetica()
-                                    .copyWith(
-                                    color: chatModel.senderId == FirebaseAuth.instance.currentUser?.uid
-                                        ? R.colors.whiteColor
-                                        : R.colors.blackDull,
-                                    fontSize:
-                                    Get.width * .033)),
-                            h2
-                          ],
-                        ),
-                      ),
+                        return chatModel.senderId == appwrite.user.$id
+                            ? senderBubble(chatModel, baseVm)
+                            : receiverBubble(chatModel, baseVm);
+                      },
+                      itemCount: snapshot.data?.docs.length ?? 0,
+                      controller: scrollController,
+                      physics: const ClampingScrollPhysics(),
+                      separatorBuilder: (BuildContext context, int index) {
+                        return Container();
+                      },
                     ),
-                  ],
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      bottom: Get.width * .02,
-                      right: Get.height * .01),
-                  child: Text(
-                      "${DateFormat.jm().format(chatModel.createdAt?.toDate()??now).toString().toLowerCase()}",
-                      style: R.textStyle.helvetica().copyWith(
-                          color: chatModel.senderId == FirebaseAuth.instance.currentUser?.uid
-                              ? R.colors.whiteColor
-                              : R.colors.black,
-                          fontSize: 7.sp)),
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-      CircularProfileAvatar(
-        "",
-        radius: 12.sp,
-        child:
-        CachedNetworkImage(
-          imageUrl:
-          baseVm.allUsers.where((element) => element.uid==chatModel.senderId).first.imageUrl??"",
-          // peerSnap.data?.get("image_url"),
-          fit: BoxFit.cover,
-          progressIndicatorBuilder: (context, url, downloadProgress) =>
-              SpinKitPulse(color: R.colors.themeMud,),
-          errorWidget: (context, url, error) => Icon(Icons.error),
-        ),
-      )
+                  );
+                }
+              }),
+    );
+  }
 
-    ],
-  );
-}
-  Widget receiverBubble(ChatModel chatModel,BaseVm baseVm)
-  {
-    return
-      baseVm.allUsers.firstWhereOrNull((element) => element.uid==chatHeadModel?.users?.firstWhereOrNull((e) => e!=FirebaseAuth.instance.currentUser?.uid))==null?
-          SizedBox():
-      Row(crossAxisAlignment: CrossAxisAlignment.end,
-      mainAxisAlignment: MainAxisAlignment.start,
+  Widget senderBubble(ChatModel chatModel, BaseVm baseVm) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        GestureDetector(
-          onTap: (){
-            Get.toNamed(HostProfileOthers.route,arguments: {"host":baseVm.allUsers.firstWhereOrNull((element) => chatHeadModel?.users?.where((element) => element!=FirebaseAuth.instance.currentUser?.uid).first==element.uid)});
-
-          },
-          child: CircularProfileAvatar(
-            "",
-            radius: 12.sp,
-            child:
-            CachedNetworkImage(
-              imageUrl:
-              baseVm.allUsers.where((element) => element.uid==chatHeadModel!.users!.where((element) => element!=FirebaseAuth.instance.currentUser!.uid).first).first.imageUrl??"",
-              // peerSnap.data?.get("image_url"),
-              fit: BoxFit.cover,
-              progressIndicatorBuilder: (context, url, downloadProgress) =>
-                  SpinKitPulse(color: R.colors.themeMud,),
-              errorWidget: (context, url, error) => Icon(Icons.error),
-            ),
-          ),
-        ),
         Padding(
           padding: EdgeInsets.only(bottom: 10, left: 10, right: 10),
           child: Container(
@@ -318,12 +199,11 @@ Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
             width: Get.width * .7,
             child: Container(
               decoration: BoxDecoration(
-                  color:  R.colors.milkyWhite,
-                  borderRadius:
-                   BorderRadius.only(
+                  color: R.colors.blackDull,
+                  borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(12),
                       topRight: Radius.circular(12),
-                      bottomRight: Radius.circular(12))),
+                      bottomLeft: Radius.circular(12))),
               child: Stack(
                 alignment: Alignment.bottomRight,
                 children: [
@@ -333,32 +213,33 @@ Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
                         width: Get.width * .6,
                         child: Padding(
                           padding: EdgeInsets.symmetric(
-                            horizontal: Get.width * .02,),
-                          child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+                            horizontal: Get.width * .02,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               h1P5,
                               Padding(
-                                padding:  EdgeInsets.only(bottom: 8.0),
+                                padding: EdgeInsets.only(bottom: 8.0),
                                 child: Text(
-                                    baseVm.allUsers.where((element) => element.uid==chatHeadModel!.users!.where((element) => element!=FirebaseAuth.instance.currentUser!.uid).first).first.firstName??"",
-
-                                    style: R.textStyle
-                                        .helvetica()
-                                        .copyWith(
-                                        color: R.colors.blackDull,
-                                        fontSize:
-                                        Get.width * .04)),
+                                    baseVm.allUsers
+                                            .where((element) =>
+                                                element.uid ==
+                                                chatModel.senderId)
+                                            .first
+                                            .username ??
+                                        "",
+                                    style: R.textStyle.helvetica().copyWith(
+                                        color: Colors.white,
+                                        fontSize: Get.width * .04)),
                               ),
-                              Text(
-                                  "${chatModel.message}",
-                                  style: R.textStyle
-                                      .helvetica()
-                                      .copyWith(
-                                      color: chatModel.senderId == FirebaseAuth.instance.currentUser?.uid
+                              Text("${chatModel.message}",
+                                  style: R.textStyle.helvetica().copyWith(
+                                      color: chatModel.senderId ==
+                                              appwrite.user.$id
                                           ? R.colors.whiteColor
                                           : R.colors.blackDull,
-                                      fontSize:
-                                      Get.width * .033)),
+                                      fontSize: Get.width * .033)),
                               h2
                             ],
                           ),
@@ -368,11 +249,13 @@ Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
                   ),
                   Padding(
                     padding: EdgeInsets.only(
-                        bottom: Get.width * .02,
-                        right: Get.height * .01),
-                    child: Text("${DateFormat.jm().format(chatModel.createdAt?.toDate()??now).toString().toLowerCase()}",
+                        bottom: Get.width * .02, right: Get.height * .01),
+                    child: Text(
+                        "${DateFormat.jm().format(chatModel.createdAt?.toDate() ?? now).toString().toLowerCase()}",
                         style: R.textStyle.helvetica().copyWith(
-                            color:  R.colors.black,
+                            color: chatModel.senderId == appwrite.user.$id
+                                ? R.colors.whiteColor
+                                : R.colors.black,
                             fontSize: 7.sp)),
                   )
                 ],
@@ -380,10 +263,160 @@ Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
             ),
           ),
         ),
-
+        CircularProfileAvatar(
+          "",
+          radius: 12.sp,
+          child: CachedNetworkImage(
+            imageUrl: baseVm.allUsers
+                    .where((element) => element.uid == chatModel.senderId)
+                    .first
+                    .imageUrl ??
+                "",
+            // peerSnap.data?.get("image_url"),
+            fit: BoxFit.cover,
+            progressIndicatorBuilder: (context, url, downloadProgress) =>
+                SpinKitPulse(
+              color: R.colors.themeMud,
+            ),
+            errorWidget: (context, url, error) => Icon(Icons.error),
+          ),
+        )
       ],
     );
   }
+
+  Widget receiverBubble(ChatModel chatModel, BaseVm baseVm) {
+    return baseVm.allUsers.firstWhereOrNull((element) =>
+                element.uid ==
+                chatHeadModel?.users
+                    ?.firstWhereOrNull((e) => e != appwrite.user.$id)) ==
+            null
+        ? SizedBox()
+        : Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Get.toNamed(HostProfileOthers.route, arguments: {
+                    "host": baseVm.allUsers.firstWhereOrNull((element) =>
+                        chatHeadModel?.users
+                            ?.where((element) => element != appwrite.user.$id)
+                            .first ==
+                        element.uid)
+                  });
+                },
+                child: CircularProfileAvatar(
+                  "",
+                  radius: 12.sp,
+                  child: CachedNetworkImage(
+                    imageUrl: baseVm.allUsers
+                            .where((element) =>
+                                element.uid ==
+                                chatHeadModel!.users!
+                                    .where((element) =>
+                                        element != appwrite.user.$id)
+                                    .first)
+                            .first
+                            .imageUrl ??
+                        "",
+                    // peerSnap.data?.get("image_url"),
+                    fit: BoxFit.cover,
+                    progressIndicatorBuilder:
+                        (context, url, downloadProgress) => SpinKitPulse(
+                      color: R.colors.themeMud,
+                    ),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(bottom: 10, left: 10, right: 10),
+                child: Container(
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(.30),
+                        blurRadius: 8,
+                        spreadRadius: .002,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  width: Get.width * .7,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: R.colors.milkyWhite,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(12),
+                            topRight: Radius.circular(12),
+                            bottomRight: Radius.circular(12))),
+                    child: Stack(
+                      alignment: Alignment.bottomRight,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              width: Get.width * .6,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: Get.width * .02,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    h1P5,
+                                    Padding(
+                                      padding: EdgeInsets.only(bottom: 8.0),
+                                      child: Text(
+                                          baseVm.allUsers
+                                                  .where((element) =>
+                                                      element.uid ==
+                                                      chatHeadModel!.users!
+                                                          .where((element) =>
+                                                              element !=
+                                                              appwrite.user.$id)
+                                                          .first)
+                                                  .first
+                                                  .username ??
+                                              "",
+                                          style: R.textStyle
+                                              .helvetica()
+                                              .copyWith(
+                                                  color: R.colors.blackDull,
+                                                  fontSize: Get.width * .04)),
+                                    ),
+                                    Text("${chatModel.message}",
+                                        style: R.textStyle.helvetica().copyWith(
+                                            color: chatModel.senderId ==
+                                                    appwrite.user.$id
+                                                ? R.colors.whiteColor
+                                                : R.colors.blackDull,
+                                            fontSize: Get.width * .033)),
+                                    h2
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              bottom: Get.width * .02, right: Get.height * .01),
+                          child: Text(
+                              "${DateFormat.jm().format(chatModel.createdAt?.toDate() ?? now).toString().toLowerCase()}",
+                              style: R.textStyle.helvetica().copyWith(
+                                  color: R.colors.black, fontSize: 7.sp)),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+  }
+
   Widget customTextFieldMessage(InboxVm provider) {
     return Container(
       decoration: BoxDecoration(
@@ -436,9 +469,9 @@ Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
             GestureDetector(
               onTap: () async {
                 setState(() {});
-                if (scrollController?.positions.isNotEmpty==true) {
+                if (scrollController?.positions.isNotEmpty == true) {
                   scrollController?.animateTo(
-                      scrollController?.position.maxScrollExtent??0.0,
+                      scrollController?.position.maxScrollExtent ?? 0.0,
                       duration: Duration(milliseconds: 300),
                       curve: Curves.easeOut);
                 }
@@ -447,42 +480,48 @@ Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
                   Fluttertoast.showToast(
                       msg: "Please type something",
                       backgroundColor: R.colors.themeMud);
-                }
-                else {
-                  BaseVm baseVm=Provider.of<BaseVm>(context,listen: false);
-                  String docID=Timestamp.now().millisecondsSinceEpoch.toString();
-                  Timestamp lastMessageTime=Timestamp.now();
-                    ChatModel chatModel=ChatModel(
-                     message: msgCon.text,
-                     createdAt: lastMessageTime,
-                     // DateFormat("hh:mm a")
-                     //     .format(DateTime.now())
-                     //     .toLowerCase(),
-                     senderId: FirebaseAuth.instance.currentUser?.uid,
-                     chatHeadId: chatHeadModel?.id,
-                     type: 0,
-                     isSeen: false,
-                     receiverId:chatHeadModel?.users?.where((element) => element!=FirebaseAuth.instance.currentUser?.uid).toList().first
-                 );
-                    chatHeadModel?.lastMessageTime=lastMessageTime;
-                    chatHeadModel?.lastMessage=msgCon.text;
-                    setState(() {});
+                } else {
+                  BaseVm baseVm = Provider.of<BaseVm>(context, listen: false);
+                  String docID =
+                      Timestamp.now().millisecondsSinceEpoch.toString();
+                  Timestamp lastMessageTime = Timestamp.now();
+                  ChatModel chatModel = ChatModel(
+                      message: msgCon.text,
+                      createdAt: lastMessageTime,
+                      // DateFormat("hh:mm a")
+                      //     .format(DateTime.now())
+                      //     .toLowerCase(),
+                      senderId: appwrite.user.$id,
+                      chatHeadId: chatHeadModel?.id,
+                      type: 0,
+                      isSeen: false,
+                      receiverId: chatHeadModel?.users
+                          ?.where((element) => element != appwrite.user.$id)
+                          .toList()
+                          .first);
+                  chatHeadModel?.lastMessageTime = lastMessageTime;
+                  chatHeadModel?.lastMessage = msgCon.text;
+                  setState(() {});
                   try {
-                    String notficationBody=msgCon.text;
+                    String notficationBody = msgCon.text;
                     msgCon.clear();
-                    scrollController?.animateTo((scrollController?.position.maxScrollExtent??0)*1000, duration: Duration(milliseconds: 500), curve: Curves.easeIn);
+                    scrollController?.animateTo(
+                        (scrollController?.position.maxScrollExtent ?? 0) *
+                            1000,
+                        duration: Duration(milliseconds: 500),
+                        curve: Curves.easeIn);
                     setState(() {});
                     FocusScope.of(context).requestFocus(new FocusNode());
-                    await FbCollections.chatHeads.doc(chatHeadModel?.id).set(chatHeadModel?.toJson());
+                    await FbCollections.chatHeads
+                        .doc(chatHeadModel?.id)
+                        .set(chatHeadModel?.toJson());
                     await FbCollections.chat.doc(docID).set(chatModel.toJson());
-                    await sendNotification(notficationBody,baseVm);
-
+                    await sendNotification(notficationBody, baseVm);
                   } on Exception catch (e) {
                     // TODO
                     debugPrintStack();
                     print(e.toString());
                   }
-
                 }
               },
               child: Container(
@@ -506,18 +545,22 @@ Widget senderBubble(ChatModel chatModel,BaseVm baseVm)
       ),
     );
   }
-  Future<void> sendNotification(String notficationBody,BaseVm baseVm
-      ) async {
-    try {
-      await  NotificationService.sendNotification(
-            fcmToken: baseVm.allUsers.firstWhereOrNull((element) => chatHeadModel?.users?.where((element) => element!=FirebaseAuth.instance.currentUser?.uid).first==element.uid)?.fcm??"",
-            title: "New Message",
-            body: notficationBody);
 
+  Future<void> sendNotification(String notficationBody, BaseVm baseVm) async {
+    try {
+      await NotificationService.sendNotification(
+          fcmToken: baseVm.allUsers
+                  .firstWhereOrNull((element) =>
+                      chatHeadModel?.users
+                          ?.where((element) => element != appwrite.user.$id)
+                          .first ==
+                      element.uid)
+                  ?.fcm ??
+              "",
+          title: "New Message",
+          body: notficationBody);
     } catch (e) {
       print(e.toString());
     }
   }
-
 }
-

@@ -12,17 +12,18 @@ import 'package:flutter_media_downloader/flutter_media_downloader.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/blocs/bloc_exports.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/src/auth/model/user_model.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/src/base/widgets/agreement_sheet.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/zbot_toast.dart';
+import '../../../../appwrite.dart';
+import '../../../../blocs/bloc_exports.dart';
+import '../../../../constant/enums.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/resources.dart';
+import '../../../auth/model/user_model.dart';
+import '../../../auth/view_model/auth_vm.dart';
+import '../../search/view/bookings/view_model/bookings_vm.dart';
+import '../../widgets/agreement_sheet.dart';
+import '../../../../utils/general_app_bar.dart';
+import '../../../../utils/heights_widths.dart';
+import '../../../../utils/zbot_toast.dart';
 import '../../../../resources/decorations.dart';
 
 import '../../../../services/firebase_collections.dart';
@@ -247,7 +248,7 @@ class _BecomeHostState extends State<BecomeHost> {
                       yesCallBack: () async {
                         await db
                             .collection("users")
-                            .doc(FirebaseAuth.instance.currentUser?.uid)
+                            .doc(appwrite.user.$id)
                             .collection("agreements")
                             .doc("host")
                             .set({"time": DateTime.now()});
@@ -315,12 +316,12 @@ class _BecomeHostState extends State<BecomeHost> {
       InboxVm chatVm, YachtVm yachtVm) async {
     AdminChatHeadModel? chatHeadModel;
     AdminChatHeadModel chatData = AdminChatHeadModel(
-      id: FirebaseAuth.instance.currentUser?.uid,
+      id: appwrite.user.$id,
       lastMessage: AdminChatModel(
           message: "",
           createdAt: Timestamp.now(),
-          senderId: FirebaseAuth.instance.currentUser?.uid,
-          chatHeadId: FirebaseAuth.instance.currentUser?.uid,
+          senderId: appwrite.user.$id,
+          chatHeadId: appwrite.user.$id,
           type: 0,
           isSeen: false,
           receiverId: Provider.of<BaseVm>(context, listen: false)
@@ -330,7 +331,7 @@ class _BecomeHostState extends State<BecomeHost> {
               ""),
       status: 0,
       users: [
-        FirebaseAuth.instance.currentUser?.uid ?? "",
+        appwrite.user.$id ?? "",
         Provider.of<BaseVm>(context, listen: false)
                 .allUsers
                 .firstWhereOrNull((element) => element.role == UserType.admin)
@@ -352,12 +353,12 @@ class _BecomeHostState extends State<BecomeHost> {
 
       if (doc.data() == null) {
         chatHeadModel = AdminChatHeadModel(
-          id: FirebaseAuth.instance.currentUser?.uid,
+          id: appwrite.user.$id,
           lastMessage: AdminChatModel(
               message: "",
               createdAt: Timestamp.now(),
-              senderId: FirebaseAuth.instance.currentUser?.uid,
-              chatHeadId: FirebaseAuth.instance.currentUser?.uid,
+              senderId: appwrite.user.$id,
+              chatHeadId: appwrite.user.$id,
               type: 0,
               isSeen: false,
               receiverId: Provider.of<BaseVm>(context, listen: false)
@@ -368,7 +369,7 @@ class _BecomeHostState extends State<BecomeHost> {
                   ""),
           status: 0,
           users: [
-            FirebaseAuth.instance.currentUser?.uid ?? "",
+            appwrite.user.$id ?? "",
             Provider.of<BaseVm>(context, listen: false)
                     .allUsers
                     .firstWhereOrNull(

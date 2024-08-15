@@ -6,16 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/src/base/search/model/charter_model.dart';
-import 'package:yacht_master/src/base/search/model/charters_day_model.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/src/base/search/view_model/search_vm.dart';
-import 'package:yacht_master/src/base/search/view/when_will_be_there.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/resources.dart';
+import '../model/charter_model.dart';
+import '../model/charters_day_model.dart';
+import 'bookings/model/bookings.dart';
+import 'bookings/view_model/bookings_vm.dart';
+import '../view_model/search_vm.dart';
+import 'when_will_be_there.dart';
+import '../../../../utils/heights_widths.dart';
+import '../../../../utils/helper.dart';
 
 class WhatLookingFor extends StatefulWidget {
   static String route = "/whatLookingFor";

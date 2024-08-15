@@ -1,20 +1,13 @@
 
 import 'dart:core';
 import 'dart:developer';
-import 'dart:io';
 import 'package:async_foreach/async_foreach.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:sizer/sizer.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'dart:convert';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:http/http.dart' as http;
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/mapstyle.dart';
+import '../resources/resources.dart';
+import 'general_app_bar.dart';
+import 'mapstyle.dart';
 
 class LatLngModel{
   double lat;

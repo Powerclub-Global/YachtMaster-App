@@ -6,10 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/resources/text_style.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../resources/resources.dart';
+import '../resources/text_style.dart';
+import 'helper.dart';
 
 
 class NoInternetScreen extends StatefulWidget {

@@ -11,6 +11,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:yacht_master/appwrite.dart';
 import 'package:yacht_master/constant/enums.dart';
 import 'package:yacht_master/localization/app_localization.dart';
 import 'package:yacht_master/main.dart';
@@ -40,6 +41,7 @@ import 'package:yacht_master/src/base/search/view/whos_coming.dart';
 import 'package:yacht_master/src/base/search/view_model/search_vm.dart';
 import 'package:yacht_master/src/base/settings/model/app_url_model.dart';
 import 'package:yacht_master/src/base/yacht/model/split_payment_person_model.dart';
+import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
 import 'package:yacht_master/src/base/yacht/widgets/congo_bottomSheet.dart';
 import 'package:yacht_master/utils/helper.dart';
 import 'package:yacht_master/utils/zbot_toast.dart';
@@ -224,8 +226,6 @@ class BookingsVm extends ChangeNotifier {
       bookingsModel.durationType = provider.selectedCharterDayType?.type;
       provider.selectedCharterDayType = CharterDayModel("Half Day Charter",
           "4 Hours", R.images.v2, CharterDayType.halfDay.index);
-      print("printing host ID");
-      print(charter!.createdBy);
       bookingsModel.hostUserUid = charter!.createdBy;
       provider.update();
       DocumentSnapshot? charterDoc;
@@ -721,6 +721,7 @@ class BookingsVm extends ChangeNotifier {
       {bool isTip = false}) async {
     print("Your payment was success");
     var baseVm = Provider.of<BaseVm>(context, listen: false);
+    var yatchVm = Provider.of<YachtVm>(context, listen: false);
     var homeVm = Provider.of<HomeVm>(context, listen: false);
     var authVm = Provider.of<AuthVm>(context, listen: false);
     var searchVm = Provider.of<SearchVm>(context, listen: false);
@@ -730,8 +731,7 @@ class BookingsVm extends ChangeNotifier {
         .get();
     if (bookingsModel.paymentDetail?.isSplit == true) {
       splitPerson = bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first;
     }
     if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
@@ -743,9 +743,7 @@ class BookingsVm extends ChangeNotifier {
     String? docID = isCompletePayment == true
         ? bookingsModel.id
         : Timestamp.now().millisecondsSinceEpoch.toString();
-
     if (isCompletePayment == true) {
-      print("Your payment was success less");
       completePaymentFunction(screenShotUrl, context);
     } else if (isTip == false) {
       bookingsModel.bookingStatus = BookingStatus.ongoing.index;
@@ -758,7 +756,7 @@ class BookingsVm extends ChangeNotifier {
         splitPerson?.cryptoScreenShot = screenShotUrl;
       }
       bookingsModel.createdAt = Timestamp.now();
-      bookingsModel.createdBy = FirebaseAuth.instance.currentUser?.uid;
+      bookingsModel.createdBy = appwrite.user.$id;
       bookingsModel.paymentDetail
           ?.paymentType = bookingsModel.paymentDetail?.isSplit == false &&
               bookingsModel.paymentDetail?.payInType == PayType.fullPay.index
@@ -823,26 +821,39 @@ class BookingsVm extends ChangeNotifier {
           bookingsModel.priceDetaill!.tip ?? 0 + finalPaidAmount;
       homeVm.update();
     }
+    String bookingsDocId = docID!;
     try {
       await authVm.updateUserWallet(authVm.wallet?.amount);
       await FbCollections.user.doc(authVm.userModel!.uid).update({
         "stripe_customer_id": authVm.userModel?.stripeCustomerID ?? "",
         "is_card_saved": isSaveThisCard,
       });
-      await FbCollections.bookings.doc(docID).set(bookingsModel.toJson());
+      print("Creating booking doc");
+      print(bookingsDocId);
+      await FbCollections.bookings
+          .doc(bookingsDocId)
+          .set(bookingsModel.toJson());
+      print("created booking doc");
+      print(appwrite.user.$id);
       var invite = await FbCollections.invites
-          .where('to', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .where('to', isEqualTo: appwrite.user.$id)
           .get();
-      if (invite.docs.last != null) {
-        var invite_doc = invite.docs.last.data() as Map<String, dynamic>;
-        var from = invite_doc['from'];
-        var fetch_user_wallet = await FbCollections.wallet.doc(from).get();
-        var user_wallet = fetch_user_wallet.data() as Map<String, dynamic>;
+      print("is now  here 1");
+      if (invite.docs.isNotEmpty) {
+        print("I am inside invites section");
+        var inviteDoc = invite.docs.last.data() as Map<String, dynamic>;
+        var from = inviteDoc['from'];
+        var fetchSenderDoc =
+            await FbCollections.user.where('username', isEqualTo: from).get();
+        var senderDoc = fetchSenderDoc.docs[0].data() as Map<String, dynamic>;
+        var senderUid = senderDoc['uid'];
+        var fetchUserWallet = await FbCollections.wallet.doc(senderUid).get();
+        var userWallet = fetchUserWallet.data() as Map<String, dynamic>;
         await FbCollections.wallet
-            .doc(from)
-            .set({'amount': user_wallet['amount'] + 50});
+            .doc(senderUid)
+            .set({'amount': userWallet['amount'] + 50});
         await FbCollections.wallet_history.add({
-          'uid': from,
+          'uid': senderUid,
           'type': 'CashIn_Invite',
           'data': {
             'created_at': DateTime.now().toString(),
@@ -852,12 +863,15 @@ class BookingsVm extends ChangeNotifier {
           }
         });
       }
-      var fetch_host_wallet =
+      print("is now  here 2");
+      var fetchHostWallet =
           await FbCollections.wallet.doc(bookingsModel.hostUserUid).get();
-      var host_wallet = fetch_host_wallet.data() as Map<String, dynamic>;
+      var hostWallet = fetchHostWallet.data() as Map<String, dynamic>;
+      print("is now  here 3");
       await FbCollections.wallet
           .doc(bookingsModel.hostUserUid)
-          .set({'amount': host_wallet['amount'] + 50});
+          .set({'amount': hostWallet['amount'] + 50});
+      print("is now  here 4");
       await FbCollections.wallet_history.add({
         'uid': bookingsModel.hostUserUid,
         'type': 'CashIn_Booking',
@@ -873,7 +887,7 @@ class BookingsVm extends ChangeNotifier {
           await FbCollections.user.doc(charter.get("created_by")).get();
       UserModel hostUser = UserModel.fromJson(hostDoc.data());
       if (isTip == false) {
-        await sendNotificationOnBooking(context, docID!, charter);
+        await sendNotificationOnBooking(context, bookingsDocId, charter);
         await FbCollections.mail.add({
           "to": [hostUser.email],
           "message": {
@@ -881,141 +895,400 @@ class BookingsVm extends ChangeNotifier {
             "text":
                 "Your Booking for ${charter.get("name")} has been confirmed",
             "html": '''<!DOCTYPE html>
-<html lang="en">
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        u + .body .gmail-blend-screen { background:#000; mix-blend-mode:screen; }
-        u + .body .gmail-blend-difference { background:#000; mix-blend-mode:difference; }
-        p{
-          color: #ffffff;
-        }
-        h5{
-          color: #ffffff;
-        }
-        h1 {
-          font-size: 60px;
-          border-bottom: 3px solid #ffd700;
-          color: #ffffff;
-        }
-        .bg-complementary {
-          background-color: #ffd700;
-        }
-        body {
-          padding: 20px;
-          background-color: #000000;
-          color: #ffffff;
-        }
-        .container {
-          padding: 20px;
-        }
-        .golden-container {
-          padding: 10px;
-          box-sizing: border-box;
-          margin-bottom: 20px;
-          border: 3px solid #ffd700;
-          border-radius: 10px;
-          background-color: transparent;
-          display: grid;
-        }
-        .image-container {
-          padding: 0;
-        }
-        .image-container img {
-          width: 100%;
-          height: auto;
-          display: block;
-        }
-        .text-container {
-          padding: 10px;
-        }
-        .text-container h3 {
-          padding-bottom: 1px;
-          color: #ffffff;
-        }
-        h3{
-          border-bottom: 2px solid #ffd700;
-          width: 35%;
-        }
-        @media (prefers-color-scheme: dark) {
-          body, .body {
-              background-color: #000;
-              color: #fff;
-          }
+	<title></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"><!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch><o:AllowPNG/></o:OfficeDocumentSettings></xml><![endif]--><!--[if !mso]><!--><!--<![endif]-->
+	<style>
+		* {
+			box-sizing: border-box;
+		}
 
-          p, h5, h1, .text-container h3 {
-              color: #fff; /* Text color for dark mode */
-          }
+		body {
+			margin: 0;
+			padding: 0;
+		}
 
-          u + .body .gmail-blend-screen { background:#000; mix-blend-mode:screen; }
-          u + .body .gmail-blend-difference { background:#000; mix-blend-mode:difference; }
-      }
+		a[x-apple-data-detectors] {
+			color: inherit !important;
+			text-decoration: inherit !important;
+		}
 
-      /* Light mode styles */
-      @media (prefers-color-scheme: light) {
-          body, .body {
-              background-color: #fff; /* Light mode background */
-              color: #000; /* Light mode text color */
-          }
+		#MessageViewBody a {
+			color: inherit;
+			text-decoration: none;
+		}
 
-          /* Adjust blend modes or remove them as necessary for light mode */
-      }
-    </style>
+		p {
+			line-height: inherit
+		}
+
+		.desktop_hide,
+		.desktop_hide table {
+			mso-hide: all;
+			display: none;
+			max-height: 0px;
+			overflow: hidden;
+		}
+
+		.image_block img+div {
+			display: none;
+		}
+
+		@media (max-width:768px) {
+
+			.desktop_hide table.icons-inner,
+			.social_block.desktop_hide .social-table {
+				display: inline-block !important;
+			}
+
+			.icons-inner {
+				text-align: center;
+			}
+
+			.icons-inner td {
+				margin: 0 auto;
+			}
+
+			.mobile_hide {
+				display: none;
+			}
+
+			.row-content {
+				width: 100% !important;
+			}
+
+			.stack .column {
+				width: 100%;
+				display: block;
+			}
+
+			.mobile_hide {
+				min-height: 0;
+				max-height: 0;
+				max-width: 0;
+				overflow: hidden;
+				font-size: 0px;
+			}
+
+			.desktop_hide,
+			.desktop_hide table {
+				display: table !important;
+				max-height: none !important;
+			}
+
+			.row-1 .column-1 .block-1.spacer_block {
+				height: 20px !important;
+			}
+
+			.row-5 .column-1 .block-1.divider_block .alignment table,
+			.row-5 .column-1 .block-5.divider_block .alignment table,
+			.row-5 .column-1 .block-9.divider_block .alignment table {
+				display: inline-table;
+			}
+
+			.row-5 .column-1 .block-1.divider_block .alignment,
+			.row-5 .column-1 .block-5.divider_block .alignment,
+			.row-5 .column-1 .block-9.divider_block .alignment {
+				text-align: left !important;
+				font-size: 1px;
+			}
+		}
+	</style>
 </head>
-<body class="body">
-    <div style="background:#000; color:#fff;">
-        <div class="gmail-blend-screen">
-            <div class="gmail-blend-difference">
-                <html>
-                  <head>
-                    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                    
-                  </head>
-                  <body>
-                    <div class="container">
-                      <div class="card my-10">
-                        <div class="card-body">
-                          <h1 class="h3 mb-1">Booking Details</h1>
-                          <h5 class="text-teal-700" style="margin-top: 0;">Here are the Details of your latest booking on the YachtMaster App</h5>
-                          <div class="space-y-3">
-                            <div class="bg-complementary rounded golden-container">
-                              <div class="image-container">
-                                <img src="${charter.get("images")[0]}" alt="Yacht Image">
-                              </div>
-                              <div class="text-container" >
-                                <h3 class="text-lg font-semibold mb-1">${charter.get("name")}</h3>
-                                <p>${charter.get("location")["adress"]}</p>
-                              </div>
-                            </div>
-                            <div class="bg-complementary rounded golden-container">
-                              <div class="text-container">
-                                <h3 class="text-lg font-semibold mb-1">Renter Details</h3>
-                                <p><strong>Name:</strong> ${authVm.userModel!.firstName} ${authVm.userModel!.lastName}</p>
-                                <p><strong>Email ID:</strong> ${authVm.userModel!.email}</p>
-                                <p><strong>Phone Number:</strong> ${authVm.userModel!.phoneNumber}</p>
-                              </div>
-                            </div>
-                            <div class="bg-complementary rounded golden-container">
-                              <div class="text-container">
-                                <h3 class="text-lg font-semibold mb-1">Booking Information</h3>
-                                <p><strong>Start Date and Time:</strong> ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate())} ${bookingsModel.schedule!.startTime}</p>
-                                <p><strong>End Date and Time:</strong> ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![1].toDate())} ${bookingsModel.schedule!.endTime}</p>
-                                <p><strong>Number of Guests:</strong> ${bookingsModel.totalGuest}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </body>
-                </html>
-            </div>
-        </div>
-    </div>
+
+<body class="body" style="margin: 0; background-color: #000000; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none;">
+	<table class="nl-container" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000;">
+		<tbody>
+			<tr>
+				<td>
+					<table class="row row-1" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+													<div class="spacer_block block-1" style="height:55px;line-height:55px;font-size:1px;">&#8202;</div>
+													<table class="heading_block block-2" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<h1 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 38px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 45.6px;"><span class="tinyMce-placeholder">Booking Details</span></h1>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-2" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000; border-radius: 0; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+													<table class="divider_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="padding-bottom:10px;padding-top:10px;">
+																<div class="alignment" align="center">
+																	<table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+																		<tr>
+																			<td class="divider_inner" style="font-size: 1px; line-height: 1px; border-top: 1px solid #ffd700;"><span>&#8202;</span></td>
+																		</tr>
+																	</table>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-2" style="height:40px;line-height:40px;font-size:1px;">&#8202;</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-3" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+													<table class="paragraph_block block-1" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#ffffff;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:left;mso-line-height-alt:19.2px;">
+																	<p style="margin: 0;">Here are the details of your latest booking on the YachtMaster App</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-4" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+													<table class="image_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="width:100%;">
+																<div class="alignment" align="center" style="line-height:10px">
+																	<div style="max-width: 900px;"><img src=${charter.get("images")[0]} style="display: block; height: auto; border: 0; width: 100%;" width="900" height="auto"></div>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-2" style="height:30px;line-height:30px;font-size:1px;">&#8202;</div>
+													<table class="heading_block block-3" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<h1 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 38px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 45.6px;"><span class="tinyMce-placeholder">${charter.get("name")}</span></h1>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-5" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+													<table class="divider_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="padding-bottom:10px;padding-left:10px;padding-top:10px;">
+																<div class="alignment" align="left">
+																	<table border="0" cellpadding="0" cellspacing="0" role="presentation" width="70%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+																		<tr>
+																			<td class="divider_inner" style="font-size: 1px; line-height: 1px; border-top: 1px solid #ffd700;"><span>&#8202;</span></td>
+																		</tr>
+																	</table>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-2" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#ffffff;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:left;mso-line-height-alt:19.2px;">
+																	<p style="margin: 0;">${charter.get("location")["adress"]}</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-3" style="height:60px;line-height:60px;font-size:1px;">&#8202;</div>
+													<table class="heading_block block-4" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<h1 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 38px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 45.6px;"><span class="tinyMce-placeholder">Renter Details</span></h1>
+															</td>
+														</tr>
+													</table>
+													<table class="divider_block block-5" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="padding-bottom:10px;padding-left:10px;padding-top:10px;">
+																<div class="alignment" align="left">
+																	<table border="0" cellpadding="0" cellspacing="0" role="presentation" width="70%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+																		<tr>
+																			<td class="divider_inner" style="font-size: 1px; line-height: 1px; border-top: 1px solid #ffd700;"><span>&#8202;</span></td>
+																		</tr>
+																	</table>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-6" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#ffffff;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:left;mso-line-height-alt:19.2px;">
+																	<p style="margin: 0; margin-bottom: 16px;"><strong>Name:</strong>${authVm.userModel!.firstName} ${authVm.userModel!.lastName}</p>
+																	<p style="margin: 0; margin-bottom: 16px;"><strong>Email ID:</strong>${authVm.userModel!.email}</p>
+																	<p style="margin: 0;"><strong>Phone Number:</strong>${authVm.userModel!.phoneNumber}</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-7" style="height:60px;line-height:60px;font-size:1px;">&#8202;</div>
+													<table class="heading_block block-8" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<h1 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 38px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 45.6px;"><span class="tinyMce-placeholder">Booking Information</span></h1>
+															</td>
+														</tr>
+													</table>
+													<table class="divider_block block-9" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="padding-bottom:10px;padding-left:10px;padding-top:10px;">
+																<div class="alignment" align="left">
+																	<table border="0" cellpadding="0" cellspacing="0" role="presentation" width="70%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+																		<tr>
+																			<td class="divider_inner" style="font-size: 1px; line-height: 1px; border-top: 1px solid #ffd700;"><span>&#8202;</span></td>
+																		</tr>
+																	</table>
+																</div>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-6" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+													<table class="paragraph_block block-1" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#ffffff;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:left;mso-line-height-alt:19.2px;">
+																	<p style="margin: 0; margin-bottom: 16px;"><strong>Start Date and Time:</strong>${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate())} ${bookingsModel.schedule!.startTime}</p>
+																	<p style="margin: 0; margin-bottom: 16px;"><strong>End Date and Time:</strong> ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![1].toDate())} ${bookingsModel.schedule!.endTime}</p>
+																	<p style="margin: 0;"><strong>Number of Guests:</strong>${bookingsModel.totalGuest}</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-2" style="height:60px;line-height:60px;font-size:1px;">&#8202;</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-7" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+													<table class="social_block block-1" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<div class="alignment" align="center">
+																	<table class="social-table" width="144px" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block;">
+																		<tr>
+																			<td style="padding:0 2px 0 2px;"><a href="https://www.facebook.com/" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-dark-gray/facebook@2x.png" width="32" height="auto" alt="Facebook" title="facebook" style="display: block; height: auto; border: 0;"></a></td>
+																			<td style="padding:0 2px 0 2px;"><a href="https://www.twitter.com/" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-dark-gray/twitter@2x.png" width="32" height="auto" alt="Twitter" title="twitter" style="display: block; height: auto; border: 0;"></a></td>
+																			<td style="padding:0 2px 0 2px;"><a href="https://www.linkedin.com/" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-dark-gray/linkedin@2x.png" width="32" height="auto" alt="Linkedin" title="linkedin" style="display: block; height: auto; border: 0;"></a></td>
+																			<td style="padding:0 2px 0 2px;"><a href="https://www.instagram.com/" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-dark-gray/instagram@2x.png" width="32" height="auto" alt="Instagram" title="instagram" style="display: block; height: auto; border: 0;"></a></td>
+																		</tr>
+																	</table>
+																</div>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-8" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</tbody>
+	</table><!-- End -->
 </body>
-</html>
-''',
+
+</html>''',
           }
         });
         await FbCollections.mail.add({
@@ -1025,140 +1298,401 @@ class BookingsVm extends ChangeNotifier {
             "text":
                 "Your Booking for ${charter.get("name")} has been confirmed",
             "html": '''<!DOCTYPE html>
-<html lang="en">
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        u + .body .gmail-blend-screen { background:#000; mix-blend-mode:screen; }
-        u + .body .gmail-blend-difference { background:#000; mix-blend-mode:difference; }
-        p{
-          color: #ffffff;
-        }
-        h5{
-          color: #ffffff;
-        }
-        h1 {
-          font-size: 60px;
-          border-bottom: 3px solid #ffd700;
-          color: #ffffff;
-        }
-        .bg-complementary {
-          background-color: #ffd700;
-        }
-        body {
-          padding: 20px;
-          background-color: #000000;
-          color: #ffffff;
-        }
-        .container {
-          padding: 20px;
-        }
-        .golden-container {
-          padding: 10px;
-          box-sizing: border-box;
-          margin-bottom: 20px;
-          border: 3px solid #ffd700;
-          border-radius: 10px;
-          background-color: transparent;
-          display: grid;
-        }
-        .image-container {
-          padding: 0;
-        }
-        .image-container img {
-          width: 100%;
-          height: auto;
-          display: block;
-        }
-        .text-container {
-          padding: 10px;
-        }
-        .text-container h3 {
-          padding-bottom: 1px;
-          color: #ffffff;
-        }
-        h3{
-          border-bottom: 2px solid #ffd700;
-          width: 35%;
-        }
-        @media (prefers-color-scheme: dark) {
-          body, .body {
-              background-color: #000;
-              color: #fff;
-          }
+	<title></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0"><!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch><o:AllowPNG/></o:OfficeDocumentSettings></xml><![endif]--><!--[if !mso]><!--><!--<![endif]-->
+	<style>
+		* {
+			box-sizing: border-box;
+		}
 
-          p, h5, h1, .text-container h3 {
-              color: #fff; /* Text color for dark mode */
-          }
+		body {
+			margin: 0;
+			padding: 0;
+		}
 
-          u + .body .gmail-blend-screen { background:#000; mix-blend-mode:screen; }
-          u + .body .gmail-blend-difference { background:#000; mix-blend-mode:difference; }
-      }
-      /* Light mode styles */
-      @media (prefers-color-scheme: light) {
-          body, .body {
-              background-color: #fff; /* Light mode background */
-              color: #000; /* Light mode text color */
-          }
+		a[x-apple-data-detectors] {
+			color: inherit !important;
+			text-decoration: inherit !important;
+		}
 
-          /* Adjust blend modes or remove them as necessary for light mode */
-      }
-    </style>
+		#MessageViewBody a {
+			color: inherit;
+			text-decoration: none;
+		}
+
+		p {
+			line-height: inherit
+		}
+
+		.desktop_hide,
+		.desktop_hide table {
+			mso-hide: all;
+			display: none;
+			max-height: 0px;
+			overflow: hidden;
+		}
+
+		.image_block img+div {
+			display: none;
+		}
+
+		@media (max-width:768px) {
+
+			.desktop_hide table.icons-inner,
+			.social_block.desktop_hide .social-table {
+				display: inline-block !important;
+			}
+
+			.icons-inner {
+				text-align: center;
+			}
+
+			.icons-inner td {
+				margin: 0 auto;
+			}
+
+			.mobile_hide {
+				display: none;
+			}
+
+			.row-content {
+				width: 100% !important;
+			}
+
+			.stack .column {
+				width: 100%;
+				display: block;
+			}
+
+			.mobile_hide {
+				min-height: 0;
+				max-height: 0;
+				max-width: 0;
+				overflow: hidden;
+				font-size: 0px;
+			}
+
+			.desktop_hide,
+			.desktop_hide table {
+				display: table !important;
+				max-height: none !important;
+			}
+
+			.row-1 .column-1 .block-1.spacer_block {
+				height: 20px !important;
+			}
+
+			.row-5 .column-1 .block-1.divider_block .alignment table,
+			.row-5 .column-1 .block-5.divider_block .alignment table,
+			.row-5 .column-1 .block-9.divider_block .alignment table {
+				display: inline-table;
+			}
+
+			.row-5 .column-1 .block-1.divider_block .alignment,
+			.row-5 .column-1 .block-5.divider_block .alignment,
+			.row-5 .column-1 .block-9.divider_block .alignment {
+				text-align: left !important;
+				font-size: 1px;
+			}
+		}
+	</style>
 </head>
-<body class="body">
-    <div style="background:#000; color:#fff;">
-        <div class="gmail-blend-screen">
-            <div class="gmail-blend-difference">
-                <html>
-                  <head>
-                    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                    
-                  </head>
-                  <body>
-                    <div class="container">
-                      <div class="card my-10">
-                        <div class="card-body">
-                          <h1 class="h3 mb-1">Booking Details</h1>
-                          <h5 class="text-teal-700" style="margin-top: 0;">Here are the Details of your latest booking on the YachtMaster App</h5>
-                          <div class="space-y-3">
-                            <div class="bg-complementary rounded golden-container">
-                              <div class="image-container">
-                                <img src="${charter.get("images")[0]}" alt="Yacht Image">
-                              </div>
-                              <div class="text-container" >
-                                <h3 class="text-lg font-semibold mb-1">${charter.get("name")}</h3>
-                                <p>${charter.get("location")["adress"]}</p>
-                              </div>
-                            </div>
-                            <div class="bg-complementary rounded golden-container">
-                              <div class="text-container">
-                                <h3 class="text-lg font-semibold mb-1">Host Details</h3>
-                                <p><strong>Name:</strong> ${hostUser.firstName} ${hostUser.lastName}</p>
-                                <p><strong>Email ID:</strong> ${hostUser.email}</p>
-                                <p><strong>Phone Number:</strong> ${hostUser.phoneNumber}</p>
-                              </div>
-                            </div>
-                            <div class="bg-complementary rounded golden-container">
-                              <div class="text-container">
-                                <h3 class="text-lg font-semibold mb-1">Booking Information</h3>
-                                <p><strong>Start Date and Time:</strong> ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate())} ${bookingsModel.schedule!.startTime}</p>
-                                <p><strong>End Date and Time:</strong> ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![1].toDate())} ${bookingsModel.schedule!.endTime}</p>
-                                <p><strong>Number of Guests:</strong> ${bookingsModel.totalGuest}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </body>
-                </html>
-            </div>
-        </div>
-    </div>
+
+<body class="body" style="margin: 0; background-color: #000000; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none;">
+	<table class="nl-container" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000;">
+		<tbody>
+			<tr>
+				<td>
+					<table class="row row-1" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+													<div class="spacer_block block-1" style="height:55px;line-height:55px;font-size:1px;">&#8202;</div>
+													<table class="heading_block block-2" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<h1 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 38px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 45.6px;"><span class="tinyMce-placeholder">Booking Details</span></h1>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-2" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000; border-radius: 0; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+													<table class="divider_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="padding-bottom:10px;padding-top:10px;">
+																<div class="alignment" align="center">
+																	<table border="0" cellpadding="0" cellspacing="0" role="presentation" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+																		<tr>
+																			<td class="divider_inner" style="font-size: 1px; line-height: 1px; border-top: 1px solid #ffd700;"><span>&#8202;</span></td>
+																		</tr>
+																	</table>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-2" style="height:40px;line-height:40px;font-size:1px;">&#8202;</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-3" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+													<table class="paragraph_block block-1" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#ffffff;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:left;mso-line-height-alt:19.2px;">
+																	<p style="margin: 0;">Here are the details of your latest booking on the YachtMaster App</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-4" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+													<table class="image_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="width:100%;">
+																<div class="alignment" align="center" style="line-height:10px">
+																	<div style="max-width: 900px;"><img src=${charter.get("images")[0]} style="display: block; height: auto; border: 0; width: 100%;" width="900" height="auto"></div>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-2" style="height:30px;line-height:30px;font-size:1px;">&#8202;</div>
+													<table class="heading_block block-3" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<h1 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 38px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 45.6px;"><span class="tinyMce-placeholder">${charter.get("name")}</span></h1>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-5" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+													<table class="divider_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="padding-bottom:10px;padding-left:10px;padding-top:10px;">
+																<div class="alignment" align="left">
+																	<table border="0" cellpadding="0" cellspacing="0" role="presentation" width="70%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+																		<tr>
+																			<td class="divider_inner" style="font-size: 1px; line-height: 1px; border-top: 1px solid #ffd700;"><span>&#8202;</span></td>
+																		</tr>
+																	</table>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-2" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#ffffff;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:left;mso-line-height-alt:19.2px;">
+																	<p style="margin: 0;">${charter.get("location")["adress"]}</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-3" style="height:60px;line-height:60px;font-size:1px;">&#8202;</div>
+													<table class="heading_block block-4" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<h1 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 38px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 45.6px;"><span class="tinyMce-placeholder">Host Details</span></h1>
+															</td>
+														</tr>
+													</table>
+													<table class="divider_block block-5" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="padding-bottom:10px;padding-left:10px;padding-top:10px;">
+																<div class="alignment" align="left">
+																	<table border="0" cellpadding="0" cellspacing="0" role="presentation" width="70%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+																		<tr>
+																			<td class="divider_inner" style="font-size: 1px; line-height: 1px; border-top: 1px solid #ffd700;"><span>&#8202;</span></td>
+																		</tr>
+																	</table>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<table class="paragraph_block block-6" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#ffffff;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:left;mso-line-height-alt:19.2px;">
+																	<p style="margin: 0; margin-bottom: 16px;"><strong>Name:</strong>
+${hostUser.firstName} ${hostUser.lastName}</p>
+																	<p style="margin: 0; margin-bottom: 16px;"><strong>Email ID:</strong>${hostUser.email}</p>
+																	<p style="margin: 0;"><strong>Phone Number:</strong>${hostUser.phoneNumber}</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-7" style="height:60px;line-height:60px;font-size:1px;">&#8202;</div>
+													<table class="heading_block block-8" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<h1 style="margin: 0; color: #ffffff; direction: ltr; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif; font-size: 38px; font-weight: 700; letter-spacing: normal; line-height: 120%; text-align: left; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 45.6px;"><span class="tinyMce-placeholder">Booking Information</span></h1>
+															</td>
+														</tr>
+													</table>
+													<table class="divider_block block-9" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad" style="padding-bottom:10px;padding-left:10px;padding-top:10px;">
+																<div class="alignment" align="left">
+																	<table border="0" cellpadding="0" cellspacing="0" role="presentation" width="70%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+																		<tr>
+																			<td class="divider_inner" style="font-size: 1px; line-height: 1px; border-top: 1px solid #ffd700;"><span>&#8202;</span></td>
+																		</tr>
+																	</table>
+																</div>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-6" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #000000;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+													<table class="paragraph_block block-1" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad">
+																<div style="color:#ffffff;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:left;mso-line-height-alt:19.2px;">
+																	<p style="margin: 0; margin-bottom: 16px;"><strong>Start Date and Time:</strong>${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate())} ${bookingsModel.schedule!.startTime}</p>
+																	<p style="margin: 0; margin-bottom: 16px;"><strong>End Date and Time:</strong> ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![1].toDate())} ${bookingsModel.schedule!.endTime}</p>
+																	<p style="margin: 0;"><strong>Number of Guests:</strong>${bookingsModel.totalGuest}</p>
+																</div>
+															</td>
+														</tr>
+													</table>
+													<div class="spacer_block block-2" style="height:60px;line-height:60px;font-size:1px;">&#8202;</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-7" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+													<table class="social_block block-1" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+														<tr>
+															<td class="pad">
+																<div class="alignment" align="center">
+																	<table class="social-table" width="144px" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block;">
+																		<tr>
+																			<td style="padding:0 2px 0 2px;"><a href="https://www.facebook.com/" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-dark-gray/facebook@2x.png" width="32" height="auto" alt="Facebook" title="facebook" style="display: block; height: auto; border: 0;"></a></td>
+																			<td style="padding:0 2px 0 2px;"><a href="https://www.twitter.com/" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-dark-gray/twitter@2x.png" width="32" height="auto" alt="Twitter" title="twitter" style="display: block; height: auto; border: 0;"></a></td>
+																			<td style="padding:0 2px 0 2px;"><a href="https://www.linkedin.com/" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-dark-gray/linkedin@2x.png" width="32" height="auto" alt="Linkedin" title="linkedin" style="display: block; height: auto; border: 0;"></a></td>
+																			<td style="padding:0 2px 0 2px;"><a href="https://www.instagram.com/" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-only-logo-dark-gray/instagram@2x.png" width="32" height="auto" alt="Instagram" title="instagram" style="display: block; height: auto; border: 0;"></a></td>
+																		</tr>
+																	</table>
+																</div>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<table class="row row-8" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; color: #000000; width: 900px; margin: 0 auto;" width="900">
+										<tbody>
+											<tr>
+												
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</tbody>
+	</table><!-- End -->
 </body>
-</html>
-''',
+
+</html>''',
           }
         });
       }
@@ -1173,12 +1707,16 @@ class BookingsVm extends ChangeNotifier {
     searchVm.selectedBookingTime = null;
     searchVm.selectedCharterDayType = searchVm.charterDayList[0];
     totalMembersCount = 0;
+
     selectedPayIn = 0;
-    selectedPaymentMethod = -1;
+
     update();
     baseVm.update();
     searchVm.update();
+    print("printing payment method");
+    print(selectedPaymentMethod);
     if (isTip == true) {
+      print("Inside is trip");
       Get.bottomSheet(Congoratulations(
           getTranslated(context, "tip_payment_done") ?? "", () {
         Timer(Duration(seconds: 2), () async {
@@ -1187,7 +1725,13 @@ class BookingsVm extends ChangeNotifier {
         });
       }));
     } else if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
-      await FbCollections.bookings.doc(docID).update({"isPending": false});
+      print("inside card");
+      print("about to update is pending stuff");
+      print(bookingsDocId);
+      await FbCollections.bookings
+          .doc(bookingsDocId)
+          .update({"isPending": false});
+      print("updated pending stuff");
       Get.bottomSheet(Congoratulations(
           getTranslated(
                   context, "your_booking_has_been_confirmed_successfully") ??
@@ -1198,7 +1742,13 @@ class BookingsVm extends ChangeNotifier {
         });
       }));
     } else if (selectedPaymentMethod == PaymentMethodEnum.appStore.index) {
-      await FbCollections.bookings.doc(docID).update({"isPending": false});
+      print("inside apple");
+      print("about to update is pending stuff");
+      print(bookingsDocId);
+      await FbCollections.bookings
+          .doc(bookingsDocId)
+          .update({"isPending": false});
+      print("updated pending stuff");
       Timer(Duration(seconds: 2), () {
         Get.back();
         Get.bottomSheet(Congoratulations(
@@ -1212,7 +1762,9 @@ class BookingsVm extends ChangeNotifier {
         }));
       });
     } else {
-      await FbCollections.bookings.doc(docID).update({"isPending": true});
+      await FbCollections.bookings
+          .doc(bookingsDocId)
+          .update({"isPending": true});
       Get.bottomSheet(Congoratulations(
           getTranslated(context,
                   "your_booking_has_been_confirmed_successfully_crypto") ??
@@ -1224,6 +1776,7 @@ class BookingsVm extends ChangeNotifier {
         });
       }));
     }
+    selectedPaymentMethod = -1;
   }
 
   Future<bool> sendNotification(
@@ -1273,7 +1826,7 @@ class BookingsVm extends ChangeNotifier {
         ? NotificationModel(
             bookingId: docID,
             id: ref.id,
-            sender: FirebaseAuth.instance.currentUser?.uid,
+            sender: appwrite.user.$id,
             createdAt: Timestamp.now(),
             isSeen: false,
             type: NotificationReceiverType.person.index,
@@ -1282,15 +1835,14 @@ class BookingsVm extends ChangeNotifier {
             text:
                 "${authVm.userModel?.firstName ?? ""} have made the Split Payment for booking in ${payInTypeList[bookingsModel.paymentDetail?.payInType ?? 0]} at ${DateFormat("hh:mm a").format(bookingsModel.createdAt?.toDate() ?? now)} on ${DateFormat("dd MMM,yyyy").format(bookingsModel.createdAt?.toDate() ?? now)}",
             receiver: bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) =>
-                    element.userUid != FirebaseAuth.instance.currentUser?.uid)
+                ?.where((element) => element.userUid != appwrite.user.$id)
                 .toList()
                 .map((e) => e.userUid)
                 .toList())
         : NotificationModel(
             bookingId: docID,
             id: ref.id,
-            sender: FirebaseAuth.instance.currentUser?.uid,
+            sender: appwrite.user.$id,
             createdAt: Timestamp.now(),
             isSeen: false,
             type: NotificationReceiverType.host.index,
@@ -1299,12 +1851,12 @@ class BookingsVm extends ChangeNotifier {
             text:
                 "${authVm.userModel?.firstName ?? ""} you have 1 minute left in starting your booking for charter ${charter.get("name")}",
             receiver: [
-                FirebaseAuth.instance.currentUser?.uid,
+                appwrite.user.$id,
               ]);
     NotificationModel notificationModelHost = NotificationModel(
         bookingId: docID,
         id: refHost.id,
-        sender: FirebaseAuth.instance.currentUser?.uid,
+        sender: appwrite.user.$id,
         createdAt: Timestamp.now(),
         isSeen: false,
         type: NotificationReceiverType.host.index,
@@ -1354,8 +1906,7 @@ class BookingsVm extends ChangeNotifier {
 
     if (bookingsModel.paymentDetail?.isSplit == true) {
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid != FirebaseAuth.instance.currentUser?.uid)
+          ?.where((element) => element.userUid != appwrite.user.$id)
           .toList()
           .forEach((element) async {
         ///PUSH NOTIFICATION TO SPLIT CUSTOMERS
@@ -1383,137 +1934,111 @@ class BookingsVm extends ChangeNotifier {
     var homeVm = Provider.of<HomeVm>(context, listen: false);
     if (bookingsModel.paymentDetail?.isSplit == true) {
       if (bookingsModel.paymentDetail?.splitPayment
-              ?.where((element) =>
-                  element.userUid == FirebaseAuth.instance.currentUser?.uid)
+              ?.where((element) => element.userUid == appwrite.user.$id)
               .first
               .depositStatus ==
           DepositStatus.nothingPaid.index) {
-        bookingsModel.paymentDetail?.paidAmount = bookingsModel
-                .paymentDetail?.paidAmount +
-            bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) =>
-                    element.userUid == FirebaseAuth.instance.currentUser?.uid)
-                .first
-                .remainingDeposit;
-        bookingsModel.paymentDetail?.remainingAmount = bookingsModel
-                .paymentDetail?.remainingAmount -
-            bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) =>
-                    element.userUid == FirebaseAuth.instance.currentUser?.uid)
-                .first
-                .remainingDeposit;
+        bookingsModel.paymentDetail?.paidAmount =
+            bookingsModel.paymentDetail?.paidAmount +
+                bookingsModel.paymentDetail?.splitPayment
+                    ?.where((element) => element.userUid == appwrite.user.$id)
+                    .first
+                    .remainingDeposit;
+        bookingsModel.paymentDetail?.remainingAmount =
+            bookingsModel.paymentDetail?.remainingAmount -
+                bookingsModel.paymentDetail?.splitPayment
+                    ?.where((element) => element.userUid == appwrite.user.$id)
+                    .first
+                    .remainingDeposit;
       } else if (bookingsModel.paymentDetail?.splitPayment
-              ?.where((element) =>
-                  element.userUid == FirebaseAuth.instance.currentUser?.uid)
+              ?.where((element) => element.userUid == appwrite.user.$id)
               .first
               .depositStatus ==
           DepositStatus.twentyFivePaid.index) {
-        bookingsModel.paymentDetail?.paidAmount = bookingsModel
-                .paymentDetail?.paidAmount +
-            bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) =>
-                    element.userUid == FirebaseAuth.instance.currentUser?.uid)
-                .first
-                .remainingAmount;
-        bookingsModel.paymentDetail?.remainingAmount = bookingsModel
-                .paymentDetail?.remainingAmount -
-            bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) =>
-                    element.userUid == FirebaseAuth.instance.currentUser?.uid)
-                .first
-                .remainingAmount;
+        bookingsModel.paymentDetail?.paidAmount =
+            bookingsModel.paymentDetail?.paidAmount +
+                bookingsModel.paymentDetail?.splitPayment
+                    ?.where((element) => element.userUid == appwrite.user.$id)
+                    .first
+                    .remainingAmount;
+        bookingsModel.paymentDetail?.remainingAmount =
+            bookingsModel.paymentDetail?.remainingAmount -
+                bookingsModel.paymentDetail?.splitPayment
+                    ?.where((element) => element.userUid == appwrite.user.$id)
+                    .first
+                    .remainingAmount;
       }
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .paymentType = PaymentType.payInApp.index;
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .amount = bookingsModel.paymentDetail?.payInType ==
               PayType.fullPay.index
           ? bookingsModel.paymentDetail?.splitPayment
-              ?.where((element) =>
-                  element.userUid == FirebaseAuth.instance.currentUser?.uid)
+              ?.where((element) => element.userUid == appwrite.user.$id)
               .first
               .amount
           : bookingsModel.paymentDetail?.splitPayment
-                      ?.where((element) =>
-                          element.userUid ==
-                          FirebaseAuth.instance.currentUser?.uid)
+                      ?.where((element) => element.userUid == appwrite.user.$id)
                       .first
                       .depositStatus ==
                   DepositStatus.nothingPaid.index
               ? bookingsModel.paymentDetail?.splitPayment
-                  ?.where((element) =>
-                      element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                  ?.where((element) => element.userUid == appwrite.user.$id)
                   .first
                   .remainingDeposit
               : bookingsModel.paymentDetail?.splitPayment
-                      ?.where((element) =>
-                          element.userUid ==
-                          FirebaseAuth.instance.currentUser?.uid)
+                      ?.where((element) => element.userUid == appwrite.user.$id)
                       .first
                       .amount +
                   bookingsModel.paymentDetail?.splitPayment
-                      ?.where((element) =>
-                          element.userUid ==
-                          FirebaseAuth.instance.currentUser?.uid)
+                      ?.where((element) => element.userUid == appwrite.user.$id)
                       .first
                       .remainingAmount;
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .remainingAmount = bookingsModel.paymentDetail?.splitPayment
-                  ?.where((element) =>
-                      element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                  ?.where((element) => element.userUid == appwrite.user.$id)
                   .first
                   .depositStatus ==
               DepositStatus.twentyFivePaid.index
           ? 0.0
           : bookingsModel.paymentDetail?.splitPayment
-              ?.where((element) =>
-                  element.userUid == FirebaseAuth.instance.currentUser?.uid)
+              ?.where((element) => element.userUid == appwrite.user.$id)
               .first
               .remainingAmount;
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .remainingDeposit = 0.0;
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .depositStatus = bookingsModel.paymentDetail?.splitPayment
-                  ?.where((element) =>
-                      element.userUid == FirebaseAuth.instance.currentUser?.uid)
+                  ?.where((element) => element.userUid == appwrite.user.$id)
                   .first
                   .depositStatus ==
               DepositStatus.twentyFivePaid.index
           ? DepositStatus.fullPaid.index
           : DepositStatus.twentyFivePaid.index;
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .paymentStatus = PaymentStatus.payInAppOrCash.index;
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .paymentMethod = selectedPaymentMethod;
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .cryptoReceiverEmail = appUrlModel?.adminCryptoEmail ?? "";
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) =>
-              element.userUid == FirebaseAuth.instance.currentUser?.uid)
+          ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .cryptoScreenShot = screenShotUrl;
     } else {

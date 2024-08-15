@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/src/painting/text_style.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/resources/resources.dart';
+import 'resources.dart';
 
 
 class AppTextStyle {

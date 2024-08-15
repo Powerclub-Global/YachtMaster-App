@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../localization/app_localization.dart';
+import '../services/time_schedule_service.dart';
 
 class FieldValidator {
   static String? validateEmail(String? value) {
@@ -11,8 +10,7 @@ class FieldValidator {
 
     if (!RegExp(
       r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$',
-    )
-        .hasMatch(value)) {
+    ).hasMatch(value)) {
       return getTranslated(Get.context!, "please_enter_a_valid_email_address");
     }
 
@@ -32,22 +30,22 @@ class FieldValidator {
     }
     return null;
   }
+
   static String? validateAmount(String? value) {
     if (value!.isEmpty) {
       return getTranslated(Get.context!, "required");
     }
-    if (!RegExp(r"(\-?\d+\.?\d{0,2})")
-        .hasMatch(value)) {
+    if (!RegExp(r"(\-?\d+\.?\d{0,2})").hasMatch(value)) {
       return getTranslated(Get.context!, "invalid_amount");
     }
     return null;
   }
+
   static String? validateAccountNumber(String? value) {
     if (value!.isEmpty) {
       return getTranslated(Get.context!, "required");
     }
-    if (!RegExp(r"^[0-9]{7,14}$")
-        .hasMatch(value)) {
+    if (!RegExp(r"^[0-9]{7,14}$").hasMatch(value)) {
       return getTranslated(Get.context!, "invalid_account_number");
     }
     return null;
@@ -99,15 +97,12 @@ class FieldValidator {
     if (!RegExp(r'^(0[1-9]|1[0-2])\/?(([0-9]{4}|[0-9]{2})$)').hasMatch(value)) {
       return getTranslated(Get.context!, "invalid_date");
     }
-    if(int.parse(value.substring(0,2))<=now.month)
-      {
-        return "invalid month";
-
-      }
-    if(int.parse(value.substring(3,5))<int.parse(now.year.toString().substring(2,4)))
-    {
+    if (int.parse(value.substring(0, 2)) <= now.month) {
+      return "invalid month";
+    }
+    if (int.parse(value.substring(3, 5)) <
+        int.parse(now.year.toString().substring(2, 4))) {
       return "invalid year";
-
     }
     return null;
   }
@@ -172,12 +167,12 @@ class FieldValidator {
 
   static String? validateFullName(String? value) {
     if (value!.isEmpty) {
-      return getTranslated(Get.context!,"please_enter_your_full_name");
+      return getTranslated(Get.context!, "please_enter_your_full_name");
     }
     if (value.length <= 2) {
-      return getTranslated(Get.context!,"invalid_name");
+      return getTranslated(Get.context!, "invalid_name");
     } else if (!RegExp(r'^[a-z A-Z]+$').hasMatch(value)) {
-      return getTranslated(Get.context!,"invalid_name");
+      return getTranslated(Get.context!, "invalid_name");
     }
     // if (!RegExp(r"^([ \u00c0-\u01ffa-zA-Z'\-])+$").hasMatch(value)) {
     //   return LocalizationMap.getTranslatedValues("invalid_name");
@@ -194,6 +189,19 @@ class FieldValidator {
       return getTranslated(Get.context!, "invalid_name");
     }
 
+    return null;
+  }
+
+  static String? validateUsername(String? value) {
+    if (value!.length < 4) {
+      return getTranslated(Get.context!, "username_needs_more");
+    }
+    if (value.length > 16) {
+      return getTranslated(Get.context!, "username_needs_less");
+    }
+    if (!RegExp(r"^[a-zA-Z0-9_]+$").hasMatch(value)) {
+      return getTranslated(Get.context!, "username_needs_alphanumeric");
+    }
     return null;
   }
 

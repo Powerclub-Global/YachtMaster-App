@@ -12,6 +12,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+import 'package:yacht_master/appwrite.dart';
 import 'package:yacht_master/constant/enums.dart';
 import 'package:yacht_master/localization/app_localization.dart';
 import 'package:yacht_master/resources/decorations.dart';
@@ -1115,7 +1116,7 @@ class _HostBookingDetailState extends State<HostBookingDetail> {
           bookingId: bookingsModel?.id,
           receiver: [rentalUser?.uid],
           id: ref.id,
-          sender: FirebaseAuth.instance.currentUser?.uid,
+          sender: appwrite.user.$id,
           createdAt: Timestamp.now(),
           isSeen: false,
           type: NotificationReceiverType.host.index,

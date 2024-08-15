@@ -13,25 +13,26 @@ import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/src/base/search/model/charter_model.dart';
-import 'package:yacht_master/src/base/search/view/bookings/view_model/bookings_vm.dart';
-import 'package:yacht_master/src/base/search/view/when_will_be_there.dart';
-import 'package:yacht_master/src/base/search/view/whos_coming.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/src/base/widgets/agreement_sheet.dart';
-import 'package:yacht_master/src/base/widgets/exit_sheet.dart';
-import 'package:yacht_master/src/base/widgets/tip_sheet.dart';
-import 'package:yacht_master/src/base/yacht/view/rules_regulations.dart';
-import 'package:yacht_master/src/base/yacht/widgets/congo_bottomSheet.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../../../../../../appwrite.dart';
+import '../../../../../../constant/enums.dart';
+import '../../../../../../localization/app_localization.dart';
+import '../../../../../../resources/decorations.dart';
+import '../../../../../../resources/resources.dart';
+import '../../../../../../services/firebase_collections.dart';
+import '../../../../../../services/time_schedule_service.dart';
+import '../../../model/charter_model.dart';
+import '../view_model/bookings_vm.dart';
+import '../../when_will_be_there.dart';
+import '../../whos_coming.dart';
+import '../../../../settings/view_model/settings_vm.dart';
+import '../../../../widgets/agreement_sheet.dart';
+import '../../../../widgets/exit_sheet.dart';
+import '../../../../widgets/tip_sheet.dart';
+import '../../../../yacht/view/rules_regulations.dart';
+import '../../../../yacht/widgets/congo_bottomSheet.dart';
+import '../../../../../../utils/general_app_bar.dart';
+import '../../../../../../utils/heights_widths.dart';
+import '../../../../../../utils/helper.dart';
 
 class YachtReservePayment extends StatefulWidget {
   static String route = "/yachtReservePayment";
@@ -710,7 +711,7 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
                               yesCallBack: () async {
                                 await db
                                     .collection("users")
-                                    .doc(FirebaseAuth.instance.currentUser?.uid)
+                                    .doc(appwrite.user.$id)
                                     .collection("agreements")
                                     .add(charter!.toJson());
                                 startLoader();

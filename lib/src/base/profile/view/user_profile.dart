@@ -5,18 +5,19 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/home/view/previous_bookings.dart';
-import 'package:yacht_master/src/base/profile/view/review_screen.dart';
-import 'package:yacht_master/src/base/profile/widgets/edit_profile_bottomsheet.dart';
-import 'package:yacht_master/src/base/yacht/widgets/rating_reviews_card.dart';
-import 'package:yacht_master/utils/empty_screem.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../appwrite.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/decorations.dart';
+import '../../../../resources/resources.dart';
+import '../../base_vm.dart';
+import '../../home/home_vm/home_vm.dart';
+import '../../home/view/previous_bookings.dart';
+import 'review_screen.dart';
+import '../widgets/edit_profile_bottomsheet.dart';
+import '../../yacht/widgets/rating_reviews_card.dart';
+import '../../../../utils/empty_screem.dart';
+import '../../../../utils/general_app_bar.dart';
+import '../../../../utils/heights_widths.dart';
 
 import '../../../auth/view_model/auth_vm.dart';
 
@@ -162,7 +163,7 @@ class _UserProfileState extends State<UserProfile> {
                               child: Column(
                                 children: [
                                   Text(
-                                    "${homeVm.allBookings.where((element) => element.createdBy==FirebaseAuth.instance.currentUser?.uid).toList().length}",
+                                    "${homeVm.allBookings.where((element) => element.createdBy==appwrite.user.$id).toList().length}",
                                     style: R.textStyle.helveticaBold().copyWith(
                                         color: R.colors.whiteColor,
                                         fontSize: 17.sp,

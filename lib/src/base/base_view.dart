@@ -1,8 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
-
 import 'dart:developer';
 import 'dart:io';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,7 +8,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/constant.dart';
 import 'package:yacht_master/localization/app_localization.dart';
 import 'package:yacht_master/resources/resources.dart';
 import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
@@ -23,6 +20,7 @@ import 'package:yacht_master/src/base/search/view/search_screen.dart';
 import 'package:yacht_master/src/base/settings/view/settings_view.dart';
 import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
 import 'package:yacht_master/src/base/widgets/exit_sheet.dart';
+import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
 import 'package:yacht_master/utils/zbot_toast.dart';
 
 class BaseView extends StatefulWidget {
@@ -39,6 +37,7 @@ class _BaseViewState extends State<BaseView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       ZBotToast.loadingShow();
+
       var bookingsVm = Provider.of<BookingsVm>(Get.context!, listen: false);
       await bookingsVm.fetchAppUrls();
       if (bookingsVm.appUrlModel?.is_enable_permission_dialog == true) {
@@ -46,7 +45,12 @@ class _BaseViewState extends State<BaseView> {
       }
       var baseVm = Provider.of<BaseVm>(context, listen: false);
       var authVm = Provider.of<AuthVm>(context, listen: false);
+      var yatchVm = Provider.of<YachtVm>(context, listen: false);
+      print("PRINTING Charter LENGTH Before data fetch");
+      print(yatchVm.allCharters.length);
       await baseVm.fetchData();
+      print("PRINTING Charter LENGTH After data fetch");
+      print(yatchVm.allCharters.length);
       await authVm.fetchUser();
       baseVm.selectedPage = -1;
       baseVm.isHome = true;
@@ -58,7 +62,6 @@ class _BaseViewState extends State<BaseView> {
   @override
   Widget build(BuildContext context) {
     return Consumer2<AuthVm, BaseVm>(builder: (context, authVm, provider, _) {
-      log("___ISSOCIALLOGIN:${authVm.userModel?.isSocialLogin}");
       return WillPopScope(
         onWillPop: () async {
           Get.bottomSheet(

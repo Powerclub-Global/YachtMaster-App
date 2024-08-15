@@ -7,17 +7,18 @@ import 'package:get/get.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/auth/model/favourite_model.dart';
-import 'package:yacht_master/src/auth/model/user_model.dart';
-import 'package:yacht_master/src/base/profile/view/host_profile_others.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
-import 'package:yacht_master/utils/empty_screem.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../appwrite.dart';
+import '../../../../constant/enums.dart';
+import '../../../../resources/decorations.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../auth/model/favourite_model.dart';
+import '../../../auth/model/user_model.dart';
+import '../../profile/view/host_profile_others.dart';
+import '../../settings/view_model/settings_vm.dart';
+import '../../yacht/view_model/yacht_vm.dart';
+import '../../../../utils/empty_screem.dart';
+import '../../../../utils/heights_widths.dart';
 
 class HostView extends StatefulWidget {
   const HostView({Key? key}) : super(key: key);
@@ -90,11 +91,11 @@ class _HostViewState extends State<HostView> {
                                     {
                                       yachtVm.userFavouritesList.removeAt(index);
                                       yachtVm.update();
-                                      await FbCollections.user.doc(FirebaseAuth.instance.currentUser?.uid).collection("favourite").doc(user.uid).delete();
+                                      await FbCollections.user.doc(appwrite.user.$id).collection("favourite").doc(user.uid).delete();
                                     }
                                     else
                                     {
-                                      await FbCollections.user.doc(FirebaseAuth.instance.currentUser?.uid).collection("favourite").doc(user.uid).set(favModel.toJson());
+                                      await FbCollections.user.doc(appwrite.user.$id).collection("favourite").doc(user.uid).set(favModel.toJson());
 
                                     }
                                     yachtVm.update();

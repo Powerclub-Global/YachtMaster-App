@@ -4,22 +4,23 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/settings/view/privacy_policy.dart';
-import 'package:yacht_master/src/base/settings/view/terms_of_services.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
-import 'package:yacht_master/utils/validation.dart';
-import 'package:yacht_master/utils/zbot_toast.dart';
+import '../../../localization/app_localization.dart';
+import '../../../resources/decorations.dart';
+import '../view_model/auth_vm.dart';
+import '../../base/settings/view/privacy_policy.dart';
+import '../../base/settings/view/terms_of_services.dart';
+import '../../base/settings/view_model/settings_vm.dart';
+import '../../../utils/heights_widths.dart';
+import '../../../utils/helper.dart';
+import '../../../utils/validation.dart';
+import '../../../utils/zbot_toast.dart';
 
 import '../../../resources/resources.dart';
 import '../../../utils/keyboard_actions.dart';
@@ -37,10 +38,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController lastNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   FocusNode emailFn = FocusNode();
-
+  FocusNode usernameFn = FocusNode();
   TextEditingController phoneNumController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPassController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
   FocusNode passwordFn = FocusNode();
   FocusNode firstNameFn = FocusNode();
   FocusNode lastNameFn = FocusNode();
@@ -171,6 +173,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                         : R.colors.charcoalColor)),
                           ),
                           h2,
+                          label(
+                              getTranslated(context, "create_username") ?? ""),
+                          h0P5,
+                          TextFormField(
+                            focusNode: usernameFn,
+                            textInputAction: TextInputAction.next,
+                            onChanged: (value) async {
+                              print(value);
+                              await provider.isUsernameAvailable(value);
+                              setState(() {});
+                            },
+                            onTap: () {
+                              setState(() {});
+                            },
+                            onFieldSubmitted: (a) {
+                              setState(() {
+                                FocusScope.of(Get.context!)
+                                    .requestFocus(phoneNumFn);
+                              });
+                            },
+                            controller: usernameController,
+                            validator: (value) =>
+                                FieldValidator.validateUsername(
+                                    usernameController.text),
+                            decoration: AppDecorations.suffixTextField(
+                                "create_username",
+                                R.textStyle.helvetica().copyWith(
+                                    color: usernameFn.hasFocus
+                                        ? R.colors.themeMud
+                                        : R.colors.charcoalColor,
+                                    fontSize: 10.sp),
+                                provider.usernameIsAvailable
+                                    ? Icon(
+                                        Icons.verified_outlined,
+                                        size: 23.sp,
+                                        color: Colors.green,
+                                      )
+                                    : null,
+                                prefix: '@'),
+                          ),
+                          h2,
                           label(getTranslated(context, "email") ?? ""),
                           h0P5,
                           TextFormField(
@@ -185,7 +228,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             onFieldSubmitted: (a) {
                               setState(() {
                                 FocusScope.of(Get.context!)
-                                    .requestFocus(phoneNumFn);
+                                    .requestFocus(usernameFn);
                               });
                             },
                             controller: emailController,
@@ -226,8 +269,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               // disableLengthCheck: true,
 
                               decoration: InputDecoration(
-                                hintText:
-                                    getTranslated(Get.context!, "0000000000000"),
+                                hintText: getTranslated(
+                                    Get.context!, "0000000000000"),
                                 hintStyle: R.textStyle.helvetica().copyWith(
                                     color: emailFn.hasFocus
                                         ? R.colors.themeMud
@@ -263,7 +306,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               ),
                               initialCountryCode: countryCode,
                               inputFormatters: [
-                                FilteringTextInputFormatter.allow(RegExp("[0-9]"))
+                                FilteringTextInputFormatter.allow(
+                                    RegExp("[0-9]"))
                               ],
                               dropdownTextStyle: R.textStyle
                                   .helveticaBold()
@@ -348,13 +392,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           GestureDetector(
                             onTap: () async {
                               if (signupKey.currentState!.validate()) {
-                                ZBotToast.loadingShow();
-                                await provider.onClickSignup(
-                                    emailController.text,
-                                    firstNameController.text,
-                                    lastNameController.text,
-                                    countryCode.trim(),
-                                    phoneNumController.text.trim(),false);
+                                if (provider.usernameIsAvailable) {
+                                  ZBotToast.loadingShow();
+                                  await provider.onClickSignup(
+                                      emailController.text,
+                                      firstNameController.text,
+                                      lastNameController.text,
+                                      countryCode.trim(),
+                                      phoneNumController.text.trim(),
+                                      usernameController.text.trim());
+                                } else {
+                                  Fluttertoast.showToast(
+                                      msg: "This username is not available");
+                                }
                               }
                             },
                             child: Container(

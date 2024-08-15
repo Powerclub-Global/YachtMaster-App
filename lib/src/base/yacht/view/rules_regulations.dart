@@ -4,11 +4,12 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/resources/dummy.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../../resources/dummy.dart';
+import '../../../../resources/resources.dart';
+import '../../settings/view_model/settings_vm.dart';
+import '../../../../utils/general_app_bar.dart';
+import '../../../../utils/heights_widths.dart';
 
 import '../../../../constant/enums.dart';
 
@@ -58,22 +59,30 @@ class _RulesRegulationsState extends State<RulesRegulations> {
                 SizedBox()
               else
                 Container(
-                    width: Get.width,
-                    decoration: BoxDecoration(
-                      color: R.colors.grey.withOpacity(.25),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    padding: EdgeInsets.symmetric(
-                        horizontal: Get.width * .04, vertical: Get.height * .02),
-                    margin: EdgeInsets.symmetric(horizontal: Get.width * .04),
-                    child: HtmlWidget(
-                      desc,
-                      onLoadingBuilder: (context, element, loadingProgress) => CircularProgressIndicator(),
-                      onTapUrl: (url) => true,
-                      renderMode: RenderMode.column,
-                      textStyle: TextStyle(fontSize: 14,color: R.colors.whiteColor),
-
-                    ),)
+                  width: Get.width,
+                  decoration: BoxDecoration(
+                    color: R.colors.grey.withOpacity(.25),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: Get.width * .04, vertical: Get.height * .02),
+                  margin: EdgeInsets.symmetric(horizontal: Get.width * .04),
+                  child: HtmlWidget(
+                    desc,
+                    onLoadingBuilder: (context, element, loadingProgress) =>
+                        CircularProgressIndicator(),
+                    onTapUrl: (url) => launchUrl(Uri.parse(url)),
+                    renderMode: RenderMode.column,
+                    textStyle:
+                        TextStyle(fontSize: 14, color: R.colors.whiteColor),
+                    customStylesBuilder: (element) {
+                      if (element.localName == 'a') {
+                        return {'color': 'gold'}; // Set the link color to gold
+                      }
+                      return null;
+                    },
+                  ),
+                )
             ],
           ),
         ),

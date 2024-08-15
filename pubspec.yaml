@@ -22,7 +22,7 @@ dependencies:
   fluttertoast: ^8.0.9
   connectivity_plus: ^2.2.1
   intl: 
-  pin_code_fields: ^7.4.0
+  pin_code_fields: ^8.0.1
   paged_vertical_calendar: ^1.0.6
   circular_profile_avatar: ^2.0.5
   image_picker: ^1.0.8
@@ -61,7 +61,7 @@ dependencies:
   hydrated_bloc: ^8.1.0
   path_provider: ^2.0.11
   bot_toast: ^4.0.3
-  flutter_stripe: ^9.4.0
+  flutter_stripe: ^10.1.1
   firebase_remote_config: ^4.2.5
   flutter_email_sender: ^6.0.1
   flutter_datetime_picker:
@@ -76,8 +76,10 @@ dependencies:
   keyboard_actions: ^4.2.0
   time_picker_spinner: ^0.0.1
   pay: ^2.0.0
-  package_info_plus: ^4.2.0
+  package_info_plus: ^8.0.0
   bulleted_list: ^0.0.1+0.1a
+  appwrite: ^12.0.3
+  random_string: ^2.3.1
 
 
 
@@ -105,6 +107,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/
     - assets/images/
     - assets/translations/
     #   - images/a_dot_ham.jpeg
@@ -130,13 +133,6 @@ flutter:
     - family: Poppins
       fonts:
         - asset: assets/fonts/Poppins-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
+    - family: Arial-Narrow
+      fonts:
+        - asset: assets/fonts/ARIALNB.TTF

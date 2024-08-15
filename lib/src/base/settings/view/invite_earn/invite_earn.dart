@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/services/stripe/stripe_service.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
-import 'package:yacht_master/src/base/settings/view/invite_earn/invite_screen.dart';
-import 'package:yacht_master/src/base/settings/view/invite_earn/status_screen.dart';
-import 'package:yacht_master/src/base/settings/view/invite_earn/withdraw_money.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/zbot_toast.dart';
+import '../../../../../localization/app_localization.dart';
+import '../../../../../resources/resources.dart';
+import '../../../../../services/firebase_collections.dart';
+import '../../../../../services/stripe/stripe_service.dart';
+import '../../../../auth/view_model/auth_vm.dart';
+import '../../../home/home_vm/home_vm.dart';
+import 'invite_screen.dart';
+import 'status_screen.dart';
+import 'withdraw_money.dart';
+import '../../../../../utils/general_app_bar.dart';
+import '../../../../../utils/heights_widths.dart';
+import '../../../../../utils/zbot_toast.dart';
 
 class InviteAndEarn extends StatefulWidget {
   static String route = "/inviteAndEarn";

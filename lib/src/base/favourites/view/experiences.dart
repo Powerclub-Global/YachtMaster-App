@@ -10,18 +10,19 @@ import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/constant/enums.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/auth/model/favourite_model.dart';
-import 'package:yacht_master/src/base/favourites/view_model/favourites_vm.dart';
-import 'package:yacht_master/src/base/search/model/services_model.dart';
-import 'package:yacht_master/src/base/search/view_model/search_vm.dart';
-import 'package:yacht_master/src/base/search/widgets/host_widget.dart';
-import 'package:yacht_master/src/base/yacht/view/service_detail.dart';
-import 'package:yacht_master/src/base/yacht/view_model/yacht_vm.dart';
-import 'package:yacht_master/utils/empty_screem.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../appwrite.dart';
+import '../../../../constant/enums.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../auth/model/favourite_model.dart';
+import '../view_model/favourites_vm.dart';
+import '../../search/model/services_model.dart';
+import '../../search/view_model/search_vm.dart';
+import '../../search/widgets/host_widget.dart';
+import '../../yacht/view/service_detail.dart';
+import '../../yacht/view_model/yacht_vm.dart';
+import '../../../../utils/empty_screem.dart';
+import '../../../../utils/heights_widths.dart';
 
 class ExperiencesView extends StatefulWidget {
   const ExperiencesView({Key? key}) : super(key: key);
@@ -125,8 +126,7 @@ class _ExperiencesViewState extends State<ExperiencesView> {
                                           yachtVm.update();
                                           try {
                                             await FbCollections.user
-                                                .doc(FirebaseAuth
-                                                    .instance.currentUser?.uid)
+                                                .doc(appwrite.user.$id)
                                                 .collection("favourite")
                                                 .doc(service.id)
                                                 .delete();
@@ -137,8 +137,7 @@ class _ExperiencesViewState extends State<ExperiencesView> {
                                         } else {
                                           try {
                                             await FbCollections.user
-                                                .doc(FirebaseAuth
-                                                    .instance.currentUser?.uid)
+                                                .doc(appwrite.user.$id)
                                                 .collection("favourite")
                                                 .doc(service.id)
                                                 .set(favModel.toJson());

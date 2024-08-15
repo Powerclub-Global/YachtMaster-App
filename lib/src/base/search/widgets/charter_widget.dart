@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+import 'package:yacht_master/appwrite.dart';
 import 'package:yacht_master/resources/decorations.dart';
 import 'package:yacht_master/resources/resources.dart';
 import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
@@ -112,7 +113,7 @@ class _CharterWidgetState extends State<CharterWidget> {
                                 ),overflow: TextOverflow.ellipsis,),
                                 h0P7,
                                 Text(
-                                    hvm.allBookings.where((element) => element.charterFleetDetail?.id==widget.charter?.id && element.createdBy==FirebaseAuth.instance.currentUser?.uid).isNotEmpty?
+                                    hvm.allBookings.where((element) => element.charterFleetDetail?.id==widget.charter?.id && element.createdBy==appwrite.user.$id).isNotEmpty?
                                   "${widget.charter?.location?.adress?.trim()}":
                                   "${widget.charter?.location?.city?.trim()}"
                                   ,style: R.textStyle.helvetica().copyWith(
@@ -162,7 +163,7 @@ class _CharterWidgetState extends State<CharterWidget> {
                       ),
                     ),
                   ),
-                  if (widget.isShowStar==false  || widget.charter?.createdBy==FirebaseAuth.instance.currentUser?.uid) SizedBox() else Positioned(top: 10,right:widget.isPopUp==true?10.w: 2.w,
+                  if (widget.isShowStar==false  || widget.charter?.createdBy==appwrite.user.$id) SizedBox() else Positioned(top: 10,right:widget.isPopUp==true?10.w: 2.w,
                       child: GestureDetector(
                         onTap:widget.isFavCallBack,
                         child:Container(

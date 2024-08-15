@@ -3,9 +3,9 @@ import 'dart:developer';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../auth/view_model/auth_vm.dart';
+import '../../search/view/bookings/model/bookings.dart';
 
 class HomeVm extends ChangeNotifier {
   List<BookingsModel> allBookings = [];
@@ -16,9 +16,14 @@ class HomeVm extends ChangeNotifier {
     allBookings = [];
     try {
       var ref = FbCollections.bookings.snapshots().asBroadcastStream();
-      print(allBookings);
-      var res = ref.map((list) =>
-          list.docs.map((e) => BookingsModel.fromJson(e.data())).toList());
+
+      var res = ref.map((list) {
+        print("bookings are being printed");
+        return list.docs.map((e) {
+          print(e.data());
+          return BookingsModel.fromJson(e.data());
+        }).toList();
+      });
       bookingsStream ??= res.listen((bookings) async {
         if (bookings.isNotEmpty) {
           allBookings = bookings;

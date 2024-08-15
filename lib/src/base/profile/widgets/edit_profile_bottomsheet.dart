@@ -1,30 +1,25 @@
 import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:circular_profile_avatar/circular_profile_avatar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/image_picker_services.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
-import 'package:yacht_master/utils/validation.dart';
-
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/decorations.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/image_picker_services.dart';
+import '../../../auth/view_model/auth_vm.dart';
+import '../../base_vm.dart';
+import '../../../../utils/heights_widths.dart';
+import '../../../../utils/helper.dart';
+import '../../../../utils/validation.dart';
 import '../../../../utils/countryCodeConverter.dart';
-import '../../../../utils/keyboard_actions.dart';
 
 class EditProfile extends StatefulWidget {
   @override
@@ -34,33 +29,36 @@ class EditProfile extends StatefulWidget {
 class _EditProfileState extends State<EditProfile> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   TextEditingController firstNameController = TextEditingController();
+  TextEditingController usernameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController phoneNumController = TextEditingController();
   FocusNode firstNameFn = FocusNode();
+  FocusNode usernameFn = FocusNode();
   FocusNode lastNameFn = FocusNode();
   FocusNode phoneNumFn = FocusNode();
   String? countryCode;
   File? pickedImage;
   @override
   void initState() {
-   WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-     AuthVm authVm = Provider.of<AuthVm>(context, listen: false);
-     authVm.stopLoader();
-     pickedImage=null;
-    Future.delayed(Duration(milliseconds: 100),(){
-      countryCode=seperatePhoneAndDialCode(authVm.userModel?.dialCode??"+92");
-      Get.forceAppUpdate();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      AuthVm authVm = Provider.of<AuthVm>(context, listen: false);
+      authVm.stopLoader();
+      pickedImage = null;
+      Future.delayed(Duration(milliseconds: 100), () {
+        countryCode =
+            seperatePhoneAndDialCode(authVm.userModel?.dialCode ?? "+92");
+        Get.forceAppUpdate();
+      });
+      firstNameController.text = authVm.userModel?.firstName ?? "";
+      lastNameController.text = authVm.userModel?.lastName ?? "";
+      phoneNumController.text = authVm.userModel?.number ?? "";
+      usernameController.text = authVm.userModel!.username ?? "";
+
+      // if(countries.where((element) => element.dialCode==authVm.userModel?.dialCode?.replaceAll("+", "")).toList().isNotEmpty)
+      // {
+      //   countryCode =countries.where((element) => element.dialCode==authVm.userModel?.dialCode?.replaceAll("+", "")).toList().first.code;
+      // }
     });
-     firstNameController.text = authVm.userModel?.firstName ?? "";
-     lastNameController.text = authVm.userModel?.lastName ?? "";
-     phoneNumController.text = authVm.userModel?.number ?? "";
-
-     // if(countries.where((element) => element.dialCode==authVm.userModel?.dialCode?.replaceAll("+", "")).toList().isNotEmpty)
-     // {
-     //   countryCode =countries.where((element) => element.dialCode==authVm.userModel?.dialCode?.replaceAll("+", "")).toList().first.code;
-     // }
-
-   });
 
     super.initState();
   }
@@ -71,7 +69,9 @@ class _EditProfileState extends State<EditProfile> {
       log("C:${countryCode}");
       return ModalProgressHUD(
         inAsyncCall: authVm.isLoading,
-        progressIndicator:   SpinKitPulse(color: R.colors.themeMud,),
+        progressIndicator: SpinKitPulse(
+          color: R.colors.themeMud,
+        ),
         child: BackdropFilter(
           filter: ImageFilter.blur(
             sigmaX: 5.0,
@@ -104,7 +104,8 @@ class _EditProfileState extends State<EditProfile> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: Get.width * .07),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: Get.width * .07),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -122,24 +123,31 @@ class _EditProfileState extends State<EditProfile> {
                               CircularProfileAvatar(
                                 "",
                                 radius: 25.sp,
-                                child:pickedImage!=null?
-                                    Image.file(pickedImage!):
-                                CachedNetworkImage(
-                                  imageUrl:  authVm.userModel?.imageUrl?.isEmpty==true || authVm.userModel?.imageUrl==null?
-                                  R.images.dummyDp:authVm.userModel?.imageUrl??"",
-                                  fit: BoxFit.cover,
-                                  progressIndicatorBuilder: (context, url, downloadProgress) =>
-                                      SpinKitPulse(color: R.colors.themeMud,),
-                                  errorWidget: (context, url, error) => Icon(Icons.error),
-                                ),
+                                child: pickedImage != null
+                                    ? Image.file(pickedImage!)
+                                    : CachedNetworkImage(
+                                        imageUrl: authVm.userModel?.imageUrl
+                                                        ?.isEmpty ==
+                                                    true ||
+                                                authVm.userModel?.imageUrl ==
+                                                    null
+                                            ? R.images.dummyDp
+                                            : authVm.userModel?.imageUrl ?? "",
+                                        fit: BoxFit.cover,
+                                        progressIndicatorBuilder:
+                                            (context, url, downloadProgress) =>
+                                                SpinKitPulse(
+                                          color: R.colors.themeMud,
+                                        ),
+                                        errorWidget: (context, url, error) =>
+                                            Icon(Icons.error),
+                                      ),
                               ),
                               GestureDetector(
                                 onTap: () async {
-                                   pickedImage =
-                                   await ImagePickerServices().getImage();
-                                   setState(() {
-
-                                   });
+                                  pickedImage =
+                                      await ImagePickerServices().getImage();
+                                  setState(() {});
                                 },
                                 child: Container(
                                   decoration: BoxDecoration(
@@ -161,7 +169,8 @@ class _EditProfileState extends State<EditProfile> {
                           h4,
                           Form(
                             key: formKey,
-                            autovalidateMode: AutovalidateMode.onUserInteraction,
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
                             child: Column(
                               children: [
                                 label(getTranslated(
@@ -244,76 +253,43 @@ class _EditProfileState extends State<EditProfile> {
                                 h1P5,
                                 label(getTranslated(
                                       context,
-                                      "phone_num",
+                                      "username",
                                     ) ??
                                     ""),
                                 h0P5,
-                               if(countryCode!=null) IgnorePointer(
-                                  ignoring: true,
-                                  child: KeyboardActions(
-                                    config: buildConfigDone(context, phoneNumFn,
-                                        nextFocus: FocusNode(), isDone: true),
-                                    disableScroll: true,
-                                    autoScroll: false,
-                                    child: IntlPhoneField(
-                                      readOnly: true,
-                                      controller: phoneNumController,
-                                      focusNode: phoneNumFn,
-                                      autovalidateMode:
-                                          AutovalidateMode.onUserInteraction,
-                                      textInputAction: TextInputAction.next,
-                                      // disableLengthCheck: true,
-                                      style: R.textStyle.helvetica().copyWith(
-                                          color: R.colors.charcoalColor,
+                                TextFormField(
+                                  focusNode: usernameFn,
+                                  textInputAction: TextInputAction.next,
+                                  onChanged: (v) async {
+                                    await authVm.isUsernameAvailable(v);
+                                    setState(() {});
+                                  },
+                                  onTap: () {
+                                    setState(() {});
+                                  },
+                                  onFieldSubmitted: (a) {
+                                    setState(() {
+                                      FocusScope.of(Get.context!)
+                                          .requestFocus(new FocusNode());
+                                    });
+                                  },
+                                  controller: usernameController,
+                                  validator: (val) =>
+                                      FieldValidator.validateUsername(val),
+                                  decoration: AppDecorations.suffixTextField(
+                                      "enter_username",
+                                      R.textStyle.helvetica().copyWith(
+                                          color: usernameFn.hasFocus
+                                              ? R.colors.themeMud
+                                              : R.colors.charcoalColor,
                                           fontSize: 10.sp),
-                                      decoration: AppDecorations.suffixTextField(
-                                          "0000000000000",
-                                          R.textStyle.helvetica().copyWith(
-                                                color: phoneNumFn.hasFocus
-                                                    ? R.colors.themeMud
-                                                    : R.colors.charcoalColor,
-                                                fontSize: 10.sp,
-                                              ),
-                                          Image.asset(R.images.phone,
-                                              scale: 14,
-                                              color: phoneNumFn.hasFocus
-                                                  ? R.colors.themeMud
-                                                  : R.colors.charcoalColor)),
-                                      initialCountryCode: countryCode,
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.allow(
-                                            RegExp("[0-9]"))
-                                      ],
-                                      dropdownTextStyle: R.textStyle
-                                          .helveticaBold()
-                                          .copyWith(
-                                              color: phoneNumFn.hasFocus
-                                                  ? R.colors.themeMud
-                                                  : R.colors.charcoalColor,
-                                              fontSize: 10.sp),
-                                      flagsButtonPadding:
-                                          EdgeInsets.symmetric(horizontal: 4.w),
-                                      showDropdownIcon: false,
-                                      showCountryFlag: false,
-                                      onChanged: (phone) {
-                                        setState(() {
-                                          countryCode = phone.countryCode;
-                                        });
-                                        log("_______________Country code:$countryCode{}");
-                                        print(phone.completeNumber);
-                                      },
-                                      onCountryChanged: (phone) {
-                                        setState(() {
-                                          countryCode = phone.dialCode;
-                                        });
-                                        log("_______________C:$countryCode");
-                                        // print(phone.completeNumber);
-                                      },
-                                      onSubmitted: (value) {
-                                        setState(() {});
-                                      },
-                                    ),
-                                  ),
+                                      authVm.usernameIsAvailable
+                                          ? Icon(
+                                              Icons.verified_outlined,
+                                              size: 23.sp,
+                                              color: Colors.green,
+                                            )
+                                          : null),
                                 ),
                               ],
                             ),
@@ -324,9 +300,18 @@ class _EditProfileState extends State<EditProfile> {
                           ),
                           GestureDetector(
                             onTap: () async {
-
                               if (formKey.currentState!.validate()) {
-                                await authVm.onClickEditProfile(firstNameController.text, lastNameController.text, pickedImage, context);
+                                if (authVm.usernameIsAvailable) {
+                                  await authVm.onClickEditProfile(
+                                      firstNameController.text,
+                                      lastNameController.text,
+                                      usernameController.text,
+                                      pickedImage,
+                                      context);
+                                  return;
+                                }
+                                Fluttertoast.showToast(
+                                    msg: "This username is not available");
                               }
                             },
                             child: Container(

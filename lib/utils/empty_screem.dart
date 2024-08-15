@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../localization/app_localization.dart';
+import '../resources/resources.dart';
+import 'heights_widths.dart';
 
 class EmptyScreen extends StatefulWidget {
   String? title;

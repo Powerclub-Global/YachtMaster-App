@@ -1,10 +1,10 @@
 
 
 
-import 'package:yacht_master/resources/colors.dart';
-import 'package:yacht_master/resources/dummy.dart';
-import 'package:yacht_master/resources/images.dart';
-import 'package:yacht_master/resources/text_style.dart';
+import 'colors.dart';
+import 'dummy.dart';
+import 'images.dart';
+import 'text_style.dart';
 
 class R {
   static AppColors colors = AppColors();

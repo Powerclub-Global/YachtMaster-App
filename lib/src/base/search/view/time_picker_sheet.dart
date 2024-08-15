@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sizer/sizer.dart';
 import 'package:time_picker_spinner/time_picker_spinner.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/helper.dart';
+import '../../../../resources/resources.dart';
+import '../../../../utils/heights_widths.dart';
+import '../../../../utils/helper.dart';
 
 class TimePickerSheet extends StatefulWidget {
   final DateTime selectedDate;

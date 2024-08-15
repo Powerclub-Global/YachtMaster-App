@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:yacht_master/src/base/search/view/bookings/model/bookings.dart';
+import '../../search/view/bookings/model/bookings.dart';
 
 /// booking_id : ""
 /// user_id : ""

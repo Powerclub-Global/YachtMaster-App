@@ -1,6 +1,4 @@
 import 'dart:developer';
-
-import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -8,9 +6,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/resources/resources.dart';
+import '../resources/resources.dart';
 import 'package:location/location.dart' as loc;
-import 'package:yacht_master/utils/permission_dialog.dart';
+import 'permission_dialog.dart';
 
 int getPriceFromString(String text, bool isFirst) {
   return isFirst == true

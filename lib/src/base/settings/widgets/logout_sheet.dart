@@ -3,13 +3,13 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/decorations.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/src/auth/view/login.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/decorations.dart';
+import '../../../../resources/resources.dart';
+import '../../../auth/view/login.dart';
+import '../../../auth/view_model/auth_vm.dart';
+import '../../base_vm.dart';
+import '../../../../utils/heights_widths.dart';
 
 class LogoutBottomSheet extends StatefulWidget {
   const LogoutBottomSheet({Key? key}) : super(key: key);

@@ -9,17 +9,18 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/localization/app_localization.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/src/auth/model/user_model.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
-import 'package:yacht_master/src/base/profile/model/review_model.dart';
-import 'package:yacht_master/src/base/settings/view_model/settings_vm.dart';
-import 'package:yacht_master/utils/empty_screem.dart';
-import 'package:yacht_master/utils/general_app_bar.dart';
-import 'package:yacht_master/utils/heights_widths.dart';
+import '../../../../appwrite.dart';
+import '../../../../localization/app_localization.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../../services/time_schedule_service.dart';
+import '../../../auth/model/user_model.dart';
+import '../../base_vm.dart';
+import '../model/review_model.dart';
+import '../../settings/view_model/settings_vm.dart';
+import '../../../../utils/empty_screem.dart';
+import '../../../../utils/general_app_bar.dart';
+import '../../../../utils/heights_widths.dart';
 
 class ReviewScreen extends StatefulWidget {
   static String route = "/reviewScreen";
@@ -53,7 +54,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
             .map((e) => ReviewModel.fromJson(e.data()))
             .toList()
             .where((element) =>
-                element.hostId == FirebaseAuth.instance.currentUser?.uid)
+                element.hostId == appwrite.user.$id)
             .toList();
       }
       var settingsVm = Provider.of<SettingsVm>(context, listen: false);

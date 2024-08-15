@@ -5,26 +5,25 @@ import 'dart:developer' as msg;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:circular_profile_avatar/circular_profile_avatar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/resources/resources.dart';
-import 'package:yacht_master/services/firebase_collections.dart';
-import 'package:yacht_master/services/time_schedule_service.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/admin_chat/model/admin_chat_head_model.dart';
-import 'package:yacht_master/src/base/admin_chat/model/admin_chat_model.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
-import 'package:yacht_master/src/base/inbox/model/chat_heads_model.dart';
-import 'package:yacht_master/src/base/inbox/model/chat_model.dart';
-import 'package:yacht_master/src/base/inbox/view_model/inbox_vm.dart';
+import '../../../../appwrite.dart';
+import '../../../../resources/resources.dart';
+import '../../../../services/firebase_collections.dart';
+import '../../../../services/time_schedule_service.dart';
+import '../model/admin_chat_head_model.dart';
+import '../model/admin_chat_model.dart';
+import '../../base_vm.dart';
+import '../../inbox/model/chat_heads_model.dart';
+import '../../inbox/model/chat_model.dart';
+import '../../inbox/view_model/inbox_vm.dart';
 
-import 'package:yacht_master/utils/heights_widths.dart';
-import 'package:yacht_master/utils/zbot_toast.dart';
+import '../../../../utils/heights_widths.dart';
+import '../../../../utils/zbot_toast.dart';
 import 'dart:ui' as ui;
 
 import '../../../../services/notification_service.dart';
@@ -89,7 +88,7 @@ class _AdminChatViewState extends State<AdminChatView> {
                 centerTitle: true,
                 title: GestureDetector(
                   onTap: () {
-                    // Get.toNamed(HostProfileOthers.route,arguments: {"host":baseVm.allUsers.firstWhereOrNull((element) => chatHeadModel?.users?.where((element) => element!=FirebaseAuth.instance.currentUser?.uid).first==element.uid)});
+                    // Get.toNamed(HostProfileOthers.route,arguments: {"host":baseVm.allUsers.firstWhereOrNull((element) => chatHeadModel?.users?.where((element) => element!=appwrite.user.$id).first==element.uid)});
                   },
                   child: Text(
                       baseVm.allUsers
@@ -97,8 +96,7 @@ class _AdminChatViewState extends State<AdminChatView> {
                                   chatHeadModel?.users
                                       ?.where((element) =>
                                           element !=
-                                          FirebaseAuth
-                                              .instance.currentUser?.uid)
+                                          appwrite.user.$id)
                                       .first ==
                                   element.uid)
                               ?.firstName ??
@@ -160,7 +158,7 @@ class _AdminChatViewState extends State<AdminChatView> {
                         AdminChatModel chatModel = AdminChatModel.fromJson(
                             snapshot.data?.docs[index].data());
                         return chatModel.senderId ==
-                                FirebaseAuth.instance.currentUser?.uid
+                                appwrite.user.$id
                             ? senderBubble(chatModel, baseVm)
                             : receiverBubble(chatModel, baseVm);
                       },
@@ -235,8 +233,7 @@ class _AdminChatViewState extends State<AdminChatView> {
                               Text("${chatModel.message}",
                                   style: R.textStyle.helvetica().copyWith(
                                       color: chatModel.senderId ==
-                                              FirebaseAuth
-                                                  .instance.currentUser?.uid
+                                              appwrite.user.$id
                                           ? R.colors.whiteColor
                                           : R.colors.blackDull,
                                       fontSize: Get.width * .033)),
@@ -254,7 +251,7 @@ class _AdminChatViewState extends State<AdminChatView> {
                         "${DateFormat.jm().format(chatModel.createdAt?.toDate() ?? now).toString().toLowerCase()}",
                         style: R.textStyle.helvetica().copyWith(
                             color: chatModel.senderId ==
-                                    FirebaseAuth.instance.currentUser?.uid
+                                    appwrite.user.$id
                                 ? R.colors.whiteColor
                                 : R.colors.black,
                             fontSize: 7.sp)),
@@ -290,7 +287,7 @@ class _AdminChatViewState extends State<AdminChatView> {
     return baseVm.allUsers.firstWhereOrNull((element) =>
                 element.uid ==
                 chatHeadModel?.users?.firstWhereOrNull(
-                    (e) => e != FirebaseAuth.instance.currentUser?.uid)) ==
+                    (e) => e != appwrite.user.$id)) ==
             null
         ? SizedBox()
         : Row(
@@ -304,7 +301,7 @@ class _AdminChatViewState extends State<AdminChatView> {
                         chatHeadModel?.users
                             ?.where((element) =>
                                 element !=
-                                FirebaseAuth.instance.currentUser?.uid)
+                                appwrite.user.$id)
                             .first ==
                         element.uid)
                   });
@@ -368,11 +365,7 @@ class _AdminChatViewState extends State<AdminChatView> {
                                                       element.uid ==
                                                       chatHeadModel!.users!
                                                           .where((element) =>
-                                                              element !=
-                                                              FirebaseAuth
-                                                                  .instance
-                                                                  .currentUser!
-                                                                  .uid)
+                                                              element != appwrite.user.$id)
                                                           .first)
                                                   .first
                                                   .firstName ??
@@ -386,8 +379,7 @@ class _AdminChatViewState extends State<AdminChatView> {
                                     Text("${chatModel.message}",
                                         style: R.textStyle.helvetica().copyWith(
                                             color: chatModel.senderId ==
-                                                    FirebaseAuth.instance
-                                                        .currentUser?.uid
+                                                    appwrite.user.$id
                                                 ? R.colors.whiteColor
                                                 : R.colors.blackDull,
                                             fontSize: Get.width * .033)),
@@ -484,13 +476,13 @@ class _AdminChatViewState extends State<AdminChatView> {
                   AdminChatModel chatModel = AdminChatModel(
                       message: msgCon.text,
                       createdAt: lastMessageTime,
-                      senderId: FirebaseAuth.instance.currentUser?.uid,
+                      senderId: appwrite.user.$id,
                       chatHeadId: chatHeadModel?.id,
                       type: 0,
                       isSeen: false,
                       receiverId: chatHeadModel?.users
                           ?.where((element) =>
-                              element != FirebaseAuth.instance.currentUser?.uid)
+                              element != appwrite.user.$id)
                           .toList()
                           .first);
                   chatHeadModel?.lastMessage = chatModel;
@@ -552,7 +544,7 @@ class _AdminChatViewState extends State<AdminChatView> {
                   .firstWhereOrNull((element) =>
                       chatHeadModel?.users
                           ?.where((element) =>
-                              element != FirebaseAuth.instance.currentUser?.uid)
+                              element != appwrite.user.$id)
                           .first ==
                       element.uid)
                   ?.fcm ??
