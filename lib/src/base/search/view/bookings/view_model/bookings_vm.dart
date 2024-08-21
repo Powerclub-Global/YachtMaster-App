@@ -1219,9 +1219,9 @@ class BookingsVm extends ChangeNotifier {
 														<tr>
 															<td class="pad">
 																<div style="color:#ffffff;direction:ltr;font-family:Arial, 'Helvetica Neue', Helvetica, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:left;mso-line-height-alt:19.2px;">
-																	<p style="margin: 0; margin-bottom: 16px;"><strong>Start Date and Time:</strong>${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate())} ${bookingsModel.schedule!.startTime}</p>
+																	<p style="margin: 0; margin-bottom: 16px;"><strong>Start Date and Time:</strong>${DateFormat('EEEE, MMMM d y').format(bookingsModel.schedule!.dates![0].toDate())} ${bookingsModel.schedule!.startTime}</p>
 																	<p style="margin: 0; margin-bottom: 16px;"><strong>End Date and Time:</strong> ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![1].toDate())} ${bookingsModel.schedule!.endTime}</p>
-																	<p style="margin: 0;"><strong>Number of Guests:</strong>${bookingsModel.totalGuest}</p>
+																	<p style="margin: 0;"><strong>Number of Guests:</strong>${bookingsModel.paymentDetail?.remainingAmount ?? 0}\$</p>
 																</div>
 															</td>
 														</tr>

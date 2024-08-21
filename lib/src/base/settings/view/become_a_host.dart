@@ -150,7 +150,11 @@ class _BecomeHostState extends State<BecomeHost> {
                   child: GestureDetector(
                     onTap: () {
                       ZBotToast.loadingShow();
-                      _flutterMediaDownloaderPlugin
+                      Get.bottomSheet(
+                    AgreementBottomSheet(
+                      isBooking: false,
+                      yesCallBack: () async {
+                        _flutterMediaDownloaderPlugin
                           .downloadMedia(
                         context,
                         context.read<BookingsVm>().appUrlModel?.hostPolicies ??
@@ -161,6 +165,11 @@ class _BecomeHostState extends State<BecomeHost> {
                           message: "Host Policy downloaded successfully!",
                         );
                       });
+                      },
+                    ),
+                    barrierColor: R.colors.grey.withOpacity(.20));
+
+                      
                       ZBotToast.loadingClose();
                     },
                     child: Container(
@@ -242,11 +251,7 @@ class _BecomeHostState extends State<BecomeHost> {
                     message:
                         "Please upload the required document mentioned in the Host Policy");
               } else {
-                Get.bottomSheet(
-                    AgreementBottomSheet(
-                      isBooking: false,
-                      yesCallBack: () async {
-                        await db
+                await db
                             .collection("users")
                             .doc(appwrite.user.$id)
                             .collection("agreements")
@@ -263,10 +268,7 @@ class _BecomeHostState extends State<BecomeHost> {
                             message:
                                 "Request has been sent to admin.Please wait for the approval!");
                         Get.back();
-                      },
-                    ),
-                    barrierColor: R.colors.grey.withOpacity(.20));
-              }
+                              }
               ZBotToast.loadingClose();
             },
             child: Container(

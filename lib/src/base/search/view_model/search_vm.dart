@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:provider/provider.dart';
@@ -27,14 +27,16 @@ class SearchVm extends ChangeNotifier {
   Set<DateTime>? charterAvailableDates;
 
   Set<DateTime>? availabilityDays;
-  List<String> halfDayTimeList=[
+  List<String> halfDayTimeList = [
     "07:00 - 10:00",
     "10:00 - 02:00",
     "03:00 - 07:00",
     "08:00 - 12:00",
   ];
-  List<String> fullDayTimeList=["10:00 - 02:00",
-    "03:00 - 07:00",];
+  List<String> fullDayTimeList = [
+    "10:00 - 02:00",
+    "03:00 - 07:00",
+  ];
   DateTime? start;
   DateTime? end;
   List<DateTime> holidayFormat = [];
@@ -66,30 +68,43 @@ class SearchVm extends ChangeNotifier {
     // CityModel("Islamabad", R.images.v3, "CALA SOANA"),
   ];
   List<CharterDayModel> charterDayList = [
-    CharterDayModel("Half Day Charter", "4 Hours", R.images.v2,CharterDayType.halfDay.index),
-    CharterDayModel("Full Day Charter", "8 Hours", R.images.v3,CharterDayType.fullDay.index),
-    CharterDayModel("24 Hours", "Stays and Expeditions", R.images.v1,CharterDayType.multiDay.index),
+    CharterDayModel("Half Day Charter", "4 Hours", R.images.v2,
+        CharterDayType.halfDay.index),
+    CharterDayModel("Full Day Charter", "8 Hours", R.images.v3,
+        CharterDayType.fullDay.index),
+    CharterDayModel("24 Hours", "Stays and Expeditions", R.images.v1,
+        CharterDayType.multiDay.index),
   ];
 
   final GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: Helper.mapApiKey);
   Set<Marker> marker = new Set();
   LatLng? newLocationLatLng;
-  String? city="";
+  String? city = "";
   void onError(PlacesAutocompleteResponse response) {
     debugPrint("\nMap Error = " + response.errorMessage! + "\n\n\n");
   }
-  getCharterFromBooking(charterModel)
-  async {
-    var bookingsVm=Provider.of<BookingsVm>(Get.context!,listen: false);
-    bookingsVm.bookingsModel.charterFleetDetail=CharterFleetDetail(id: charterModel.id,location: charterModel.location?.adress,
-        name: charterModel.name,image: charterModel.images?.first);
-    DocumentSnapshot charterDoc=await FbCollections.charterFleet.doc(bookingsVm.bookingsModel.charterFleetDetail?.id).get();
-    CharterModel charter=CharterModel.fromJson(charterDoc.data());
+
+  getCharterFromBooking(charterModel) async {
+    var bookingsVm = Provider.of<BookingsVm>(Get.context!, listen: false);
+    bookingsVm.bookingsModel.charterFleetDetail = CharterFleetDetail(
+        id: charterModel.id,
+        location: charterModel.location?.adress,
+        name: charterModel.name,
+        image: charterModel.images?.first);
+    DocumentSnapshot charterDoc = await FbCollections.charterFleet
+        .doc(bookingsVm.bookingsModel.charterFleetDetail?.id)
+        .get();
+    CharterModel charter = CharterModel.fromJson(charterDoc.data());
     return charter;
   }
-  getCity(LatLng latLng, String searchAddress,TextEditingController searchController,) async {
+
+  getCity(
+    LatLng latLng,
+    String searchAddress,
+    TextEditingController searchController,
+  ) async {
     List<Placemark> placemarks =
-    await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
+        await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
 
     var first = placemarks.first;
     String address;
@@ -99,32 +114,35 @@ class SearchVm extends ChangeNotifier {
 
     if (searchAddress.isEmpty) {
       searchController.text =
-      "${(first.subLocality)!.isEmpty ? first.name : ''} ${first.subLocality},${first.locality}";
+          "${(first.subLocality)!.isEmpty ? first.name : ''} ${first.subLocality},${first.locality}";
       address = "${first.subLocality},${first.locality}";
-      city=first.locality??"";
+      city = first.locality ?? "";
     } else {
       searchController.text = searchAddress;
       address = searchAddress;
-      city=first.locality??"";
+      city = first.locality ?? "";
     }
 
     log("_______________CITYYYYY${city}");
 
     log("\ncomplete Address: $address");
-   update();
+    update();
   }
 
   Future<Prediction> displayPrediction(
-      Prediction p,GoogleMapController? googleController,TextEditingController searchController,) async {
-      marker.clear();
+    Prediction p,
+    GoogleMapController? googleController,
+    TextEditingController searchController,
+  ) async {
+    marker.clear();
 
     if (p != null) {
       // get detail (lat/lng)
       PlacesDetailsResponse detail =
-      await _places.getDetailsByPlaceId(p.placeId!);
+          await _places.getDetailsByPlaceId(p.placeId!);
       final lat = detail.result.geometry!.location.lat;
       final lng = detail.result.geometry!.location.lng;
-      newLocationLatLng=LatLng(lat, lng);
+      newLocationLatLng = LatLng(lat, lng);
       log("______________NEW LOCATION LAT:${newLocationLatLng}");
       print('place:${p.description}');
       googleController?.animateCamera(
@@ -140,13 +158,14 @@ class SearchVm extends ChangeNotifier {
         position: LatLng(lat, lng),
       ));
 
-      await getCity(LatLng(lat, lng), p.description!,searchController);
-
+      await getCity(LatLng(lat, lng), p.description!, searchController);
     }
 
     return p;
   }
-   search(TextEditingController searchController,GoogleMapController googleController) async {
+
+  search(TextEditingController searchController,
+      GoogleMapController googleController) async {
     Prediction? p = await PlacesAutocomplete.show(
       context: Get.context!,
       apiKey: Helper.mapApiKey,
@@ -158,15 +177,12 @@ class SearchVm extends ChangeNotifier {
       components: [],
     );
     log("this is prediction value : $p");
-    p = await displayPrediction(
-      p!,googleController,searchController
-    );
+    p = await displayPrediction(p!, googleController, searchController);
 
     log(searchController.text);
-
   }
 
-   pickDate(
+  pickDate(
     bool isStart,
     DateTime initialDate,
     DateTime firstDate,
@@ -175,14 +191,14 @@ class SearchVm extends ChangeNotifier {
     TextEditingController startController,
     TextEditingController endController,
   ) async {
-    pickedDate=DateTime.now();
+    pickedDate = DateTime.now();
     final DateTime? picked = await showDatePicker(
       builder: (BuildContext context, Widget? child) {
         return Theme(
             data: ThemeData.light().copyWith(
                 colorScheme: ColorScheme.fromSwatch(
                     primarySwatch:
-                    Helper.createMaterialColor(R.colors.themeMud))),
+                        Helper.createMaterialColor(R.colors.themeMud))),
             child: child!);
       },
       context: context,
@@ -195,15 +211,18 @@ class SearchVm extends ChangeNotifier {
     if (picked != null) {
       pickedDate = picked;
       if (isStart) {
-        startDate=pickedDate;
-        startController.text = DateFormat("EEE, MMM dd yyyy").format(pickedDate??now);
+        startDate = pickedDate;
+        startController.text =
+            DateFormat("EEE, MMM dd yyyy").format(pickedDate ?? now);
       } else {
-        endDate=pickedDate;
-        endController.text = DateFormat("EEE, MMM dd yyyy").format(pickedDate??now);
+        endDate = pickedDate;
+        endController.text =
+            DateFormat("EEE, MMM dd yyyy").format(pickedDate ?? now);
       }
     }
     notifyListeners();
   }
+
   update() {
     notifyListeners();
   }
