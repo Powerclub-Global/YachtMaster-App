@@ -148,29 +148,32 @@ class _HelpCenterState extends State<HelpCenter> {
                           ) ??
                           ""),
                       h0P5,
-                      DropdownButton<String>(
-                        value: subjects[0],
-                        icon: const Icon(Icons.arrow_downward),
-                        elevation: 16,
-                        style: const TextStyle(color: Colors.deepPurple),
-                        // underline: Container(
-                        //   height: 2,
-                        //   color: Colors.deepPurpleAccent,
-                        // ),
-                        focusNode: subjectFn,
-                        onChanged: (String? value) {
-                          // This is called when the user selects an item.
-                          setState(() {
-                            subjectCon.text = value!;
-                          });
-                        },
-                        items: subjects
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5.sp),
+                          color: R.colors.milkyWhite,
+                        ),
+                        child: DropdownButton<String>(
+                          padding: EdgeInsets.only(left: 8.sp),
+                          dropdownColor: R.colors.milkyWhite,
+                          value: subjects[0],
+                          elevation: 16,
+                          style: TextStyle(color: R.colors.black),
+                          focusNode: subjectFn,
+                          onChanged: (String? value) {
+                            // This is called when the user selects an item.
+                            setState(() {
+                              subjectCon.text = value!;
+                            });
+                          },
+                          items: subjects
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
                       ),
                       h2,
                       label(getTranslated(
@@ -210,7 +213,8 @@ class _HelpCenterState extends State<HelpCenter> {
                       h5,
                       GestureDetector(
                         onTap: () async {
-                          if (formKey.currentState!.validate()) {
+                          if (formKey.currentState!.validate() &&
+                              subjectCon.text != "Please choose an option") {
                             String docId = Timestamp.now()
                                 .millisecondsSinceEpoch
                                 .toString();
@@ -248,6 +252,9 @@ class _HelpCenterState extends State<HelpCenter> {
                               debugPrintStack();
                               log(e.toString());
                             }
+                          } else {
+                            Helper.inSnackBar("Error", "Please fill all fields",
+                                R.colors.themeMud);
                           }
                         },
                         child: Container(

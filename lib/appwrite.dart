@@ -8,7 +8,7 @@ Appwrite appwrite = Appwrite();
 class Appwrite {
   Client client = Client()
       .setEndpoint("https://cloud.appwrite.io/v1")
-      .setProject("66322b1f002a454ae73f");
+      .setProject("66c4eca9002516db4845");
 
   late Account account;
   String get uniqueId => ID.unique();

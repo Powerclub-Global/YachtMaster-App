@@ -34,8 +34,10 @@ class _SureBottomSheetState extends State<SureBottomSheet> {
         children: [
           h1,
           Image.asset(
-            R.images.sure,
-            scale: 4,
+            R.images.exit,
+            height: 10.h,
+            width: 30.w,
+            fit: BoxFit.contain,
           ),
           h3,
           Text(

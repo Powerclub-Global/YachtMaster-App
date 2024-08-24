@@ -83,6 +83,14 @@
                <data android:scheme="@string/fb_login_protocol_scheme" />
            </intent-filter>
        </activity>
+       <activity android:name="com.linusu.flutter_web_auth_2.CallbackActivity" android:exported="true">
+      <intent-filter android:label="flutter_web_auth_2">
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="appwrite-callback-66c4eca9002516db4845" />
+      </intent-filter>
+    </activity>
 <!--        <service-->
 <!--            android:name=".java.MyFirebaseMessagingService"-->
 <!--            android:exported="false">-->
