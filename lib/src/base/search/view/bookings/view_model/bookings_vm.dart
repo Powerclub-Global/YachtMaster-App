@@ -888,6 +888,30 @@ class BookingsVm extends ChangeNotifier {
       UserModel hostUser = UserModel.fromJson(hostDoc.data());
       if (isTip == false) {
         await sendNotificationOnBooking(context, bookingsDocId, charter);
+        await FbCollections.sms.add({
+          'to': hostUser.phoneNumber,
+          'body':
+              '''Your booking for ${bookingsModel.charterFleetDetail?.name} is confirmed for ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate())} from ${bookingsModel.schedule!.startTime} to ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![1].toDate())} ${bookingsModel.schedule!.endTime}. Total Guests: ${bookingsModel.totalGuest}. Location: ${charter.get("location")["adress"]}.
+
+Total: ${bookingsModel.priceDetaill?.totalPrice?.toPrecision(2)}\$
+Paid: ${bookingsModel.paymentDetail?.paidAmount?.toPrecision(2)}\$
+Balance: ${bookingsModel.paymentDetail?.remainingAmount?.toPrecision(2)}\$ due on ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate())}.
+
+
+Note: Payments are non-refundable.'''
+        });
+        await FbCollections.sms.add({
+          'to': authVm.userModel?.phoneNumber,
+          'body':
+              '''Your booking for ${bookingsModel.charterFleetDetail?.name} is confirmed for ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate())} from ${bookingsModel.schedule!.startTime} to ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![1].toDate())} ${bookingsModel.schedule!.endTime}. Total Guests: ${bookingsModel.totalGuest}. Location: ${charter.get("location")["adress"]}.
+
+Total: ${bookingsModel.priceDetaill?.totalPrice?.toPrecision(2)}\$
+Paid: ${bookingsModel.paymentDetail?.paidAmount?.toPrecision(2)}\$
+Balance: ${bookingsModel.paymentDetail?.remainingAmount?.toPrecision(2)}\$ due on ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate())}.
+
+
+Note: Payments are non-refundable.'''
+        });
         await FbCollections.mail.add({
           "to": [hostUser.email],
           "message": {
@@ -1727,9 +1751,9 @@ class BookingsVm extends ChangeNotifier {
                                   <p style="margin: 0; margin-bottom: 16px;"><strong>Total Cost of Booking:</strong>
                                     ${bookingsModel.priceDetaill?.totalPrice?.toPrecision(2)}\$</p>
                                   <p style="margin: 0; margin-bottom: 16px;"><strong>Amount you've paid:</strong>
-                                    ${bookingsModel.paymentDetail?.paidAmount ?? 0}\$</p>
+                                    ${bookingsModel.paymentDetail?.paidAmount?.toPrecision(2) ?? 0}\$</p>
                                   <p style="margin: 0; margin-bottom: 16px;"><strong>Balance Due:</strong>
-                                    ${bookingsModel.paymentDetail?.remainingAmount ?? 0}\$</p>
+                                    ${bookingsModel.paymentDetail?.remainingAmount?.toPrecision(2) ?? 0}\$</p>
                                   <p style="margin: 0;">Balance Due will be collected on
                                     ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate())}.</p>
                                 </div>

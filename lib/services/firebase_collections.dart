@@ -10,7 +10,8 @@ class FbCollections {
   static CollectionReference chatHeads = db.collection('chat_heads');
   static CollectionReference invites = db.collection('invites');
   static CollectionReference wallet_history = db.collection('wallet_history');
-  static CollectionReference connected_accounts = db.collection('connected_accounts');
+  static CollectionReference connected_accounts =
+      db.collection('connected_accounts');
   static CollectionReference neighborhoodSuppport =
       db.collection('neighborhood_suppport');
   static CollectionReference appFeedBack = db.collection('app_feedback');
@@ -27,6 +28,7 @@ class FbCollections {
   static CollectionReference appSocialLinks = db.collection('app_social_links');
   static CollectionReference adminChat = db.collection("admin_chat");
   static CollectionReference mail = db.collection("mail");
+  static CollectionReference sms = db.collection("messages");
   static CollectionReference message(id) =>
       db.collection("admin_chat").doc(id).collection("messages");
 }
