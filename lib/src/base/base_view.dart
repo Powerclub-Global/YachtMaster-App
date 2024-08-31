@@ -62,8 +62,13 @@ class _BaseViewState extends State<BaseView> {
   @override
   Widget build(BuildContext context) {
     return Consumer2<AuthVm, BaseVm>(builder: (context, authVm, provider, _) {
-      return WillPopScope(
-        onWillPop: () async {
+      return PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (bool didPop, FormData? result) async {
+          if (didPop) {
+            log('popping off');
+            return;
+          }
           Get.bottomSheet(
               SureBottomSheet(
                 title: "Exit App",
@@ -74,7 +79,6 @@ class _BaseViewState extends State<BaseView> {
                 },
               ),
               barrierColor: R.colors.grey.withOpacity(.20));
-          return false;
         },
         child: Scaffold(
             backgroundColor: R.colors.black,
