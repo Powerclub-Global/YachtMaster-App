@@ -46,8 +46,13 @@ class Appwrite {
   }
 
   Future<void> verifySMS(String sms) async {
-    session = await account.updatePhoneSession(
-        userId: sessionToken.userId, secret: sms);
+    print("verifying sms");
+    session = await account
+        .updatePhoneSession(userId: sessionToken.userId, secret: sms)
+        .then((Session sesh) {
+      print("session created");
+      return sesh;
+    });
   }
 
   Future<void> signInApple() async {

@@ -1,6 +1,6 @@
 // This is a generated file; do not edit or check into version control.
-FLUTTER_ROOT=C:\src\flutter
-FLUTTER_APPLICATION_PATH=C:\Users\madha\Documents\GitHub\yacht-master-app
+FLUTTER_ROOT=C:\Users\madha\Development\flutter
+FLUTTER_APPLICATION_PATH=C:\Users\madha\Development\GitHub\YachtMaster-App
 COCOAPODS_PARALLEL_CODE_SIGN=true
 FLUTTER_BUILD_DIR=build
 FLUTTER_BUILD_NAME=1.2.1

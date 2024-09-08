@@ -59,7 +59,7 @@ class AuthVm extends ChangeNotifier {
   }
 
   Future<void> isUsernameAvailable(String username) async {
-    if (username.length >= 4  && username.length <= 16) {
+    if (username.length >= 4 && username.length <= 16) {
       await db
           .collection("users")
           .where("username", isEqualTo: username)
@@ -601,8 +601,11 @@ class AuthVm extends ChangeNotifier {
   verifyOtp(String uid, String countryCode, String number, String code) async {
     try {
       startLoader();
+      print('loader started');
       await appwrite.verifySMS(code).then((result) async {
+        print('sms verified');
         await appwrite.getUser();
+        print('user fetched');
         if (appwrite.user != null) {
           Future.delayed(Duration(seconds: 2), () async {
             if (userModel?.status == UserStatus.blocked) {
@@ -622,17 +625,9 @@ class AuthVm extends ChangeNotifier {
         }
       }).catchError((e) {
         // yet to configure appwrite error message
-        if (e.toString().contains("firebase_auth/session-expired")) {
-          Fluttertoast.showToast(
-              msg:
-                  "The sms code has expired. Please re-send the verification code to try again.");
-        } else if (e
-            .toString()
-            .contains("firebase_auth/invalid-verification-code")) {
-          Helper.inSnackBar("Error", "Wrong OTP error", R.colors.themeMud);
-        } else {
-          Fluttertoast.showToast(msg: "$e");
-        }
+
+        Fluttertoast.showToast(msg: "$e");
+        debugPrintStack();
         stopLoader();
       });
     } catch (e) {
@@ -777,8 +772,7 @@ class AuthVm extends ChangeNotifier {
   }
 
   updateUsernameDataToDB(String username) async {
-    await FbCollections.user.doc(userModel!.uid).update(
-        {"username": username});
+    await FbCollections.user.doc(userModel!.uid).update({"username": username});
     update();
   }
 
@@ -831,7 +825,7 @@ class AuthVm extends ChangeNotifier {
 
       currentUserStream ??
           ref.listen((event) async {
-            if (event != null) {
+            if (event.exists) {
               print("Putting values fetched into usermodel structure");
               print(event.data());
 
