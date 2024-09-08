@@ -837,12 +837,14 @@ class AuthVm extends ChangeNotifier {
                 await logoutUser(isUpdateUser: false);
                 Fluttertoast.showToast(msg: "You have been blocked by admin");
               }
+              print("ab toh wapis jaane wale hai");
+              print(userModel!.toJson());
+              getUserWallet();
+              notifyListeners();
+            } else {
+              print("User not found");
             }
           });
-      print("ab toh wapis jaane wale hai");
-      print(userModel!.toJson());
-      getUserWallet();
-      notifyListeners();
     } on Exception catch (e) {
       // TODO
       debugPrintStack();
