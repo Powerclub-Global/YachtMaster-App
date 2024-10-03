@@ -71,7 +71,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
         builder: (context, provider, homeVm, _) {
       var _paymentItems = [
         pay.PaymentItem(
-          label: 'Jessy Artman',
+          label: 'Pay YachtMasterApp via YachtMaster',
           amount: userPaidAmount.toStringAsFixed(2),
           status: pay.PaymentItemStatus.final_price,
         )
@@ -586,12 +586,11 @@ class _PaymentMethodsState extends State<PaymentMethods> {
                           margin: const EdgeInsets.only(top: 15.0),
                           onPressed: () {
                             provider.selectedPaymentMethod = 1;
-                                            provider.bookingsModel.paymentDetail
+                            provider.bookingsModel.paymentDetail
                                     ?.paymentMethod =
                                 PaymentMethodEnum.appStore.index;
                           },
                           onPaymentResult: (value) async {
-            
                             provider.update();
                             print("Payment Method Set");
                             print(bookingsModel!.paymentDetail!.paymentMethod);

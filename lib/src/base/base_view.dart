@@ -217,7 +217,7 @@ class _BaseViewState extends State<BaseView> {
                   CupertinoButton(
                     child: Center(
                       child: Text(
-                        'Yes',
+                        'Continue',
                         style: TextStyle(color: Colors.red),
                       ),
                     ),
@@ -253,7 +253,7 @@ class _BaseViewState extends State<BaseView> {
                   CupertinoButton(
                     child: Center(
                       child: Text(
-                        'Yes',
+                        'Continue',
                         style: TextStyle(color: Colors.red),
                       ),
                     ),
@@ -289,7 +289,7 @@ class _BaseViewState extends State<BaseView> {
                   CupertinoButton(
                     child: Center(
                       child: Text(
-                        'Yes',
+                        'Continue',
                         style: TextStyle(color: Colors.red),
                       ),
                     ),
@@ -346,7 +346,7 @@ class _BaseViewState extends State<BaseView> {
                   CupertinoButton(
                     child: Center(
                       child: Text(
-                        'Yes',
+                        'Continue',
                         style: TextStyle(color: Colors.red),
                       ),
                     ),
@@ -382,7 +382,7 @@ class _BaseViewState extends State<BaseView> {
                   CupertinoButton(
                     child: Center(
                       child: Text(
-                        'Yes',
+                        'Continue',
                         style: TextStyle(color: Colors.red),
                       ),
                     ),
@@ -418,7 +418,7 @@ class _BaseViewState extends State<BaseView> {
                   CupertinoButton(
                     child: Center(
                       child: Text(
-                        'Yes',
+                        'Continue',
                         style: TextStyle(color: Colors.red),
                       ),
                     ),

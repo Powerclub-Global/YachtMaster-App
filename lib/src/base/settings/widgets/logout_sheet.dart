@@ -38,7 +38,7 @@ class _LogoutBottomSheetState extends State<LogoutBottomSheet> {
                 height: 2.h,
               ),
               Image.asset(
-                R.images.sure,
+                R.images.exit,
                 scale: 4,
               ),
               SizedBox(

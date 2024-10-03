@@ -245,9 +245,12 @@ class StripeService {
                       style: TextStyle(
                           color: const Color.fromARGB(188, 255, 255, 255)),
                       listItems: [
-                        getTranslated(context, "first_time_intro_bullet_text_1")!,
-                        getTranslated(context, "first_time_intro_bullet_text_2")!,
-                        getTranslated(context, "first_time_intro_bullet_text_3")!
+                        getTranslated(
+                            context, "first_time_intro_bullet_text_1")!,
+                        getTranslated(
+                            context, "first_time_intro_bullet_text_2")!,
+                        getTranslated(
+                            context, "first_time_intro_bullet_text_3")!
                       ]),
                   SizedBox(
                     height: 20,
@@ -260,8 +263,8 @@ class StripeService {
                       if (accountLink == 'internet error') {
                         // ignore: use_build_context_synchronously
                         Get.dialog(AlertDialog(
-                          content: Text(
-                              getTranslated(context, "no_internet_onboarding")!),
+                          content: Text(getTranslated(
+                              context, "no_internet_onboarding")!),
                         ));
                         return;
                       }
