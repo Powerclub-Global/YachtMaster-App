@@ -3,20 +3,15 @@ import 'dart:developer';
 
 import 'package:async_foreach/async_foreach.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import '../../../../appwrite.dart';
-import '../../../../constant/constant.dart';
-import '../../../../constant/enums.dart';
 import '../../../../localization/update_locale.dart';
-import '../../../../resources/resources.dart';
 import '../../../../services/firebase_collections.dart';
 import '../../../auth/model/user_model.dart';
 import '../../profile/model/review_model.dart';
 import '../model/content_model.dart';
-import '../model/payment_payouts_model.dart';
 import '../../yacht/view_model/yacht_vm.dart';
 
 class SettingsVm extends ChangeNotifier {

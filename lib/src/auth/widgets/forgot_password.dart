@@ -162,10 +162,10 @@
 //                             Get.dialog(
 //                                 OTP("+92 31212121222",false,(){
 //                                   Get.back();
-//                                   Get.bottomSheet(NewPasswordDialog(),barrierColor: R.colors.grey.withOpacity(.30));
+//                                   Get.bottomSheet(NewPasswordDialog(),barrierColor: R.colors.grey.withValues(alpha: .30));
 //
 //                                 }),barrierDismissible: true,
-//                                 barrierColor: Colors.grey.withOpacity(.25));
+//                                 barrierColor: Colors.grey.withValues(alpha: .25));
 //
 //                           }
 //                         },

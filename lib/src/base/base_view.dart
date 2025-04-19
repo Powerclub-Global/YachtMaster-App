@@ -61,127 +61,140 @@ class _BaseViewState extends State<BaseView> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<AuthVm, BaseVm>(builder: (context, authVm, provider, _) {
-      return PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (bool didPop, FormData? result) async {
-          if (didPop) {
-            log('popping off');
-            return;
-          }
-          Get.bottomSheet(
+    return Consumer2<AuthVm, BaseVm>(
+      builder: (context, authVm, provider, _) {
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (bool didPop, FormData? result) async {
+            if (didPop) {
+              log('popping off');
+              return;
+            }
+            Get.bottomSheet(
               SureBottomSheet(
                 title: "Exit App",
                 subTitle: getTranslated(
-                    context, "are_you_sure_you_want_to_exit_the_app"),
+                  context,
+                  "are_you_sure_you_want_to_exit_the_app",
+                ),
                 yesCallBack: () {
                   exit(0);
                 },
               ),
-              barrierColor: R.colors.grey.withOpacity(.20));
-        },
-        child: Scaffold(
+              barrierColor: R.colors.grey.withValues(alpha: .20),
+            );
+          },
+          child: Scaffold(
             backgroundColor: R.colors.black,
-            body: provider.selectedPage == -1 && provider.isHome
-                ? SearchScreen()
-                : provider.selectedPage == 0
+            body:
+                provider.selectedPage == -1 && provider.isHome
+                    ? SearchScreen()
+                    : provider.selectedPage == 0
                     ? HomeView()
                     : provider.selectedPage == 1
-                        ? FavouritesView()
-                        : provider.selectedPage == 2
-                            ? InboxView()
-                            : provider.selectedPage == 3
-                                ? SettingsView()
-                                : Container(),
+                    ? FavouritesView()
+                    : provider.selectedPage == 2
+                    ? InboxView()
+                    : provider.selectedPage == 3
+                    ? SettingsView()
+                    : Container(),
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.centerDocked,
             floatingActionButton: GestureDetector(
-                onTap: () async {
-                  provider.isHome = true;
-                  provider.selectedPage = -1;
-                  provider.update();
-                },
-                child: Image.asset(
-                  R.images.center,
-                  height: Get.height * .075,
-                )),
-            bottomNavigationBar: Container(
+              onTap: () async {
+                provider.isHome = true;
+                provider.selectedPage = -1;
+                provider.update();
+              },
+              child: Image.asset(R.images.center, height: Get.height * .075),
+            ),
+            bottomNavigationBar: DecoratedBox(
               decoration: BoxDecoration(
-                  color: Color(0xff171717),
-                  borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(30),
-                      topLeft: Radius.circular(30))),
+                color: Color(0xff171717),
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(30),
+                  topLeft: Radius.circular(30),
+                ),
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: List.generate(provider.bottomIcons.length, (index) {
                   return bottomTabs(
-                      index, provider.bottomIcons[index], provider);
+                    index,
+                    provider.bottomIcons[index],
+                    provider,
+                  );
                 }),
               ),
-            )),
-      );
-    });
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget bottomTabs(int index, String img, BaseVm vm) {
     return Expanded(
-      child: Consumer<SettingsVm>(builder: (context, settingsVm, _) {
-        return InkWell(
-          onTap: () {
-            vm.selectedPage = index;
-            vm.update();
-          },
-          child: Padding(
-            padding: EdgeInsets.only(
-                left: index == 1 && settingsVm.selectedLang == 2
-                    ? Get.width * .09
-                    : index == 2 && settingsVm.selectedLang != 2
+      child: Consumer<SettingsVm>(
+        builder: (context, settingsVm, _) {
+          return InkWell(
+            onTap: () {
+              vm.selectedPage = index;
+              vm.update();
+            },
+            child: Padding(
+              padding: EdgeInsets.only(
+                left:
+                    index == 1 && settingsVm.selectedLang == 2
+                        ? Get.width * .09
+                        : index == 2 && settingsVm.selectedLang != 2
                         ? Get.width * .09
                         : 0,
-                right: index == 2 && settingsVm.selectedLang == 2
-                    ? 9.w
-                    : index == 1 && settingsVm.selectedLang != 2
+                right:
+                    index == 2 && settingsVm.selectedLang == 2
+                        ? 9.w
+                        : index == 1 && settingsVm.selectedLang != 2
                         ? Get.width * .09
-                        : 0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (vm.selectedPage == index)
-                  Image.asset(
-                    R.images.indicator,
-                    height: Get.height * .007,
-                  )
-                else
-                  SizedBox(height: Get.height * .007),
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: Get.height * .025,
-                    bottom: Get.height * .025,
+                        : 0,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (vm.selectedPage == index)
+                    Image.asset(R.images.indicator, height: Get.height * .007)
+                  else
+                    SizedBox(height: Get.height * .007),
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: Get.height * .025,
+                      bottom: Get.height * .025,
+                    ),
+                    child:
+                        vm.selectedPage == index
+                            ? ShaderMask(
+                              shaderCallback: (bounds) {
+                                return LinearGradient(
+                                  colors: [
+                                    R.colors.gradMud,
+                                    R.colors.gradMudLight,
+                                  ],
+                                ).createShader(bounds);
+                              },
+                              blendMode: BlendMode.srcATop,
+                              child: Image.asset(img, height: Get.height * .03),
+                            )
+                            : Image.asset(
+                              img,
+                              height: Get.height * .03,
+                              color: index == 0 ? R.colors.charcoalColor : null,
+                            ),
                   ),
-                  child: vm.selectedPage == index
-                      ? ShaderMask(
-                          shaderCallback: (bounds) {
-                            return LinearGradient(colors: [
-                              R.colors.gradMud,
-                              R.colors.gradMudLight
-                            ]).createShader(bounds);
-                          },
-                          blendMode: BlendMode.srcATop,
-                          child: Image.asset(
-                            img,
-                            height: Get.height * .03,
-                          ))
-                      : Image.asset(
-                          img,
-                          height: Get.height * .03,
-                          color: index == 0 ? R.colors.charcoalColor : null,
-                        ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 
@@ -191,7 +204,7 @@ class _BaseViewState extends State<BaseView> {
     bool? isGalleryAllowed = false;
     isNotificationAllowed = prefs.getBool("isNotificationAllowed");
     isGalleryAllowed = prefs.getBool("isGalleryAllowed");
-    log("SHARED_________${isNotificationAllowed}___${isGalleryAllowed}");
+    log("SHARED_________${isNotificationAllowed}___$isGalleryAllowed");
     if (isNotificationAllowed == false || isNotificationAllowed == null) {
       await checkPermissionNotifications();
     }
@@ -208,110 +221,107 @@ class _BaseViewState extends State<BaseView> {
         log("+++++++++++++++++++++++++denied");
         Permission.notification.request();
         showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return CupertinoAlertDialog(
-                title: Text('Allow Notifications'),
-                content: Text('Allow Permission for notifications？'),
-                actions: [
-                  CupertinoButton(
-                    child: Center(
-                      child: Text(
-                        'Continue',
-                        style: TextStyle(color: Colors.red),
-                      ),
+          context: context,
+          builder: (BuildContext context) {
+            return CupertinoAlertDialog(
+              title: Text('Allow Notifications'),
+              content: Text('Allow Permission for notifications？'),
+              actions: [
+                CupertinoButton(
+                  child: Center(
+                    child: Text(
+                      'Continue',
+                      style: TextStyle(color: Colors.red),
                     ),
-                    onPressed: () async {
-                      await Permission.notification.request();
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      prefs.setBool("isNotificationAllowed", true);
-                      Navigator.pop(context);
-                    },
                   ),
-                  CupertinoButton(
-                    child: Center(
-                      child: Text('No'),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              );
-            });
+                  onPressed: () async {
+                    await Permission.notification.request();
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    prefs.setBool("isNotificationAllowed", true);
+                    Navigator.pop(context);
+                  },
+                ),
+                CupertinoButton(
+                  child: Center(child: Text('No')),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
         break;
       case PermissionStatus.granted:
         log("+++++++++++++++++++++Permission granted");
         showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return CupertinoAlertDialog(
-                title: Text('Allow Permissions'),
-                content: Text('Allow Permission for notifications？'),
-                actions: [
-                  CupertinoButton(
-                    child: Center(
-                      child: Text(
-                        'Continue',
-                        style: TextStyle(color: Colors.red),
-                      ),
+          context: context,
+          builder: (BuildContext context) {
+            return CupertinoAlertDialog(
+              title: Text('Allow Permissions'),
+              content: Text('Allow Permission for notifications？'),
+              actions: [
+                CupertinoButton(
+                  child: Center(
+                    child: Text(
+                      'Continue',
+                      style: TextStyle(color: Colors.red),
                     ),
-                    onPressed: () async {
-                      await Permission.notification.request();
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      prefs.setBool("isNotificationAllowed", true);
-                      Navigator.pop(context);
-                    },
                   ),
-                  CupertinoButton(
-                    child: Center(
-                      child: Text('No'),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              );
-            });
+                  onPressed: () async {
+                    await Permission.notification.request();
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    prefs.setBool("isNotificationAllowed", true);
+                    Navigator.pop(context);
+                  },
+                ),
+                CupertinoButton(
+                  child: Center(child: Text('No')),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
         break;
       case PermissionStatus.permanentlyDenied:
         log("+++++++++++++++++++++permanently denied");
         showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return CupertinoAlertDialog(
-                title: Text('Allow Permissions'),
-                content: Text('Allow Permission for notifications？'),
-                actions: [
-                  CupertinoButton(
-                    child: Center(
-                      child: Text(
-                        'Continue',
-                        style: TextStyle(color: Colors.red),
-                      ),
+          context: context,
+          builder: (BuildContext context) {
+            return CupertinoAlertDialog(
+              title: Text('Allow Permissions'),
+              content: Text('Allow Permission for notifications？'),
+              actions: [
+                CupertinoButton(
+                  child: Center(
+                    child: Text(
+                      'Continue',
+                      style: TextStyle(color: Colors.red),
                     ),
-                    onPressed: () async {
-                      await Permission.notification.request();
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      prefs.setBool("isNotificationAllowed", true);
-                      Navigator.pop(context);
-                    },
                   ),
-                  CupertinoButton(
-                    child: Center(
-                      child: Text('No'),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              );
-            });
+                  onPressed: () async {
+                    await Permission.notification.request();
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    prefs.setBool("isNotificationAllowed", true);
+                    Navigator.pop(context);
+                  },
+                ),
+                CupertinoButton(
+                  child: Center(child: Text('No')),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
         break;
       case PermissionStatus.restricted:
         openAppSettings();
@@ -337,110 +347,107 @@ class _BaseViewState extends State<BaseView> {
       case PermissionStatus.denied:
         log("+++++++++++++++++++++++++denied");
         showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return CupertinoAlertDialog(
-                title: Text('Allow Access to Photos'),
-                content: Text('Allow Permission to access photo/gallery？'),
-                actions: [
-                  CupertinoButton(
-                    child: Center(
-                      child: Text(
-                        'Continue',
-                        style: TextStyle(color: Colors.red),
-                      ),
+          context: context,
+          builder: (BuildContext context) {
+            return CupertinoAlertDialog(
+              title: Text('Allow Access to Photos'),
+              content: Text('Allow Permission to access photo/gallery？'),
+              actions: [
+                CupertinoButton(
+                  child: Center(
+                    child: Text(
+                      'Continue',
+                      style: TextStyle(color: Colors.red),
                     ),
-                    onPressed: () async {
-                      await Permission.photos.request();
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      prefs.setBool("isGalleryAllowed", true);
-                      Navigator.pop(context);
-                    },
                   ),
-                  CupertinoButton(
-                    child: Center(
-                      child: Text('No'),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              );
-            });
+                  onPressed: () async {
+                    await Permission.photos.request();
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    prefs.setBool("isGalleryAllowed", true);
+                    Navigator.pop(context);
+                  },
+                ),
+                CupertinoButton(
+                  child: Center(child: Text('No')),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
         break;
       case PermissionStatus.granted:
         log("+++++++++++++++++++++Permission granted");
         showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return CupertinoAlertDialog(
-                title: Text('Allow Access to Photos'),
-                content: Text('Allow Permission to access photo/gallery？'),
-                actions: [
-                  CupertinoButton(
-                    child: Center(
-                      child: Text(
-                        'Continue',
-                        style: TextStyle(color: Colors.red),
-                      ),
+          context: context,
+          builder: (BuildContext context) {
+            return CupertinoAlertDialog(
+              title: Text('Allow Access to Photos'),
+              content: Text('Allow Permission to access photo/gallery？'),
+              actions: [
+                CupertinoButton(
+                  child: Center(
+                    child: Text(
+                      'Continue',
+                      style: TextStyle(color: Colors.red),
                     ),
-                    onPressed: () async {
-                      await Permission.photos.request();
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      prefs.setBool("isGalleryAllowed", true);
-                      Navigator.pop(context);
-                    },
                   ),
-                  CupertinoButton(
-                    child: Center(
-                      child: Text('No'),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              );
-            });
+                  onPressed: () async {
+                    await Permission.photos.request();
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    prefs.setBool("isGalleryAllowed", true);
+                    Navigator.pop(context);
+                  },
+                ),
+                CupertinoButton(
+                  child: Center(child: Text('No')),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
         break;
       case PermissionStatus.permanentlyDenied:
         log("+++++++++++++++++++++permanently denied");
         showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return CupertinoAlertDialog(
-                title: Text('Allow Access to Photos'),
-                content: Text('Allow Permission to access photo/gallery？'),
-                actions: [
-                  CupertinoButton(
-                    child: Center(
-                      child: Text(
-                        'Continue',
-                        style: TextStyle(color: Colors.red),
-                      ),
+          context: context,
+          builder: (BuildContext context) {
+            return CupertinoAlertDialog(
+              title: Text('Allow Access to Photos'),
+              content: Text('Allow Permission to access photo/gallery？'),
+              actions: [
+                CupertinoButton(
+                  child: Center(
+                    child: Text(
+                      'Continue',
+                      style: TextStyle(color: Colors.red),
                     ),
-                    onPressed: () async {
-                      await Permission.notification.request();
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      prefs.setBool("isGalleryAllowed", true);
-                      Navigator.pop(context);
-                    },
                   ),
-                  CupertinoButton(
-                    child: Center(
-                      child: Text('No'),
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              );
-            });
+                  onPressed: () async {
+                    await Permission.notification.request();
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    prefs.setBool("isGalleryAllowed", true);
+                    Navigator.pop(context);
+                  },
+                ),
+                CupertinoButton(
+                  child: Center(child: Text('No')),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+              ],
+            );
+          },
+        );
         break;
       case PermissionStatus.restricted:
         openAppSettings();

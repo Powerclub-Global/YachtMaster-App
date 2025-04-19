@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,8 +11,6 @@ import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:time_picker_spinner/time_picker_spinner.dart';
-import '../../../../constant/enums.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
 import '../../../../resources/resources.dart';
@@ -63,7 +60,7 @@ class _WhenWillBeThereState extends State<WhenWillBeThere> {
   ///0 means calendar selected
 
   locations.LocationData? locationData;
-  locations.Location location = new locations.Location();
+  locations.Location location = locations.Location();
   bool? _serviceEnabled;
   locations.PermissionStatus? _permissionGranted;
   String city = "";
@@ -82,11 +79,11 @@ class _WhenWillBeThereState extends State<WhenWillBeThere> {
         isSelectTime = args["isSelectTime"];
         city = args["cityModel"];
       });
-      log("_____________CHARTER:${charter}");
-      log("_____________isFILTER:${isReserve}");
+      log("_____________CHARTER:$charter");
+      log("_____________isFILTER:$isReserve");
       if (isReserve) {
         city = city;
-        log("CITY:${city}");
+        log("CITY:$city");
       } else {
         await getCity(LatLng(charter?.location?.lat ?? 31.456471,
             charter?.location!.long ?? -80.139739819));
@@ -531,9 +528,9 @@ class _WhenWillBeThereState extends State<WhenWillBeThere> {
   ///FUNCYIONS
 
   Future<bool> enableBackgroundMode() async {
-    bool _bgModeEnabled = await location.isBackgroundModeEnabled();
-    log("_________________________IS BACKGROUND MODE ENABLE:${_bgModeEnabled}");
-    if (_bgModeEnabled) {
+    bool bgModeEnabled = await location.isBackgroundModeEnabled();
+    log("_________________________IS BACKGROUND MODE ENABLE:$bgModeEnabled");
+    if (bgModeEnabled) {
       return true;
     } else {
       try {
@@ -542,12 +539,12 @@ class _WhenWillBeThereState extends State<WhenWillBeThere> {
         log(e.toString());
       }
       try {
-        _bgModeEnabled = await location.enableBackgroundMode();
+        bgModeEnabled = await location.enableBackgroundMode();
       } catch (e) {
         log(e.toString());
       }
-      log("++++++++++++++++++BG${_bgModeEnabled}"); //True!
-      return _bgModeEnabled;
+      log("++++++++++++++++++BG$bgModeEnabled"); //True!
+      return bgModeEnabled;
     }
   }
 

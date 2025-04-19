@@ -1,7 +1,5 @@
 import 'dart:developer';
-import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -73,7 +71,7 @@ class _WhatLookingForState extends State<WhatLookingFor> {
             onTap: () {
               Helper.focusOut(context);
             },
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 color: R.colors.black,
                 borderRadius: BorderRadius.only(
@@ -135,7 +133,7 @@ class _WhatLookingForState extends State<WhatLookingFor> {
         var bookingsVm = Provider.of<BookingsVm>(context, listen: false);
         bookingsVm.bookingsModel = BookingsModel();
         bookingsVm.update();
-        log("______CITY:${cityModel}");
+        log("______CITY:$cityModel");
         Get.toNamed(WhenWillBeThere.route, arguments: {
           "cityModel": cityModel,
           "yacht": yacht,

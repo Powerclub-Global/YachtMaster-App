@@ -27,7 +27,7 @@ class _TestingScreenState extends State<TestingScreen> {
   double? lat = 51.5072;
   double? lng = 0.1276;
   String mapStyle = "";
-  Set<Marker> marker = new Set();
+  Set<Marker> marker = {};
   BitmapDescriptor? sourceIcon;
   List<LatLngModel> latlngs=[
     LatLngModel(36.45, 78.28, 0),

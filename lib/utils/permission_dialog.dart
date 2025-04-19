@@ -17,23 +17,24 @@ class _PermissionDialogState extends State<PermissionDialog> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:Colors.transparent,
+      backgroundColor: Colors.transparent,
       body: Align(
         alignment: Alignment.center,
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 2.h),
           margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
           decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              boxShadow: [
-                BoxShadow(
-                  color: R.colors.black.withOpacity(0.16),
-                  offset: const Offset(0, 3),
-                  blurRadius: 6,
-                ),
-              ]),
+            shape: BoxShape.rectangle,
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: R.colors.black.withValues(alpha: 0.16),
+                offset: const Offset(0, 3),
+                blurRadius: 6,
+              ),
+            ],
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -52,7 +53,7 @@ class _PermissionDialogState extends State<PermissionDialog> {
               ),
               h2,
               Text(
-               "Please grant required permission",
+                "Please grant required permission",
                 textAlign: TextAlign.center,
                 style: R.textStyle.helvetica().copyWith(
                   fontSize: 12.sp,
@@ -68,15 +69,15 @@ class _PermissionDialogState extends State<PermissionDialog> {
                   constraints: BoxConstraints(minHeight: 7.h),
                   child: Container(
                     height: Get.height * .06,
-                    decoration:
-                    AppDecorations.gradientButton(radius: 30),
+                    decoration: AppDecorations.gradientButton(radius: 30),
                     child: Center(
                       child: Text(
                         "Open settings",
                         style: R.textStyle.helvetica().copyWith(
-                            color: R.colors.black,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.bold),
+                          color: R.colors.black,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -84,7 +85,9 @@ class _PermissionDialogState extends State<PermissionDialog> {
               ),
               TextButton(
                 style: ButtonStyle(
-                  overlayColor: MaterialStateColor.resolveWith((states) => R.colors.blackDull.withOpacity(0.05)),
+                  overlayColor: WidgetStateColor.resolveWith(
+                    (states) => R.colors.blackDull.withValues(alpha: 0.05),
+                  ),
                 ),
                 onPressed: () {
                   Get.back();
@@ -93,7 +96,7 @@ class _PermissionDialogState extends State<PermissionDialog> {
                   "Back",
                   style: R.textStyle.helveticaBold().copyWith(),
                 ),
-              )
+              ),
             ],
           ),
         ),

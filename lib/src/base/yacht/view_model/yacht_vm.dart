@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:async_foreach/async_foreach.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,7 +10,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../../appwrite.dart';
-import '../../../../constant/constant.dart';
 import '../../../../constant/enums.dart';
 import '../../../../resources/resources.dart';
 import '../../../../services/firebase_collections.dart';
@@ -22,7 +20,6 @@ import '../../../auth/view_model/auth_vm.dart';
 import '../../home/home_vm/home_vm.dart';
 import '../../search/model/charter_model.dart';
 import '../../search/model/services_model.dart';
-import '../../search/view/bookings/model/bookings.dart';
 import '../../search/view/bookings/view_model/bookings_vm.dart';
 import '../../search/view_model/search_vm.dart';
 import '../../settings/view_model/settings_vm.dart';
@@ -179,11 +176,11 @@ class YachtVm extends ChangeNotifier {
                 element.bookingStatus == BookingStatus.completed.index) ==
             true) {
           count = count + 1;
-          log("////////////////////count here:${count}");
+          log("////////////////////count here:$count");
           update();
         }
       });
-      log("////////////////////count:${count}");
+      log("////////////////////count:$count");
       var bookingVm = Provider.of<BookingsVm>(Get.context!, listen: false);
       if (count >= (bookingVm.appUrlModel?.superhostminimumbookings ?? 0)) {
         sortedUser.add(hostElement);
@@ -199,7 +196,7 @@ class YachtVm extends ChangeNotifier {
     charterCities = [];
     charterCities = allCharters.map((e) => e.location?.city ?? "").toList();
     charterCities = charterCities.toSet().toList();
-    log("___________cities:${charterCities}");
+    log("___________cities:$charterCities");
     notifyListeners();
   }
 

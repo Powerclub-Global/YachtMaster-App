@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import '../src/base/inbox/view/inbox_view.dart';
-import '../src/base/inbox/view/notifications.dart';
 
 import '../constant/constant.dart';
 

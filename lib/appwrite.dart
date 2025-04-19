@@ -15,8 +15,8 @@ class Appwrite {
   late Token sessionToken;
   late Session session;
   late User user;
-  late http.StreamedResponse delete_user_response;
-  late http.Request delete_user_request;
+  late http.StreamedResponse deleteUserResponse;
+  late http.Request deleteUserRequest;
 
   void initialiseAppwrite() {
     account = Account(client);
@@ -30,8 +30,10 @@ class Appwrite {
   }
 
   Future<void> sendSMS(String phone) async {
-    sessionToken =
-        await account.createPhoneToken(userId: appwrite.uniqueId, phone: phone);
+    sessionToken = await account.createPhoneToken(
+      userId: appwrite.uniqueId,
+      phone: phone,
+    );
   }
 
   Future<void> updateAndVerifyPhoneNumber(String phone) async {
@@ -50,42 +52,38 @@ class Appwrite {
     session = await account
         .updatePhoneSession(userId: sessionToken.userId, secret: sms)
         .then((Session sesh) {
-      print("session created");
-      return sesh;
-    });
+          print("session created");
+          return sesh;
+        });
   }
 
   Future<void> signInApple() async {
     print("creating session");
-    await account.createOAuth2Session(
-      provider: OAuthProvider.apple,
-    );
+    await account.createOAuth2Session(provider: OAuthProvider.apple);
     print("session created");
   }
 
   Future<void> signInGoogle() async {
     print("creating session");
 
-    await account.createOAuth2Session(
-      provider: OAuthProvider.google,
-    );
+    await account.createOAuth2Session(provider: OAuthProvider.google);
     print("session created");
   }
 
   Future<void> signInFacebook() async {
     print("creating session");
 
-    await account.createOAuth2Session(
-      provider: OAuthProvider.facebook,
-    );
+    await account.createOAuth2Session(provider: OAuthProvider.facebook);
     print("session created");
   }
 
   Future<void> deleteUser() async {
-    delete_user_request = http.Request(
-        'GET',
-        Uri.parse(
-            'https://deleteuser-ribsvsftyq-uc.a.run.app?userId=${user.$id}'));
-    delete_user_response = await delete_user_request.send();
+    deleteUserRequest = http.Request(
+      'GET',
+      Uri.parse(
+        'https://deleteuser-ribsvsftyq-uc.a.run.app?userId=${user.$id}',
+      ),
+    );
+    deleteUserResponse = await deleteUserRequest.send();
   }
 }

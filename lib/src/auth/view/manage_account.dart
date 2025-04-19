@@ -22,22 +22,37 @@ class _ManageAccountState extends State<ManageAccount> {
     return Scaffold(
       backgroundColor: R.colors.black,
       appBar: GeneralAppBar.simpleAppBar(
-          context, getTranslated(context, "manage_account")!),
+        context,
+        getTranslated(context, "manage_account")!,
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             Container(
               decoration: BoxDecoration(
-                  color: R.colors.blackDull,
-                  borderRadius: BorderRadius.circular(12)),
+                color: R.colors.blackDull,
+                borderRadius: BorderRadius.circular(12),
+              ),
               padding: EdgeInsets.symmetric(
-                  horizontal: Get.width * .04, vertical: Get.height * .03),
+                horizontal: Get.width * .04,
+                vertical: Get.height * .03,
+              ),
               child: Column(
                 children: [
-                  tiles(0, "delete_account", R.images.bin,
-                      isDivider: true, isShowArrow: false),
-                  tiles(1, "edit_username", R.images.personalInfo,
-                      isDivider: false, isShowArrow: false)
+                  tiles(
+                    0,
+                    "delete_account",
+                    R.images.bin,
+                    isDivider: true,
+                    isShowArrow: false,
+                  ),
+                  tiles(
+                    1,
+                    "edit_username",
+                    R.images.personalInfo,
+                    isDivider: false,
+                    isShowArrow: false,
+                  ),
                 ],
               ),
             ),
@@ -47,8 +62,13 @@ class _ManageAccountState extends State<ManageAccount> {
     );
   }
 
-  Widget tiles(int index, String title, String img,
-      {bool isDivider = true, bool isShowArrow = true}) {
+  Widget tiles(
+    int index,
+    String title,
+    String img, {
+    bool isDivider = true,
+    bool isShowArrow = true,
+  }) {
     return GestureDetector(
       onTap: () async {
         switch (index) {
@@ -78,30 +98,34 @@ class _ManageAccountState extends State<ManageAccount> {
                     w4,
                     Text(
                       "${getTranslated(context, title)}",
-                      style: R.textStyle
-                          .helveticaBold()
-                          .copyWith(color: R.colors.whiteDull, fontSize: 12.sp),
+                      style: R.textStyle.helveticaBold().copyWith(
+                        color: R.colors.whiteDull,
+                        fontSize: 12.sp,
+                      ),
                     ),
                   ],
                 ),
                 if (isShowArrow == false)
                   SizedBox()
                 else
-                  Icon(Icons.arrow_forward_ios_rounded,
-                      color: R.colors.whiteColor, size: 14.sp)
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: R.colors.whiteColor,
+                    size: 14.sp,
+                  ),
               ],
             ),
             if (isDivider == false)
               SizedBox()
             else
-              Container(
+              SizedBox(
                 height: Get.height * .04,
                 width: Get.width,
                 child: Divider(
-                  color: R.colors.grey.withOpacity(.30),
+                  color: R.colors.grey.withValues(alpha: .30),
                   thickness: 2,
                 ),
-              )
+              ),
           ],
         ),
       ),

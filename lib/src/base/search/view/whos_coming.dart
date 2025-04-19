@@ -51,7 +51,7 @@ class _WhosComingState extends State<WhosComing> {
         isReserve=args["isReserve"];
         charter=args["charter"];
         bookingsModel=args["bookingsModel"];
-        log("________________BOOKING MODEL:${bookingsModel}");
+        log("________________BOOKING MODEL:$bookingsModel");
         if(isEdit==false)
           {
             searchVm.adultsCount=0;
@@ -127,7 +127,7 @@ class _WhosComingState extends State<WhosComing> {
                                 h2,
                                 Text(
                                   bookingsVm.bookingsModel.schedule?.dates!=null && bookingsVm.bookingsModel.schedule?.dates?.length==1?
-                                  "${(bookingsVm.bookingsModel.schedule?.dates?.first.toDate()??DateTime.now()).formateDateMDY()}" :
+                                  (bookingsVm.bookingsModel.schedule?.dates?.first.toDate()??DateTime.now()).formateDateMDY() :
                                   "${(bookingsVm.bookingsModel.schedule?.dates?.first.toDate()??DateTime.now()).formateDateMDY()} - ${(bookingsVm.bookingsModel.schedule?.dates?.last.toDate()??DateTime.now()).formateDateMDY()}",
                                   style: R.textStyle.helvetica().copyWith(
                                     color: R.colors.whiteDull,

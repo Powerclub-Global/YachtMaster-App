@@ -1,4 +1,3 @@
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -28,7 +27,7 @@ class _CongoratulationsState extends State<Congoratulations> {
     return Container(
       width: Get.width,
       height: Get.height * .28,
-      decoration: new BoxDecoration(
+      decoration: BoxDecoration(
         color: R.colors.black,
         borderRadius: BorderRadius.only(
           topRight: Radius.circular(40),
@@ -41,7 +40,7 @@ class _CongoratulationsState extends State<Congoratulations> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Container(
+            SizedBox(
               height: Get.height * .09,
               child: Image.asset(
                 R.images.checkmark,

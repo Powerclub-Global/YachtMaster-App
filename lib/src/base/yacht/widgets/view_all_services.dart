@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../localization/app_localization.dart';
-import '../../../../resources/decorations.dart';
 import '../../../../resources/resources.dart';
 import '../../../../services/firebase_collections.dart';
 import '../../search/model/charter_model.dart';

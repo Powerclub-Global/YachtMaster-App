@@ -64,17 +64,15 @@ class AuthVm extends ChangeNotifier {
           .collection("users")
           .where("username", isEqualTo: username)
           .get()
-          .then(
-        (QuerySnapshot doc) {
-          print(doc.docs);
-          if (doc.docs.isEmpty) {
-            usernameIsAvailable = true;
-          } else {
-            usernameIsAvailable = false;
-          }
-          notifyListeners();
-        },
-      );
+          .then((QuerySnapshot doc) {
+            print(doc.docs);
+            if (doc.docs.isEmpty) {
+              usernameIsAvailable = true;
+            } else {
+              usernameIsAvailable = false;
+            }
+            notifyListeners();
+          });
     } else {
       print("Should Change to false outer ");
       usernameIsAvailable = false;
@@ -92,8 +90,9 @@ class AuthVm extends ChangeNotifier {
   }
 
   onClickLoginOTP(String countryCode, String phoneNumController) async {
-    bool isUserExist =
-        await chechUserCollectionExists("$countryCode$phoneNumController");
+    bool isUserExist = await chechUserCollectionExists(
+      "$countryCode$phoneNumController",
+    );
     print("..................................USER EXIST:$isUserExist");
     if (isUserExist == false) {
       Helper.inSnackBar('Error', "This user does not exist", R.colors.themeMud);
@@ -110,8 +109,10 @@ class AuthVm extends ChangeNotifier {
       await Future.delayed(Duration(seconds: 2));
       await appwrite.getUser();
       bool isUserExist = false;
-      isUserExist =
-          await chechUserCollectionExists(appwrite.user.$id, isEmail: true);
+      isUserExist = await chechUserCollectionExists(
+        appwrite.user.$id,
+        isEmail: true,
+      );
       if (isUserExist == true) {
         await fetchUser();
         Future.delayed(Duration(seconds: 2), () async {
@@ -138,9 +139,7 @@ class AuthVm extends ChangeNotifier {
     } on AppwriteException catch (e) {
       log("THIS IS ERRROR $e");
       Fluttertoast.showToast(msg: "$e");
-      if (appwrite.user != null) {
-        logoutUser();
-      }
+      logoutUser();
     }
   }
 
@@ -151,8 +150,10 @@ class AuthVm extends ChangeNotifier {
       await Future.delayed(Duration(milliseconds: 100));
       await appwrite.getUser();
       bool isUserExist = false;
-      isUserExist =
-          await chechUserCollectionExists(appwrite.user.$id, isEmail: true);
+      isUserExist = await chechUserCollectionExists(
+        appwrite.user.$id,
+        isEmail: true,
+      );
       if (isUserExist == true) {
         await fetchUser();
         if (userModel != null) {
@@ -177,9 +178,7 @@ class AuthVm extends ChangeNotifier {
     } on AppwriteException catch (e) {
       log("THIS IS ERRROR $e");
       Fluttertoast.showToast(msg: "$e");
-      if (appwrite.user != null) {
-        logoutUser();
-      }
+      logoutUser();
     }
   }
 
@@ -189,65 +188,76 @@ class AuthVm extends ChangeNotifier {
       await appwrite.signInApple();
       await Future.delayed(Duration(seconds: 2));
       await appwrite.getUser();
-      if (appwrite.user != null) {
-        bool isUserExist = false;
-        isUserExist =
-            await chechUserCollectionExists(appwrite.user.$id, isEmail: true);
-        if (isUserExist == true) {
-          await fetchUser();
-          Future.delayed(Duration(seconds: 2), () async {
-            if (userModel != null) {
-              if (userModel?.status == UserStatus.blocked) {
-                appwrite.account.deleteSession(sessionId: 'current');
-                Fluttertoast.showToast(msg: "You have been blocked by admin");
-              } else {
-                userModel?.fcm = Constants.fcmToken;
-                // userModel?.isActiveUser = true;
-                await updateUser(userModel);
-                ZBotToast.loadingClose();
-                Get.offAllNamed(BaseView.route);
-              }
+      bool isUserExist = false;
+      isUserExist = await chechUserCollectionExists(
+        appwrite.user.$id,
+        isEmail: true,
+      );
+      if (isUserExist == true) {
+        await fetchUser();
+        Future.delayed(Duration(seconds: 2), () async {
+          if (userModel != null) {
+            if (userModel?.status == UserStatus.blocked) {
+              appwrite.account.deleteSession(sessionId: 'current');
+              Fluttertoast.showToast(msg: "You have been blocked by admin");
             } else {
-              stopLoader();
+              userModel?.fcm = Constants.fcmToken;
+              // userModel?.isActiveUser = true;
+              await updateUser(userModel);
+              ZBotToast.loadingClose();
+              Get.offAllNamed(BaseView.route);
             }
-          });
-        } else {
-          stopLoader();
-          Get.toNamed(SocialSignup.route,
-              arguments: {"user": appwrite.user, "isApple": true});
-        }
+          } else {
+            stopLoader();
+          }
+        });
+      } else {
+        stopLoader();
+        Get.toNamed(
+          SocialSignup.route,
+          arguments: {"user": appwrite.user, "isApple": true},
+        );
       }
     } on AppwriteException catch (e) {
       log("THIS IS ERRROR$e");
       Fluttertoast.showToast(msg: "$e");
-      if (appwrite.user != null) {
-        logoutUser();
-      }
+      logoutUser();
     }
   }
 
-  onClickSignup(String email, String firstName, String lastName,
-      String countryCode, String phoneNumController, String username) async {
+  onClickSignup(
+    String email,
+    String firstName,
+    String lastName,
+    String countryCode,
+    String phoneNumController,
+    String username,
+  ) async {
     log("____HERE");
-    bool isUserExist =
-        await chechUserCollectionExists("$countryCode$phoneNumController");
+    bool isUserExist = await chechUserCollectionExists(
+      "$countryCode$phoneNumController",
+    );
     if (isUserExist == true) {
       Helper.inSnackBar('Error', "User already exist", R.colors.themeMud);
       stopLoader();
       return;
     } else {
       print("Signing up with OTP");
-      await signupWithOtp(countryCode, phoneNumController, email, firstName,
-          lastName, username);
+      await signupWithOtp(
+        countryCode,
+        phoneNumController,
+        email,
+        firstName,
+        lastName,
+        username,
+      );
     }
   }
 
-  onClickSocialSignup(
-    String countryCode,
-    String phoneNumController,
-  ) async {
-    bool isUserExist =
-        await chechUserCollectionExists("$countryCode$phoneNumController");
+  onClickSocialSignup(String countryCode, String phoneNumController) async {
+    bool isUserExist = await chechUserCollectionExists(
+      "$countryCode$phoneNumController",
+    );
 
     if (isUserExist == true) {
       Helper.inSnackBar('Error', "User already exist", R.colors.themeMud);
@@ -259,7 +269,7 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
-// Migrated to Appwrite
+  // Migrated to Appwrite
   checkCurrentUser(BuildContext context) async {
     try {
       print("////////////////in check current user");
@@ -285,8 +295,10 @@ class AuthVm extends ChangeNotifier {
               Fluttertoast.showToast(msg: "You have been blocked by admin");
             } else {
               userModel?.fcm = Constants.fcmToken;
-              var yachtProvider =
-                  Provider.of<YachtVm>(Get.context!, listen: false);
+              var yachtProvider = Provider.of<YachtVm>(
+                Get.context!,
+                listen: false,
+              );
               // userModel?.isActiveUser = true;
               await updateUser(userModel);
               ZBotToast.loadingClose();
@@ -295,7 +307,9 @@ class AuthVm extends ChangeNotifier {
                 /// Pasting code
                 if (Get.parameters['status'] != null) {
                   handleReturnRedirectFromStripeAccountLink(
-                      context, Get.parameters['status']!);
+                    context,
+                    Get.parameters['status']!,
+                  );
                 } else {
                   print("Now navigating to base view");
                   print("Fetched YATCHS PRINTING LENGTH");
@@ -308,19 +322,24 @@ class AuthVm extends ChangeNotifier {
                 print("Here");
                 List<CharterModel> test =
                     yachtProvider.allCharters.where((element) {
-                  return element.id == yachtId;
-                }).toList();
+                      return element.id == yachtId;
+                    }).toList();
                 print("Printing Test");
                 CharterModel yacht = test[0];
-                int index = yachtProvider.allCharters
-                    .indexWhere((element) => element.id == yachtId);
-                Get.toNamed(CharterDetail.route, arguments: {
-                  "yacht": yacht,
-                  "isReserve": false,
-                  "index": index,
-                  "isEdit": yacht.createdBy == appwrite.user.$id ? true : false,
-                  "isLink": true
-                });
+                int index = yachtProvider.allCharters.indexWhere(
+                  (element) => element.id == yachtId,
+                );
+                Get.toNamed(
+                  CharterDetail.route,
+                  arguments: {
+                    "yacht": yacht,
+                    "isReserve": false,
+                    "index": index,
+                    "isEdit":
+                        yacht.createdBy == appwrite.user.$id ? true : false,
+                    "isLink": true,
+                  },
+                );
               }
               String? senderId = Get.parameters["from"];
               if (senderId != null) {
@@ -345,16 +364,18 @@ class AuthVm extends ChangeNotifier {
   getUserWallet() async {
     WalletModel? walletModel;
     print("==========In FETCH USER WALLET:${appwrite.user.$id}");
-    var ref = await FbCollections.wallet.snapshots().asBroadcastStream();
-    var res = ref.map((list) =>
-        list.docs.map((e) => WalletModel.fromJson(e.data())).toList());
+    var ref = FbCollections.wallet.snapshots().asBroadcastStream();
+    var res = ref.map(
+      (list) => list.docs.map((e) => WalletModel.fromJson(e.data())).toList(),
+    );
 
     try {
       walletStream ??= res.listen((event) async {
         log("____len:${event.length}");
         if (event.isNotEmpty) {
-          walletModel = event
-              .firstWhereOrNull((element) => element.uid == appwrite.user.$id);
+          walletModel = event.firstWhereOrNull(
+            (element) => element.uid == appwrite.user.$id,
+          );
           wallet = walletModel;
           update();
         }
@@ -370,9 +391,9 @@ class AuthVm extends ChangeNotifier {
   updateUserWallet(double amount) async {
     try {
       print("==========In UPDATE USER WALLET}");
-      await FbCollections.wallet
-          .doc(appwrite.user.$id)
-          .update({"amount": amount});
+      await FbCollections.wallet.doc(appwrite.user.$id).update({
+        "amount": amount,
+      });
       await getUserWallet();
     } catch (e) {
       debugPrintStack();
@@ -388,27 +409,37 @@ class AuthVm extends ChangeNotifier {
       await appwrite.updateAndVerifyPhoneNumber(countryCode + number);
       print("sms sent");
       Get.dialog(
-          OTP(countryCode + number, true, (otpCode) async {
+        OTP(
+          countryCode + number,
+          true,
+          (otpCode) async {
             startLoader();
-            await verifySignUpOtpSocial(countryCode, number, otpCode)
-                .whenComplete(() {
+            await verifySignUpOtpSocial(
+              countryCode,
+              number,
+              otpCode,
+            ).whenComplete(() {
               stopLoader();
             });
-          }, () async {
+          },
+          () async {
             startLoader();
             await registerUserSocial(countryCode, number);
-          }),
-          barrierDismissible: true,
-          barrierColor: Colors.grey.withOpacity(.25));
+          },
+        ),
+        barrierDismissible: true,
+        barrierColor: Colors.grey.withValues(alpha: .25),
+      );
     } catch (e) {
       debugPrintStack();
       if (e.toString().contains("firebase_auth/session-expired")) {
         Fluttertoast.showToast(
-            msg:
-                "The sms code has expired. Please re-send the verification code to try again.");
-      } else if (e
-          .toString()
-          .contains("firebase_auth/invalid-verification-code")) {
+          msg:
+              "The sms code has expired. Please re-send the verification code to try again.",
+        );
+      } else if (e.toString().contains(
+        "firebase_auth/invalid-verification-code",
+      )) {
         Helper.inSnackBar("Error", "Wrong OTP entered", R.colors.themeMud);
       } else {
         Fluttertoast.showToast(msg: e.toString().split("]").last);
@@ -419,19 +450,22 @@ class AuthVm extends ChangeNotifier {
   }
 
   addUsernameFinishSignUp(
-      String countryCode, String number, String username) async {
+    String countryCode,
+    String number,
+    String username,
+  ) async {
     await setSignupUserData(
-            countryCode,
-            number,
-            appwrite.user.email,
-            appwrite.user.name.contains(" ") == true
-                ? appwrite.user.name.split(" ").first
-                : appwrite.user.name,
-            appwrite.user.name.contains(" ") == true
-                ? appwrite.user.name.split(" ").last
-                : "",
-            username)
-        .then((value) async {
+      countryCode,
+      number,
+      appwrite.user.email,
+      appwrite.user.name.contains(" ") == true
+          ? appwrite.user.name.split(" ").first
+          : appwrite.user.name,
+      appwrite.user.name.contains(" ") == true
+          ? appwrite.user.name.split(" ").last
+          : "",
+      username,
+    ).then((value) async {
       await fetchUser();
       if (userModel?.status == UserStatus.blocked) {
         appwrite.account.deleteSession(sessionId: 'current');
@@ -447,33 +481,33 @@ class AuthVm extends ChangeNotifier {
     });
   }
 
-  verifySignUpOtpSocial(
-    String countryCode,
-    String number,
-    String code,
-  ) async {
+  verifySignUpOtpSocial(String countryCode, String number, String code) async {
     startLoader();
     // start work here
-    await appwrite.updatePhoneVerification(code).then((cred) async {
-      await appwrite.getUser();
-      if (appwrite.user != null) {
-        Get.offNamed(CreateUsername.route,
-            arguments: {"phoneNo": number, "countryCode": countryCode});
-      }
-    }).catchError((e) {
-      if (e.toString().contains("firebase_auth/session-expired")) {
-        Fluttertoast.showToast(
-            msg:
-                "The sms code has expired. Please re-send the verification code to try again.");
-      } else if (e
-          .toString()
-          .contains("firebase_auth/invalid-verification-code")) {
-        Helper.inSnackBar("Error", "Wrong OTP code", R.colors.themeMud);
-      } else {
-        Fluttertoast.showToast(msg: "$e");
-      }
-      stopLoader();
-    });
+    await appwrite
+        .updatePhoneVerification(code)
+        .then((cred) async {
+          await appwrite.getUser();
+          Get.offNamed(
+            CreateUsername.route,
+            arguments: {"phoneNo": number, "countryCode": countryCode},
+          );
+        })
+        .catchError((e) {
+          if (e.toString().contains("firebase_auth/session-expired")) {
+            Fluttertoast.showToast(
+              msg:
+                  "The sms code has expired. Please re-send the verification code to try again.",
+            );
+          } else if (e.toString().contains(
+            "firebase_auth/invalid-verification-code",
+          )) {
+            Helper.inSnackBar("Error", "Wrong OTP code", R.colors.themeMud);
+          } else {
+            Fluttertoast.showToast(msg: "$e");
+          }
+          stopLoader();
+        });
   }
 
   signInWithOtp(String countryCode, String number) async {
@@ -483,39 +517,50 @@ class AuthVm extends ChangeNotifier {
       log("___________CODE SENT:");
       print("I am here code is sent");
       Get.dialog(
-          OTP(countryCode + number, false,
-              // verification call back
-              (otpCode) async {
+        OTP(
+          countryCode + number,
+          false,
+          // verification call back
+          (otpCode) async {
             stopLoader();
             print("about to verify otp");
             await verifyOtp("", countryCode, number, otpCode);
           },
-              // resend call back
-              () async {
+          // resend call back
+          () async {
             await signInWithOtp(countryCode, number);
-          }),
-          barrierDismissible: true,
-          barrierColor: Colors.grey.withOpacity(.25));
+          },
+        ),
+        barrierDismissible: true,
+        barrierColor: Colors.grey.withValues(alpha: .25),
+      );
     } catch (e) {
       debugPrintStack();
       if (e.toString().contains("firebase_auth/session-expired")) {
         Fluttertoast.showToast(
-            msg:
-                "The sms code has expired. Please re-send the verification code to try again.");
-      } else if (e
-          .toString()
-          .contains("firebase_auth/invalid-verification-code")) {
+          msg:
+              "The sms code has expired. Please re-send the verification code to try again.",
+        );
+      } else if (e.toString().contains(
+        "firebase_auth/invalid-verification-code",
+      )) {
         Helper.inSnackBar("Error", "Wrong OTP entered", R.colors.themeMud);
       } else {
-        Fluttertoast.showToast(msg: "${e.toString().split("]").last}");
+        Fluttertoast.showToast(msg: e.toString().split("]").last);
       }
       log(e.toString());
       stopLoader();
     }
   }
 
-  Future signupWithOtp(String countryCode, String num, String email,
-      String firstName, String lastName, String username) async {
+  Future signupWithOtp(
+    String countryCode,
+    String num,
+    String email,
+    String firstName,
+    String lastName,
+    String username,
+  ) async {
     try {
       print(countryCode + num);
       String phono = countryCode + num;
@@ -525,33 +570,51 @@ class AuthVm extends ChangeNotifier {
       log("_______________________WHEN COMP");
       stopLoader();
       Get.dialog(
-          OTP(countryCode + num, true, (otpCode) async {
+        OTP(
+          countryCode + num,
+          true,
+          (otpCode) async {
             startLoader();
             print(otpCode);
-            await verifySignUpOtp(countryCode, email, firstName, lastName, num,
-                    otpCode, username)
-                .whenComplete(() {
+            await verifySignUpOtp(
+              countryCode,
+              email,
+              firstName,
+              lastName,
+              num,
+              otpCode,
+              username,
+            ).whenComplete(() {
               stopLoader();
             });
-          }, () async {
+          },
+          () async {
             startLoader();
             await signupWithOtp(
-                    countryCode, num, email, firstName, lastName, username)
-                .whenComplete(() {
+              countryCode,
+              num,
+              email,
+              firstName,
+              lastName,
+              username,
+            ).whenComplete(() {
               stopLoader();
             });
-          }),
-          barrierDismissible: true,
-          barrierColor: Colors.grey.withOpacity(.25));
+          },
+        ),
+        barrierDismissible: true,
+        barrierColor: Colors.grey.withValues(alpha: .25),
+      );
     } catch (e) {
       debugPrintStack();
       if (e.toString().contains("firebase_auth/session-expired")) {
         Fluttertoast.showToast(
-            msg:
-                "The sms code has expired. Please re-send the verification code to try again.");
-      } else if (e
-          .toString()
-          .contains("firebase_auth/invalid-verification-code")) {
+          msg:
+              "The sms code has expired. Please re-send the verification code to try again.",
+        );
+      } else if (e.toString().contains(
+        "firebase_auth/invalid-verification-code",
+      )) {
         Helper.inSnackBar("Error", "Wrong OTP entered", R.colors.themeMud);
       } else {
         Fluttertoast.showToast(msg: "$e");
@@ -561,36 +624,53 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
-  verifySignUpOtp(String countryCode, String email, String firstName,
-      String lastName, String num, String code, String username) async {
+  verifySignUpOtp(
+    String countryCode,
+    String email,
+    String firstName,
+    String lastName,
+    String num,
+    String code,
+    String username,
+  ) async {
     try {
       startLoader();
-      await appwrite.verifySMS(code).then((result) async {
-        await appwrite.getUser();
-        print(appwrite.user.$id);
-        await Future.delayed(Duration(seconds: 1));
-        if (appwrite.user != null) {
-          await setSignupUserData(
-              countryCode, num, email, firstName, lastName, username);
-          Get.offAllNamed(
-            BaseView.route,
-          );
-        }
-        // Get.offAll(DashboardPage());
-      }).catchError((e) {
-        if (e.toString().contains("firebase_auth/session-expired")) {
-          Fluttertoast.showToast(
-              msg:
-                  "The sms code has expired. Please re-send the verification code to try again.");
-        } else if (e
-            .toString()
-            .contains("firebase_auth/invalid-verification-code")) {
-          Helper.inSnackBar("Error", "Wrong OTP entered", R.colors.themeMud);
-        } else {
-          Fluttertoast.showToast(msg: "$e");
-        }
-        stopLoader();
-      });
+      await appwrite
+          .verifySMS(code)
+          .then((result) async {
+            await appwrite.getUser();
+            print(appwrite.user.$id);
+            await Future.delayed(Duration(seconds: 1));
+            await setSignupUserData(
+              countryCode,
+              num,
+              email,
+              firstName,
+              lastName,
+              username,
+            );
+            Get.offAllNamed(BaseView.route);
+            // Get.offAll(DashboardPage());
+          })
+          .catchError((e) {
+            if (e.toString().contains("firebase_auth/session-expired")) {
+              Fluttertoast.showToast(
+                msg:
+                    "The sms code has expired. Please re-send the verification code to try again.",
+              );
+            } else if (e.toString().contains(
+              "firebase_auth/invalid-verification-code",
+            )) {
+              Helper.inSnackBar(
+                "Error",
+                "Wrong OTP entered",
+                R.colors.themeMud,
+              );
+            } else {
+              Fluttertoast.showToast(msg: "$e");
+            }
+            stopLoader();
+          });
     } catch (e) {
       debugPrintStack();
       log(e.toString());
@@ -602,34 +682,37 @@ class AuthVm extends ChangeNotifier {
     try {
       startLoader();
       print('loader started');
-      await appwrite.verifySMS(code).then((result) async {
-        print('sms verified');
-        await appwrite.getUser();
-        print('user fetched');
-        if (appwrite.user != null) {
-          Future.delayed(Duration(seconds: 2), () async {
-            if (userModel?.status == UserStatus.blocked) {
-              appwrite.account.deleteSession(sessionId: 'current');
-              Fluttertoast.showToast(msg: "You have been blocked by admin");
-            } else {
-              userModel?.fcm = Constants.fcmToken;
-              // userModel?.isActiveUser = true;
-              await updateUser(userModel);
-              print("Otp verified now fetching user after updating user modal");
+      await appwrite
+          .verifySMS(code)
+          .then((result) async {
+            print('sms verified');
+            await appwrite.getUser();
+            print('user fetched');
+            Future.delayed(Duration(seconds: 2), () async {
+              if (userModel?.status == UserStatus.blocked) {
+                appwrite.account.deleteSession(sessionId: 'current');
+                Fluttertoast.showToast(msg: "You have been blocked by admin");
+              } else {
+                userModel?.fcm = Constants.fcmToken;
+                // userModel?.isActiveUser = true;
+                await updateUser(userModel);
+                print(
+                  "Otp verified now fetching user after updating user modal",
+                );
 
-              await fetchUser();
-              ZBotToast.loadingClose();
-              Get.offAllNamed(BaseView.route);
-            }
+                await fetchUser();
+                ZBotToast.loadingClose();
+                Get.offAllNamed(BaseView.route);
+              }
+            });
+          })
+          .catchError((e) {
+            // yet to configure appwrite error message
+
+            Fluttertoast.showToast(msg: "$e");
+            debugPrintStack();
+            stopLoader();
           });
-        }
-      }).catchError((e) {
-        // yet to configure appwrite error message
-
-        Fluttertoast.showToast(msg: "$e");
-        debugPrintStack();
-        stopLoader();
-      });
     } catch (e) {
       debugPrintStack();
       log(e.toString());
@@ -667,11 +750,13 @@ class AuthVm extends ChangeNotifier {
           "role": UserType.user.index,
           "status": UserStatus.active.index,
           "request_status": RequestStatus.notHost.index,
-          "invite_status": 0
+          "invite_status": 0,
         });
         print("made collection");
-        WalletModel walletModel =
-            WalletModel(amount: 0.0, uid: appwrite.user.$id);
+        WalletModel walletModel = WalletModel(
+          amount: 0.0,
+          uid: appwrite.user.$id,
+        );
         await FbCollections.wallet
             .doc(appwrite.user.$id)
             .set(walletModel.toJson());
@@ -687,20 +772,22 @@ class AuthVm extends ChangeNotifier {
 
   ///CHECK USRR COLLECTION EXIST
 
-  Future<bool> chechUserCollectionExists(String docValue,
-      {bool isEmail = false}) async {
+  Future<bool> chechUserCollectionExists(
+    String docValue, {
+    bool isEmail = false,
+  }) async {
     try {
       bool userExists = false;
       await FbCollections.user
           .where(isEmail ? "uid" : "phone_number", isEqualTo: docValue)
           .get()
           .then((value) {
-        if (value.docs.isEmpty) {
-          userExists = false;
-        } else {
-          userExists = true;
-        }
-      });
+            if (value.docs.isEmpty) {
+              userExists = false;
+            } else {
+              userExists = true;
+            }
+          });
       return userExists;
     } catch (e) {
       debugPrintStack();
@@ -747,27 +834,35 @@ class AuthVm extends ChangeNotifier {
           .refFromURL(userModel?.imageUrl ?? "")
           .delete();
     }
-    await FbCollections.user
-        .doc(userModel!.uid)
-        .update({"image_url": imageUrl});
+    await FbCollections.user.doc(userModel!.uid).update({
+      "image_url": imageUrl,
+    });
     update();
     return imageUrl;
   }
 
   Future<String> uploadHostDocument(File pickedImage) async {
-    var imageUrl = await ImagePickerServices()
-        .uploadSingleImage(pickedImage, bucketName: "hostDocuments");
-    await FbCollections.user
-        .doc(userModel!.uid)
-        .update({"host_document_url": imageUrl});
+    var imageUrl = await ImagePickerServices().uploadSingleImage(
+      pickedImage,
+      bucketName: "hostDocuments",
+    );
+    await FbCollections.user.doc(userModel!.uid).update({
+      "host_document_url": imageUrl,
+    });
     update();
     return imageUrl;
   }
 
   updateProfileDataToDB(
-      String firstName, String lastName, String username) async {
-    await FbCollections.user.doc(userModel!.uid).update(
-        {"first_name": firstName, "last_name": lastName, "username": username});
+    String firstName,
+    String lastName,
+    String username,
+  ) async {
+    await FbCollections.user.doc(userModel!.uid).update({
+      "first_name": firstName,
+      "last_name": lastName,
+      "username": username,
+    });
     update();
   }
 
@@ -777,8 +872,13 @@ class AuthVm extends ChangeNotifier {
   }
 
   ///EDIT PROFILE
-  onClickEditProfile(String firstName, String lastName, String username,
-      File? pickedImage, BuildContext context) async {
+  onClickEditProfile(
+    String firstName,
+    String lastName,
+    String username,
+    File? pickedImage,
+    BuildContext context,
+  ) async {
     startLoader();
     userModel?.firstName = firstName;
     userModel?.lastName = lastName;
@@ -791,11 +891,16 @@ class AuthVm extends ChangeNotifier {
     stopLoader();
     Navigator.pop(context);
     Helper.inSnackBar(
-        "Success", "Profile Updated Successfully", R.colors.themeMud);
+      "Success",
+      "Profile Updated Successfully",
+      R.colors.themeMud,
+    );
   }
 
-  Future<bool> updateUser(UserModel? userModel,
-      {bool? showLoading = true}) async {
+  Future<bool> updateUser(
+    UserModel? userModel, {
+    bool? showLoading = true,
+  }) async {
     bool proceed = false;
     log("CALLED");
     if (showLoading!) {
@@ -818,10 +923,11 @@ class AuthVm extends ChangeNotifier {
       log("___HERE IN STREAM:${appwrite.user.$id}");
       print(appwrite.user.$id);
 
-      var ref = FbCollections.user
-          .doc(appwrite.user.$id)
-          .snapshots()
-          .asBroadcastStream();
+      var ref =
+          FbCollections.user
+              .doc(appwrite.user.$id)
+              .snapshots()
+              .asBroadcastStream();
 
       currentUserStream ??
           ref.listen((event) async {

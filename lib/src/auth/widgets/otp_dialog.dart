@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -28,7 +27,7 @@ class OTP extends StatefulWidget {
   bool? isSignup;
   Function(String val) verifyCallBack;
   Function() resendCallBack;
-  OTP(this.number,this.isSignup,this.verifyCallBack,this.resendCallBack);
+  OTP(this.number, this.isSignup, this.verifyCallBack, this.resendCallBack);
 
   @override
   _OTPState createState() => _OTPState();
@@ -36,9 +35,9 @@ class OTP extends StatefulWidget {
 
 class _OTPState extends State<OTP> {
   var onTapRecognizer;
-   FocusNode fn=FocusNode();
-  TextEditingController textEditingController = TextEditingController()
-    ..text = "1234567";
+  FocusNode fn = FocusNode();
+  TextEditingController textEditingController =
+      TextEditingController()..text = "1234567";
 
   late StreamController<ErrorAnimationType> errorController;
 
@@ -75,83 +74,99 @@ class _OTPState extends State<OTP> {
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthVm>(
-        builder: (context, provider, _) {
-          return WillPopScope(
-            onWillPop: ()async{
+      builder: (context, provider, _) {
+        return PopScope(
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) {
               Get.offAllNamed(LoginScreen.route);
-              return true;
-            },
-            child: Center(
+            }
+          },
+          child: Center(
             child: Container(
-
-              height: Get.height*.6,
-              margin: EdgeInsets.symmetric(horizontal: Get.width*.05),
+              height: Get.height * .6,
+              margin: EdgeInsets.symmetric(horizontal: Get.width * .05),
               alignment: Alignment.topCenter,
-              decoration:  BoxDecoration(
-                color:R.colors.black,
-                borderRadius: BorderRadius.circular(20)
+              decoration: BoxDecoration(
+                color: R.colors.black,
+                borderRadius: BorderRadius.circular(20),
               ),
               child: Material(
                 borderRadius: BorderRadius.circular(20),
-                color:R.colors.black,
+                color: R.colors.black,
                 child: ModalProgressHUD(
                   inAsyncCall: provider.isLoading,
-                  progressIndicator:SpinKitPulse(color: R.colors.themeMud,),
+                  progressIndicator: SpinKitPulse(color: R.colors.themeMud),
                   child: SingleChildScrollView(
                     child: Column(
-
                       children: <Widget>[
                         h4,
                         SizedBox(
                           height: Get.height * .09,
-                          child: Image.asset(
-                            R.images.otp,
+                          child: Image.asset(R.images.otp),
+                        ),
+                        SizedBox(height: Get.height * .04),
+                        Text(
+                          getTranslated(context, "otp_verification") ?? "",
+                          style: R.textStyle.helveticaBold().copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: Get.height * .027,
                           ),
-
                         ),
+                        SizedBox(height: Get.height * .025),
                         SizedBox(
-                          height: Get.height * .04,
-                        ),
-                        Text(getTranslated(context, "otp_verification")??"",
-                            style: R.textStyle.helveticaBold().copyWith(
-                                color:  Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: Get.height * .027)),
-                        SizedBox(height:Get.height*.025),
-                        SizedBox(
-                          width: Get.width*.7,
+                          width: Get.width * .7,
                           child: Column(
                             children: [
-                              Text(getTranslated(context,   "enter_the_otp_code_that_you_have_received_on_your_number")??"",
-                                  style: R.textStyle.helvetica().copyWith(
-                                      color:  Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize:11.sp,height: 1.4),textAlign: TextAlign.center,),
                               Text(
-                                  widget.number,
+                                getTranslated(
+                                      context,
+                                      "enter_the_otp_code_that_you_have_received_on_your_number",
+                                    ) ??
+                                    "",
+                                style: R.textStyle.helvetica().copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11.sp,
+                                  height: 1.4,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              Text(
+                                widget.number,
                                 // obsecureEmail(widget.number),
-                                  style: R.textStyle.helvetica().copyWith(
-                                      color:  Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize:11.sp,height: 1.4),textAlign: TextAlign.center,),
+                                style: R.textStyle.helvetica().copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 11.sp,
+                                  height: 1.4,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ],
                           ),
                         ),
-                        SizedBox(height:Get.height*.025),
+                        SizedBox(height: Get.height * .025),
                         Form(
                           key: formKey,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: Get.width * .05),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: Get.width * .05,
+                            ),
                             child: KeyboardActions(
-                              config: buildConfigDone(context, fn,
-                                  nextFocus: FocusNode(), isDone: true),
+                              config: buildConfigDone(
+                                context,
+                                fn,
+                                nextFocus: FocusNode(),
+                                isDone: true,
+                              ),
                               disableScroll: true,
                               autoScroll: false,
                               child: PinCodeTextField(
                                 focusNode: fn,
                                 inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly
+                                  FilteringTextInputFormatter.digitsOnly,
                                 ],
                                 length: 6,
                                 enabled: true,
@@ -160,31 +175,46 @@ class _OTPState extends State<OTP> {
                                 pinTheme: PinTheme(
                                   shape: PinCodeFieldShape.box,
 
-                                  inactiveColor: Colors.grey.withOpacity(.20),
-                                  activeColor:   Colors.grey.withOpacity(.20),
-                                  selectedFillColor:    Colors.grey.withOpacity(.20),
-                                  selectedColor:    Colors.grey.withOpacity(.20),
-                                  activeFillColor:   Colors.grey.withOpacity(.20),
-                                  inactiveFillColor:   Colors.grey.withOpacity(.20),
-                                  disabledColor:   Colors.grey.withOpacity(.20),
+                                  inactiveColor: Colors.grey.withValues(
+                                    alpha: .20,
+                                  ),
+                                  activeColor: Colors.grey.withValues(
+                                    alpha: .20,
+                                  ),
+                                  selectedFillColor: Colors.grey.withValues(
+                                    alpha: .20,
+                                  ),
+                                  selectedColor: Colors.grey.withValues(
+                                    alpha: .20,
+                                  ),
+                                  activeFillColor: Colors.grey.withValues(
+                                    alpha: .20,
+                                  ),
+                                  inactiveFillColor: Colors.grey.withValues(
+                                    alpha: .20,
+                                  ),
+                                  disabledColor: Colors.grey.withValues(
+                                    alpha: .20,
+                                  ),
                                   borderWidth: 0.6,
                                   borderRadius: BorderRadius.circular(8),
                                   fieldHeight: Get.width * .15,
                                   fieldWidth: Get.width * .12,
-
                                 ),
                                 textStyle: R.textStyle.helvetica().copyWith(
-                                  color:  R.colors.whiteColor,fontSize: Get.width*.045,fontWeight: FontWeight.bold),
+                                  color: R.colors.whiteColor,
+                                  fontSize: Get.width * .045,
+                                  fontWeight: FontWeight.bold,
+                                ),
                                 animationDuration: Duration(milliseconds: 300),
                                 backgroundColor: Colors.transparent,
                                 validator: (v) {
                                   if (v!.isEmpty) {
                                     return "OTP Required";
                                   }
-                                  if (v.length<6) {
+                                  if (v.length < 6) {
                                     return "Invalid OTP";
-                                  }
-                                  else {
+                                  } else {
                                     return null;
                                   }
                                 },
@@ -193,7 +223,8 @@ class _OTPState extends State<OTP> {
                                   setState(() {
                                     currentText = value;
                                   });
-                                }, appContext:context,
+                                },
+                                appContext: context,
                               ),
                             ),
                           ),
@@ -201,40 +232,53 @@ class _OTPState extends State<OTP> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("${getTranslated(context, "did_not_receive_code")}?",
-                              style: R.textStyle.helvetica().copyWith(color: R.colors.greyOtp,
-                                fontSize: 9.sp,fontWeight: FontWeight.bold,
-                              )),
+                            Text(
+                              "${getTranslated(context, "did_not_receive_code")}?",
+                              style: R.textStyle.helvetica().copyWith(
+                                color: R.colors.greyOtp,
+                                fontSize: 9.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             w2,
                             Text(
-                              '00 : ' + '${_start.formatMint()}',
-                              style:R.textStyle.helvetica().copyWith(color: R.colors.whiteColor,
-                                fontSize: 10.sp,fontWeight: FontWeight.bold,fontStyle: FontStyle.italic
+                              '00 : ${_start.formatMint()}',
+                              style: R.textStyle.helvetica().copyWith(
+                                color: R.colors.whiteColor,
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
                               ),
-
                             ),
                           ],
                         ),
                         h1,
-                        if(_start==0 )  GestureDetector(
-                          onTap: () {
-                            if (_start == 0) {
-                              Helper.inSnackBar("Success", "OTP has successfully sent", R.colors.themeMud);
-                              startTimer();
-                              widget.resendCallBack();
-                            }
-                          },
-                          child: Container(
-                            color: Colors.transparent,
-                            child: Text(
-                            "${getTranslated(context, "resend")}?",
-                              style: R.textStyle.helveticaBold().copyWith(color: R.colors.whiteColor,
-                                fontSize: 10.sp,fontWeight: FontWeight.bold,
-                                 decoration: TextDecoration.underline
-                              )
+                        if (_start == 0)
+                          GestureDetector(
+                            onTap: () {
+                              if (_start == 0) {
+                                Helper.inSnackBar(
+                                  "Success",
+                                  "OTP has successfully sent",
+                                  R.colors.themeMud,
+                                );
+                                startTimer();
+                                widget.resendCallBack();
+                              }
+                            },
+                            child: Container(
+                              color: Colors.transparent,
+                              child: Text(
+                                "${getTranslated(context, "resend")}?",
+                                style: R.textStyle.helveticaBold().copyWith(
+                                  color: R.colors.whiteColor,
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.bold,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
                         h4,
                         GestureDetector(
                           onTap: () async {
@@ -243,14 +287,21 @@ class _OTPState extends State<OTP> {
                             }
                           },
 
-                          child:  Container(
-                            height: Get.height*.06,width: Get.width*.6,
-                            decoration: AppDecorations.gradientButton(radius: 30),
+                          child: Container(
+                            height: Get.height * .06,
+                            width: Get.width * .6,
+                            decoration: AppDecorations.gradientButton(
+                              radius: 30,
+                            ),
                             child: Center(
-                              child: Text("${getTranslated(context, "verify")?.toUpperCase()}",
-                                style: R.textStyle.helvetica().copyWith(color: R.colors.black,
-                                  fontSize: 12.sp,fontWeight: FontWeight.bold,
-                                ) ,),
+                              child: Text(
+                                "${getTranslated(context, "verify")?.toUpperCase()}",
+                                style: R.textStyle.helvetica().copyWith(
+                                  color: R.colors.black,
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -261,30 +312,27 @@ class _OTPState extends State<OTP> {
                 ),
               ),
             ),
-        ),
-          );
-      }
-    );
-  }
-  void startTimer() {
-    setState(() {
-      _start = 60;
-    });
-    const oneSec = const Duration(seconds: 1);
-    _timer = new Timer.periodic(
-      oneSec,
-          (Timer timer) {
-        if (_start == 0) {
-          setState(() {
-            timer.cancel();
-          });
-        } else {
-          setState(() {
-            _start--;
-          });
-        }
+          ),
+        );
       },
     );
   }
 
+  void startTimer() {
+    setState(() {
+      _start = 60;
+    });
+    const oneSec = Duration(seconds: 1);
+    _timer = Timer.periodic(oneSec, (Timer timer) {
+      if (_start == 0) {
+        setState(() {
+          timer.cancel();
+        });
+      } else {
+        setState(() {
+          _start--;
+        });
+      }
+    });
+  }
 }

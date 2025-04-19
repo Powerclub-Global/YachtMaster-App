@@ -54,31 +54,31 @@ extension FormatingServices on String{
   ///FUNCTIONS: IT WILL TAKE TIME IN FORM OF STRING WILL OUTPUT/SPLIT THE HOUR AS INT
   int splitHour()
   {
-    return int.parse(this.split(":").first);
+    return int.parse(split(":").first);
   }
   ///INPUT: STRING
   ///OUTPUT: INT
   ///FUNCTIONS: IT WILL TAKE TIME IN FORM OF STRING WILL OUTPUT/SPLIT THE MINT AS INT
   int splitMint()
   {
-    return int.parse(this.split(":").last.split(" ").first);
+    return int.parse(split(":").last.split(" ").first);
   }
   ///INPUT: STRING
   ///OUTPUT: DATETIME
   ///FUNCTIONS: IT WILL TAKE TIME IN FORM OF STRING WILL CONVERT IT TO DATETIME
   DateTime? convertStringToDateTime(){
-    DateTime? _dateTime;
+    DateTime? dateTime;
     try{
-      _dateTime =  DateFormat("hh:mm").parse(this);
+      dateTime =  DateFormat("hh:mm").parse(this);
     }catch(e){}
-    return _dateTime;
+    return dateTime;
   }
   ///INPUT: STRING
   ///OUTPUT: STRING
   ///FUNCTIONS: IT WILL TAKE STRING AND WILL OUTPUT THE HOUR AND MINT AS STRING
   String formateHM(){
     return formatDate(
-        this.convertStringToDateTime()!, [hh, ':', nn, ' ', am]);
+        convertStringToDateTime()!, [hh, ':', nn, ' ', am]);
   }
 
   ///INPUT: STRING
@@ -104,14 +104,14 @@ extension FormatingServices on String{
   ///FUNCTIONS: IT WILL TAKE EMAIL STRING AND WILL OUTPUT/OBSCURE EMAIL LIKE ka********@gmail.com
   String obsecureEmail()
   {
-    return "${this.split("@").first.substring(0,2)}${this.split("@").first.substring(2).replaceAll(RegExp(r'[a-zA-Z0-9@]'), "*")}@${this.split("@").last}";
+    return "${split("@").first.substring(0,2)}${split("@").first.substring(2).replaceAll(RegExp(r'[a-zA-Z0-9@]'), "*")}@${split("@").last}";
   }
   ///INPUT: STRING
   ///OUTPUT: STRING
   ///FUNCTIONS: IT WILL TAKE CARD NUMBER STRING AND WILL OUTPUT/OBSCURE CARD NUMBER LIKE **************12
   String obsecureCardNum()
   {
-    return this.replaceAll(RegExp(r'\d(?!\d{0,1}$)'), "*");
+    return replaceAll(RegExp(r'\d(?!\d{0,1}$)'), "*");
   }
 }
 

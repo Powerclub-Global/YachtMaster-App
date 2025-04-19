@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -12,20 +10,15 @@ import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
 import '../../../../resources/resources.dart';
 import '../../../../services/date_picker_services.dart';
-import '../../../../services/firebase_collections.dart';
 import '../../../../services/time_schedule_service.dart';
 import '../../search/model/charter_model.dart';
-import '../../search/model/services_model.dart';
 import '../../search/view/bookings/view_model/bookings_vm.dart';
 import '../../search/view_model/search_vm.dart';
-import '../model/yachts_model.dart';
 import '../view_model/yacht_vm.dart';
 import '../widgets/availability_calendar.dart';
-import '../../../../utils/date_range_picker.dart';
 import '../../../../utils/general_app_bar.dart';
 import '../../../../utils/heights_widths.dart';
 import '../../../../utils/helper.dart';
-import '../../../../utils/testing.dart';
 import '../../../../utils/validation.dart';
 
 class DefineAvailibility extends StatefulWidget {
@@ -72,7 +65,7 @@ class _DefineAvailibilityState extends State<DefineAvailibility> {
         endTimeCon.text = charter?.availability?.endTime ?? "04:00";
       }
       setState(() {});
-      log("_______________EDIT DAYS:${charter}");
+      log("_______________EDIT DAYS:$charter");
     });
   }
 

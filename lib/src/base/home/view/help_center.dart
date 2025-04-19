@@ -148,7 +148,7 @@ class _HelpCenterState extends State<HelpCenter> {
                           ) ??
                           ""),
                       h0P5,
-                      Container(
+                      DecoratedBox(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.sp),
                           color: R.colors.milkyWhite,
@@ -194,7 +194,7 @@ class _HelpCenterState extends State<HelpCenter> {
                         onFieldSubmitted: (a) {
                           setState(() {
                             FocusScope.of(Get.context!)
-                                .requestFocus(new FocusNode());
+                                .requestFocus(FocusNode());
                           });
                         },
                         maxLines: 6,

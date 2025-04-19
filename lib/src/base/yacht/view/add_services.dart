@@ -1,31 +1,23 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:async_foreach/async_foreach.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
 import '../../../../resources/resources.dart';
-import '../../../../services/firebase_collections.dart';
 import '../../../../services/image_picker_services.dart';
-import '../../../auth/model/user_model.dart';
 import '../../../auth/view_model/auth_vm.dart';
 import '../../search/model/services_model.dart';
 import '../../search/view_model/search_vm.dart';
-import '../model/yachts_model.dart';
 import 'define_availibility.dart';
 import '../view_model/yacht_vm.dart';
 import '../widgets/rules_bottomsheet.dart';
@@ -218,7 +210,7 @@ class _AddServicesState extends State<AddServices> {
                         onFieldSubmitted: (a) {
                           setState(() {
                             FocusScope.of(Get.context!)
-                                .requestFocus(new FocusNode());
+                                .requestFocus(FocusNode());
                           });
                         },
                         controller: nameCon,
@@ -246,7 +238,7 @@ class _AddServicesState extends State<AddServices> {
                           setState(() {});
                         },
                         onTap: () {
-                         Get.to(PickLocation(selectedLatLng: locationLatLng ?? null,))?.then((value) {
+                         Get.to(PickLocation(selectedLatLng: locationLatLng,))?.then((value) {
                            var result=value; Map<String, dynamic>;
                            log("____RESUKT:${result["locationAddress"]}");
                            setState(() {
@@ -260,7 +252,7 @@ class _AddServicesState extends State<AddServices> {
                         onFieldSubmitted: (a) {
                           setState(() {
                             FocusScope.of(Get.context!)
-                                .requestFocus(new FocusNode());
+                                .requestFocus(FocusNode());
                           });
                         },
                         controller: locationCon,
@@ -292,7 +284,7 @@ class _AddServicesState extends State<AddServices> {
                         onFieldSubmitted: (a) {
                           setState(() {
                             FocusScope.of(Get.context!)
-                                .requestFocus(new FocusNode());
+                                .requestFocus(FocusNode());
                           });
                         },
                         controller: whatYouDoCon,

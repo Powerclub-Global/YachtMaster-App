@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -65,8 +64,9 @@ class BookingsVm extends ChangeNotifier {
   DateTime? end;
   int selectedPayIn = 0;
   BookingsModel bookingsModel = BookingsModel(
-      durationType: CharterDayType.halfDay.index,
-      schedule: BookingScheduleModel(dates: []));
+    durationType: CharterDayType.halfDay.index,
+    schedule: BookingScheduleModel(dates: []),
+  );
   CreditCardModel creditCardModel = CreditCardModel();
   DateTime time = DateTime.now();
   DateTime? startTime;
@@ -81,13 +81,16 @@ class BookingsVm extends ChangeNotifier {
     int numOfSlots = 0;
     List<HalfDaySlots> resultedSlots = [];
     for (int i = 0; i < timeList.length; i = i + increment) {
-      DateTime startPoint = i == 0
-          ? timeList[i]
-          : timeList[i].add(Duration(minutes: 40 * numOfSlots));
-      DateTime endPoint = i == 0
-          ? timeList[i].add(Duration(hours: increment))
-          : timeList[i]
-              .add(Duration(hours: increment, minutes: 40 * numOfSlots));
+      DateTime startPoint =
+          i == 0
+              ? timeList[i]
+              : timeList[i].add(Duration(minutes: 40 * numOfSlots));
+      DateTime endPoint =
+          i == 0
+              ? timeList[i].add(Duration(hours: increment))
+              : timeList[i].add(
+                Duration(hours: increment, minutes: 40 * numOfSlots),
+              );
       String slotStart = DateFormat.jm().format(startPoint);
       String slotEnd = DateFormat.jm().format(endPoint);
       numOfSlots = numOfSlots + 1;
@@ -100,8 +103,12 @@ class BookingsVm extends ChangeNotifier {
   }
 
   List<String> payInTypeList = ["Full Pay", "Deposit of 25%"];
-  void selectTime(bool isStartTime, DateTime currentTime,
-      TextEditingController startCon, TextEditingController endCon) {
+  void selectTime(
+    bool isStartTime,
+    DateTime currentTime,
+    TextEditingController startCon,
+    TextEditingController endCon,
+  ) {
     time = DateTime.now();
     DatePicker.showTime12hPicker(
       Get.context!,
@@ -130,13 +137,20 @@ class BookingsVm extends ChangeNotifier {
       endCon.clear();
     } else {
       endTime = time;
-      log("______________${DateFormat('hh:mm a').format(startTime!)}___${DateFormat('hh:mm a').format(endTime!)}");
-      bool isValid = isValidAfter(DateFormat('hh:mm a').format(startTime!),
-          DateFormat('hh:mm a').format(endTime!));
+      log(
+        "______________${DateFormat('hh:mm a').format(startTime!)}___${DateFormat('hh:mm a').format(endTime!)}",
+      );
+      bool isValid = isValidAfter(
+        DateFormat('hh:mm a').format(startTime!),
+        DateFormat('hh:mm a').format(endTime!),
+      );
       if (isValid == false) {
         endTime = null;
-        Helper.inSnackBar("Error", "End Time cannot greater than start time",
-            R.colors.themeMud);
+        Helper.inSnackBar(
+          "Error",
+          "End Time cannot greater than start time",
+          R.colors.themeMud,
+        );
       } else {
         endTime = time;
         endCon.text = DateFormat('hh:mm a').format(time);
@@ -184,10 +198,11 @@ class BookingsVm extends ChangeNotifier {
     log("/////////////////////IN FETCH Users");
     List<String> allUsers = [];
     try {
-      QuerySnapshot snapshot = await FbCollections.user
-          .where("status", isEqualTo: UserStatus.active.index)
-          .where("uid", isNotEqualTo: charterHost)
-          .get();
+      QuerySnapshot snapshot =
+          await FbCollections.user
+              .where("status", isEqualTo: UserStatus.active.index)
+              .where("uid", isNotEqualTo: charterHost)
+              .get();
       if (snapshot.docs.isNotEmpty == true) {
         snapshot.docs.forEach((element) {
           UserModel userModel = UserModel.fromJson(element.data());
@@ -205,47 +220,61 @@ class BookingsVm extends ChangeNotifier {
   }
 
   onClickBookCharter(
-      bool isReserve, CharterModel? charter, BuildContext context) async {
+    bool isReserve,
+    CharterModel? charter,
+    BuildContext context,
+  ) async {
     var provider = Provider.of<SearchVm>(context, listen: false);
     if (isReserve == true) {
       log("_____________CHARTER:${charter?.name}");
-      Get.toNamed(WhenWillBeThere.route, arguments: {
-        "cityModel": charter?.location?.city,
-        "yacht": charter,
-        "isReserve": true,
-        "isSelectTime": true,
-        "bookingsModel": bookingsModel,
-      });
+      Get.toNamed(
+        WhenWillBeThere.route,
+        arguments: {
+          "cityModel": charter?.location?.city,
+          "yacht": charter,
+          "isReserve": true,
+          "isSelectTime": true,
+          "bookingsModel": bookingsModel,
+        },
+      );
     } else {
       bookingsModel = BookingsModel();
       bookingsModel.charterFleetDetail = CharterFleetDetail(
-          id: charter?.id,
-          location: charter?.location?.adress,
-          name: charter?.name,
-          image: charter?.images?.first);
+        id: charter?.id,
+        location: charter?.location?.adress,
+        name: charter?.name,
+        image: charter?.images?.first,
+      );
       bookingsModel.durationType = provider.selectedCharterDayType?.type;
-      provider.selectedCharterDayType = CharterDayModel("Half Day Charter",
-          "4 Hours", R.images.v2, CharterDayType.halfDay.index);
+      provider.selectedCharterDayType = CharterDayModel(
+        "Half Day Charter",
+        "4 Hours",
+        R.images.v2,
+        CharterDayType.halfDay.index,
+      );
       bookingsModel.hostUserUid = charter!.createdBy;
       provider.update();
       DocumentSnapshot? charterDoc;
       try {
-        charterDoc = await FbCollections.charterFleet
-            .doc(bookingsModel.charterFleetDetail?.id)
-            .get();
+        charterDoc =
+            await FbCollections.charterFleet
+                .doc(bookingsModel.charterFleetDetail?.id)
+                .get();
       } on Exception catch (e) {
-        // TODO
         debugPrintStack();
         log(e.toString());
       }
       CharterModel charterFromDb = CharterModel.fromJson(charterDoc?.data());
-      Get.toNamed(WhenWillBeThere.route, arguments: {
-        "yacht": charterFromDb,
-        "isReserve": isReserve,
-        "isSelectTime": false,
-        "bookingsModel": null,
-        "cityModel": "",
-      });
+      Get.toNamed(
+        WhenWillBeThere.route,
+        arguments: {
+          "yacht": charterFromDb,
+          "isReserve": isReserve,
+          "isSelectTime": false,
+          "bookingsModel": null,
+          "cityModel": "",
+        },
+      );
     }
   }
 
@@ -261,33 +290,43 @@ class BookingsVm extends ChangeNotifier {
         //if 12AM then time is 00
         resultedTime = TimeOfDay(hour: 0, minute: int.parse(splitMin));
       } else {
-        resultedTime =
-            TimeOfDay(hour: int.parse(splitHr), minute: int.parse(splitMin));
+        resultedTime = TimeOfDay(
+          hour: int.parse(splitHr),
+          minute: int.parse(splitMin),
+        );
       }
     } else {
       //pm case
       if (splitHr == "12") {
-//if 12PM means as it is available
-        resultedTime =
-            TimeOfDay(hour: int.parse(splitHr), minute: int.parse(splitMin));
-      } else {
-//add +12 to conv time to 24hr format
+        //if 12PM means as it is available
         resultedTime = TimeOfDay(
-            hour: int.parse(splitHr) + 12, minute: int.parse(splitMin));
+          hour: int.parse(splitHr),
+          minute: int.parse(splitMin),
+        );
+      } else {
+        //add +12 to conv time to 24hr format
+        resultedTime = TimeOfDay(
+          hour: int.parse(splitHr) + 12,
+          minute: int.parse(splitMin),
+        );
       }
     }
     return resultedTime;
   }
 
   bool isValidBetween(String openTime, String closedTime, String selected) {
-    log("___________OPEN :${openTime}_____CLOSE:${closedTime}_____SELECTED:$selected");
+    log(
+      "___________OPEN :${openTime}_____CLOSE:${closedTime}_____SELECTED:$selected",
+    );
     TimeOfDay openTimeOfDay = convertToTimOfDay(openTime);
     TimeOfDay endTimeOfDay = convertToTimOfDay(closedTime);
     TimeOfDay selectedTimeOfDay = convertToTimOfDay(selected);
     int nowInMinutes = selectedTimeOfDay.hour * 60 + selectedTimeOfDay.minute;
     int openTimeInMinutes = openTimeOfDay.hour * 60 + openTimeOfDay.minute;
     int closeTimeInMinutes = endTimeOfDay.hour * 60 + endTimeOfDay.minute;
-    log("__________OPEN:${openTimeInMinutes}____CLOSE:${closeTimeInMinutes}_____selece:$nowInMinutes");
+    log(
+      "__________OPEN:${openTimeInMinutes}____CLOSE:${closeTimeInMinutes}_____selece:$nowInMinutes",
+    );
     //handling day change ie pm to am
     if ((closeTimeInMinutes - openTimeInMinutes) < 0) {
       log("_____-IN WRONG TIME");
@@ -324,16 +363,19 @@ class BookingsVm extends ChangeNotifier {
   }
 
   onClickWhenWillBeThere(
-      String city,
-      CharterModel? charter,
-      bool isSelectTime,
-      bool isReserve,
-      BookingsModel? bookingModel,
-      TextEditingController startTimeCon,
-      TextEditingController endTimeCon,
-      BuildContext context) {
+    String city,
+    CharterModel? charter,
+    bool isSelectTime,
+    bool isReserve,
+    BookingsModel? bookingModel,
+    TextEditingController startTimeCon,
+    TextEditingController endTimeCon,
+    BuildContext context,
+  ) {
     var provider = Provider.of<SearchVm>(context, listen: false);
-    log("________${charter?.name ?? ""}___is reserve:${isReserve}___isSelectTime:$isSelectTime");
+    log(
+      "________${charter?.name ?? ""}___is reserve:${isReserve}___isSelectTime:$isSelectTime",
+    );
 
     if (isReserve == true && isSelectTime == false) {
       log("____________IF ISRESERVE TRUE");
@@ -365,14 +407,19 @@ class BookingsVm extends ChangeNotifier {
           bookingsModel.schedule?.endTime = endTimeCon.text;
         }
         update();
-        log("____________FILTER BOOKING DATES:${bookingsModel.schedule?.dates?.length}");
-        Get.toNamed(WhosComing.route, arguments: {
-          "cityModel": city,
-          "charter": charter,
-          "isReserve": isReserve,
-          "bookingsModel": null,
-          "isEdit": false
-        });
+        log(
+          "____________FILTER BOOKING DATES:${bookingsModel.schedule?.dates?.length}",
+        );
+        Get.toNamed(
+          WhosComing.route,
+          arguments: {
+            "cityModel": city,
+            "charter": charter,
+            "isReserve": isReserve,
+            "bookingsModel": null,
+            "isEdit": false,
+          },
+        );
       }
       update();
       provider.update();
@@ -383,8 +430,7 @@ class BookingsVm extends ChangeNotifier {
       } /*else if (provider.selectedCharterDayType?.type == CharterDayType.multiDay.index &&
           provider.selectedBookingDays?.length == 1) {
         Helper.inSnackBar("Error", "Please select multiple days for multi day charter", R.colors.themeMud);
-      } */
-      else if ((provider.selectedCharterDayType?.type ==
+      } */ else if ((provider.selectedCharterDayType?.type ==
                   CharterDayType.halfDay.index ||
               provider.selectedCharterDayType?.type ==
                   CharterDayType.fullDay.index) &&
@@ -395,7 +441,10 @@ class BookingsVm extends ChangeNotifier {
           startTimeCon.text.isEmpty &&
           endTimeCon.text.isEmpty) {
         Helper.inSnackBar(
-            "Error", "Please select start and end time", R.colors.themeMud);
+          "Error",
+          "Please select start and end time",
+          R.colors.themeMud,
+        );
       } else {
         bookingsModel.schedule = BookingScheduleModel(dates: []);
         selectedPaymentMethod = -1;
@@ -412,10 +461,13 @@ class BookingsVm extends ChangeNotifier {
         log("____________END DATE:${bookingsModel.schedule?.dates?.length}");
         print("STAGE 2 ${startTimeCon.text}");
         provider.selectedBookingTime = TimeSlotModel(
-            DateFormat("hh:mm a")
-                .format(DateTimePickerServices.selectedStartDateTimeDB),
-            DateFormat("hh:mm a")
-                .format(DateTimePickerServices.selectedEndDateTimeDB));
+          DateFormat(
+            "hh:mm a",
+          ).format(DateTimePickerServices.selectedStartDateTimeDB),
+          DateFormat(
+            "hh:mm a",
+          ).format(DateTimePickerServices.selectedEndDateTimeDB),
+        );
         print("STAGE 3 ${provider.selectedBookingTime?.startTime}");
         bookingsModel.schedule?.startTime =
             provider.selectedBookingTime?.startTime ?? "";
@@ -423,63 +475,76 @@ class BookingsVm extends ChangeNotifier {
             provider.selectedBookingTime?.endTime ?? "";
         // }
         update();
-        log("/////////////////BOOKING STARET:${provider.selectedBookingTime?.startTime}:  _${provider.selectedBookingTime?.endTime}");
+        log(
+          "/////////////////BOOKING STARET:${provider.selectedBookingTime?.startTime}:  _${provider.selectedBookingTime?.endTime}",
+        );
         bool isNotAvailable = false;
         if (bookingsModel.durationType != CharterDayType.multiDay.index) {
           isNotAvailable = checkSlotAvailability(
-              bookingsModel.schedule?.dates?.first.toDate() ?? now,
-              (provider.selectedBookingTime?.startTime ?? "").formateHM(),
-              (provider.selectedBookingTime?.endTime ?? "").formateHM(),
-              context);
+            bookingsModel.schedule?.dates?.first.toDate() ?? now,
+            (provider.selectedBookingTime?.startTime ?? "").formateHM(),
+            (provider.selectedBookingTime?.endTime ?? "").formateHM(),
+            context,
+          );
         }
         if ((bookingsModel.durationType ==
-                CharterDayType.multiDay
+                CharterDayType
+                    .multiDay
                     .index /*&&
                 isValidBetween(charter?.availability?.startTime ?? "", charter?.availability?.endTime ?? "",
                     bookingsModel.schedule?.startTime ?? "") &&
                 isValidBetween(charter?.availability?.startTime ?? "", charter?.availability?.endTime ?? "",
-                    bookingsModel.schedule?.endTime ?? "") */
-            ) ||
+                    bookingsModel.schedule?.endTime ?? "") */ ) ||
             (bookingsModel.durationType ==
-                CharterDayType.halfDay
+                CharterDayType
+                    .halfDay
                     .index /*&&
                 isNotAvailable == false  &&
                 charter?.availability?.halfDaySlots?.any((element) =>
                         (element.start ?? "").formateHM() ==
                             (provider.selectedBookingTime?.startTime ?? "").formateHM() &&
                         (element.end ?? "").formateHM() == (provider.selectedBookingTime?.endTime ?? "").formateHM()) ==
-                    true */
-            ) ||
+                    true */ ) ||
             (bookingsModel.durationType ==
-                CharterDayType.fullDay
+                CharterDayType
+                    .fullDay
                     .index /* &&
                 isNotAvailable == false  &&
                 charter?.availability?.fullDaySlots?.any((element) =>
                         (element.start ?? "").formateHM() ==
                             (provider.selectedBookingTime?.startTime ?? "").formateHM() &&
                         (element.end ?? "").formateHM() == (provider.selectedBookingTime?.endTime ?? "").formateHM()) ==
-                    true */
-            )) {
+                    true */ )) {
           if (isSelectTime == true) {
-            Get.toNamed(YachtReservePayment.route,
-                arguments: {"yacht": charter});
+            Get.toNamed(
+              YachtReservePayment.route,
+              arguments: {"yacht": charter},
+            );
           } else if (bookingModel != null && isSelectTime == false) {
             Get.back();
           } else {
             isSelectTime == true
-                ? Get.toNamed(YachtReservePayment.route,
-                    arguments: {"yacht": charter})
-                : Get.toNamed(WhosComing.route, arguments: {
+                ? Get.toNamed(
+                  YachtReservePayment.route,
+                  arguments: {"yacht": charter},
+                )
+                : Get.toNamed(
+                  WhosComing.route,
+                  arguments: {
                     "cityModel": city,
                     "charter": charter,
                     "isReserve": isReserve,
                     "bookingsModel": null,
-                    "isEdit": false
-                  });
+                    "isEdit": false,
+                  },
+                );
           }
         } else {
-          Helper.inSnackBar("Error", "Selected Time slot is not available",
-              R.colors.themeMud);
+          Helper.inSnackBar(
+            "Error",
+            "Selected Time slot is not available",
+            R.colors.themeMud,
+          );
         }
       }
       update();
@@ -487,13 +552,18 @@ class BookingsVm extends ChangeNotifier {
     }
   }
 
-  checkSlotAvailability(DateTime selectedDate, String selectedStart,
-      String selectedEnd, BuildContext context) {
+  checkSlotAvailability(
+    DateTime selectedDate,
+    String selectedStart,
+    String selectedEnd,
+    BuildContext context,
+  ) {
     var homeVm = Provider.of<HomeVm>(context, listen: false);
     bool isNotAvailable = false;
     homeVm.allBookings.forEach((element) {
-      if (DateFormat.yMd()
-                  .format(element.schedule?.dates?.first.toDate() ?? now) ==
+      if (DateFormat.yMd().format(
+                element.schedule?.dates?.first.toDate() ?? now,
+              ) ==
               DateFormat.yMd().format(selectedDate) &&
           (element.schedule?.startTime ?? "").formateHM() ==
               (selectedStart).formateHM() &&
@@ -507,8 +577,12 @@ class BookingsVm extends ChangeNotifier {
     return isNotAvailable;
   }
 
-  onClickWhosComing(int guestCap, BookingsModel? bookedModel, bool? isReserve,
-      BuildContext context) async {
+  onClickWhosComing(
+    int guestCap,
+    BookingsModel? bookedModel,
+    bool? isReserve,
+    BuildContext context,
+  ) async {
     var provider = Provider.of<SearchVm>(context, listen: false);
     totalMembersCount =
         provider.adultsCount + provider.childrenCount + provider.infantsCount;
@@ -519,28 +593,33 @@ class BookingsVm extends ChangeNotifier {
       update();
       provider.update();
       if (bookedModel == null) {
-        log("________GEUST:${bookingsModel.totalGuest}____ISRESERVCE:$isReserve");
+        log(
+          "________GEUST:${bookingsModel.totalGuest}____ISRESERVCE:$isReserve",
+        );
 
         if (isReserve == false) {
           if (guestCap < totalMembersCount) {
             Helper.inSnackBar(
-                "Error",
-                "Cannot select members more than the charter guest capacity",
-                R.colors.themeMud);
+              "Error",
+              "Cannot select members more than the charter guest capacity",
+              R.colors.themeMud,
+            );
           } else {
-            DocumentSnapshot charterDoc = await FbCollections.charterFleet
-                .doc(bookingsModel.charterFleetDetail?.id)
-                .get();
+            DocumentSnapshot charterDoc =
+                await FbCollections.charterFleet
+                    .doc(bookingsModel.charterFleetDetail?.id)
+                    .get();
             CharterModel charter = CharterModel.fromJson(charterDoc.data());
-            Get.toNamed(YachtReservePayment.route,
-                arguments: {"yacht": charter});
+            Get.toNamed(
+              YachtReservePayment.route,
+              arguments: {"yacht": charter},
+            );
           }
         } else {
-          Get.toNamed(SearchSeeAll.route, arguments: {
-            "isReserve": isReserve,
-            "index": 0,
-            "seeAllType": -1
-          });
+          Get.toNamed(
+            SearchSeeAll.route,
+            arguments: {"isReserve": isReserve, "index": 0, "seeAllType": -1},
+          );
         }
       } else {
         Get.back();
@@ -550,8 +629,13 @@ class BookingsVm extends ChangeNotifier {
     provider.update();
   }
 
-  onClickCharterConfirmPay(double totalPrice, String price, int isSplit,
-      CharterModel? charter, double tip) {
+  onClickCharterConfirmPay(
+    double totalPrice,
+    String price,
+    int isSplit,
+    CharterModel? charter,
+    double tip,
+  ) {
     if (selectedPayIn == -1) {
       Helper.inSnackBar("Error", "Please select pay in", R.colors.themeMud);
     } else {
@@ -568,65 +652,108 @@ class BookingsVm extends ChangeNotifier {
       if (isSplit == SplitType.yes.index &&
           (bookingsModel.totalGuest ?? 0) <= 1) {
         Helper.inSnackBar(
-            "Error",
-            "For split payment guests should be more than 1",
-            R.colors.themeMud);
+          "Error",
+          "For split payment guests should be more than 1",
+          R.colors.themeMud,
+        );
       } else if (isSplit == SplitType.yes.index &&
           selectedPayIn == PayType.fullPay.index) {
-        Get.toNamed(SplitPayment.route,
-            arguments: {"isDeposit": false, "charter": charter});
+        Get.toNamed(
+          SplitPayment.route,
+          arguments: {"isDeposit": false, "charter": charter},
+        );
       } else if (isSplit == SplitType.yes.index &&
           selectedPayIn == PayType.deposit.index) {
-        Get.toNamed(SplitPayment.route,
-            arguments: {"isDeposit": true, "charter": charter});
+        Get.toNamed(
+          SplitPayment.route,
+          arguments: {"isDeposit": true, "charter": charter},
+        );
       } else {
-        log("______${bookingsModel.priceDetaill?.totalPrice}________Payment method:${bookingsModel.paymentDetail?.paymentMethod}");
+        log(
+          "______${bookingsModel.priceDetaill?.totalPrice}________Payment method:${bookingsModel.paymentDetail?.paymentMethod}",
+        );
 
-        Get.toNamed(PaymentMethods.route, arguments: {
-          "isDeposit": selectedPayIn == PayType.fullPay.index ? false : true,
-          "bookingsModel": bookingsModel,
-          "isCompletePayment": false
-        });
+        Get.toNamed(
+          PaymentMethods.route,
+          arguments: {
+            "isDeposit": selectedPayIn == PayType.fullPay.index ? false : true,
+            "bookingsModel": bookingsModel,
+            "isCompletePayment": false,
+          },
+        );
       }
     }
   }
 
-  onClickPaymentMethods(String? screenShotUrl, BuildContext context,
-      bool? isCompletePayment, double splitAmount, double userPaidAmount,
-      {bool isTip = false}) async {
+  onClickPaymentMethods(
+    String? screenShotUrl,
+    BuildContext context,
+    bool? isCompletePayment,
+    double splitAmount,
+    double userPaidAmount, {
+    bool isTip = false,
+  }) async {
     bookingsModel.paymentDetail?.paymentMethod = selectedPaymentMethod;
     if (bookingsModel.paymentDetail?.paymentMethod == -1) {
       Helper.inSnackBar(
-          "Error", "Please select payment method", R.colors.themeMud);
+        "Error",
+        "Please select payment method",
+        R.colors.themeMud,
+      );
     } else {
-      double finalPaidAmount = bookingsModel.paymentDetail?.payInType ==
-                  PayType.deposit.index &&
-              bookingsModel.paymentDetail?.isSplit == true
-          ? splitAmount
-          : bookingsModel.paymentDetail?.payInType == PayType.fullPay.index &&
+      double finalPaidAmount =
+          bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
                   bookingsModel.paymentDetail?.isSplit == true
               ? splitAmount
               : bookingsModel.paymentDetail?.payInType ==
-                          PayType.deposit.index &&
-                      bookingsModel.paymentDetail?.isSplit == false
-                  ? percentOfAmount(splitAmount, 25)
-                  : userPaidAmount;
+                      PayType.fullPay.index &&
+                  bookingsModel.paymentDetail?.isSplit == true
+              ? splitAmount
+              : bookingsModel.paymentDetail?.payInType ==
+                      PayType.deposit.index &&
+                  bookingsModel.paymentDetail?.isSplit == false
+              ? percentOfAmount(splitAmount, 25)
+              : userPaidAmount;
       bookingsModel.paymentDetail?.paidAmount = finalPaidAmount;
       if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
-        await onPayWithCard(screenShotUrl, context, isCompletePayment,
-            splitAmount, userPaidAmount, finalPaidAmount);
+        await onPayWithCard(
+          screenShotUrl,
+          context,
+          isCompletePayment,
+          splitAmount,
+          userPaidAmount,
+          finalPaidAmount,
+        );
       } else if (selectedPaymentMethod == PaymentMethodEnum.crypto.index) {
-        await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
-            splitAmount, userPaidAmount, finalPaidAmount,
-            isTip: isTip);
+        await onPaymentSuccess(
+          screenShotUrl,
+          context,
+          isCompletePayment,
+          splitAmount,
+          userPaidAmount,
+          finalPaidAmount,
+          isTip: isTip,
+        );
       } else if (selectedPaymentMethod == PaymentMethodEnum.usdt.index) {
-        await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
-            splitAmount, userPaidAmount, finalPaidAmount,
-            isTip: isTip);
+        await onPaymentSuccess(
+          screenShotUrl,
+          context,
+          isCompletePayment,
+          splitAmount,
+          userPaidAmount,
+          finalPaidAmount,
+          isTip: isTip,
+        );
       } else if (selectedPaymentMethod == PaymentMethodEnum.appStore.index) {
-        await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
-            splitAmount, userPaidAmount, finalPaidAmount,
-            isTip: isTip);
+        await onPaymentSuccess(
+          screenShotUrl,
+          context,
+          isCompletePayment,
+          splitAmount,
+          userPaidAmount,
+          finalPaidAmount,
+          isTip: isTip,
+        );
       } else if (selectedPaymentMethod == PaymentMethodEnum.wallet.index) {
         var authVm = Provider.of<AuthVm>(context, listen: false);
         await FbCollections.wallet_history.add({
@@ -637,22 +764,29 @@ class BookingsVm extends ChangeNotifier {
             'host_userId': bookingsModel.hostUserUid,
             'charter_name': bookingsModel.charterFleetDetail!.name,
             'charter_image_url': bookingsModel.charterFleetDetail!.image,
-            'amount': bookingsModel.priceDetaill!.totalPrice
-          }
+            'amount': bookingsModel.priceDetaill!.totalPrice,
+          },
         });
-        await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
-            splitAmount, userPaidAmount, finalPaidAmount);
+        await onPaymentSuccess(
+          screenShotUrl,
+          context,
+          isCompletePayment,
+          splitAmount,
+          userPaidAmount,
+          finalPaidAmount,
+        );
       }
     }
   }
 
   onPayWithCard(
-      String? screenShotUrl,
-      BuildContext context,
-      bool? isCompletePayment,
-      double splitAmount,
-      double userPaidAmount,
-      double amountToPay) async {
+    String? screenShotUrl,
+    BuildContext context,
+    bool? isCompletePayment,
+    double splitAmount,
+    double userPaidAmount,
+    double amountToPay,
+  ) async {
     print("Starting payments now");
     StripeService stripe = StripeService();
     // CardDetails _card = CardDetails(
@@ -668,42 +802,51 @@ class BookingsVm extends ChangeNotifier {
       print((amountToPay * 100).toStringAsFixed(0));
       PaymentIntents intents = PaymentIntents();
       await stripe.handlePayPress(
-          billingDetails: billing,
-          customerID: context.read<AuthVm>().userModel?.stripeCustomerID ?? "",
-          userEmail: context.read<AuthVm>().userModel?.email ?? "",
-          userName: context.read<AuthVm>().userModel?.firstName ?? "",
-          price: (amountToPay * 100).toStringAsFixed(0),
-          secretKey: secretKey ?? "",
-          isSubscription: false,
-          isCardAvailable: false,
-          onPaymentSuccess: () async {
-            bookingsModel.paymentDetail?.paymentIntents ??= [];
-            bookingsModel.paymentDetail?.paymentIntents?.add(intents);
-            print("I am here and i am logging success of this payment");
-            log("I am here and i am logging success of this payment");
-            await onPaymentSuccess(screenShotUrl, context, isCompletePayment,
-                splitAmount, userPaidAmount, amountToPay);
-          },
-          getCustomerID: (customerID) {
-            context.read<AuthVm>().userModel?.stripeCustomerID = customerID;
-          },
-          paymentDetails: (paymentIntent) async {
-            intents = PaymentIntents(
-                paymentIntentId: paymentIntent.id,
-                paymentStatus: paymentIntent.status,
-                userId: context.read<AuthVm>().userModel?.uid);
-          },
-          onError: (error) {
-            print("Payment error is thereee and nowwwww lets ");
-            print(error);
-            ZBotToast.loadingClose();
-            ZBotToast.showToastError(message: 'Error: $error');
-          });
+        billingDetails: billing,
+        customerID: context.read<AuthVm>().userModel?.stripeCustomerID ?? "",
+        userEmail: context.read<AuthVm>().userModel?.email ?? "",
+        userName: context.read<AuthVm>().userModel?.firstName ?? "",
+        price: (amountToPay * 100).toStringAsFixed(0),
+        secretKey: secretKey ?? "",
+        isSubscription: false,
+        isCardAvailable: false,
+        onPaymentSuccess: () async {
+          bookingsModel.paymentDetail?.paymentIntents ??= [];
+          bookingsModel.paymentDetail?.paymentIntents?.add(intents);
+          print("I am here and i am logging success of this payment");
+          log("I am here and i am logging success of this payment");
+          await onPaymentSuccess(
+            screenShotUrl,
+            context,
+            isCompletePayment,
+            splitAmount,
+            userPaidAmount,
+            amountToPay,
+          );
+        },
+        getCustomerID: (customerID) {
+          context.read<AuthVm>().userModel?.stripeCustomerID = customerID;
+        },
+        paymentDetails: (paymentIntent) async {
+          intents = PaymentIntents(
+            paymentIntentId: paymentIntent.id,
+            paymentStatus: paymentIntent.status,
+            userId: context.read<AuthVm>().userModel?.uid,
+          );
+        },
+        onError: (error) {
+          print("Payment error is thereee and nowwwww lets ");
+          print(error);
+          ZBotToast.loadingClose();
+          ZBotToast.showToastError(message: 'Error: $error');
+        },
+      );
     } catch (e) {
       ZBotToast.loadingClose();
       if (e.toString().contains("Your card number is incorrect.")) {
         ZBotToast.showToastError(
-            message: 'Error: Your card number is incorrect.');
+          message: 'Error: Your card number is incorrect.',
+        );
       }
       log("ERROR:$e");
 
@@ -712,13 +855,14 @@ class BookingsVm extends ChangeNotifier {
   }
 
   onPaymentSuccess(
-      String? screenShotUrl,
-      BuildContext context,
-      bool? isCompletePayment,
-      double splitAmount,
-      double userPaidAmount,
-      double finalPaidAmount,
-      {bool isTip = false}) async {
+    String? screenShotUrl,
+    BuildContext context,
+    bool? isCompletePayment,
+    double splitAmount,
+    double userPaidAmount,
+    double finalPaidAmount, {
+    bool isTip = false,
+  }) async {
     print("Your payment was success");
     var baseVm = Provider.of<BaseVm>(context, listen: false);
     var yatchVm = Provider.of<YachtVm>(context, listen: false);
@@ -726,13 +870,15 @@ class BookingsVm extends ChangeNotifier {
     var authVm = Provider.of<AuthVm>(context, listen: false);
     var searchVm = Provider.of<SearchVm>(context, listen: false);
     SplitPaymentModel? splitPerson;
-    DocumentSnapshot charter = await FbCollections.charterFleet
-        .doc(bookingsModel.charterFleetDetail?.id)
-        .get();
+    DocumentSnapshot charter =
+        await FbCollections.charterFleet
+            .doc(bookingsModel.charterFleetDetail?.id)
+            .get();
     if (bookingsModel.paymentDetail?.isSplit == true) {
-      splitPerson = bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) => element.userUid == appwrite.user.$id)
-          .first;
+      splitPerson =
+          bookingsModel.paymentDetail?.splitPayment
+              ?.where((element) => element.userUid == appwrite.user.$id)
+              .first;
     }
     if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
       bookingsModel.paymentDetail?.currentUserCardNum = creditCardModel.cardNum;
@@ -740,9 +886,10 @@ class BookingsVm extends ChangeNotifier {
     }
     creditCardModel = CreditCardModel();
     update();
-    String? docID = isCompletePayment == true
-        ? bookingsModel.id
-        : Timestamp.now().millisecondsSinceEpoch.toString();
+    String? docID =
+        isCompletePayment == true
+            ? bookingsModel.id
+            : Timestamp.now().millisecondsSinceEpoch.toString();
     if (isCompletePayment == true) {
       completePaymentFunction(screenShotUrl, context);
     } else if (isTip == false) {
@@ -757,28 +904,29 @@ class BookingsVm extends ChangeNotifier {
       }
       bookingsModel.createdAt = Timestamp.now();
       bookingsModel.createdBy = appwrite.user.$id;
-      bookingsModel.paymentDetail
-          ?.paymentType = bookingsModel.paymentDetail?.isSplit == false &&
-              bookingsModel.paymentDetail?.payInType == PayType.fullPay.index
-          ? PaymentType.payInApp.index
-          : -1;
+      bookingsModel.paymentDetail?.paymentType =
+          bookingsModel.paymentDetail?.isSplit == false &&
+                  bookingsModel.paymentDetail?.payInType ==
+                      PayType.fullPay.index
+              ? PaymentType.payInApp.index
+              : -1;
       bookingsModel.paymentDetail?.paymentStatus =
           bookingsModel.paymentDetail?.payInType == PayType.deposit.index &&
                   bookingsModel.paymentDetail?.isSplit == true
               ? PaymentStatus.confirmBooking.index
               : bookingsModel.paymentDetail?.payInType ==
-                          PayType.deposit.index &&
-                      bookingsModel.paymentDetail?.isSplit == false
-                  ? PaymentStatus.payInAppOrCash.index
-                  : bookingsModel.paymentDetail?.isSplit == false &&
-                          bookingsModel.paymentDetail?.payInType ==
-                              PayType.fullPay.index
-                      ? PaymentStatus.markAsComplete.index
-                      : (bookingsModel.paymentDetail?.isSplit == true &&
-                              bookingsModel.paymentDetail?.payInType ==
-                                  PayType.fullPay.index)
-                          ? PaymentStatus.payInAppOrCash.index
-                          : PaymentStatus.confirmBooking.index;
+                      PayType.deposit.index &&
+                  bookingsModel.paymentDetail?.isSplit == false
+              ? PaymentStatus.payInAppOrCash.index
+              : bookingsModel.paymentDetail?.isSplit == false &&
+                  bookingsModel.paymentDetail?.payInType ==
+                      PayType.fullPay.index
+              ? PaymentStatus.markAsComplete.index
+              : (bookingsModel.paymentDetail?.isSplit == true &&
+                  bookingsModel.paymentDetail?.payInType ==
+                      PayType.fullPay.index)
+              ? PaymentStatus.payInAppOrCash.index
+              : PaymentStatus.confirmBooking.index;
       bookingsModel.paymentDetail?.splitPayment?.first.paymentType =
           bookingsModel.paymentDetail?.payInType == PayType.fullPay.index
               ? PaymentType.payInApp.index
@@ -791,11 +939,13 @@ class BookingsVm extends ChangeNotifier {
                   bookingsModel.paymentDetail?.isSplit == true
               ? 0
               : percentOfAmount(
-                  ((bookingsModel.priceDetaill?.totalPrice ?? 0.0) -
-                      percentOfAmount(
-                          (bookingsModel.priceDetaill?.totalPrice ?? 0.0),
-                          double.parse(splitPerson?.percentage ?? "0"))),
-                  double.parse(splitPerson?.percentage ?? "0"));
+                ((bookingsModel.priceDetaill?.totalPrice ?? 0.0) -
+                    percentOfAmount(
+                      (bookingsModel.priceDetaill?.totalPrice ?? 0.0),
+                      double.parse(splitPerson?.percentage ?? "0"),
+                    )),
+                double.parse(splitPerson?.percentage ?? "0"),
+              );
       bookingsModel.paymentDetail?.splitPayment?.first.amount =
           bookingsModel.paymentDetail?.paidAmount;
       bookingsModel.paymentDetail?.splitPayment?.first.paymentStatus =
@@ -804,8 +954,9 @@ class BookingsVm extends ChangeNotifier {
               ? PaymentStatus.confirmBooking.index
               : PaymentStatus.markAsComplete.index;
       bookingsModel.hostUserUid = charter.get("created_by");
-      bookingsModel.priceDetaill?.serviceFee =
-          double.parse(serviceFee.toString());
+      bookingsModel.priceDetaill?.serviceFee = double.parse(
+        serviceFee.toString(),
+      );
       bookingsModel.priceDetaill?.taxes = double.parse(taxes.toString());
       bookingsModel.paymentDetail?.remainingAmount =
           (bookingsModel.priceDetaill?.totalPrice ?? 0.0) - finalPaidAmount;
@@ -835,9 +986,10 @@ class BookingsVm extends ChangeNotifier {
           .set(bookingsModel.toJson());
       print("created booking doc");
       print(appwrite.user.$id);
-      var invite = await FbCollections.invites
-          .where('to', isEqualTo: appwrite.user.$id)
-          .get();
+      var invite =
+          await FbCollections.invites
+              .where('to', isEqualTo: appwrite.user.$id)
+              .get();
       print("is now  here 1");
       if (invite.docs.isNotEmpty) {
         print("I am inside invites section");
@@ -849,9 +1001,9 @@ class BookingsVm extends ChangeNotifier {
         var senderUid = senderDoc['uid'];
         var fetchUserWallet = await FbCollections.wallet.doc(senderUid).get();
         var userWallet = fetchUserWallet.data() as Map<String, dynamic>;
-        await FbCollections.wallet
-            .doc(senderUid)
-            .set({'amount': userWallet['amount'] + 50});
+        await FbCollections.wallet.doc(senderUid).set({
+          'amount': userWallet['amount'] + 50,
+        });
         await FbCollections.wallet_history.add({
           'uid': senderUid,
           'type': 'CashIn_Invite',
@@ -859,8 +1011,8 @@ class BookingsVm extends ChangeNotifier {
             'created_at': DateTime.now().toString(),
             'invited_username': authVm.userModel!.username,
             'invited_image_url': authVm.userModel!.imageUrl,
-            'amount': 50
-          }
+            'amount': 50,
+          },
         });
       }
       print("is now  here 2");
@@ -868,9 +1020,9 @@ class BookingsVm extends ChangeNotifier {
           await FbCollections.wallet.doc(bookingsModel.hostUserUid).get();
       var hostWallet = fetchHostWallet.data() as Map<String, dynamic>;
       print("is now  here 3");
-      await FbCollections.wallet
-          .doc(bookingsModel.hostUserUid)
-          .set({'amount': hostWallet['amount'] + 50});
+      await FbCollections.wallet.doc(bookingsModel.hostUserUid).set({
+        'amount': hostWallet['amount'] + 50,
+      });
       print("is now  here 4");
       await FbCollections.wallet_history.add({
         'uid': bookingsModel.hostUserUid,
@@ -880,8 +1032,8 @@ class BookingsVm extends ChangeNotifier {
           'guest_username': authVm.userModel!.username,
           'guest_image_url': authVm.userModel!.imageUrl,
           'amount': 50,
-          'booking_id': bookingsModel.id
-        }
+          'booking_id': bookingsModel.id,
+        },
       });
       DocumentSnapshot hostDoc =
           await FbCollections.user.doc(charter.get("created_by")).get();
@@ -898,7 +1050,7 @@ Paid: ${bookingsModel.paymentDetail?.paidAmount?.toPrecision(2)}\$
 Balance: ${bookingsModel.paymentDetail?.remainingAmount?.toPrecision(2)}\$ due on ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate())}.
 
 
-Note: Payments are non-refundable.'''
+Note: Payments are non-refundable.''',
         });
         await FbCollections.sms.add({
           'to': authVm.userModel?.phoneNumber,
@@ -910,7 +1062,7 @@ Paid: ${bookingsModel.paymentDetail?.paidAmount?.toPrecision(2)}\$
 Balance: ${bookingsModel.paymentDetail?.remainingAmount?.toPrecision(2)}\$ due on ${DateFormat('dd/MM/yyyy').format(bookingsModel.schedule!.dates![0].toDate())}.
 
 
-Note: Payments are non-refundable.'''
+Note: Payments are non-refundable.''',
         });
         await FbCollections.mail.add({
           "to": [hostUser.email],
@@ -1313,7 +1465,7 @@ Note: Payments are non-refundable.'''
 </body>
 
 </html>''',
-          }
+          },
         });
         await FbCollections.mail.add({
           "to": [authVm.userModel!.email],
@@ -1900,7 +2052,7 @@ Note: Payments are non-refundable.'''
   </table><!-- End -->
 </body>
 </html>''',
-          }
+          },
         });
       }
     } on Exception catch (e) {
@@ -1924,94 +2076,120 @@ Note: Payments are non-refundable.'''
     print(selectedPaymentMethod);
     if (isTip == true) {
       print("Inside is trip");
-      Get.bottomSheet(Congoratulations(
-          getTranslated(context, "tip_payment_done") ?? "", () {
-        Timer(Duration(seconds: 2), () async {
-          await authVm.cancleStreams();
-          Get.offAllNamed(BaseView.route);
-        });
-      }));
-    } else if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
-      print("inside card");
-      print("about to update is pending stuff");
-      print(bookingsDocId);
-      await FbCollections.bookings
-          .doc(bookingsDocId)
-          .update({"isPending": false});
-      print("updated pending stuff");
-      Get.bottomSheet(Congoratulations(
-          getTranslated(
-                  context, "your_booking_has_been_confirmed_successfully") ??
-              "", () {
-        Timer(Duration(seconds: 2), () async {
-          await authVm.cancleStreams();
-          Get.offAllNamed(BaseView.route);
-        });
-      }));
-    } else if (selectedPaymentMethod == PaymentMethodEnum.appStore.index) {
-      print("inside apple");
-      print("about to update is pending stuff");
-      print(bookingsDocId);
-      await FbCollections.bookings
-          .doc(bookingsDocId)
-          .update({"isPending": false});
-      print("updated pending stuff");
-      Timer(Duration(seconds: 2), () {
-        Get.back();
-        Get.bottomSheet(Congoratulations(
-            getTranslated(
-                    context, "your_booking_has_been_confirmed_successfully") ??
-                "", () {
+      Get.bottomSheet(
+        Congoratulations(getTranslated(context, "tip_payment_done") ?? "", () {
           Timer(Duration(seconds: 2), () async {
             await authVm.cancleStreams();
             Get.offAllNamed(BaseView.route);
           });
-        }));
+        }),
+      );
+    } else if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
+      print("inside card");
+      print("about to update is pending stuff");
+      print(bookingsDocId);
+      await FbCollections.bookings.doc(bookingsDocId).update({
+        "isPending": false,
+      });
+      print("updated pending stuff");
+      Get.bottomSheet(
+        Congoratulations(
+          getTranslated(
+                context,
+                "your_booking_has_been_confirmed_successfully",
+              ) ??
+              "",
+          () {
+            Timer(Duration(seconds: 2), () async {
+              await authVm.cancleStreams();
+              Get.offAllNamed(BaseView.route);
+            });
+          },
+        ),
+      );
+    } else if (selectedPaymentMethod == PaymentMethodEnum.appStore.index) {
+      print("inside apple");
+      print("about to update is pending stuff");
+      print(bookingsDocId);
+      await FbCollections.bookings.doc(bookingsDocId).update({
+        "isPending": false,
+      });
+      print("updated pending stuff");
+      Timer(Duration(seconds: 2), () {
+        Get.back();
+        Get.bottomSheet(
+          Congoratulations(
+            getTranslated(
+                  context,
+                  "your_booking_has_been_confirmed_successfully",
+                ) ??
+                "",
+            () {
+              Timer(Duration(seconds: 2), () async {
+                await authVm.cancleStreams();
+                Get.offAllNamed(BaseView.route);
+              });
+            },
+          ),
+        );
       });
     } else {
-      await FbCollections.bookings
-          .doc(bookingsDocId)
-          .update({"isPending": true});
-      Get.bottomSheet(Congoratulations(
-          getTranslated(context,
-                  "your_booking_has_been_confirmed_successfully_crypto") ??
-              "", () {
-        Timer(Duration(seconds: 2), () async {
-          await authVm.cancleStreams();
-          print("Going back to Base view");
-          Get.offNamed(BaseView.route);
-        });
-      }));
+      await FbCollections.bookings.doc(bookingsDocId).update({
+        "isPending": true,
+      });
+      Get.bottomSheet(
+        Congoratulations(
+          getTranslated(
+                context,
+                "your_booking_has_been_confirmed_successfully_crypto",
+              ) ??
+              "",
+          () {
+            Timer(Duration(seconds: 2), () async {
+              await authVm.cancleStreams();
+              print("Going back to Base view");
+              Get.offNamed(BaseView.route);
+            });
+          },
+        ),
+      );
     }
     selectedPaymentMethod = -1;
   }
 
   Future<bool> sendNotification(
-      NotificationModel notificationData, String userFCM,
-      {bool isSchedule = false,
-      DateTime? scheduleTime24Hr,
-      DateTime? scheduleTime2Hr}) async {
+    NotificationModel notificationData,
+    String userFCM, {
+    bool isSchedule = false,
+    DateTime? scheduleTime24Hr,
+    DateTime? scheduleTime2Hr,
+  }) async {
     bool proceed = false;
     try {
       if (isSchedule) {
-        log("____2HR:${scheduleTime2Hr}____${scheduleTime24Hr?.difference(DateTime.now())}");
+        log(
+          "____2HR:${scheduleTime2Hr}____${scheduleTime24Hr?.difference(DateTime.now())}",
+        );
         scheduleTime24Hr == null
             ? null
             : await NotificationService().scheduleNotification(
-                title: notificationData.title ?? "",
-                body: notificationData.text,
-                scheduledNotificationDateTime: scheduleTime24Hr);
+              title: notificationData.title ?? "",
+              body: notificationData.text,
+              scheduledNotificationDateTime: scheduleTime24Hr,
+            );
         scheduleTime2Hr == null
             ? null
             : await NotificationService().scheduleNotification(
-                title: notificationData.title ?? "",
-                body: notificationData.text,
-                scheduledNotificationDateTime: scheduleTime2Hr);
+              title: notificationData.title ?? "",
+              body: notificationData.text,
+              scheduledNotificationDateTime: scheduleTime2Hr,
+            );
       } else {
         await NotificationService.sendNotification(
-            fcmToken: userFCM,
-            title: notificationData.title ?? "",
-            body: "${notificationData.text}");
+          fcmToken: userFCM,
+          title: notificationData.title ?? "",
+          body: "${notificationData.text}",
+        );
       }
       proceed = true;
     } catch (e) {
@@ -2022,93 +2200,108 @@ Note: Payments are non-refundable.'''
   }
 
   sendNotificationOnBooking(
-      BuildContext context, String docID, DocumentSnapshot charter) async {
+    BuildContext context,
+    String docID,
+    DocumentSnapshot charter,
+  ) async {
     var authVm = Provider.of<AuthVm>(context, listen: false);
     log("_____IN SEND NOTI");
     DocumentReference ref = FbCollections.notifications.doc();
     DocumentReference refHost = FbCollections.notifications.doc();
-    NotificationModel notificationModel = bookingsModel
-                .paymentDetail?.isSplit ==
-            true
-        ? NotificationModel(
-            bookingId: docID,
-            id: ref.id,
-            sender: appwrite.user.$id,
-            createdAt: Timestamp.now(),
-            isSeen: false,
-            type: NotificationReceiverType.person.index,
-            hostUserId: charter.get("created_by"),
-            title: charter.get("name"),
-            text:
-                "${authVm.userModel?.firstName ?? ""} have made the Split Payment for booking in ${payInTypeList[bookingsModel.paymentDetail?.payInType ?? 0]} at ${DateFormat("hh:mm a").format(bookingsModel.createdAt?.toDate() ?? now)} on ${DateFormat("dd MMM,yyyy").format(bookingsModel.createdAt?.toDate() ?? now)}",
-            receiver: bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) => element.userUid != appwrite.user.$id)
-                .toList()
-                .map((e) => e.userUid)
-                .toList())
-        : NotificationModel(
-            bookingId: docID,
-            id: ref.id,
-            sender: appwrite.user.$id,
-            createdAt: Timestamp.now(),
-            isSeen: false,
-            type: NotificationReceiverType.host.index,
-            hostUserId: charter.get("created_by"),
-            title: "Booking Alert!",
-            text:
-                "${authVm.userModel?.firstName ?? ""} you have 1 minute left in starting your booking for charter ${charter.get("name")}",
-            receiver: [
-                appwrite.user.$id,
-              ]);
+    NotificationModel notificationModel =
+        bookingsModel.paymentDetail?.isSplit == true
+            ? NotificationModel(
+              bookingId: docID,
+              id: ref.id,
+              sender: appwrite.user.$id,
+              createdAt: Timestamp.now(),
+              isSeen: false,
+              type: NotificationReceiverType.person.index,
+              hostUserId: charter.get("created_by"),
+              title: charter.get("name"),
+              text:
+                  "${authVm.userModel?.firstName ?? ""} have made the Split Payment for booking in ${payInTypeList[bookingsModel.paymentDetail?.payInType ?? 0]} at ${DateFormat("hh:mm a").format(bookingsModel.createdAt?.toDate() ?? now)} on ${DateFormat("dd MMM,yyyy").format(bookingsModel.createdAt?.toDate() ?? now)}",
+              receiver:
+                  bookingsModel.paymentDetail?.splitPayment
+                      ?.where((element) => element.userUid != appwrite.user.$id)
+                      .toList()
+                      .map((e) => e.userUid)
+                      .toList(),
+            )
+            : NotificationModel(
+              bookingId: docID,
+              id: ref.id,
+              sender: appwrite.user.$id,
+              createdAt: Timestamp.now(),
+              isSeen: false,
+              type: NotificationReceiverType.host.index,
+              hostUserId: charter.get("created_by"),
+              title: "Booking Alert!",
+              text:
+                  "${authVm.userModel?.firstName ?? ""} you have 1 minute left in starting your booking for charter ${charter.get("name")}",
+              receiver: [appwrite.user.$id],
+            );
     NotificationModel notificationModelHost = NotificationModel(
-        bookingId: docID,
-        id: refHost.id,
-        sender: appwrite.user.$id,
-        createdAt: Timestamp.now(),
-        isSeen: false,
-        type: NotificationReceiverType.host.index,
-        hostUserId: charter.get("created_by"),
-        title: charter.get("name"),
-        text:
-            "${authVm.userModel?.firstName ?? ""} have made the booking in ${payInTypeList[bookingsModel.paymentDetail?.payInType ?? 0]} at ${DateFormat("hh:mm a").format(bookingsModel.createdAt?.toDate() ?? now)} on ${DateFormat("dd MMM,yyyy").format(bookingsModel.createdAt?.toDate() ?? now)}",
-        receiver: [charter.get("created_by")]);
+      bookingId: docID,
+      id: refHost.id,
+      sender: appwrite.user.$id,
+      createdAt: Timestamp.now(),
+      isSeen: false,
+      type: NotificationReceiverType.host.index,
+      hostUserId: charter.get("created_by"),
+      title: charter.get("name"),
+      text:
+          "${authVm.userModel?.firstName ?? ""} have made the booking in ${payInTypeList[bookingsModel.paymentDetail?.payInType ?? 0]} at ${DateFormat("hh:mm a").format(bookingsModel.createdAt?.toDate() ?? now)} on ${DateFormat("dd MMM,yyyy").format(bookingsModel.createdAt?.toDate() ?? now)}",
+      receiver: [charter.get("created_by")],
+    );
     await ref.set(notificationModel.toJson());
     await refHost.set(notificationModelHost.toJson());
 
     ///PUSH NOTIFICATION TO HOST
     await sendNotification(
-        notificationModelHost,
-        context
-                .read<BaseVm>()
-                .allUsers
-                .firstWhereOrNull((e) => e.uid == charter.get("created_by"))
-                ?.fcm ??
-            "");
+      notificationModelHost,
+      context
+              .read<BaseVm>()
+              .allUsers
+              .firstWhereOrNull((e) => e.uid == charter.get("created_by"))
+              ?.fcm ??
+          "",
+    );
 
     ///SCHEDULE NOTIFICATION TO CUSTOMER
-    int bookingStartHour =
-        int.parse(bookingsModel.schedule?.startTime?.split(":").first ?? "");
+    int bookingStartHour = int.parse(
+      bookingsModel.schedule?.startTime?.split(":").first ?? "",
+    );
     int bookingStartMin = int.parse(
-        bookingsModel.schedule?.startTime?.split(" ").first.split(":").last ??
-            "");
+      bookingsModel.schedule?.startTime?.split(" ").first.split(":").last ?? "",
+    );
     int bookingYear =
         bookingsModel.schedule?.dates?.first.toDate().year ?? 2023;
     int bookingMonth = bookingsModel.schedule?.dates?.first.toDate().month ?? 1;
     int bookingDay = bookingsModel.schedule?.dates?.first.toDate().day ?? 1;
-    int? bookingRemainingHrs = DateTime(bookingYear, bookingMonth, bookingDay,
-            bookingStartHour, bookingStartMin)
-        .difference(DateTime.now())
-        .inHours;
+    int? bookingRemainingHrs =
+        DateTime(
+          bookingYear,
+          bookingMonth,
+          bookingDay,
+          bookingStartHour,
+          bookingStartMin,
+        ).difference(DateTime.now()).inHours;
     DateTime? scheduleTime2Hr;
     DateTime? scheduleTime24Hr;
     if (bookingRemainingHrs < 2) {
-      scheduleTime2Hr = DateTime.now().add(Duration(
-          hours: bookingRemainingHrs > 2 ? bookingRemainingHrs - 2 : 1));
+      scheduleTime2Hr = DateTime.now().add(
+        Duration(hours: bookingRemainingHrs > 2 ? bookingRemainingHrs - 2 : 1),
+      );
     } else {
-      scheduleTime24Hr = DateTime.now().add(Duration(
-          hours: bookingRemainingHrs > 24 ? bookingRemainingHrs - 24 : 24));
-      scheduleTime2Hr = DateTime.now().add(Duration(
-          hours: bookingRemainingHrs > 2 ? bookingRemainingHrs - 2 : 1));
+      scheduleTime24Hr = DateTime.now().add(
+        Duration(
+          hours: bookingRemainingHrs > 24 ? bookingRemainingHrs - 24 : 24,
+        ),
+      );
+      scheduleTime2Hr = DateTime.now().add(
+        Duration(hours: bookingRemainingHrs > 2 ? bookingRemainingHrs - 2 : 1),
+      );
     }
 
     if (bookingsModel.paymentDetail?.isSplit == true) {
@@ -2116,24 +2309,27 @@ Note: Payments are non-refundable.'''
           ?.where((element) => element.userUid != appwrite.user.$id)
           .toList()
           .forEach((element) async {
-        ///PUSH NOTIFICATION TO SPLIT CUSTOMERS
-        await sendNotification(
-            notificationModel,
-            context
-                    .read<BaseVm>()
-                    .allUsers
-                    .firstWhereOrNull((e) => e.uid == element.userUid)
-                    ?.fcm ??
-                "");
-      });
+            ///PUSH NOTIFICATION TO SPLIT CUSTOMERS
+            await sendNotification(
+              notificationModel,
+              context
+                      .read<BaseVm>()
+                      .allUsers
+                      .firstWhereOrNull((e) => e.uid == element.userUid)
+                      ?.fcm ??
+                  "",
+            );
+          });
     }
 
     ///PUSH NOTIFICATION TO  CUSTOMER
     await sendNotification(
-        notificationModel, context.read<AuthVm>().userModel?.fcm ?? "",
-        isSchedule: true,
-        scheduleTime2Hr: scheduleTime2Hr,
-        scheduleTime24Hr: scheduleTime24Hr);
+      notificationModel,
+      context.read<AuthVm>().userModel?.fcm ?? "",
+      isSchedule: true,
+      scheduleTime2Hr: scheduleTime2Hr,
+      scheduleTime24Hr: scheduleTime24Hr,
+    );
   }
 
   void completePaymentFunction(String? screenShotUrl, BuildContext context) {
@@ -2147,16 +2343,16 @@ Note: Payments are non-refundable.'''
           DepositStatus.nothingPaid.index) {
         bookingsModel.paymentDetail?.paidAmount =
             bookingsModel.paymentDetail?.paidAmount +
-                bookingsModel.paymentDetail?.splitPayment
-                    ?.where((element) => element.userUid == appwrite.user.$id)
-                    .first
-                    .remainingDeposit;
+            bookingsModel.paymentDetail?.splitPayment
+                ?.where((element) => element.userUid == appwrite.user.$id)
+                .first
+                .remainingDeposit;
         bookingsModel.paymentDetail?.remainingAmount =
             bookingsModel.paymentDetail?.remainingAmount -
-                bookingsModel.paymentDetail?.splitPayment
-                    ?.where((element) => element.userUid == appwrite.user.$id)
-                    .first
-                    .remainingDeposit;
+            bookingsModel.paymentDetail?.splitPayment
+                ?.where((element) => element.userUid == appwrite.user.$id)
+                .first
+                .remainingDeposit;
       } else if (bookingsModel.paymentDetail?.splitPayment
               ?.where((element) => element.userUid == appwrite.user.$id)
               .first
@@ -2164,31 +2360,33 @@ Note: Payments are non-refundable.'''
           DepositStatus.twentyFivePaid.index) {
         bookingsModel.paymentDetail?.paidAmount =
             bookingsModel.paymentDetail?.paidAmount +
-                bookingsModel.paymentDetail?.splitPayment
-                    ?.where((element) => element.userUid == appwrite.user.$id)
-                    .first
-                    .remainingAmount;
+            bookingsModel.paymentDetail?.splitPayment
+                ?.where((element) => element.userUid == appwrite.user.$id)
+                .first
+                .remainingAmount;
         bookingsModel.paymentDetail?.remainingAmount =
             bookingsModel.paymentDetail?.remainingAmount -
-                bookingsModel.paymentDetail?.splitPayment
-                    ?.where((element) => element.userUid == appwrite.user.$id)
-                    .first
-                    .remainingAmount;
+            bookingsModel.paymentDetail?.splitPayment
+                ?.where((element) => element.userUid == appwrite.user.$id)
+                .first
+                .remainingAmount;
       }
-      bookingsModel.paymentDetail?.splitPayment
+      bookingsModel
+          .paymentDetail
+          ?.splitPayment
           ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .paymentType = PaymentType.payInApp.index;
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) => element.userUid == appwrite.user.$id)
-          .first
-          .amount = bookingsModel.paymentDetail?.payInType ==
-              PayType.fullPay.index
-          ? bookingsModel.paymentDetail?.splitPayment
               ?.where((element) => element.userUid == appwrite.user.$id)
               .first
-              .amount
-          : bookingsModel.paymentDetail?.splitPayment
+              .amount =
+          bookingsModel.paymentDetail?.payInType == PayType.fullPay.index
+              ? bookingsModel.paymentDetail?.splitPayment
+                  ?.where((element) => element.userUid == appwrite.user.$id)
+                  .first
+                  .amount
+              : bookingsModel.paymentDetail?.splitPayment
                       ?.where((element) => element.userUid == appwrite.user.$id)
                       .first
                       .depositStatus ==
@@ -2205,46 +2403,60 @@ Note: Payments are non-refundable.'''
                       ?.where((element) => element.userUid == appwrite.user.$id)
                       .first
                       .remainingAmount;
-      bookingsModel.paymentDetail?.splitPayment
+      bookingsModel
+          .paymentDetail
+          ?.splitPayment
           ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .remainingAmount = bookingsModel.paymentDetail?.splitPayment
+                      ?.where((element) => element.userUid == appwrite.user.$id)
+                      .first
+                      .depositStatus ==
+                  DepositStatus.twentyFivePaid.index
+              ? 0.0
+              : bookingsModel.paymentDetail?.splitPayment
                   ?.where((element) => element.userUid == appwrite.user.$id)
                   .first
-                  .depositStatus ==
-              DepositStatus.twentyFivePaid.index
-          ? 0.0
-          : bookingsModel.paymentDetail?.splitPayment
-              ?.where((element) => element.userUid == appwrite.user.$id)
-              .first
-              .remainingAmount;
-      bookingsModel.paymentDetail?.splitPayment
+                  .remainingAmount;
+      bookingsModel
+          .paymentDetail
+          ?.splitPayment
           ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .remainingDeposit = 0.0;
-      bookingsModel.paymentDetail?.splitPayment
+      bookingsModel
+          .paymentDetail
+          ?.splitPayment
           ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .depositStatus = bookingsModel.paymentDetail?.splitPayment
-                  ?.where((element) => element.userUid == appwrite.user.$id)
-                  .first
-                  .depositStatus ==
-              DepositStatus.twentyFivePaid.index
-          ? DepositStatus.fullPaid.index
-          : DepositStatus.twentyFivePaid.index;
-      bookingsModel.paymentDetail?.splitPayment
+                      ?.where((element) => element.userUid == appwrite.user.$id)
+                      .first
+                      .depositStatus ==
+                  DepositStatus.twentyFivePaid.index
+              ? DepositStatus.fullPaid.index
+              : DepositStatus.twentyFivePaid.index;
+      bookingsModel
+          .paymentDetail
+          ?.splitPayment
           ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .paymentStatus = PaymentStatus.payInAppOrCash.index;
-      bookingsModel.paymentDetail?.splitPayment
+      bookingsModel
+          .paymentDetail
+          ?.splitPayment
           ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .paymentMethod = selectedPaymentMethod;
-      bookingsModel.paymentDetail?.splitPayment
+      bookingsModel
+          .paymentDetail
+          ?.splitPayment
           ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .cryptoReceiverEmail = appUrlModel?.adminCryptoEmail ?? "";
-      bookingsModel.paymentDetail?.splitPayment
+      bookingsModel
+          .paymentDetail
+          ?.splitPayment
           ?.where((element) => element.userUid == appwrite.user.$id)
           .first
           .cryptoScreenShot = screenShotUrl;
@@ -2252,7 +2464,7 @@ Note: Payments are non-refundable.'''
       bookingsModel.paymentDetail?.paymentType = PaymentType.payInApp.index;
       bookingsModel.paymentDetail?.paidAmount =
           bookingsModel.paymentDetail?.paidAmount +
-              bookingsModel.paymentDetail?.remainingAmount;
+          bookingsModel.paymentDetail?.remainingAmount;
       bookingsModel.paymentDetail?.remainingAmount = 0.0;
       bookingsModel.paymentDetail?.paymentStatus =
           PaymentStatus.payInAppOrCash.index;

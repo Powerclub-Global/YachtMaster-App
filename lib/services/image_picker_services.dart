@@ -4,10 +4,8 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:async_foreach/async_foreach.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:uuid/uuid.dart';
 import 'package:yacht_master/appwrite.dart';
 
 class ImagePickerServices {
@@ -28,7 +26,7 @@ class ImagePickerServices {
   getMultipleImages() async {
     List<XFile>? pictures = (await picker.pickMultiImage(imageQuality: 80));
     log("___________LEN:${pickedFiles?.length}");
-    if (pictures!.isNotEmpty) {
+    if (pictures.isNotEmpty) {
       pictures.forEach((element) {
         pickedFiles!.add(element);
       });
@@ -38,7 +36,7 @@ class ImagePickerServices {
   }
 
   uploadSingleImage(File images, {String bucketName = "userProfile"}) async {
-    log("__________________________IMAGE:${images}");
+    log("__________________________IMAGE:$images");
     String? image;
     print("we are here");
     try {
@@ -51,7 +49,7 @@ class ImagePickerServices {
       print(image);
     } on Exception catch (e) {
       // TODO
-      log("____________________________ERRPR:${e}");
+      log("____________________________ERRPR:$e");
     }
     return image;
   }
@@ -62,7 +60,7 @@ class ImagePickerServices {
     await images!.asyncForEach((value) async {
       FirebaseStorage storage = FirebaseStorage.instance;
       Reference ref = storage.ref().child(
-          "${bucketName}/${appwrite.user.$id}/${DateTime.now().toString()}");
+          "$bucketName/${appwrite.user.$id}/${DateTime.now().toString()}");
       final TaskSnapshot snapshot = await ref.putFile(File(value.path));
       String imageUrl = await snapshot.ref.getDownloadURL();
       imageList.add(imageUrl.toString());

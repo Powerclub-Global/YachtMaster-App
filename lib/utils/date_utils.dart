@@ -1,9 +1,7 @@
 import 'dart:io';
 
-/**
- * A date utility interface to get every information of dates,months,weeks and year taking leap
- * year into consideration.
- */
+/// A date utility interface to get every information of dates,months,weeks and year taking leap
+/// year into consideration.
 class DateUtil{
   var dayOfWeek = 0;
 
@@ -17,13 +15,15 @@ class DateUtil{
     {
       if (counter >= 4)
       {
-        if (leapYear(counter) == true)
+        if (leapYear(counter) == true) {
           yearLength += 366;
-        else
+        } else {
           yearLength += 365;
+        }
       }
-      else
+      else {
         yearLength += 365;
+      }
 
 
 
@@ -53,8 +53,9 @@ class DateUtil{
       {
         if (count >= 7)
         {
-          if (count % 7 == 0)
+          if (count % 7 == 0) {
             count = 0;
+          }
         }
 
 
@@ -64,10 +65,11 @@ class DateUtil{
       }
     }
 
-    if (count == 1)
+    if (count == 1) {
       dayOfWeek = 7;
-    else
+    } else {
       dayOfWeek = (count - 1);
+    }
 
 
     return resultDay;
@@ -102,10 +104,11 @@ class DateUtil{
     monthLength[5] = 30;
     monthLength[10] = 30;
 
-    if (leapYear(year) == true)
+    if (leapYear(year) == true) {
       monthLength[1] = 29;
-    else
+    } else {
       monthLength[1] = 28;
+    }
 
     return monthLength[monthNum -1];
   }
@@ -137,14 +140,14 @@ class DateUtil{
   printMonthCalendar(int monthNum, int year)
   {
     int dayNum = 1;
-    List<String> str_Day = ["Sun", "Mon", "Tue", "Wed","Thur", "Fri", "Sat"];
+    List<String> strDay = ["Sun", "Mon", "Tue", "Wed","Thur", "Fri", "Sat"];
     day(daysPastInYear(monthNum, 1, year) + yearLength(year));
     int dayDays = 1;
 
 
     for(int i = 0; i < 7; i++)
     {
-      stdout.write("${str_Day[i]}\t");
+      stdout.write("${strDay[i]}\t");
     }
     stdout.writeln();
 
@@ -158,7 +161,7 @@ class DateUtil{
         {
           if (dayDays <= daysInMonth(monthNum,year))
           {
-            stdout.write("${dayDays}\t");
+            stdout.write("$dayDays\t");
           }
           ++dayDays;
         }
@@ -186,9 +189,9 @@ class DateUtil{
     bool leapYear = false;
 
     bool leap =  ((year % 100 == 0) && (year % 400 != 0));
-    if (leap == true)
+    if (leap == true) {
       leapYear = false;
-    else if (year % 4 == 0)
+    } else if (year % 4 == 0)
       leapYear = true;
 
 

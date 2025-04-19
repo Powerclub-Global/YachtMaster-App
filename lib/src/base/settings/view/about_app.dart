@@ -201,7 +201,7 @@ class _AboutAppState extends State<AboutApp> {
     return Consumer<SettingsVm>(builder: (context, provider, _) {
       return Padding(
         padding: EdgeInsets.only(bottom: Get.height * .02),
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
               color: R.colors.blackLight,
               borderRadius: BorderRadius.circular(18)),

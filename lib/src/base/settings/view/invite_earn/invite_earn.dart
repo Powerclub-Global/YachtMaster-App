@@ -3,13 +3,9 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import '../../../../../localization/app_localization.dart';
 import '../../../../../resources/resources.dart';
-import '../../../../../services/firebase_collections.dart';
-import '../../../../../services/stripe/stripe_service.dart';
-import '../../../../auth/view_model/auth_vm.dart';
 import '../../../home/home_vm/home_vm.dart';
 import 'invite_screen.dart';
 import 'status_screen.dart';
-import 'withdraw_money.dart';
 import '../../../../../utils/general_app_bar.dart';
 import '../../../../../utils/heights_widths.dart';
 import '../../../../../utils/zbot_toast.dart';
@@ -38,20 +34,23 @@ class _InviteAndEarnState extends State<InviteAndEarn> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GeneralAppBar.simpleAppBar(
-          context, getTranslated(context, "invite_earn") ?? ""),
+        context,
+        getTranslated(context, "invite_earn") ?? "",
+      ),
       backgroundColor: R.colors.black,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           h1,
           Container(
-            padding:
-                EdgeInsets.only(left: Get.width * .04, right: Get.width * .04),
+            padding: EdgeInsets.only(
+              left: Get.width * .04,
+              right: Get.width * .04,
+            ),
             child: Row(
               children: List.generate(2, (index) {
                 return tabs(tabsList[index], index);
@@ -61,7 +60,7 @@ class _InviteAndEarnState extends State<InviteAndEarn> {
           if (selectedTabIndex == 0)
             Expanded(child: InviteScreen())
           else
-            Expanded(child: StatusScreen())
+            Expanded(child: StatusScreen()),
         ],
       ),
     );
@@ -82,18 +81,20 @@ class _InviteAndEarnState extends State<InviteAndEarn> {
               Text(
                 getTranslated(context, title) ?? "",
                 style: R.textStyle.helveticaBold().copyWith(
-                      color: selectedTabIndex == index
+                  color:
+                      selectedTabIndex == index
                           ? R.colors.yellowDark
                           : R.colors.whiteColor,
-                    ),
+                ),
               ),
               Divider(
-                color: selectedTabIndex == index
-                    ? R.colors.yellowDark
-                    : R.colors.grey.withOpacity(.40),
+                color:
+                    selectedTabIndex == index
+                        ? R.colors.yellowDark
+                        : R.colors.grey.withValues(alpha: .40),
                 thickness: 2,
                 height: Get.height * .03,
-              )
+              ),
             ],
           ),
         ),

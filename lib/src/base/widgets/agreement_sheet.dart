@@ -1,15 +1,10 @@
-import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:paged_vertical_calendar/utils/date_utils.dart';
 import 'package:provider/provider.dart';
 
 import 'package:sizer/sizer.dart';
 import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import '../../../appwrite.dart';
-import '../../../localization/app_localization.dart';
 import '../../../resources/decorations.dart';
 import '../../../resources/resources.dart';
 import '../../../utils/heights_widths.dart';
@@ -81,7 +76,7 @@ class _AgreementBottomSheetState extends State<AgreementBottomSheet> {
                     color: R.colors.whiteColor, fontSize: 10.sp, height: 1.5),
               ),
               Checkbox(
-                value: this.value,
+                value: value,
                 checkColor: R.colors.black,
                 activeColor: R.colors.golden,
                 onChanged: (value) {
@@ -101,7 +96,6 @@ class _AgreementBottomSheetState extends State<AgreementBottomSheet> {
                         'Error',
                         "Please agree to the Terms and Conditions",
                         R.colors.themeMud);
-                    ;
                   },
             child: Container(
               height: Get.height * .055,

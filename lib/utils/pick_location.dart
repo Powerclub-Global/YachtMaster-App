@@ -209,7 +209,7 @@ class _PickLocationState extends State<PickLocation> {
   BitmapDescriptor? sourceIcon;
 
 
-  TextEditingController searchController = new TextEditingController();
+  TextEditingController searchController = TextEditingController();
   // locations.Location location = new locations.Location();
 
    takePermissions() async {
@@ -248,10 +248,10 @@ class _PickLocationState extends State<PickLocation> {
     try {
       print("___IN GET MY LOC");
       var status = await Permission.location.status;
-      print("___status:${status}");
+      print("___status:$status");
 
       bool? locCheck = await Helper.checkPermissionStatus(status,);
-      print("___locCheck:${locCheck}");
+      print("___locCheck:$locCheck");
 
       if(locCheck==true)
         {
@@ -269,7 +269,7 @@ class _PickLocationState extends State<PickLocation> {
    moveToLocation(
       LatLng latLng,
       ) async {
-    log("_______________________MOVE TO LOCATION:${latLng}");
+    log("_______________________MOVE TO LOCATION:$latLng");
     googleController?.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(

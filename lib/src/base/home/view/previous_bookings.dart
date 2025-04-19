@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -39,7 +38,7 @@ class _AllBookingsState extends State<AllBookings> {
       var args =
           ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
       isHost = args["isHost"];
-      log("____________isHost:${isHost}");
+      log("____________isHost:$isHost");
       setState(() {});
       if (isHost == true) {
         bookingsVm.selectedUserTab = 0;
@@ -55,81 +54,95 @@ class _AllBookingsState extends State<AllBookings> {
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
     isHost = args["isHost"];
     return Consumer2<HomeVm, BookingsVm>(
-        builder: (context, provider, bookingsVm, _) {
-      return Scaffold(
-        backgroundColor: R.colors.black,
-        body: Column(
-          children: [
-            h7,
-            Directionality(
-              textDirection: TextDirection.ltr,
-              child: Container(
-                decoration: BoxDecoration(
+      builder: (context, provider, bookingsVm, _) {
+        return Scaffold(
+          backgroundColor: R.colors.black,
+          body: Column(
+            children: [
+              h7,
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
                     border: Border(
-                        bottom: BorderSide(
-                            width: 2, color: R.colors.grey.withOpacity(.40)))),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: GestureDetector(
+                      bottom: BorderSide(
+                        width: 2,
+                        color: R.colors.grey.withValues(alpha: .40),
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: GestureDetector(
                           onTap: () {
                             Get.back();
                           },
                           child: Icon(
                             Icons.arrow_back_ios_rounded,
                             color: R.colors.whiteColor,
-                          )),
-                    ),
-                    Expanded(
-                      flex: 10,
-                      child: Container(
-                        child: Row(
-                          children: List.generate(userTab.length, (index) {
-                            return userTabsWidget(
-                                userTab[index], index, bookingsVm);
-                          }),
+                          ),
                         ),
                       ),
-                    ),
-                    Expanded(child: SizedBox())
-                  ],
+                      Expanded(
+                        flex: 10,
+                        child: Container(
+                          child: Row(
+                            children: List.generate(userTab.length, (index) {
+                              return userTabsWidget(
+                                userTab[index],
+                                index,
+                                bookingsVm,
+                              );
+                            }),
+                          ),
+                        ),
+                      ),
+                      Expanded(child: SizedBox()),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            h2,
-            Container(
-              decoration: BoxDecoration(
+              h2,
+              Container(
+                decoration: BoxDecoration(
                   color: R.colors.blackDull,
-                  borderRadius: BorderRadius.circular(12)),
-              padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 4.w),
-              margin: EdgeInsets.symmetric(horizontal: 5.w),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(tabsList.length, (index) {
-                  return tabs(tabsList[index], index, bookingsVm);
-                }),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 1.5.h, horizontal: 4.w),
+                margin: EdgeInsets.symmetric(horizontal: 5.w),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: List.generate(tabsList.length, (index) {
+                    return tabs(tabsList[index], index, bookingsVm);
+                  }),
+                ),
               ),
-            ),
-            h2,
-            Expanded(
-                child: bookingsVm.selectedUserTab == 1
-                    ? myBookings(provider, bookingsVm)
-                    : hostBookings(provider, bookingsVm)),
-          ],
-        ),
-      );
-    });
+              h2,
+              Expanded(
+                child:
+                    bookingsVm.selectedUserTab == 1
+                        ? myBookings(provider, bookingsVm)
+                        : hostBookings(provider, bookingsVm),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget myBookings(HomeVm provider, BookingsVm bookingVm) {
     if (bookingVm.selectedUserTab == 1 &&
         bookingVm.selectedTabIndex == BookingStatus.ongoing.index &&
         provider.allBookings
-            .where((element) =>
-                element.bookingStatus == BookingStatus.ongoing.index &&
-                element.createdBy == appwrite.user.$id)
+            .where(
+              (element) =>
+                  element.bookingStatus == BookingStatus.ongoing.index &&
+                  element.createdBy == appwrite.user.$id,
+            )
             .toList()
             .isEmpty) {
       return EmptyScreen(
@@ -140,46 +153,60 @@ class _AllBookingsState extends State<AllBookings> {
     } else if (bookingVm.selectedUserTab == 1 &&
         bookingVm.selectedTabIndex == BookingStatus.ongoing.index &&
         provider.allBookings
-            .where((element) =>
-                element.bookingStatus == BookingStatus.ongoing.index &&
-                element.createdBy == appwrite.user.$id)
+            .where(
+              (element) =>
+                  element.bookingStatus == BookingStatus.ongoing.index &&
+                  element.createdBy == appwrite.user.$id,
+            )
             .toList()
             .isNotEmpty) {
       return ListView(
         children: List.generate(
-            provider.allBookings
-                .where((element) =>
+          provider.allBookings
+              .where(
+                (element) =>
                     element.bookingStatus == BookingStatus.ongoing.index &&
-                    element.createdBy == appwrite.user.$id)
-                .toList()
-                .length, (index) {
-          BookingsModel bookingModel = provider.allBookings
-              .where((element) =>
-                  element.bookingStatus == BookingStatus.ongoing.index &&
-                  element.createdBy == appwrite.user.$id)
-              .toList()[index];
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5.w),
-            child: GestureDetector(
-              onTap: () {
-                Get.toNamed(BookingsDetail.route,
-                    arguments: {"bookingsModel": bookingModel});
-              },
-              child: BookingsWidget(
-                bookings: bookingModel,
-                index: index,
-                isBooking: true,
-                isLargeView: true,
+                    element.createdBy == appwrite.user.$id,
+              )
+              .toList()
+              .length,
+          (index) {
+            BookingsModel bookingModel =
+                provider.allBookings
+                    .where(
+                      (element) =>
+                          element.bookingStatus ==
+                              BookingStatus.ongoing.index &&
+                          element.createdBy == appwrite.user.$id,
+                    )
+                    .toList()[index];
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.w),
+              child: GestureDetector(
+                onTap: () {
+                  Get.toNamed(
+                    BookingsDetail.route,
+                    arguments: {"bookingsModel": bookingModel},
+                  );
+                },
+                child: BookingsWidget(
+                  bookings: bookingModel,
+                  index: index,
+                  isBooking: true,
+                  isLargeView: true,
+                ),
               ),
-            ),
-          );
-        }),
+            );
+          },
+        ),
       );
     } else if (bookingVm.selectedTabIndex == BookingStatus.completed.index &&
         provider.allBookings
-            .where((element) =>
-                element.bookingStatus == BookingStatus.completed.index &&
-                element.createdBy == appwrite.user.$id)
+            .where(
+              (element) =>
+                  element.bookingStatus == BookingStatus.completed.index &&
+                  element.createdBy == appwrite.user.$id,
+            )
             .toList()
             .isEmpty) {
       return EmptyScreen(
@@ -189,46 +216,60 @@ class _AllBookingsState extends State<AllBookings> {
       );
     } else if (bookingVm.selectedTabIndex == BookingStatus.completed.index &&
         provider.allBookings
-            .where((element) =>
-                element.bookingStatus == BookingStatus.completed.index &&
-                element.createdBy == appwrite.user.$id)
+            .where(
+              (element) =>
+                  element.bookingStatus == BookingStatus.completed.index &&
+                  element.createdBy == appwrite.user.$id,
+            )
             .toList()
             .isNotEmpty) {
       return ListView(
         children: List.generate(
-            provider.allBookings
-                .where((element) =>
+          provider.allBookings
+              .where(
+                (element) =>
                     element.bookingStatus == BookingStatus.completed.index &&
-                    element.createdBy == appwrite.user.$id)
-                .toList()
-                .length, (index) {
-          BookingsModel bookingModel = provider.allBookings
-              .where((element) =>
-                  element.bookingStatus == BookingStatus.completed.index &&
-                  element.createdBy == appwrite.user.$id)
-              .toList()[index];
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5.w),
-            child: GestureDetector(
-              onTap: () {
-                Get.toNamed(BookingsDetail.route,
-                    arguments: {"bookingsModel": bookingModel});
-              },
-              child: BookingsWidget(
-                bookings: bookingModel,
-                index: index,
-                isBooking: true,
-                isLargeView: true,
+                    element.createdBy == appwrite.user.$id,
+              )
+              .toList()
+              .length,
+          (index) {
+            BookingsModel bookingModel =
+                provider.allBookings
+                    .where(
+                      (element) =>
+                          element.bookingStatus ==
+                              BookingStatus.completed.index &&
+                          element.createdBy == appwrite.user.$id,
+                    )
+                    .toList()[index];
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.w),
+              child: GestureDetector(
+                onTap: () {
+                  Get.toNamed(
+                    BookingsDetail.route,
+                    arguments: {"bookingsModel": bookingModel},
+                  );
+                },
+                child: BookingsWidget(
+                  bookings: bookingModel,
+                  index: index,
+                  isBooking: true,
+                  isLargeView: true,
+                ),
               ),
-            ),
-          );
-        }),
+            );
+          },
+        ),
       );
     } else if (bookingVm.selectedTabIndex == BookingStatus.canceled.index &&
         provider.allBookings
-            .where((element) =>
-                element.bookingStatus == BookingStatus.canceled.index &&
-                element.createdBy == appwrite.user.$id)
+            .where(
+              (element) =>
+                  element.bookingStatus == BookingStatus.canceled.index &&
+                  element.createdBy == appwrite.user.$id,
+            )
             .toList()
             .isEmpty) {
       return EmptyScreen(
@@ -239,33 +280,43 @@ class _AllBookingsState extends State<AllBookings> {
     } else {
       return ListView(
         children: List.generate(
-            provider.allBookings
-                .where((element) =>
+          provider.allBookings
+              .where(
+                (element) =>
                     element.bookingStatus == BookingStatus.canceled.index &&
-                    element.createdBy == appwrite.user.$id)
-                .toList()
-                .length, (index) {
-          BookingsModel bookingModel = provider.allBookings
-              .where((element) =>
-                  element.bookingStatus == BookingStatus.canceled.index &&
-                  element.createdBy == appwrite.user.$id)
-              .toList()[index];
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5.w),
-            child: GestureDetector(
-              onTap: () {
-                Get.toNamed(BookingsDetail.route,
-                    arguments: {"bookingsModel": bookingModel});
-              },
-              child: BookingsWidget(
-                bookings: bookingModel,
-                index: index,
-                isBooking: true,
-                isLargeView: true,
+                    element.createdBy == appwrite.user.$id,
+              )
+              .toList()
+              .length,
+          (index) {
+            BookingsModel bookingModel =
+                provider.allBookings
+                    .where(
+                      (element) =>
+                          element.bookingStatus ==
+                              BookingStatus.canceled.index &&
+                          element.createdBy == appwrite.user.$id,
+                    )
+                    .toList()[index];
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.w),
+              child: GestureDetector(
+                onTap: () {
+                  Get.toNamed(
+                    BookingsDetail.route,
+                    arguments: {"bookingsModel": bookingModel},
+                  );
+                },
+                child: BookingsWidget(
+                  bookings: bookingModel,
+                  index: index,
+                  isBooking: true,
+                  isLargeView: true,
+                ),
               ),
-            ),
-          );
-        }),
+            );
+          },
+        ),
       );
     }
   }
@@ -273,9 +324,11 @@ class _AllBookingsState extends State<AllBookings> {
   Widget hostBookings(HomeVm provider, BookingsVm bookingVm) {
     if (bookingVm.selectedTabIndex == BookingStatus.ongoing.index &&
         provider.allBookings
-            .where((element) =>
-                element.bookingStatus == BookingStatus.ongoing.index &&
-                element.hostUserUid == appwrite.user.$id)
+            .where(
+              (element) =>
+                  element.bookingStatus == BookingStatus.ongoing.index &&
+                  element.hostUserUid == appwrite.user.$id,
+            )
             .toList()
             .isEmpty) {
       return EmptyScreen(
@@ -285,47 +338,60 @@ class _AllBookingsState extends State<AllBookings> {
       );
     } else if (bookingVm.selectedTabIndex == BookingStatus.ongoing.index &&
         provider.allBookings
-            .where((element) =>
-                element.bookingStatus == BookingStatus.ongoing.index &&
-                element.hostUserUid == appwrite.user.$id)
+            .where(
+              (element) =>
+                  element.bookingStatus == BookingStatus.ongoing.index &&
+                  element.hostUserUid == appwrite.user.$id,
+            )
             .toList()
             .isNotEmpty) {
       return ListView(
         children: List.generate(
-            provider.allBookings
-                .where((element) =>
+          provider.allBookings
+              .where(
+                (element) =>
                     element.bookingStatus == BookingStatus.ongoing.index &&
-                    element.hostUserUid ==
-                        appwrite.user.$id)
-                .toList()
-                .length, (index) {
-          BookingsModel bookingModel = provider.allBookings
-              .where((element) =>
-                  element.bookingStatus == BookingStatus.ongoing.index &&
-                  element.hostUserUid == appwrite.user.$id)
-              .toList()[index];
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5.w),
-            child: GestureDetector(
-              onTap: () {
-                Get.toNamed(HostBookingDetail.route,
-                    arguments: {"bookingsModel": bookingModel});
-              },
-              child: BookingsWidget(
-                bookings: bookingModel,
-                index: index,
-                isBooking: true,
-                isLargeView: true,
+                    element.hostUserUid == appwrite.user.$id,
+              )
+              .toList()
+              .length,
+          (index) {
+            BookingsModel bookingModel =
+                provider.allBookings
+                    .where(
+                      (element) =>
+                          element.bookingStatus ==
+                              BookingStatus.ongoing.index &&
+                          element.hostUserUid == appwrite.user.$id,
+                    )
+                    .toList()[index];
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.w),
+              child: GestureDetector(
+                onTap: () {
+                  Get.toNamed(
+                    HostBookingDetail.route,
+                    arguments: {"bookingsModel": bookingModel},
+                  );
+                },
+                child: BookingsWidget(
+                  bookings: bookingModel,
+                  index: index,
+                  isBooking: true,
+                  isLargeView: true,
+                ),
               ),
-            ),
-          );
-        }),
+            );
+          },
+        ),
       );
     } else if (bookingVm.selectedTabIndex == BookingStatus.completed.index &&
         provider.allBookings
-            .where((element) =>
-                element.bookingStatus == BookingStatus.completed.index &&
-                element.hostUserUid == appwrite.user.$id)
+            .where(
+              (element) =>
+                  element.bookingStatus == BookingStatus.completed.index &&
+                  element.hostUserUid == appwrite.user.$id,
+            )
             .toList()
             .isEmpty) {
       return EmptyScreen(
@@ -335,44 +401,58 @@ class _AllBookingsState extends State<AllBookings> {
       );
     } else if (bookingVm.selectedTabIndex == BookingStatus.completed.index &&
         provider.allBookings
-            .where((element) =>
-                element.bookingStatus == BookingStatus.completed.index &&
-                element.hostUserUid == appwrite.user.$id)
+            .where(
+              (element) =>
+                  element.bookingStatus == BookingStatus.completed.index &&
+                  element.hostUserUid == appwrite.user.$id,
+            )
             .toList()
             .isNotEmpty) {
       return ListView(
         children: List.generate(
-            provider.allBookings
-                .where((element) =>
-                    element.bookingStatus == BookingStatus.completed.index)
-                .toList()
-                .length, (index) {
-          BookingsModel bookingModel = provider.allBookings
-              .where((element) =>
-                  element.bookingStatus == BookingStatus.completed.index)
-              .toList()[index];
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5.w),
-            child: GestureDetector(
-              onTap: () {
-                Get.toNamed(HostBookingDetail.route,
-                    arguments: {"bookingsModel": bookingModel});
-              },
-              child: BookingsWidget(
-                bookings: bookingModel,
-                index: index,
-                isBooking: true,
-                isLargeView: true,
+          provider.allBookings
+              .where(
+                (element) =>
+                    element.bookingStatus == BookingStatus.completed.index,
+              )
+              .toList()
+              .length,
+          (index) {
+            BookingsModel bookingModel =
+                provider.allBookings
+                    .where(
+                      (element) =>
+                          element.bookingStatus ==
+                          BookingStatus.completed.index,
+                    )
+                    .toList()[index];
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.w),
+              child: GestureDetector(
+                onTap: () {
+                  Get.toNamed(
+                    HostBookingDetail.route,
+                    arguments: {"bookingsModel": bookingModel},
+                  );
+                },
+                child: BookingsWidget(
+                  bookings: bookingModel,
+                  index: index,
+                  isBooking: true,
+                  isLargeView: true,
+                ),
               ),
-            ),
-          );
-        }),
+            );
+          },
+        ),
       );
     } else if (bookingVm.selectedTabIndex == BookingStatus.canceled.index &&
         provider.allBookings
-            .where((element) =>
-                element.bookingStatus == BookingStatus.canceled.index &&
-                element.hostUserUid == appwrite.user.$id)
+            .where(
+              (element) =>
+                  element.bookingStatus == BookingStatus.canceled.index &&
+                  element.hostUserUid == appwrite.user.$id,
+            )
             .toList()
             .isEmpty) {
       return EmptyScreen(
@@ -383,34 +463,43 @@ class _AllBookingsState extends State<AllBookings> {
     } else {
       return ListView(
         children: List.generate(
-            provider.allBookings
-                .where((element) =>
+          provider.allBookings
+              .where(
+                (element) =>
                     element.bookingStatus == BookingStatus.canceled.index &&
-                    element.hostUserUid ==
-                        appwrite.user.$id)
-                .toList()
-                .length, (index) {
-          BookingsModel bookingModel = provider.allBookings
-              .where((element) =>
-                  element.bookingStatus == BookingStatus.canceled.index &&
-                  element.hostUserUid == appwrite.user.$id)
-              .toList()[index];
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5.w),
-            child: GestureDetector(
-              onTap: () {
-                Get.toNamed(HostBookingDetail.route,
-                    arguments: {"bookingsModel": bookingModel});
-              },
-              child: BookingsWidget(
-                bookings: bookingModel,
-                index: index,
-                isBooking: true,
-                isLargeView: true,
+                    element.hostUserUid == appwrite.user.$id,
+              )
+              .toList()
+              .length,
+          (index) {
+            BookingsModel bookingModel =
+                provider.allBookings
+                    .where(
+                      (element) =>
+                          element.bookingStatus ==
+                              BookingStatus.canceled.index &&
+                          element.hostUserUid == appwrite.user.$id,
+                    )
+                    .toList()[index];
+            return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5.w),
+              child: GestureDetector(
+                onTap: () {
+                  Get.toNamed(
+                    HostBookingDetail.route,
+                    arguments: {"bookingsModel": bookingModel},
+                  );
+                },
+                child: BookingsWidget(
+                  bookings: bookingModel,
+                  index: index,
+                  isBooking: true,
+                  isLargeView: true,
+                ),
               ),
-            ),
-          );
-        }),
+            );
+          },
+        ),
       );
     }
   }
@@ -428,24 +517,26 @@ class _AllBookingsState extends State<AllBookings> {
             color: R.colors.blackDull,
             borderRadius: BorderRadius.circular(30),
             border: Border.all(
-                color: bookingVm.selectedTabIndex == index
-                    ? R.colors.themeMud
-                    : Colors.transparent,
-                width: 1.5),
+              color:
+                  bookingVm.selectedTabIndex == index
+                      ? R.colors.themeMud
+                      : Colors.transparent,
+              width: 1.5,
+            ),
           ),
-          padding: EdgeInsets.symmetric(
-            vertical: 1.h,
-          ),
+          padding: EdgeInsets.symmetric(vertical: 1.h),
           child: Center(
             child: Column(
               children: [
                 Text(
                   getTranslated(context, title) ?? "",
                   style: R.textStyle.helvetica().copyWith(
-                      color: bookingVm.selectedTabIndex == index
-                          ? R.colors.themeMud
-                          : R.colors.whiteDull,
-                      fontSize: 11.sp),
+                    color:
+                        bookingVm.selectedTabIndex == index
+                            ? R.colors.themeMud
+                            : R.colors.whiteDull,
+                    fontSize: 11.sp,
+                  ),
                 ),
               ],
             ),
@@ -472,21 +563,26 @@ class _AllBookingsState extends State<AllBookings> {
               Text(
                 getTranslated(context, title) ?? "",
                 style: R.textStyle.helvetica().copyWith(
-                    color: bookingVm.selectedUserTab == index
-                        ? R.colors.yellowDark
-                        : R.colors.whiteColor,
-                    fontSize: 12.sp,
-                    fontWeight: bookingVm.selectedUserTab == index
-                        ? FontWeight.bold
-                        : FontWeight.normal),
+                  color:
+                      bookingVm.selectedUserTab == index
+                          ? R.colors.yellowDark
+                          : R.colors.whiteColor,
+                  fontSize: 12.sp,
+                  fontWeight:
+                      bookingVm.selectedUserTab == index
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                ),
               ),
               h2,
               Divider(
-                  color: bookingVm.selectedUserTab == index
-                      ? R.colors.yellowDark
-                      : Colors.transparent,
-                  thickness: 2,
-                  height: 0)
+                color:
+                    bookingVm.selectedUserTab == index
+                        ? R.colors.yellowDark
+                        : Colors.transparent,
+                thickness: 2,
+                height: 0,
+              ),
             ],
           ),
         ),

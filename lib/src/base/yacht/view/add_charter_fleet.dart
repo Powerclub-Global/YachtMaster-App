@@ -1,13 +1,8 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:async_foreach/async_foreach.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -18,18 +13,12 @@ import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../constant/constant.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
 import '../../../../resources/resources.dart';
-import '../../../../services/firebase_collections.dart';
 import '../../../../services/image_picker_services.dart';
-import '../../../auth/model/user_model.dart';
 import '../../search/model/charter_model.dart';
-import '../../search/model/services_model.dart';
 import '../../search/view_model/search_vm.dart';
-import '../model/choose_offers.dart';
-import '../model/yachts_model.dart';
 import 'define_availibility.dart';
 import '../view_model/yacht_vm.dart';
 import '../widgets/choose_services.dart';
@@ -335,7 +324,7 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
                           },
                           onTap: () {
                             Get.to(PickLocation(
-                              selectedLatLng: locationLatLng ?? null,
+                              selectedLatLng: locationLatLng,
                             ))?.then((value) {
                               var result = value;
                               Map<String, dynamic>;

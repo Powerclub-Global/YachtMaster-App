@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
@@ -13,15 +12,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../constant/constant.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
 import '../../../../resources/resources.dart';
-import '../../../../services/firebase_collections.dart';
 import '../../../../services/image_picker_services.dart';
-import '../../../auth/model/user_model.dart';
-import '../../search/model/charter_model.dart';
-import '../../search/model/services_model.dart';
 import '../model/yachts_model.dart';
 import '../../search/view_model/search_vm.dart';
 import '../view_model/yacht_vm.dart';
@@ -29,7 +23,6 @@ import '../widgets/choose_services.dart';
 import '../widgets/rules_bottomsheet.dart';
 import '../../../../utils/general_app_bar.dart';
 import '../../../../utils/heights_widths.dart';
-import '../../../../utils/helper.dart';
 import '../../../../utils/pick_location.dart';
 import '../../../../utils/validation.dart';
 
@@ -222,7 +215,7 @@ class _AddYachtForSaleState extends State<AddYachtForSale> {
                           onFieldSubmitted: (a) {
                             setState(() {
                               FocusScope.of(Get.context!)
-                                  .requestFocus(new FocusNode());
+                                  .requestFocus(FocusNode());
                             });
                           },
                           controller: nameCon,
@@ -252,7 +245,7 @@ class _AddYachtForSaleState extends State<AddYachtForSale> {
                             setState(() {});
                           },
                           onTap: () {
-                            Get.to(PickLocation(selectedLatLng: locationLatLng ?? null,))?.then((value) {
+                            Get.to(PickLocation(selectedLatLng: locationLatLng,))?.then((value) {
                               var result = value;
                               Map<String, dynamic>;
                               log("____RESUKT:${result["locationAddress"]}");
@@ -266,7 +259,7 @@ class _AddYachtForSaleState extends State<AddYachtForSale> {
                           onFieldSubmitted: (a) {
                             setState(() {
                               FocusScope.of(Get.context!)
-                                  .requestFocus(new FocusNode());
+                                  .requestFocus(FocusNode());
                             });
                           },
                           controller: locationCon,
@@ -308,7 +301,7 @@ class _AddYachtForSaleState extends State<AddYachtForSale> {
                           onFieldSubmitted: (a) {
                             setState(() {
                               FocusScope.of(Get.context!)
-                                  .requestFocus(new FocusNode());
+                                  .requestFocus(FocusNode());
                             });
                           },
                           controller: priceCon,
@@ -339,7 +332,7 @@ class _AddYachtForSaleState extends State<AddYachtForSale> {
                           onFieldSubmitted: (a) {
                             setState(() {
                               FocusScope.of(Get.context!)
-                                  .requestFocus(new FocusNode());
+                                  .requestFocus(FocusNode());
                             });
                           },
                           controller: descCon,

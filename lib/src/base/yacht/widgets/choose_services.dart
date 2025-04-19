@@ -12,7 +12,6 @@ import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
 import '../../../../resources/resources.dart';
 import '../../../../services/firebase_collections.dart';
-import '../../search/model/charter_model.dart';
 import '../../search/view_model/search_vm.dart';
 import '../model/choose_offers.dart';
 import '../view_model/yacht_vm.dart';

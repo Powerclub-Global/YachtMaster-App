@@ -1,8 +1,5 @@
-import 'dart:developer';
 import 'dart:io';
 import 'dart:ui';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:circular_profile_avatar/circular_profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -11,11 +8,9 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import 'package:yacht_master/src/base/base_vm.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
 import '../../../../resources/resources.dart';
-import '../../../../services/image_picker_services.dart';
 import '../../../../utils/heights_widths.dart';
 import '../../../../utils/helper.dart';
 import '../../../../utils/validation.dart';
@@ -73,7 +68,7 @@ class _EditUsernameState extends State<EditUsername> {
               onTap: () {
                 Helper.focusOut(context);
               },
-              child: Container(
+              child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: R.colors.black,
                   borderRadius: BorderRadius.only(
@@ -130,7 +125,7 @@ class _EditUsernameState extends State<EditUsername> {
                                   onFieldSubmitted: (a) {
                                     setState(() {
                                       FocusScope.of(Get.context!)
-                                          .requestFocus(new FocusNode());
+                                          .requestFocus(FocusNode());
                                     });
                                   },
                                   controller: usernameController,

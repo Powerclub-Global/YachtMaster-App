@@ -179,7 +179,7 @@
 //                 R.colors.yellowDark:R.colors.whiteColor,
 //               ),),
 //               Divider(color:bookingsVm.selectedHostBookingTab==index?
-//               R.colors.yellowDark:R.colors.grey.withOpacity(.40),thickness: 2,height: Get.height*.03,)
+//               R.colors.yellowDark:R.colors.grey.withValues(alpha: .40),thickness: 2,height: Get.height*.03,)
 //             ],
 //           ),
 //         ),

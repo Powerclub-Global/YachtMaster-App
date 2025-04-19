@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:sizer/sizer.dart';
 import '../../../../constant/enums.dart';
-import '../../../../localization/app_localization.dart';
-import '../../../../resources/dummy.dart';
 import '../../../../resources/resources.dart';
 import '../view_model/settings_vm.dart';
 import '../../../../utils/general_app_bar.dart';
 
 class PrivacyPolicy extends StatefulWidget {
-  static String route="/privacyPolicy";
+  static String route = "/privacyPolicy";
   const PrivacyPolicy({Key? key}) : super(key: key);
 
   @override
@@ -22,32 +19,60 @@ class _PrivacyPolicyState extends State<PrivacyPolicy> {
   @override
   Widget build(BuildContext context) {
     return Consumer<SettingsVm>(
-        builder: (context, provider,_) {
-          return Scaffold(
-            backgroundColor: R.colors.black,
-            appBar: GeneralAppBar.simpleAppBar(context, provider.allContent.where((element) => element.type==AppContentType.privacyPolicy.index).first.title??""),
-            body: SingleChildScrollView(
-              child: Column(children: [
+      builder: (context, provider, _) {
+        return Scaffold(
+          backgroundColor: R.colors.black,
+          appBar: GeneralAppBar.simpleAppBar(
+            context,
+            provider.allContent
+                    .where(
+                      (element) =>
+                          element.type == AppContentType.privacyPolicy.index,
+                    )
+                    .first
+                    .title ??
+                "",
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
                 Container(
                   width: Get.width,
                   decoration: BoxDecoration(
-                    color: R.colors.grey.withOpacity(.25),
+                    color: R.colors.grey.withValues(alpha: .25),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  padding: EdgeInsets.symmetric(horizontal: Get.width*.04,vertical: Get.height*.02),
-                  margin: EdgeInsets.symmetric(horizontal: Get.width*.04),
-                  child:  HtmlWidget(
-                    provider.allContent.where((element) => element.type==AppContentType.privacyPolicy.index).first.content??"",
-                    onLoadingBuilder: (context, element, loadingProgress) => CircularProgressIndicator(),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: Get.width * .04,
+                    vertical: Get.height * .02,
+                  ),
+                  margin: EdgeInsets.symmetric(horizontal: Get.width * .04),
+                  child: HtmlWidget(
+                    provider.allContent
+                            .where(
+                              (element) =>
+                                  element.type ==
+                                  AppContentType.privacyPolicy.index,
+                            )
+                            .first
+                            .content ??
+                        "",
+                    onLoadingBuilder:
+                        (context, element, loadingProgress) =>
+                            CircularProgressIndicator(),
                     onTapUrl: (url) => true,
                     renderMode: RenderMode.column,
-                    textStyle: TextStyle(fontSize: 14,color: R.colors.whiteColor),
+                    textStyle: TextStyle(
+                      fontSize: 14,
+                      color: R.colors.whiteColor,
+                    ),
                   ),
-                )
-              ],),
+                ),
+              ],
             ),
-          );
-        }
+          ),
+        );
+      },
     );
   }
 }

@@ -23,7 +23,7 @@ extension DateTimeExtension on DateTime? {
       DateTime toDateTime,
       ) {
     final date = this;
-    print("THIS IS DATE ${date}");
+    print("THIS IS DATE $date");
     if (date != null) {
       final isAfter = date.isAfterOrEqualTo(fromDateTime) ?? false;
       final isBefore = date.isBeforeOrEqualTo(toDateTime) ?? false;

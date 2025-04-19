@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -39,9 +38,9 @@ Future<void> handleReturnRedirectFromStripeAccountLink(
         .where('uid', isEqualTo: authVm.userModel!.uid)
         .get();
     if (connectedAccount.docs.isNotEmpty) {
-      Map<String, dynamic> connected_account_id_data =
+      Map<String, dynamic> connectedAccountIdData =
           connectedAccount.docs.first.data() as Map<String, dynamic>;
-      String connectedAccountId = connected_account_id_data['account_id'];
+      String connectedAccountId = connectedAccountIdData['account_id'];
       stripe.checkDetailsSubmitted(context, true, connectedAccountId);
     } else {
       ZBotToast.loadingClose();
@@ -65,7 +64,7 @@ class _VanillaState extends State<Vanilla> {
       CharterModel yacht = test[0];
       int index = yachtProvider.allCharters
           .indexWhere((element) => element.id == yachtId);
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         Get.toNamed(CharterDetail.route, arguments: {
           "yacht": yacht,
           "isReserve": false,

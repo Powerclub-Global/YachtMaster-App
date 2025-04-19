@@ -20,7 +20,7 @@ class _TranslateState extends State<Translate> {
   @override
   Widget build(BuildContext context) {
     return Consumer<SettingsVm>(builder: (context, provider, _) {
-      return Container(
+      return DecoratedBox(
         decoration: BoxDecoration(
           color: R.colors.black,
           borderRadius: BorderRadius.only(

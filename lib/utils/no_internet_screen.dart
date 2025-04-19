@@ -35,7 +35,7 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
       setState(() {
         isChecking = false;
       });
-    } on PlatformException catch (e) {
+    } on PlatformException {
       //  print(e.toString());
     }
 
@@ -121,7 +121,7 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
     return WillPopScope(
       onWillPop: checkBeforeGoingBack,
       child: Scaffold(
-        backgroundColor: Colors.white.withOpacity(0.5),
+        backgroundColor: Colors.white.withValues(alpha: 0.5),
         body: Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -178,11 +178,11 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
         children: [
           ElevatedButton(
             style: ButtonStyle(
-              padding: MaterialStateProperty.all(const EdgeInsets.all(10)),
-              shape: MaterialStateProperty.all(
+              padding: WidgetStateProperty.all(const EdgeInsets.all(10)),
+              shape: WidgetStateProperty.all(
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
-              backgroundColor: MaterialStateProperty.all(R.colors.themeMud),
+              backgroundColor: WidgetStateProperty.all(R.colors.themeMud),
             ),
             onPressed: () {
               initConnectivity();

@@ -1,9 +1,7 @@
 import 'dart:developer';
 
 import 'package:appwrite/appwrite.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
@@ -12,11 +10,9 @@ import '../../../auth/view/login.dart';
 
 import '../../../../../../../resources/resources.dart';
 import '../../../../../../../utils/heights_widths.dart';
-import '../../../../constant/enums.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
 import '../../../../services/firebase_collections.dart';
-import '../../../../utils/validation.dart';
 import '../../../../utils/zbot_toast.dart';
 import '../../../auth/view_model/auth_vm.dart';
 
@@ -34,106 +30,115 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
   FocusNode passwordFN = FocusNode();
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthVm>(builder: (context, vm, _) {
-      return GestureDetector(
-        onTap: () {
-          FocusScope.of(context).requestFocus(FocusNode());
-          setState(() {});
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
+    return Consumer<AuthVm>(
+      builder: (context, vm, _) {
+        return GestureDetector(
+          onTap: () {
+            FocusScope.of(context).requestFocus(FocusNode());
+            setState(() {});
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            decoration: BoxDecoration(
               color: R.colors.black,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(26))),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                h3,
-                Image.asset(
-                  R.images.bin,
-                  scale: 2,
-                  color: R.colors.whiteColor,
-                ),
-                h3,
-                Text(
-                  getTranslated(context, "delete_account") ?? "",
-                  style: R.textStyle
-                      .helveticaBold()
-                      .copyWith(color: R.colors.whiteColor, fontSize: 16.sp),
-                ),
-                h2,
-                Text(
-                  getTranslated(context, "delete_account_desc") ?? "",
-                  style: R.textStyle.helvetica().copyWith(
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(26),
+              ),
+            ),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  h3,
+                  Image.asset(
+                    R.images.bin,
+                    scale: 2,
+                    color: R.colors.whiteColor,
+                  ),
+                  h3,
+                  Text(
+                    getTranslated(context, "delete_account") ?? "",
+                    style: R.textStyle.helveticaBold().copyWith(
+                      color: R.colors.whiteColor,
+                      fontSize: 16.sp,
+                    ),
+                  ),
+                  h2,
+                  Text(
+                    getTranslated(context, "delete_account_desc") ?? "",
+                    style: R.textStyle.helvetica().copyWith(
                       color: R.colors.whiteDull,
                       fontSize: 13.sp,
-                      fontWeight: FontWeight.w600),
-                  textAlign: TextAlign.center,
-                ),
-                h5,
-                Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          Get.back();
-                        },
-                        child: Container(
-                          height: Get.height * .055,
-                          width: Get.width * .8,
-                          margin: EdgeInsets.only(bottom: Get.height * .015),
-                          decoration: BoxDecoration(
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  h5,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            Get.back();
+                          },
+                          child: Container(
+                            height: Get.height * .055,
+                            width: Get.width * .8,
+                            margin: EdgeInsets.only(bottom: Get.height * .015),
+                            decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(30),
-                              color: R.colors.blueGrey),
-                          child: Center(
-                            child: Text(
-                              "${getTranslated(context, "no")?.toUpperCase()}",
-                              style: R.textStyle.helvetica().copyWith(
+                              color: R.colors.blueGrey,
+                            ),
+                            child: Center(
+                              child: Text(
+                                "${getTranslated(context, "no")?.toUpperCase()}",
+                                style: R.textStyle.helvetica().copyWith(
                                   color: R.colors.black,
                                   fontSize: 12.sp,
-                                  fontWeight: FontWeight.bold),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 2.w,
-                    ),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () async {
-                          await onTapDeleteFN(vm);
-                        },
-                        child: Container(
-                          height: Get.height * .055,
-                          width: Get.width * .8,
-                          margin: EdgeInsets.only(bottom: Get.height * .015),
-                          decoration: AppDecorations.gradientButton(radius: 30),
-                          child: Center(
-                            child: Text(
-                              "${getTranslated(context, "yes")?.toUpperCase()}",
-                              style: R.textStyle.helvetica().copyWith(
+                      SizedBox(width: 2.w),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () async {
+                            await onTapDeleteFN(vm);
+                          },
+                          child: Container(
+                            height: Get.height * .055,
+                            width: Get.width * .8,
+                            margin: EdgeInsets.only(bottom: Get.height * .015),
+                            decoration: AppDecorations.gradientButton(
+                              radius: 30,
+                            ),
+                            child: Center(
+                              child: Text(
+                                "${getTranslated(context, "yes")?.toUpperCase()}",
+                                style: R.textStyle.helvetica().copyWith(
                                   color: R.colors.black,
                                   fontSize: 12.sp,
-                                  fontWeight: FontWeight.bold),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                h2,
-              ],
+                    ],
+                  ),
+                  h2,
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   Future<void> onTapDeleteFN(AuthVm vm) async {
@@ -143,17 +148,17 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
   Future<void> deleteUserAccount() async {
     try {
       await appwrite.deleteUser();
-      print(appwrite.delete_user_response.statusCode);
-      if (appwrite.delete_user_response.statusCode == 200) {
+      print(appwrite.deleteUserResponse.statusCode);
+      if (appwrite.deleteUserResponse.statusCode == 200) {
         await FbCollections.user.doc(appwrite.user.$id).delete();
         Get.offAllNamed(LoginScreen.route);
         ZBotToast.showToastSuccess(
-            message:
-                getTranslated(context, "user_has_been_deleted_successfully"));
+          message: getTranslated(context, "user_has_been_deleted_successfully"),
+        );
 
         ZBotToast.loadingClose();
       } else {
-        log(appwrite.delete_user_response.reasonPhrase!);
+        log(appwrite.deleteUserResponse.reasonPhrase!);
         ZBotToast.showToastError(message: "An Unexpected Error Occured");
       }
     } on AppwriteException catch (e) {
@@ -162,9 +167,11 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
       ZBotToast.loadingClose();
       debugPrint(e.toString());
       if (e.toString().contains(
-          "The given sign-in provider is disabled for this Firebase project")) {
+        "The given sign-in provider is disabled for this Firebase project",
+      )) {
         ZBotToast.showToastError(
-            message: "Kindly login again to complete the process");
+          message: "Kindly login again to complete the process",
+        );
       } else {
         ZBotToast.showToastError(message: e.toString().split('] ').last);
       }

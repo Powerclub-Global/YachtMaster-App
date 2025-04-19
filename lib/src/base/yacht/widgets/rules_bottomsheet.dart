@@ -1,23 +1,14 @@
-import 'dart:developer';
 import 'dart:ui';
 
-import 'package:circular_profile_avatar/circular_profile_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../constant/constant.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
 import '../../../../resources/resources.dart';
-import '../../../../services/image_picker_services.dart';
-import '../../../auth/model/user_model.dart';
-import '../../../auth/widgets/otp_dialog.dart';
-import '../../base_vm.dart';
 import '../../search/model/charter_model.dart';
-import '../../search/model/services_model.dart';
-import '../model/yachts_model.dart';
 import '../view_model/yacht_vm.dart';
 import '../../../../utils/heights_widths.dart';
 import '../../../../utils/helper.dart';
@@ -80,7 +71,7 @@ class _RulesBottomSheetState extends State<RulesBottomSheet> {
             onTap: () {
               Helper.focusOut(context);
             },
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 color: R.colors.black,
                 borderRadius: BorderRadius.only(
@@ -150,7 +141,7 @@ class _RulesBottomSheetState extends State<RulesBottomSheet> {
                                 onFieldSubmitted: (a) {
                                   setState(() {
                                     FocusScope.of(Get.context!)
-                                        .requestFocus(new FocusNode());
+                                        .requestFocus(FocusNode());
                                   });
                                 },
                                 controller: titleCon,
@@ -185,7 +176,7 @@ class _RulesBottomSheetState extends State<RulesBottomSheet> {
                                 onFieldSubmitted: (a) {
                                   setState(() {
                                     FocusScope.of(Get.context!)
-                                        .requestFocus(new FocusNode());
+                                        .requestFocus(FocusNode());
                                   });
                                 },
                                 controller: descCon,

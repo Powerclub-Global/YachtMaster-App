@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
@@ -298,7 +297,7 @@ class _SplitPaymentState extends State<SplitPayment> {
                                     provider.splitList[index].personEmail.clear();
                                     Helper.inSnackBar("Error", "You have already selected that person", R.colors.themeMud);
                                   }
-                                log("_______SELCTED VALUE:${val}");
+                                log("_______SELCTED VALUE:$val");
                               },
                               label: labelText,
                               controller: provider.splitList[index].personEmail,
@@ -355,7 +354,7 @@ class _SplitPaymentState extends State<SplitPayment> {
                                               availedPercentage =
                                                   (double.parse(availedPercentage.toString()) +
                                                       double.parse(element.percentage.text.toString().replaceAll("%", ""))).toInt();
-                                              log("_____________ELEMENT PER:${availedPercentage}");
+                                              log("_____________ELEMENT PER:$availedPercentage");
                                             }
                                           });
                                           log("_____________TOTAL PER:${(availedPercentage)}");

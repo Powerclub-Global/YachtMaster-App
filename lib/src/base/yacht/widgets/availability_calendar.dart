@@ -1,6 +1,5 @@
 import 'dart:collection';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -14,10 +13,7 @@ import '../../../../resources/resources.dart';
 import '../../../../services/time_schedule_service.dart';
 import '../../home/home_vm/home_vm.dart';
 import '../../search/model/charter_model.dart';
-import '../../search/view/bookings/view_model/bookings_vm.dart';
 import '../../search/view_model/search_vm.dart';
-import '../view_model/yacht_vm.dart';
-import '../../../../utils/date_utils.dart';
 
 
 class AvailabilityCalendar extends StatefulWidget {

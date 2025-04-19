@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../services/firebase_collections.dart';
@@ -42,10 +41,10 @@ class HomeVm extends ChangeNotifier {
   Future<void> fetchWalletHistory(BuildContext context) async {
     walletHistory = [];
     var authVm = Provider.of<AuthVm>(context, listen: false);
-    var fetch_history = await FbCollections.wallet_history
+    var fetchHistory = await FbCollections.wallet_history
         .where('uid', isEqualTo: authVm.userModel!.uid)
         .get();
-    walletHistory = fetch_history.docs
+    walletHistory = fetchHistory.docs
         .map((e) => e.data() as Map<String, dynamic>)
         .toList();
     print("printing wallet history");

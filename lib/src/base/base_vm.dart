@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
 import '../../constant/enums.dart';
 import '../../resources/resources.dart';
 import '../../services/firebase_collections.dart';

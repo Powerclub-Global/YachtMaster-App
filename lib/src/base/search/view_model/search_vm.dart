@@ -86,11 +86,11 @@ class SearchVm extends ChangeNotifier {
   ];
 
   final GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: Helper.mapApiKey);
-  Set<Marker> marker = new Set();
+  Set<Marker> marker = {};
   LatLng? newLocationLatLng;
   String? city = "";
   void onError(PlacesAutocompleteResponse response) {
-    debugPrint("\nMap Error = " + response.errorMessage! + "\n\n\n");
+    debugPrint("\nMap Error = ${response.errorMessage!}\n\n\n");
   }
 
   getCharterFromBooking(charterModel) async {
@@ -136,7 +136,7 @@ class SearchVm extends ChangeNotifier {
       city = first.locality ?? "";
     }
 
-    log("_______________CITYYYYY${city}");
+    log("_______________CITYYYYY$city");
 
     log("\ncomplete Address: $address");
     update();
@@ -149,26 +149,24 @@ class SearchVm extends ChangeNotifier {
   ) async {
     marker.clear();
 
-    if (p != null) {
-      // get detail (lat/lng)
-      PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(
-        p.placeId!,
-      );
-      final lat = detail.result.geometry!.location.lat;
-      final lng = detail.result.geometry!.location.lng;
-      newLocationLatLng = LatLng(lat, lng);
-      log("______________NEW LOCATION LAT:${newLocationLatLng}");
-      print('place:${p.description}');
-      googleController?.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(target: LatLng(lat, lng), zoom: 4.0),
-        ),
-      );
-      marker.add(Marker(markerId: MarkerId("id"), position: LatLng(lat, lng)));
+    // get detail (lat/lng)
+    PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(
+      p.placeId!,
+    );
+    final lat = detail.result.geometry!.location.lat;
+    final lng = detail.result.geometry!.location.lng;
+    newLocationLatLng = LatLng(lat, lng);
+    log("______________NEW LOCATION LAT:$newLocationLatLng");
+    print('place:${p.description}');
+    googleController?.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: LatLng(lat, lng), zoom: 4.0),
+      ),
+    );
+    marker.add(Marker(markerId: MarkerId("id"), position: LatLng(lat, lng)));
 
-      await getCity(LatLng(lat, lng), p.description!, searchController);
-    }
-
+    await getCity(LatLng(lat, lng), p.description!, searchController);
+  
     return p;
   }
 

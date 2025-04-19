@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/appwrite.dart';
 import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
 import '../../../../../localization/app_localization.dart';
 import '../../../../../resources/decorations.dart';

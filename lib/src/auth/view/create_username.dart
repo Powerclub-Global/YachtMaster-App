@@ -1,12 +1,8 @@
 // import 'package:firebase_auth/firebase_auth.dart';
-import 'package:appwrite/models.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/appwrite.dart';
 import 'package:yacht_master/localization/app_localization.dart';
 import 'package:yacht_master/resources/decorations.dart';
 import 'package:yacht_master/resources/resources.dart';

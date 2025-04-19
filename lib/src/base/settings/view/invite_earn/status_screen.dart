@@ -1,19 +1,13 @@
-import 'dart:convert';
 
 import 'package:bulleted_list/bulleted_list.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../../appwrite.dart';
 import '../../../../../localization/app_localization.dart';
-import '../../../../../main.dart';
 import '../../../../../resources/decorations.dart';
 import '../../../../../resources/resources.dart';
 import '../../../../../services/firebase_collections.dart';
@@ -24,9 +18,7 @@ import '../../../home/home_vm/home_vm.dart';
 import '../../../search/view/bookings/model/bookings.dart';
 import '../../../search/view/bookings/view/host_booking_detail.dart';
 import '../become_verified.dart';
-import 'withdraw_money.dart';
 import '../../../../../utils/heights_widths.dart';
-import '../../../../../utils/helper.dart';
 import '../../../../../utils/zbot_toast.dart';
 
 class StatusScreen extends StatefulWidget {
@@ -88,11 +80,11 @@ class _StatusScreenState extends State<StatusScreen> {
                         .where('uid', isEqualTo: authVm.userModel!.uid)
                         .get();
                     if (connectedAccount.docs.isNotEmpty) {
-                      Map<String, dynamic> connected_account_id_data =
+                      Map<String, dynamic> connectedAccountIdData =
                           connectedAccount.docs.first.data()
                               as Map<String, dynamic>;
                       String connectedAccountId =
-                          connected_account_id_data['account_id'];
+                          connectedAccountIdData['account_id'];
                       await stripe.checkDetailsSubmitted(
                           context, false, connectedAccountId);
                     } else {
@@ -319,7 +311,7 @@ class _StatusScreenState extends State<StatusScreen> {
               ),
               h0P6,
               Text(
-                "${date.formateDateMDY()}",
+                date.formateDateMDY(),
                 style: R.textStyle
                     .helvetica()
                     .copyWith(color: R.colors.whiteColor, fontSize: 10.sp),
@@ -333,7 +325,7 @@ class _StatusScreenState extends State<StatusScreen> {
 }
 
 String capitalize(String s) {
-  if (s == null || s.isEmpty) {
+  if (s.isEmpty) {
     return s;
   }
   return s[0].toUpperCase() + s.substring(1);
@@ -409,7 +401,7 @@ Widget CashInBookingWidget(String title, String imageUrl, String amount,
                   ),
                   h0P6,
                   Text(
-                    "${date.formateDateMDY()}",
+                    date.formateDateMDY(),
                     style: R.textStyle
                         .helvetica()
                         .copyWith(color: R.colors.whiteColor, fontSize: 10.sp),
@@ -474,7 +466,7 @@ Widget referralHistory(
             ),
             h0P6,
             Text(
-              "${date.formateDateMDY()}",
+              date.formateDateMDY(),
               style: R.textStyle
                   .helvetica()
                   .copyWith(color: R.colors.whiteColor, fontSize: 10.sp),

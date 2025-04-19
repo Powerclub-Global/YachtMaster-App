@@ -138,7 +138,7 @@ class Helper {
   }
 
   double calculatePercentage(int percent, double value) {
-    log("___total:${value}");
+    log("___total:$value");
     return value * (percent / 100);
   }
 // static Widget noInternetWidget({double scale = 2}) {

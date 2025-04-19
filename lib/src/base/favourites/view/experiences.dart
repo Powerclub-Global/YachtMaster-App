@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
@@ -35,22 +34,24 @@ class _ExperiencesViewState extends State<ExperiencesView> {
   @override
   Widget build(BuildContext context) {
     return Consumer2<YachtVm, SearchVm>(
-        builder: (context, yachtVm, provider, _) {
-      return yachtVm.userFavouritesList
-              .where((element) => element.type == FavouriteType.service.index)
-              .toList()
-              .isEmpty
-          ? EmptyScreen(
+      builder: (context, yachtVm, provider, _) {
+        return yachtVm.userFavouritesList
+                .where((element) => element.type == FavouriteType.service.index)
+                .toList()
+                .isEmpty
+            ? EmptyScreen(
               title: "no_experience",
               subtitle: "no_experience_has_been_saved_yet",
               img: R.images.noFav,
             )
-          : ModalProgressHUD(
+            : ModalProgressHUD(
               inAsyncCall: yachtVm.isLoading,
-              progressIndicator: SpinKitPulse(color: R.colors.themeMud,),
+              progressIndicator: SpinKitPulse(color: R.colors.themeMud),
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                    horizontal: Get.width * .04, vertical: Get.height * .02),
+                  horizontal: Get.width * .04,
+                  vertical: Get.height * .02,
+                ),
                 child: SingleChildScrollView(
                   child: Center(
                     child: Wrap(
@@ -58,42 +59,57 @@ class _ExperiencesViewState extends State<ExperiencesView> {
                       crossAxisAlignment: WrapCrossAlignment.start,
                       alignment: WrapAlignment.start,
                       children: List.generate(
-                          yachtVm.userFavouritesList
-                              .where((element) =>
-                                  element.type == FavouriteType.service.index)
-                              .toList()
-                              .length, (index) {
-                        FavouriteModel favModel = yachtVm.userFavouritesList
-                            .where((element) =>
-                                element.type == FavouriteType.service.index)
-                            .toList()[index];
-                        return FutureBuilder(
+                        yachtVm.userFavouritesList
+                            .where(
+                              (element) =>
+                                  element.type == FavouriteType.service.index,
+                            )
+                            .toList()
+                            .length,
+                        (index) {
+                          FavouriteModel favModel =
+                              yachtVm.userFavouritesList
+                                  .where(
+                                    (element) =>
+                                        element.type ==
+                                        FavouriteType.service.index,
+                                  )
+                                  .toList()[index];
+                          return FutureBuilder(
                             future:
                                 FbCollections.services.doc(favModel.id).get(),
-                            builder: (context,
-                                AsyncSnapshot<DocumentSnapshot> snapshot) {
+                            builder: (
+                              context,
+                              AsyncSnapshot<DocumentSnapshot> snapshot,
+                            ) {
                               if (!snapshot.hasData) {
                                 return SizedBox();
                               } else {
                                 ServiceModel service = ServiceModel.fromJson(
-                                    snapshot.data?.data());
+                                  snapshot.data?.data(),
+                                );
                                 return GestureDetector(
                                   onTap: () {
-                                    Get.toNamed(ServiceDetail.route,
-                                        arguments: {
-                                          "service": service,
-                                          "isHostView": false,
-                                          "index": -1
-                                        });
+                                    Get.toNamed(
+                                      ServiceDetail.route,
+                                      arguments: {
+                                        "service": service,
+                                        "isHostView": false,
+                                        "index": -1,
+                                      },
+                                    );
                                   },
                                   child: Padding(
                                     padding: EdgeInsets.only(
-                                        bottom: index ==
-                                                yachtVm.userFavouritesList
-                                                        .length -
-                                                    1
-                                            ? 8.h
-                                            : 10),
+                                      bottom:
+                                          index ==
+                                                  yachtVm
+                                                          .userFavouritesList
+                                                          .length -
+                                                      1
+                                              ? 8.h
+                                              : 10,
+                                    ),
                                     child: HostWidget(
                                       service: service,
                                       width: Get.width * .27,
@@ -101,28 +117,30 @@ class _ExperiencesViewState extends State<ExperiencesView> {
                                       isShowRating: false,
                                       isShowStar: true,
                                       isFav: yachtVm.userFavouritesList.any(
-                                          (element) =>
-                                              element.favouriteItemId ==
-                                                  service.id &&
-                                              element.type ==
-                                                  FavouriteType.service.index),
+                                        (element) =>
+                                            element.favouriteItemId ==
+                                                service.id &&
+                                            element.type ==
+                                                FavouriteType.service.index,
+                                      ),
                                       isFavCallBack: () async {
                                         yachtVm.startLoader();
                                         FavouriteModel favModel =
                                             FavouriteModel(
-                                                creaatedAt: Timestamp.now(),
-                                                favouriteItemId: service.id,
-                                                id: service.id,
-                                                type: FavouriteType
-                                                    .service.index);
+                                              creaatedAt: Timestamp.now(),
+                                              favouriteItemId: service.id,
+                                              id: service.id,
+                                              type: FavouriteType.service.index,
+                                            );
                                         if (yachtVm.userFavouritesList.any(
-                                            (element) =>
-                                                element.id == service.id &&
-                                                element.type ==
-                                                    FavouriteType
-                                                        .service.index)) {
-                                          yachtVm.userFavouritesList
-                                              .removeAt(index);
+                                          (element) =>
+                                              element.id == service.id &&
+                                              element.type ==
+                                                  FavouriteType.service.index,
+                                        )) {
+                                          yachtVm.userFavouritesList.removeAt(
+                                            index,
+                                          );
                                           yachtVm.update();
                                           try {
                                             await FbCollections.user
@@ -154,18 +172,27 @@ class _ExperiencesViewState extends State<ExperiencesView> {
                                   ),
                                 );
                               }
-                            });
-                      }),
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
               ),
             );
-    });
+      },
+    );
   }
 
-  Widget cards(XFile img, String? name, String? address,
-      String? rating, int index, FavouritesVm provider) {
+  Widget cards(
+    XFile img,
+    String? name,
+    String? address,
+    String? rating,
+    int index,
+    FavouritesVm provider,
+  ) {
     return Padding(
       padding: EdgeInsets.only(bottom: 10),
       child: Column(
@@ -177,13 +204,9 @@ class _ExperiencesViewState extends State<ExperiencesView> {
                 height: Get.height * .1,
                 width: Get.width * .3,
                 child: ClipRRect(
-                    borderRadius: BorderRadius.circular(18),
-                    child:
-                        Image.file(
-                            File(img.path),
-                            fit: BoxFit.cover,
-                          )
-                        ),
+                  borderRadius: BorderRadius.circular(18),
+                  child: Image.file(File(img.path), fit: BoxFit.cover),
+                ),
               ),
               w4,
               Column(
@@ -192,16 +215,18 @@ class _ExperiencesViewState extends State<ExperiencesView> {
                   Text(
                     name ?? "",
                     style: R.textStyle.helvetica().copyWith(
-                        color: Colors.white,
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   h1,
                   Text(
                     address ?? "",
-                    style: R.textStyle
-                        .helvetica()
-                        .copyWith(color: Colors.white, fontSize: 9.sp),
+                    style: R.textStyle.helvetica().copyWith(
+                      color: Colors.white,
+                      fontSize: 9.sp,
+                    ),
                   ),
                   h0P5,
                   Row(
@@ -212,16 +237,13 @@ class _ExperiencesViewState extends State<ExperiencesView> {
                         child: Text(
                           rating ?? "",
                           style: R.textStyle.helvetica().copyWith(
-                              color: R.colors.yellowDark,
-                              fontSize: 9.sp,
-                              fontWeight: FontWeight.bold),
+                            color: R.colors.yellowDark,
+                            fontSize: 9.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                      Icon(
-                        Icons.star,
-                        color: R.colors.yellowDark,
-                        size: 17,
-                      )
+                      Icon(Icons.star, color: R.colors.yellowDark, size: 17),
                     ],
                   ),
                 ],
@@ -232,12 +254,13 @@ class _ExperiencesViewState extends State<ExperiencesView> {
             SizedBox()
           else
             SizedBox(
-                width: Get.width * .9,
-                child: Divider(
-                  color: R.colors.grey.withOpacity(.40),
-                  thickness: 2,
-                  height: Get.height * .03,
-                ))
+              width: Get.width * .9,
+              child: Divider(
+                color: R.colors.grey.withValues(alpha: .40),
+                thickness: 2,
+                height: Get.height * .03,
+              ),
+            ),
         ],
       ),
     );

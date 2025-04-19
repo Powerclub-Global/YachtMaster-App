@@ -66,7 +66,7 @@ class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     return Consumer2<BaseVm, AuthVm>(builder: (context, provider, authVm, _) {
-      log("C:${countryCode}");
+      log("C:$countryCode");
       return ModalProgressHUD(
         inAsyncCall: authVm.isLoading,
         progressIndicator: SpinKitPulse(
@@ -82,7 +82,7 @@ class _EditProfileState extends State<EditProfile> {
               onTap: () {
                 Helper.focusOut(context);
               },
-              child: Container(
+              child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: R.colors.black,
                   borderRadius: BorderRadius.only(
@@ -191,7 +191,7 @@ class _EditProfileState extends State<EditProfile> {
                                   onFieldSubmitted: (a) {
                                     setState(() {
                                       FocusScope.of(Get.context!)
-                                          .requestFocus(new FocusNode());
+                                          .requestFocus(FocusNode());
                                     });
                                   },
                                   controller: firstNameController,
@@ -230,7 +230,7 @@ class _EditProfileState extends State<EditProfile> {
                                   onFieldSubmitted: (a) {
                                     setState(() {
                                       FocusScope.of(Get.context!)
-                                          .requestFocus(new FocusNode());
+                                          .requestFocus(FocusNode());
                                     });
                                   },
                                   controller: lastNameController,
@@ -270,7 +270,7 @@ class _EditProfileState extends State<EditProfile> {
                                   onFieldSubmitted: (a) {
                                     setState(() {
                                       FocusScope.of(Get.context!)
-                                          .requestFocus(new FocusNode());
+                                          .requestFocus(FocusNode());
                                     });
                                   },
                                   controller: usernameController,

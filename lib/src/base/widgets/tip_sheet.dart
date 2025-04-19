@@ -1,16 +1,10 @@
-import 'dart:io';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:paged_vertical_calendar/utils/date_utils.dart';
 
 import 'package:sizer/sizer.dart';
-import '../../../localization/app_localization.dart';
 import '../../../resources/decorations.dart';
 import '../../../resources/resources.dart';
 import '../../../utils/heights_widths.dart';
-import '../../../utils/helper.dart';
 
 class TipAmountSheet extends StatefulWidget {
   Function(String value)? yesCallBack;

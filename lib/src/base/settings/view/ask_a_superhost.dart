@@ -59,7 +59,7 @@ class _AskSuperHostState extends State<AskSuperHost> {
                         onFieldSubmitted: (a) {
                           setState(() {
                             FocusScope.of(Get.context!)
-                                .requestFocus(new FocusNode());
+                                .requestFocus(FocusNode());
                           });
                         },
                         controller: fullNameCon,
@@ -94,7 +94,7 @@ class _AskSuperHostState extends State<AskSuperHost> {
                         onFieldSubmitted: (a) {
                           setState(() {
                             FocusScope.of(Get.context!)
-                                .requestFocus(new FocusNode());
+                                .requestFocus(FocusNode());
                           });
                         },
                         controller: emailController,
@@ -133,7 +133,7 @@ class _AskSuperHostState extends State<AskSuperHost> {
                         onFieldSubmitted: (a) {
                           setState(() {
                             FocusScope.of(Get.context!)
-                                .requestFocus(new FocusNode());
+                                .requestFocus(FocusNode());
                           });
                         },
                         controller: phoneNumController,
@@ -167,7 +167,7 @@ class _AskSuperHostState extends State<AskSuperHost> {
                         onFieldSubmitted: (a) {
                           setState(() {
                             FocusScope.of(Get.context!)
-                                .requestFocus(new FocusNode());
+                                .requestFocus(FocusNode());
                           });
                         },
                         controller: subjectCon,
@@ -196,7 +196,7 @@ class _AskSuperHostState extends State<AskSuperHost> {
                         onFieldSubmitted: (a) {
                           setState(() {
                             FocusScope.of(Get.context!)
-                                .requestFocus(new FocusNode());
+                                .requestFocus(FocusNode());
                           });
                         },
                         maxLines: 6,

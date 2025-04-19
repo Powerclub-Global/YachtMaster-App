@@ -60,18 +60,20 @@ class _FavouritesViewState extends State<FavouritesView> {
               Text(
                 getTranslated(context, title) ?? "",
                 style: R.textStyle.helveticaBold().copyWith(
-                      color: selectedTabIndex == index
+                  color:
+                      selectedTabIndex == index
                           ? R.colors.yellowDark
                           : R.colors.whiteColor,
-                    ),
+                ),
               ),
               Divider(
-                color: selectedTabIndex == index
-                    ? R.colors.yellowDark
-                    : R.colors.grey.withOpacity(.40),
+                color:
+                    selectedTabIndex == index
+                        ? R.colors.yellowDark
+                        : R.colors.grey.withValues(alpha: .40),
                 thickness: 2,
                 height: Get.height * .03,
-              )
+              ),
             ],
           ),
         ),

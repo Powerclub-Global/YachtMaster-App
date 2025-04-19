@@ -6,12 +6,15 @@ import 'package:sizer/sizer.dart';
 import 'package:time_picker_spinner/time_picker_spinner.dart';
 import '../../../../resources/resources.dart';
 import '../../../../utils/heights_widths.dart';
-import '../../../../utils/helper.dart';
 
 class TimePickerSheet extends StatefulWidget {
   final DateTime selectedDate;
   final ValueChanged<DateTime?> onDateSelect;
-  const TimePickerSheet({super.key, required this.selectedDate, required this.onDateSelect});
+  const TimePickerSheet({
+    super.key,
+    required this.selectedDate,
+    required this.onDateSelect,
+  });
 
   @override
   State<TimePickerSheet> createState() => _TimePickerSheetState();
@@ -32,10 +35,7 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
   @override
   Widget build(BuildContext context) {
     return BackdropFilter(
-      filter: ImageFilter.blur(
-        sigmaX: 5.0,
-        sigmaY: 5.0,
-      ),
+      filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
       child: Container(
         height: 30.h,
         padding: EdgeInsets.symmetric(horizontal: Get.width * .07),
@@ -55,21 +55,25 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
               children: [
                 TextButton(
                   style: ButtonStyle(
-                    overlayColor: MaterialStateColor.resolveWith(
-                            (states) => R.colors.blackDull.withOpacity(0.05)),
+                    overlayColor: WidgetStateColor.resolveWith(
+                      (states) => R.colors.blackDull.withValues(alpha: 0.05),
+                    ),
                   ),
                   onPressed: () {
                     Get.back();
                   },
                   child: Text(
                     "Cancel",
-                    style: R.textStyle.helveticaBold().copyWith(color: R.colors.greyColor),
+                    style: R.textStyle.helveticaBold().copyWith(
+                      color: R.colors.greyColor,
+                    ),
                   ),
                 ),
                 TextButton(
                   style: ButtonStyle(
-                    overlayColor: MaterialStateColor.resolveWith(
-                            (states) => R.colors.blackDull.withOpacity(0.05)),
+                    overlayColor: WidgetStateColor.resolveWith(
+                      (states) => R.colors.blackDull.withValues(alpha: 0.05),
+                    ),
                   ),
                   onPressed: () {
                     widget.onDateSelect(selectedTime);
@@ -77,9 +81,11 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
                   },
                   child: Text(
                     "Save",
-                    style: R.textStyle.helveticaBold().copyWith(color: R.colors.themeMud),
+                    style: R.textStyle.helveticaBold().copyWith(
+                      color: R.colors.themeMud,
+                    ),
                   ),
-                )
+                ),
               ],
             ),
             h3,
@@ -91,7 +97,9 @@ class _TimePickerSheetState extends State<TimePickerSheet> {
               itemHeight: 40,
               normalTextStyle: R.textStyle.helvetica(),
               minutesInterval: 30,
-              highlightedTextStyle: R.textStyle.helveticaBold().copyWith(color: R.colors.themeMud),
+              highlightedTextStyle: R.textStyle.helveticaBold().copyWith(
+                color: R.colors.themeMud,
+              ),
               isForce2Digits: true,
               onTimeChange: (time) {
                 selectedTime = time;

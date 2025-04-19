@@ -237,7 +237,7 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
             }
           },
           onPageChanged: (focusedDay) {
-            log("${focusedDay}");
+            log("$focusedDay");
             _focusedDay = focusedDay;
           },
           calendarStyle: CalendarStyle(

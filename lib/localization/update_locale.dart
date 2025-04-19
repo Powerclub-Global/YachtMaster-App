@@ -9,31 +9,31 @@ bool isRTL = false;
 class UpdateLocale {
    language(String languageCode, BuildContext? context) {
     print(languageCode);
-    Locale _temp;
+    Locale temp;
     setLocale(languageCode);
     switch (languageCode) {
       case "en":
-        _temp = Locale(languageCode, 'US');
+        temp = Locale(languageCode, 'US');
         isRTL = false;
-        Get.updateLocale(_temp);
+        Get.updateLocale(temp);
 
         break;
       case "ar":
-        _temp = Locale(languageCode, 'SA');
+        temp = Locale(languageCode, 'SA');
         isRTL = true;
-        Get.updateLocale(_temp);
+        Get.updateLocale(temp);
         break;
       case "ur":
-        _temp = Locale(languageCode, 'PK');
+        temp = Locale(languageCode, 'PK');
         isRTL = true;
-        Get.updateLocale(_temp);
+        Get.updateLocale(temp);
         break;
       default:
-        _temp = Locale(languageCode, 'US');
+        temp = Locale(languageCode, 'US');
         isRTL = false;
-        Get.updateLocale(_temp);
+        Get.updateLocale(temp);
     }
-    MyApp.setLocale(context!, _temp);
+    MyApp.setLocale(context!, temp);
     return true;
   }
 }

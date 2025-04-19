@@ -34,12 +34,12 @@ class _AddCreditCardState extends State<AddCreditCard> {
   FocusNode dateFn=FocusNode();
   FocusNode cvcFn=FocusNode();
   FocusNode nameFn=FocusNode();
-  var maskFormatter = new MaskTextInputFormatter(
+  var maskFormatter = MaskTextInputFormatter(
       mask: '##/##',
       filter: { "#": RegExp(r'[0-9]') },
       type: MaskAutoCompletionType.lazy
   );
-  var cardFormater = new MaskTextInputFormatter(
+  var cardFormater = MaskTextInputFormatter(
       mask: '#### #### #### ####',
       filter: { "#": RegExp(r'[0-9]') },
       type: MaskAutoCompletionType.lazy

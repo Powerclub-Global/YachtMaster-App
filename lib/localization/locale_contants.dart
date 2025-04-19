@@ -6,23 +6,23 @@ const String ENGLISH = 'en';
 const String ARABIC = 'ar';
 
  setLocale(String languageCode) async {
-  SharedPreferences _prefs = await SharedPreferences.getInstance();
-  await _prefs
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs
       .setString(LANGUAGE_CODE, languageCode)
       .then((value) => print('prefs saved lang = $value'));
   return _locale(languageCode);
 }
 
  getLocale() async {
-  SharedPreferences _prefs = await SharedPreferences.getInstance();
-  String languageCode = _prefs.getString(LANGUAGE_CODE) ?? "ar";
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String languageCode = prefs.getString(LANGUAGE_CODE) ?? "ar";
   print('prefs lang code = $languageCode');
   return _locale(languageCode);
 }
 
  getLanguageCode() async {
-  SharedPreferences _prefs = await SharedPreferences.getInstance();
-  String languageCode = _prefs.getString(LANGUAGE_CODE) ?? "ar";
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String languageCode = prefs.getString(LANGUAGE_CODE) ?? "ar";
   return languageCode;
 }
 

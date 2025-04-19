@@ -39,16 +39,21 @@ class StripeService {
   }) async {
     try {
       Map<String, dynamic>? customer;
-      final currentCustomer =
-          await getCustomers(secretKey: secretKey, customerID: customerID);
+      final currentCustomer = await getCustomers(
+        secretKey: secretKey,
+        customerID: customerID,
+      );
       if (currentCustomer != null) {
         customer = currentCustomer;
         getCustomerID!(customer['id']);
       } else {
         // 1. Create User
         customer = await createCustomer(
-            userName: userName, userEmail: userEmail, secretKey: secretKey);
-        print("SECRENT $secretKey");
+          userName: userName,
+          userEmail: userEmail,
+          secretKey: secretKey,
+        );
+        print("SECRET $secretKey");
         print("CUSTOMER $customer");
         getCustomerID!(customer?['id']);
       }
@@ -60,29 +65,34 @@ class StripeService {
 
       if (isSubscription!) {
         final paymentMethod = await Stripe.instance.createPaymentMethod(
-            options: const PaymentMethodOptions(
-                setupFutureUsage: PaymentIntentsFutureUsage.OffSession),
-            params: PaymentMethodParams.card(
-              paymentMethodData: PaymentMethodData(
-                billingDetails: billingDetails,
-              ),
-            ));
+          options: const PaymentMethodOptions(
+            setupFutureUsage: PaymentIntentsFutureUsage.OffSession,
+          ),
+          params: PaymentMethodParams.card(
+            paymentMethodData: PaymentMethodData(
+              billingDetails: billingDetails,
+            ),
+          ),
+        );
 
         await attachPaymentMethod(
-            paymentId: paymentMethod.id,
-            customerId: customer?['id'],
-            secretKey: secretKey);
+          paymentId: paymentMethod.id,
+          customerId: customer?['id'],
+          secretKey: secretKey,
+        );
         // 4. call API to update the user with the payment method
         await updateCustomer(
-            paymentId: paymentMethod.id,
-            customerId: customer?['id'],
-            secretKey: secretKey);
+          paymentId: paymentMethod.id,
+          customerId: customer?['id'],
+          secretKey: secretKey,
+        );
         // 5. call API to create subscription
 
         var subscription = await createSubscription(
-            priceID: priceID!,
-            customerId: customer?['id'],
-            secretKey: secretKey);
+          priceID: priceID!,
+          customerId: customer?['id'],
+          secretKey: secretKey,
+        );
         // log(subscription?["id"]);
         getSubscriptionID!(subscription?["id"]);
         if (subscription?['status'] == 'active') {
@@ -90,16 +100,24 @@ class StripeService {
           onPaymentSuccess();
         } else {
           var invoice = await getInvoice(
-              secretKey: secretKey, invoiceID: subscription?['latest_invoice']);
+            secretKey: secretKey,
+            invoiceID: subscription?['latest_invoice'],
+          );
           var paymentIntent = await getPaymentIntent(
-              secretKey: secretKey, paymentID: invoice?["payment_intent"]);
+            secretKey: secretKey,
+            paymentID: invoice?["payment_intent"],
+          );
           final confirm = await Stripe.instance.confirmPayment(
-              paymentIntentClientSecret: paymentIntent?["client_secret"],
-              options: const PaymentMethodOptions(
-                  setupFutureUsage: PaymentIntentsFutureUsage.OffSession),
-              data: PaymentMethodParams.card(
-                  paymentMethodData:
-                      PaymentMethodData(billingDetails: billingDetails)));
+            paymentIntentClientSecret: paymentIntent?["client_secret"],
+            options: const PaymentMethodOptions(
+              setupFutureUsage: PaymentIntentsFutureUsage.OffSession,
+            ),
+            data: PaymentMethodParams.card(
+              paymentMethodData: PaymentMethodData(
+                billingDetails: billingDetails,
+              ),
+            ),
+          );
           if (confirm.status == PaymentIntentsStatus.Succeeded) {
             paymentDetails!(confirm);
             print(4);
@@ -114,7 +132,7 @@ class StripeService {
           secretKey: secretKey,
         );
 
-        log("____MAP:${paymentIntentResult}");
+        log("____MAP:$paymentIntentResult");
         if (paymentIntentResult?['error'] != null) {
           // Error during creating or confirming Intent
           onError!(paymentIntentResult?['error']);
@@ -124,22 +142,30 @@ class StripeService {
         }
         if (!isCardAvailable) {
           var intent = await createSetupIntent(
-              secretKey: secretKey, customerId: customer?['id']);
+            secretKey: secretKey,
+            customerId: customer?['id'],
+          );
           print("Bhai bout to start payment sheet");
           await Stripe.instance.initPaymentSheet(
-              paymentSheetParameters: SetupPaymentSheetParameters(
-                  customerId: customerID,
-                  paymentIntentClientSecret:
-                      paymentIntentResult?['client_secret'],
-                  style: ThemeMode.dark,
-                  applePay: PaymentSheetApplePay(merchantCountryCode: 'US'),
-                  merchantDisplayName: "Yacht Master"));
+            paymentSheetParameters: SetupPaymentSheetParameters(
+              customerId: customerID,
+              paymentIntentClientSecret: paymentIntentResult?['client_secret'],
+              style: ThemeMode.dark,
+              applePay: PaymentSheetApplePay(merchantCountryCode: 'US'),
+              merchantDisplayName: "Yacht Master",
+            ),
+          );
 
-          await Stripe.instance.presentPaymentSheet().then((value) =>
-              {print("Printing status now ........"), onPaymentSuccess()});
+          await Stripe.instance.presentPaymentSheet().then(
+            (value) => {
+              print("Printing status now ........"),
+              onPaymentSuccess(),
+            },
+          );
 
-          final paymentIntent = await Stripe.instance
-              .handleNextAction(paymentIntentResult?['client_secret']);
+          final paymentIntent = await Stripe.instance.handleNextAction(
+            paymentIntentResult?['client_secret'],
+          );
 
           // await Stripe.instance.confirmPaymentSheetPayment();
 
@@ -147,7 +173,8 @@ class StripeService {
             print(1);
           } else {
             ZBotToast.showToastError(
-                message: getTranslated(Get.context!, "payment_failed"));
+              message: getTranslated(Get.context!, "payment_failed"),
+            );
           }
         } else {
           if (paymentIntentResult?['client_secret'] != null &&
@@ -159,23 +186,30 @@ class StripeService {
 
           if (paymentIntentResult?['client_secret'] != null &&
               paymentIntentResult?['status'] == "requires_confirmation") {
-            log("____HERE:${paymentIntentResult?['status']}_____${paymentIntentResult?['client_secret']}");
+            log(
+              "____HERE:${paymentIntentResult?['status']}_____${paymentIntentResult?['client_secret']}",
+            );
             // 4. if payment requires action calling handleNextAction
             // final paymentIntent = await Stripe.instance.handleNextAction(paymentIntentResult?['client_secret']);
 
             if (paymentIntentResult?['status'] == "requires_confirmation") {
               // 5. Call API to confirm payment
               final confirm = await Stripe.instance.confirmPayment(
-                  paymentIntentClientSecret:
-                      paymentIntentResult?['client_secret'],
-                  options: const PaymentMethodOptions(
-                    setupFutureUsage: PaymentIntentsFutureUsage.OffSession,
+                paymentIntentClientSecret:
+                    paymentIntentResult?['client_secret'],
+                options: const PaymentMethodOptions(
+                  setupFutureUsage: PaymentIntentsFutureUsage.OffSession,
+                ),
+                data: PaymentMethodParams.card(
+                  paymentMethodData: PaymentMethodData(
+                    billingDetails: billingDetails,
                   ),
-                  data: PaymentMethodParams.card(
-                      paymentMethodData:
-                          PaymentMethodData(billingDetails: billingDetails)));
+                ),
+              );
               if (confirm.status == PaymentIntentsStatus.Succeeded) {
-                log("____PAYMENT METHOD ID:${confirm.paymentMethodId}___${customerID}");
+                log(
+                  "____PAYMENT METHOD ID:${confirm.paymentMethodId}___$customerID",
+                );
                 paymentDetails!(confirm);
                 print(3);
                 onPaymentSuccess();
@@ -195,123 +229,155 @@ class StripeService {
   }
 
   Future<void> checkDetailsSubmitted(
-      BuildContext context, bool isRedirect, String connectedAccount) async {
-    var headers = {'Authorization': 'Basic ${connectKey}'};
-    var request = http.Request('GET',
-        Uri.parse('https://api.stripe.com/v1/accounts/${connectedAccount}'));
+    BuildContext context,
+    bool isRedirect,
+    String connectedAccount,
+  ) async {
+    var headers = {'Authorization': 'Basic $connectKey'};
+    var request = http.Request(
+      'GET',
+      Uri.parse('https://api.stripe.com/v1/accounts/$connectedAccount'),
+    );
 
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      var account_data = jsonDecode(await response.stream.bytesToString());
-      if (account_data['details_submitted']) {
+      var accountData = jsonDecode(await response.stream.bytesToString());
+      if (accountData['details_submitted']) {
         ZBotToast.loadingClose();
-        Get.toNamed(WithdrawMoney.route,
-            arguments: {'accountId': connectedAccount});
+        Get.toNamed(
+          WithdrawMoney.route,
+          arguments: {'accountId': connectedAccount},
+        );
       } else {
         ZBotToast.loadingClose();
         if (isRedirect) {
           Navigator.pop(context);
-          Get.dialog(AlertDialog(
-            content: Text(getTranslated(
-                context, "onboarding_return_details_not_suhmitted")!),
-          ));
+          Get.dialog(
+            AlertDialog(
+              content: Text(
+                getTranslated(
+                  context,
+                  "onboarding_return_details_not_submitted",
+                )!,
+              ),
+            ),
+          );
         } else {
-          // error in onoarding starting again
-          Get.bottomSheet(Container(
-            color: Colors.black,
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  Text(
-                    getTranslated(context, "fail_prev_intro")!,
-                    softWrap: true,
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Text(
-                    getTranslated(context, "read_instructions")!,
-                    style: TextStyle(color: Colors.white),
-                    softWrap: true,
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  BulletedList(
+          // error in onboarding starting again
+          Get.bottomSheet(
+            Container(
+              color: Colors.black,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Text(
+                      getTranslated(context, "fail_prev_intro")!,
+                      softWrap: true,
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      getTranslated(context, "read_instructions")!,
+                      style: TextStyle(color: Colors.white),
+                      softWrap: true,
+                    ),
+                    SizedBox(height: 20),
+                    BulletedList(
                       style: TextStyle(
-                          color: const Color.fromARGB(188, 255, 255, 255)),
+                        color: const Color.fromARGB(188, 255, 255, 255),
+                      ),
                       listItems: [
                         getTranslated(
-                            context, "first_time_intro_bullet_text_1")!,
+                          context,
+                          "first_time_intro_bullet_text_1",
+                        )!,
                         getTranslated(
-                            context, "first_time_intro_bullet_text_2")!,
+                          context,
+                          "first_time_intro_bullet_text_2",
+                        )!,
                         getTranslated(
-                            context, "first_time_intro_bullet_text_3")!
-                      ]),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      ZBotToast.loadingShow();
-                      String accountLink =
-                          await createAccountLink(connectedAccount);
-                      if (accountLink == 'internet error') {
-                        // ignore: use_build_context_synchronously
-                        Get.dialog(AlertDialog(
-                          content: Text(getTranslated(
-                              context, "no_internet_onboarding")!),
-                        ));
-                        return;
-                      }
-                      ZBotToast.loadingClose();
-                      launchUrl(Uri.parse(accountLink));
-                    },
-                    child: Container(
-                      height: Get.height * .05,
-                      width: Get.width * .65,
-                      margin:
-                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 2.h),
-                      decoration: AppDecorations.gradientButton(radius: 30),
-                      child: Center(
-                        child: Text(
-                          getTranslated(context, "proceed") ?? "",
-                          style: R.textStyle.helvetica().copyWith(
+                          context,
+                          "first_time_intro_bullet_text_3",
+                        )!,
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    GestureDetector(
+                      onTap: () async {
+                        ZBotToast.loadingShow();
+                        String accountLink = await createAccountLink(
+                          connectedAccount,
+                        );
+                        if (accountLink == 'internet error') {
+                          // ignore: use_build_context_synchronously
+                          Get.dialog(
+                            AlertDialog(
+                              content: Text(
+                                getTranslated(
+                                  context,
+                                  "no_internet_onboarding",
+                                )!,
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+                        ZBotToast.loadingClose();
+                        launchUrl(Uri.parse(accountLink));
+                      },
+                      child: Container(
+                        height: Get.height * .05,
+                        width: Get.width * .65,
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 10.w,
+                          vertical: 2.h,
+                        ),
+                        decoration: AppDecorations.gradientButton(radius: 30),
+                        child: Center(
+                          child: Text(
+                            getTranslated(context, "proceed") ?? "",
+                            style: R.textStyle.helvetica().copyWith(
                               color: R.colors.black,
                               fontSize: 10.5.sp,
-                              fontWeight: FontWeight.bold),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  )
-                ],
+                  ],
+                ),
               ),
             ),
-          ));
+          );
         }
       }
     } else {
       ZBotToast.loadingClose();
-      Get.dialog(AlertDialog(
-          content: Text(getTranslated(context, "no_internet_onboarding")!)));
+      Get.dialog(
+        AlertDialog(
+          content: Text(getTranslated(context, "no_internet_onboarding")!),
+        ),
+      );
     }
   }
 
   Future<void> payout(String accountId, String amount) async {
     var headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ${connectKey}'
+      'Authorization': 'Basic $connectKey',
     };
-    var request =
-        http.Request('POST', Uri.parse('https://api.stripe.com/v1/transfers'));
+    var request = http.Request(
+      'POST',
+      Uri.parse('https://api.stripe.com/v1/transfers'),
+    );
     request.bodyFields = {
       'amount': amount,
       'currency': 'usd',
-      'destination': accountId
+      'destination': accountId,
     };
     request.headers.addAll(headers);
 
@@ -327,24 +393,28 @@ class StripeService {
   Future<String> createStripeConnectedAccount(String uid) async {
     var headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ${connectKey}'
+      'Authorization': 'Basic $connectKey',
     };
-    var request =
-        http.Request('POST', Uri.parse('https://api.stripe.com/v1/accounts'));
+    var request = http.Request(
+      'POST',
+      Uri.parse('https://api.stripe.com/v1/accounts'),
+    );
     request.bodyFields = {
       'controller[losses][payments]': 'application',
       'controller[fees][payer]': 'application',
-      'controller[stripe_dashboard][type]': 'express'
+      'controller[stripe_dashboard][type]': 'express',
     };
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      var account_data = jsonDecode(await response.stream.bytesToString());
-      FbCollections.connected_accounts
-          .add({"account_id": account_data['id'], "uid": uid});
-      return account_data['id'];
+      var accountData = jsonDecode(await response.stream.bytesToString());
+      FbCollections.connected_accounts.add({
+        "account_id": accountData['id'],
+        "uid": uid,
+      });
+      return accountData['id'];
     } else {
       print(response.reasonPhrase);
       return "internet error";
@@ -354,23 +424,25 @@ class StripeService {
   Future<String> createAccountLink(String accountId) async {
     var headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Basic ${connectKey}'
+      'Authorization': 'Basic $connectKey',
     };
     var request = http.Request(
-        'POST', Uri.parse('https://api.stripe.com/v1/account_links'));
+      'POST',
+      Uri.parse('https://api.stripe.com/v1/account_links'),
+    );
     request.bodyFields = {
       'account': accountId,
       'type': 'account_onboarding',
       'refresh_url': 'https://yachtmasterapp.com?status=refresh',
-      'return_url': 'https://yachtmasterapp.com?status=return'
+      'return_url': 'https://yachtmasterapp.com?status=return',
     };
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      var account_link_data = jsonDecode(await response.stream.bytesToString());
-      return account_link_data["url"];
+      var accountLinkData = jsonDecode(await response.stream.bytesToString());
+      return accountLinkData["url"];
     } else {
       print(response.reasonPhrase);
       return "internet error";
@@ -382,8 +454,10 @@ class StripeService {
     required String subscriptionID,
     required VoidCallback onCancelSuccess,
   }) async {
-    var cancelSub =
-        await cancelSubs(secretKey: secretKey, subscriptionID: subscriptionID);
+    var cancelSub = await cancelSubs(
+      secretKey: secretKey,
+      subscriptionID: subscriptionID,
+    );
     if (cancelSub != null) {
       onCancelSuccess();
     }
@@ -397,10 +471,12 @@ class StripeService {
     String result = "";
     var headers = {
       'Authorization': 'Bearer $secretKey',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     };
     var request = http.Request(
-        'DELETE', Uri.parse(ApisForStripe.cancelSubscription(subscriptionID)));
+      'DELETE',
+      Uri.parse(ApisForStripe.cancelSubscription(subscriptionID)),
+    );
 
     request.headers.addAll(headers);
 
@@ -423,14 +499,13 @@ class StripeService {
     String result = "";
     var headers = {
       'Authorization': 'Bearer $secretKey',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     };
-    var request =
-        http.Request('POST', Uri.parse(ApisForStripe.paymentIntents()));
-    request.bodyFields = {
-      'amount': amount,
-      'currency': currency,
-    };
+    var request = http.Request(
+      'POST',
+      Uri.parse(ApisForStripe.paymentIntents()),
+    );
+    request.bodyFields = {'amount': amount, 'currency': currency};
     request.headers.addAll(headers);
     print("about to make request");
     http.StreamedResponse response = await request.send();
@@ -456,10 +531,12 @@ class StripeService {
     String result = "";
     var headers = {
       'Authorization': 'Bearer $secretKey',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     };
-    var request =
-        http.Request('POST', Uri.parse(ApisForStripe.createCustomer()));
+    var request = http.Request(
+      'POST',
+      Uri.parse(ApisForStripe.createCustomer()),
+    );
     request.bodyFields = {'name': userName, 'email': userEmail};
     request.headers.addAll(headers);
 
@@ -471,7 +548,9 @@ class StripeService {
     } else {
       log(response.reasonPhrase.toString());
     }
-    log("REASON ${response.reasonPhrase.toString()} ${response.statusCode.toString()}");
+    log(
+      "REASON ${response.reasonPhrase.toString()} ${response.statusCode.toString()}",
+    );
     return null;
   }
 
@@ -482,10 +561,12 @@ class StripeService {
     String result = "";
     var headers = {
       'Authorization': 'Bearer $secretKey',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     };
-    var request =
-        http.Request('GET', Uri.parse(ApisForStripe.getCustomer(customerID)));
+    var request = http.Request(
+      'GET',
+      Uri.parse(ApisForStripe.getCustomer(customerID)),
+    );
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
@@ -507,17 +588,19 @@ class StripeService {
     String result = "";
     var headers = {
       'Authorization': 'Bearer $secretKey',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     };
-    var request =
-        http.Request('GET', Uri.parse(ApisForStripe.getCard(customerID)));
+    var request = http.Request(
+      'GET',
+      Uri.parse(ApisForStripe.getCard(customerID)),
+    );
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       result = await response.stream.bytesToString();
-      log("____get card successs:${request}");
+      log("____get card successs:$request");
       return jsonDecode(result);
     } else {
       log("get card err:${response.reasonPhrase.toString()}");
@@ -533,17 +616,19 @@ class StripeService {
     String result = "";
     var headers = {
       'Authorization': 'Bearer $secretKey',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     };
-    var request =
-        http.Request('GET', Uri.parse(ApisForStripe.createCard(customerID)));
+    var request = http.Request(
+      'GET',
+      Uri.parse(ApisForStripe.createCard(customerID)),
+    );
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       result = await response.stream.bytesToString();
-      log("create card err:${result}");
+      log("create card err:$result");
 
       return jsonDecode(result);
     } else {
@@ -560,10 +645,12 @@ class StripeService {
     String result = "";
     var headers = {
       'Authorization': 'Bearer $secretKey',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     };
     var request = http.Request(
-        'POST', Uri.parse(ApisForStripe.attachCard(paymentId, customerId)));
+      'POST',
+      Uri.parse(ApisForStripe.attachCard(paymentId, customerId)),
+    );
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
@@ -584,10 +671,12 @@ class StripeService {
     String result = "";
     var headers = {
       'Authorization': 'Bearer $secretKey',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     };
     var request = http.Request(
-        'POST', Uri.parse(ApisForStripe.updateCustomer(customerId)));
+      'POST',
+      Uri.parse(ApisForStripe.updateCustomer(customerId)),
+    );
     request.bodyFields = {
       'invoice_settings[default_payment_method]': paymentId,
     };
@@ -612,14 +701,13 @@ class StripeService {
     String result = "";
     var headers = {
       'Authorization': 'Bearer $secretKey',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     };
-    var request =
-        http.Request('POST', Uri.parse(ApisForStripe.createSubscription()));
-    request.bodyFields = {
-      'customer': customerId,
-      'items[0][price]': priceID,
-    };
+    var request = http.Request(
+      'POST',
+      Uri.parse(ApisForStripe.createSubscription()),
+    );
+    request.bodyFields = {'customer': customerId, 'items[0][price]': priceID};
     request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
@@ -641,7 +729,10 @@ class StripeService {
     Map<String, String>? body,
   }) async {
     var updateSub = await updateSubs(
-        secretKey: secretKey, subscriptionId: subscriptionId, body: body);
+      secretKey: secretKey,
+      subscriptionId: subscriptionId,
+      body: body,
+    );
     if (updateSub != null) {
       onSuccess(updateSub);
     }
@@ -656,10 +747,12 @@ class StripeService {
     String result = "";
     var headers = {
       'Authorization': 'Bearer $secretKey',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     };
     var request = http.Request(
-        'POST', Uri.parse(ApisForStripe.updateSubscription(subscriptionId)));
+      'POST',
+      Uri.parse(ApisForStripe.updateSubscription(subscriptionId)),
+    );
     if (body != null) {
       request.bodyFields = body;
     }
@@ -683,7 +776,10 @@ class StripeService {
     Map<String, String>? body,
   }) async {
     var updateSub = await retrieveSubs(
-        secretKey: secretKey, subscriptionId: subscriptionId, body: body);
+      secretKey: secretKey,
+      subscriptionId: subscriptionId,
+      body: body,
+    );
     if (updateSub != null) {
       onSuccess(updateSub);
     }
@@ -697,10 +793,12 @@ class StripeService {
     String result = "";
     var headers = {
       'Authorization': 'Bearer $secretKey',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     };
     var request = http.Request(
-        'GET', Uri.parse(ApisForStripe.updateSubscription(subscriptionId)));
+      'GET',
+      Uri.parse(ApisForStripe.updateSubscription(subscriptionId)),
+    );
     if (body != null) {
       request.bodyFields = body;
     }
@@ -725,10 +823,12 @@ class StripeService {
     String result = "";
     var headers = {
       'Authorization': 'Bearer $secretKey',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     };
-    var request =
-        http.Request('GET', Uri.parse(ApisForStripe.getInvoice(invoiceID)));
+    var request = http.Request(
+      'GET',
+      Uri.parse(ApisForStripe.getInvoice(invoiceID)),
+    );
 
     request.headers.addAll(headers);
 
@@ -750,10 +850,12 @@ class StripeService {
     String result = "";
     var headers = {
       'Authorization': 'Bearer $secretKey',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     };
     var request = http.Request(
-        'GET', Uri.parse(ApisForStripe.getPaymentIntent(paymentID)));
+      'GET',
+      Uri.parse(ApisForStripe.getPaymentIntent(paymentID)),
+    );
 
     request.headers.addAll(headers);
 
@@ -775,14 +877,16 @@ class StripeService {
     String result = "";
     var headers = {
       'Authorization': 'Bearer $secretKey',
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     };
-    var response = await http.post(Uri.parse(ApisForStripe.createSetupIntent()),
-        body: {
-          'customer': customerId!,
-          'automatic_payment_methods[enabled]': 'true',
-        },
-        headers: headers);
+    var response = await http.post(
+      Uri.parse(ApisForStripe.createSetupIntent()),
+      body: {
+        'customer': customerId!,
+        'automatic_payment_methods[enabled]': 'true',
+      },
+      headers: headers,
+    );
 
     if (response.statusCode == 200) {
       result = response.body;

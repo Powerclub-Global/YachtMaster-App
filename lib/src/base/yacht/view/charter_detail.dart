@@ -1,29 +1,22 @@
 import 'dart:developer';
-import 'dart:io';
 import 'dart:ui';
 import 'dart:ui' as ui;
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:circular_profile_avatar/circular_profile_avatar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sizer/sizer.dart';
 import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
 import '../../../../appwrite.dart';
-import '../../../../constant/constant.dart';
 import '../../../../constant/enums.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
-import '../../../../resources/dummy.dart';
 import '../../../../resources/resources.dart';
 import '../../../../services/firebase_collections.dart';
 import '../../../auth/model/favourite_model.dart';
@@ -32,23 +25,14 @@ import '../../base_vm.dart';
 import '../../inbox/model/chat_heads_model.dart';
 import '../../inbox/view/chat.dart';
 import '../../inbox/view_model/inbox_vm.dart';
-import '../../inbox/view_model/inbox_vm.dart';
 import '../../profile/model/review_model.dart';
 import '../../profile/view/review_screen.dart';
 import '../../search/model/charter_model.dart';
 import '../../search/model/charters_day_model.dart';
-import '../../search/model/city_model.dart';
-import '../../search/view/bookings/model/bookings.dart';
-import '../../search/view/bookings/view/yacht_reserve_payment.dart';
 import '../../search/view/bookings/view_model/bookings_vm.dart';
-import '../../search/view/search_screen.dart';
-import '../../search/view/what_looking_for.dart';
-import '../../search/view/when_will_be_there.dart';
-import '../../search/view/where_going.dart';
 import '../../settings/view_model/settings_vm.dart';
 import '../../widgets/exit_sheet.dart';
 import '../model/choose_offers.dart';
-import '../model/yachts_model.dart';
 import '../../search/view_model/search_vm.dart';
 import 'add_charter_fleet.dart';
 import 'define_availibility.dart';
@@ -60,8 +44,6 @@ import '../../../../utils/general_app_bar.dart';
 import '../../../../utils/heights_widths.dart';
 import '../../../../utils/helper.dart';
 import '../../../../utils/mapstyle.dart';
-
-import '../../inbox/view_model/inbox_vm.dart';
 
 class LatLngModel {
   double lat;
@@ -89,7 +71,7 @@ class _CharterDetailState extends State<CharterDetail> {
   double? lat = 51.5072;
   double? lng = 0.1276;
   String mapStyle = "";
-  Set<Marker> marker = new Set();
+  Set<Marker> marker = {};
   BitmapDescriptor? sourceIcon;
   int index = -1;
   bool isEdit = false;
@@ -116,11 +98,17 @@ class _CharterDetailState extends State<CharterDetail> {
       index = args["index"];
       isEdit = args["isEdit"];
 
-      await moveToLocation(LatLng(charter?.location?.lat ?? 51.5072,
-          charter?.location?.long ?? 0.1276));
-      averageRating = settingsVm.averageRating(settingsVm.allReviews
-          .where((element) => element.hostId == charter?.createdBy)
-          .toList());
+      await moveToLocation(
+        LatLng(
+          charter?.location?.lat ?? 51.5072,
+          charter?.location?.long ?? 0.1276,
+        ),
+      );
+      averageRating = settingsVm.averageRating(
+        settingsVm.allReviews
+            .where((element) => element.hostId == charter?.createdBy)
+            .toList(),
+      );
       addCharterPriceTypeData();
       Future.delayed(Duration(seconds: 2), () {
         stopLoader();
@@ -130,7 +118,7 @@ class _CharterDetailState extends State<CharterDetail> {
 
   @override
   Widget build(BuildContext context) {
-    final Size windowSize = MediaQueryData.fromWindow(window).size;
+    final Size windowSize = MediaQueryData.fromView(window).size;
 
     var args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
@@ -141,42 +129,58 @@ class _CharterDetailState extends State<CharterDetail> {
     bool? isLink = args["isLink"];
 
     var authVm = Provider.of<AuthVm>(context, listen: false);
-    return Consumer6<InboxVm, BaseVm, SettingsVm, SearchVm, YachtVm,
-            BookingsVm>(
-        builder: (context, inboxVm, baseVm, settingsVm, provider, yachtVm,
-            bookingVm, _) {
-      return ModalProgressHUD(
-        inAsyncCall: isLoading,
-        progressIndicator: SpinKitPulse(
-          color: R.colors.themeMud,
-        ),
-        child: Scaffold(
-          backgroundColor: R.colors.black,
-          body: NestedScrollView(
-              headerSliverBuilder:
-                  (BuildContext context, bool innerBoxIsScrolled) {
+    return Consumer6<
+      InboxVm,
+      BaseVm,
+      SettingsVm,
+      SearchVm,
+      YachtVm,
+      BookingsVm
+    >(
+      builder: (
+        context,
+        inboxVm,
+        baseVm,
+        settingsVm,
+        provider,
+        yachtVm,
+        bookingVm,
+        _,
+      ) {
+        return ModalProgressHUD(
+          inAsyncCall: isLoading,
+          progressIndicator: SpinKitPulse(color: R.colors.themeMud),
+          child: Scaffold(
+            backgroundColor: R.colors.black,
+            body: NestedScrollView(
+              headerSliverBuilder: (
+                BuildContext context,
+                bool innerBoxIsScrolled,
+              ) {
                 return <Widget>[
                   Directionality(
                     textDirection: ui.TextDirection.ltr,
                     child: SliverAppBar(
                       leading: GestureDetector(
-                          onTap: () async {
-                            charter = await yachtVm
-                                .fetchCharterById(charter?.id ?? "");
-                            yachtVm.update();
-                            print(isLink);
-                            if (isLink == null) {
-                              Get.back();
-                            } else {
-                              print("About to Route");
-                              Get.toNamed(BaseView.route);
-                            }
-                          },
-                          child: Icon(
-                            Icons.arrow_back_ios,
-                            size: 25,
-                            color: Colors.white,
-                          )),
+                        onTap: () async {
+                          charter = await yachtVm.fetchCharterById(
+                            charter?.id ?? "",
+                          );
+                          yachtVm.update();
+                          print(isLink);
+                          if (isLink == null) {
+                            Get.back();
+                          } else {
+                            print("About to Route");
+                            Get.toNamed(BaseView.route);
+                          }
+                        },
+                        child: Icon(
+                          Icons.arrow_back_ios,
+                          size: 25,
+                          color: Colors.white,
+                        ),
+                      ),
                       centerTitle: true,
                       // shape: ContinuousRectangleBorder(
                       //     borderRadius: BorderRadius.only(
@@ -188,20 +192,23 @@ class _CharterDetailState extends State<CharterDetail> {
                         Row(
                           children: [
                             GestureDetector(
-                                onTap: () {
-                                  Share.share(
-                                      'Share this yachts to your Friends and Family! \n https://yachtmasterapp.com?yachtId=${charter!.id}&from=${authVm.userModel!.username}');
-                                },
-                                child: Image.asset(
-                                  R.images.share,
-                                  scale: 11,
-                                  color: Colors.white,
-                                )),
+                              onTap: () {
+                                Share.share(
+                                  'Share this yachts to your Friends and Family! \n https://yachtmasterapp.com?yachtId=${charter!.id}&from=${authVm.userModel!.username}',
+                                );
+                              },
+                              child: Image.asset(
+                                R.images.share,
+                                scale: 11,
+                                color: Colors.white,
+                              ),
+                            ),
                             w3,
                             if (charter?.createdBy == appwrite.user.$id)
                               GestureDetector(
-                                  onTap: () {
-                                    Get.bottomSheet(SureBottomSheet(
+                                onTap: () {
+                                  Get.bottomSheet(
+                                    SureBottomSheet(
                                       title: "Delete Charter",
                                       subTitle:
                                           "Are you sure you want to delete this charter?",
@@ -210,8 +217,9 @@ class _CharterDetailState extends State<CharterDetail> {
                                         await FbCollections.charterFleet
                                             .doc(charter?.id)
                                             .update({
-                                          "status": CharterStatus.inactive.index
-                                        });
+                                              "status":
+                                                  CharterStatus.inactive.index,
+                                            });
                                         setState(() {});
                                         baseVm.selectedPage = -1;
                                         baseVm.isHome = true;
@@ -219,23 +227,27 @@ class _CharterDetailState extends State<CharterDetail> {
                                         Get.back();
                                         Get.back();
                                       },
-                                    ));
-                                  },
-                                  child: Icon(
-                                    Icons.delete,
-                                    color: R.colors.deleteColor,
-                                    size: 30,
-                                  ))
+                                    ),
+                                  );
+                                },
+                                child: Icon(
+                                  Icons.delete,
+                                  color: R.colors.deleteColor,
+                                  size: 30,
+                                ),
+                              )
                             else
                               GestureDetector(
                                 onTap: () async {
                                   FavouriteModel favModel = FavouriteModel(
-                                      creaatedAt: Timestamp.now(),
-                                      favouriteItemId: charter?.id,
-                                      id: charter?.id,
-                                      type: FavouriteType.charter.index);
+                                    creaatedAt: Timestamp.now(),
+                                    favouriteItemId: charter?.id,
+                                    id: charter?.id,
+                                    type: FavouriteType.charter.index,
+                                  );
                                   if (yachtVm.userFavouritesList.any(
-                                      (element) => element.id == charter?.id)) {
+                                    (element) => element.id == charter?.id,
+                                  )) {
                                     yachtVm.userFavouritesList.removeAt(index);
                                     yachtVm.update();
                                     await FbCollections.user
@@ -252,30 +264,36 @@ class _CharterDetailState extends State<CharterDetail> {
                                   }
                                   provider.update();
                                 },
-                                child: Container(
+                                child: DecoratedBox(
                                   decoration: AppDecorations.favDecoration(),
                                   child: Icon(
-                                      yachtVm.userFavouritesList.any(
+                                    yachtVm.userFavouritesList.any(
+                                              (element) =>
+                                                  element.favouriteItemId ==
+                                                      charter?.id &&
+                                                  element.type ==
+                                                      FavouriteType
+                                                          .charter
+                                                          .index,
+                                            ) ==
+                                            false
+                                        ? Icons.star_border_rounded
+                                        : Icons.star,
+                                    size: 30,
+                                    color:
+                                        yachtVm.userFavouritesList.any(
                                                   (element) =>
                                                       element.favouriteItemId ==
                                                           charter?.id &&
                                                       element.type ==
                                                           FavouriteType
-                                                              .charter.index) ==
-                                              false
-                                          ? Icons.star_border_rounded
-                                          : Icons.star,
-                                      size: 30,
-                                      color: yachtVm.userFavouritesList.any(
-                                                  (element) =>
-                                                      element.favouriteItemId ==
-                                                          charter?.id &&
-                                                      element.type ==
-                                                          FavouriteType
-                                                              .charter.index) ==
-                                              false
-                                          ? R.colors.whiteColor
-                                          : R.colors.yellowDark),
+                                                              .charter
+                                                              .index,
+                                                ) ==
+                                                false
+                                            ? R.colors.whiteColor
+                                            : R.colors.yellowDark,
+                                  ),
                                 ),
                               ),
                             w4,
@@ -298,77 +316,98 @@ class _CharterDetailState extends State<CharterDetail> {
                                   setState(() {});
                                 },
                                 children: List.generate(
-                                    charter?.images?.length ?? 0, (index) {
-                                  return ShaderMask(
-                                    shaderCallback: (Rect bounds) {
-                                      return LinearGradient(
-                                              colors: [
-                                            R.colors.black.withOpacity(.30),
-                                            R.colors.black.withOpacity(.10),
-                                            R.colors.black.withOpacity(.10)
+                                  charter?.images?.length ?? 0,
+                                  (index) {
+                                    return ShaderMask(
+                                      shaderCallback: (Rect bounds) {
+                                        return LinearGradient(
+                                          colors: [
+                                            R.colors.black.withValues(
+                                              alpha: .30,
+                                            ),
+                                            R.colors.black.withValues(
+                                              alpha: .10,
+                                            ),
+                                            R.colors.black.withValues(
+                                              alpha: .10,
+                                            ),
                                           ],
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter)
-                                          .createShader(bounds);
-                                    },
-                                    blendMode: BlendMode.srcATop,
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.only(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                        ).createShader(bounds);
+                                      },
+                                      blendMode: BlendMode.srcATop,
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.only(
                                           bottomRight: Radius.circular(16),
-                                          bottomLeft: Radius.circular(16)),
-                                      child: Container(
-                                        width: Get.width,
-                                        margin: EdgeInsets.only(bottom: 10),
-                                        decoration: BoxDecoration(
+                                          bottomLeft: Radius.circular(16),
+                                        ),
+                                        child: Container(
+                                          width: Get.width,
+                                          margin: EdgeInsets.only(bottom: 10),
+                                          decoration: BoxDecoration(
                                             color: R.colors.black,
                                             borderRadius: BorderRadius.only(
-                                                bottomRight:
-                                                    Radius.circular(16),
-                                                bottomLeft:
-                                                    Radius.circular(16)),
+                                              bottomRight: Radius.circular(16),
+                                              bottomLeft: Radius.circular(16),
+                                            ),
                                             boxShadow: [
                                               BoxShadow(
-                                                  color: R.colors.whiteColor
-                                                      .withOpacity(.60),
-                                                  spreadRadius: 3,
-                                                  blurRadius: 10)
-                                            ]),
-                                        child: CachedNetworkImage(
-                                          imageUrl: charter?.images?[index] ??
-                                              R.images.serviceUrl,
-                                          fit: BoxFit.cover,
-                                          progressIndicatorBuilder: (context,
-                                                  url, downloadProgress) =>
-                                              Padding(
-                                            padding: EdgeInsets.all(80.sp),
-                                            child: SpinKitPulse(
-                                              color: R.colors.themeMud,
-                                            ),
+                                                color: R.colors.whiteColor
+                                                    .withValues(alpha: .60),
+                                                spreadRadius: 3,
+                                                blurRadius: 10,
+                                              ),
+                                            ],
                                           ),
-                                          errorWidget: (context, url, error) =>
-                                              Icon(Icons.error),
+                                          child: CachedNetworkImage(
+                                            imageUrl:
+                                                charter?.images?[index] ??
+                                                R.images.serviceUrl,
+                                            fit: BoxFit.cover,
+                                            progressIndicatorBuilder:
+                                                (
+                                                  context,
+                                                  url,
+                                                  downloadProgress,
+                                                ) => Padding(
+                                                  padding: EdgeInsets.all(
+                                                    80.sp,
+                                                  ),
+                                                  child: SpinKitPulse(
+                                                    color: R.colors.themeMud,
+                                                  ),
+                                                ),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    Icon(Icons.error),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                                }),
+                                    );
+                                  },
+                                ),
                               ),
                               Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(6),
-                                      color: R.colors.black.withOpacity(.40)),
-                                  margin: EdgeInsets.only(
-                                      right: Get.width * .03,
-                                      bottom: Get.height * .02),
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: Get.height * .01,
-                                      horizontal: Get.width * .03),
-                                  child: Text(
-                                    "${currentIndex + 1}/${charter?.images?.length ?? 0}",
-                                    style: R.textStyle.helvetica().copyWith(
-                                          color: R.colors.whiteColor,
-                                        ),
-                                  ))
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(6),
+                                  color: R.colors.black.withValues(alpha: .40),
+                                ),
+                                margin: EdgeInsets.only(
+                                  right: Get.width * .03,
+                                  bottom: Get.height * .02,
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: Get.height * .01,
+                                  horizontal: Get.width * .03,
+                                ),
+                                child: Text(
+                                  "${currentIndex + 1}/${charter?.images?.length ?? 0}",
+                                  style: R.textStyle.helvetica().copyWith(
+                                    color: R.colors.whiteColor,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -381,761 +420,879 @@ class _CharterDetailState extends State<CharterDetail> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: Get.width * .03),
                   child: FutureBuilder(
-                      future: FbCollections.user.doc(charter?.createdBy).get(),
-                      builder:
-                          (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                        if (!snapshot.hasData) {
-                          return SizedBox();
-                        } else {
-                          return Column(
-                            children: [
-                              h3,
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                    future: FbCollections.user.doc(charter?.createdBy).get(),
+                    builder: (
+                      context,
+                      AsyncSnapshot<DocumentSnapshot> snapshot,
+                    ) {
+                      if (!snapshot.hasData) {
+                        return SizedBox();
+                      } else {
+                        return Column(
+                          children: [
+                            h3,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  flex: 2,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        charter?.name ?? "",
+                                        style: R.textStyle
+                                            .helveticaBold()
+                                            .copyWith(
+                                              color: R.colors.whiteColor,
+                                              fontSize: 15.sp,
+                                            ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      h0P9,
+                                      Text(
+                                        snapshot.data?.get("first_name") ?? "",
+                                        style: R.textStyle
+                                            .helveticaBold()
+                                            .copyWith(
+                                              color: R.colors.whiteDull,
+                                              fontSize: 14.sp,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 2,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      if (averageRating.toString() == "NaN")
+                                        SizedBox()
+                                      else
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            Text(
+                                              "$averageRating",
+                                              style: R.textStyle
+                                                  .helveticaBold()
+                                                  .copyWith(
+                                                    color: R.colors.yellowDark,
+                                                    fontSize: 15.sp,
+                                                  ),
+                                              textAlign: TextAlign.justify,
+                                            ),
+                                            w2,
+                                            Image.asset(
+                                              R.images.star,
+                                              color: R.colors.yellowDark,
+                                              scale: 13,
+                                            ),
+                                          ],
+                                        ),
+                                      h0P9,
+                                      Text(
+                                        charter?.location?.adress ?? "",
+                                        style: R.textStyle.helvetica().copyWith(
+                                          color: R.colors.whiteDull,
+                                          fontSize: 13.5.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            h1,
+                            Container(
+                              child: Row(
                                 children: [
-                                  Expanded(
-                                    flex: 2,
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: CachedNetworkImage(
+                                      imageUrl:
+                                          snapshot.data?.get("image_url") ??
+                                          R.images.userImageUrl,
+                                      fit: BoxFit.cover,
+                                      height: Get.height * .08,
+                                      progressIndicatorBuilder:
+                                          (context, url, downloadProgress) =>
+                                              SpinKitPulse(
+                                                color: R.colors.themeMud,
+                                              ),
+                                      errorWidget:
+                                          (context, url, error) =>
+                                              Icon(Icons.error),
+                                    ),
+                                  ),
+                                  w4,
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: Get.height * .02,
+                                    ),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(charter?.name ?? "",
-                                            style: R.textStyle
-                                                .helveticaBold()
-                                                .copyWith(
-                                                    color: R.colors.whiteColor,
-                                                    fontSize: 15.sp),
-                                            overflow: TextOverflow.ellipsis),
-                                        h0P9,
                                         Text(
-                                          snapshot.data?.get("first_name") ??
-                                              "",
+                                          "Day Charter Hosted By\n${snapshot.data?.get("first_name") ?? ""}",
+                                          // "${charter?.host?.firstName}",
                                           style: R.textStyle
                                               .helveticaBold()
                                               .copyWith(
-                                                  color: R.colors.whiteDull,
-                                                  fontSize: 14.sp),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 2,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        if (averageRating.toString() == "NaN")
-                                          SizedBox()
-                                        else
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              Text(
-                                                "$averageRating",
-                                                style: R.textStyle
-                                                    .helveticaBold()
-                                                    .copyWith(
-                                                        color:
-                                                            R.colors.yellowDark,
-                                                        fontSize: 15.sp),
-                                                textAlign: TextAlign.justify,
+                                                color: R.colors.whiteColor,
+                                                fontSize: 14.sp,
                                               ),
-                                              w2,
-                                              Image.asset(
-                                                R.images.star,
-                                                color: R.colors.yellowDark,
-                                                scale: 13,
-                                              )
-                                            ],
-                                          ),
-                                        h0P9,
-                                        Text(charter?.location?.adress ?? "",
-                                            style: R.textStyle
-                                                .helvetica()
-                                                .copyWith(
-                                                    color: R.colors.whiteDull,
-                                                    fontSize: 13.5.sp,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                            overflow: TextOverflow.ellipsis),
+                                        ),
+                                        h1,
+                                        Text(
+                                          charter?.subHeading ??
+                                              "Capacity, Rooms, Bathrooms",
+                                          style: R.textStyle
+                                              .helvetica()
+                                              .copyWith(
+                                                color: R.colors.whiteDull,
+                                                fontSize: 12.sp,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
                                       ],
                                     ),
                                   ),
                                 ],
                               ),
-                              h1,
-                              Container(
-                                child: Row(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: CachedNetworkImage(
-                                        imageUrl:
-                                            snapshot.data?.get("image_url") ??
-                                                R.images.userImageUrl,
-                                        fit: BoxFit.cover,
-                                        height: Get.height * .08,
-                                        progressIndicatorBuilder:
-                                            (context, url, downloadProgress) =>
-                                                SpinKitPulse(
-                                          color: R.colors.themeMud,
-                                        ),
-                                        errorWidget: (context, url, error) =>
-                                            Icon(Icons.error),
+                            ),
+                            h1,
+                            Container(
+                              decoration: BoxDecoration(
+                                color: R.colors.blackDull,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: Get.width * .05,
+                                vertical: Get.height * .02,
+                              ),
+                              child: Column(
+                                children: [
+                                  h1,
+                                  Row(
+                                    children: [
+                                      Text(
+                                        getTranslated(
+                                              context,
+                                              "what_this_charter_offers",
+                                            ) ??
+                                            "",
+                                        style: R.textStyle
+                                            .helveticaBold()
+                                            .copyWith(
+                                              color: R.colors.whiteDull,
+                                              fontSize: 15.sp,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                  h2,
+                                  Wrap(
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    alignment: WrapAlignment.center,
+                                    runSpacing: 20,
+                                    spacing: 10,
+                                    children: List.generate(
+                                      charter?.chartersOffers?.length ?? 0,
+                                      (index) => FutureBuilder(
+                                        future:
+                                            FbCollections.chartersOffers
+                                                .doc(
+                                                  charter
+                                                      ?.chartersOffers?[index],
+                                                )
+                                                .get(),
+                                        builder: (
+                                          context,
+                                          AsyncSnapshot<DocumentSnapshot>
+                                          charterSnapshot,
+                                        ) {
+                                          if (!charterSnapshot.hasData) {
+                                            return SizedBox();
+                                          } else {
+                                            ChooseOffers offer =
+                                                ChooseOffers.fromJson(
+                                                  charterSnapshot.data?.data(),
+                                                );
+                                            return services(
+                                              offer.title ?? "",
+                                              // charter?.chartersOffers?[index].title ?? "",
+                                              // charter?.services?[index].image ??
+                                              offer.icon ?? "",
+                                            );
+                                          }
+                                        },
                                       ),
                                     ),
-                                    w4,
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: Get.height * .02),
+                                  ),
+                                  h4,
+                                  GestureDetector(
+                                    onTap: () {
+                                      Get.toNamed(
+                                        ViewAllServices.route,
+                                        arguments: {"charter": charter},
+                                      );
+                                    },
+                                    child: Container(
+                                      height: Get.height * .05,
+                                      width: Get.width * .6,
+                                      decoration: AppDecorations.gradientButton(
+                                        radius: 30,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          "${getTranslated(context, "view_all")?.toUpperCase()}",
+                                          style: R.textStyle
+                                              .helvetica()
+                                              .copyWith(
+                                                color: R.colors.black,
+                                                fontSize: 12.sp,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            h3,
+                            Row(
+                              children: [
+                                Text(
+                                  getTranslated(context, "boarding") ?? "",
+                                  style: R.textStyle.helvetica().copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: R.colors.whiteColor,
+                                    fontSize: 15.sp,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            h1,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  height: Get.height * .25,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15),
+                                    color: R.colors.blackLight,
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: GoogleMap(
+                                      myLocationButtonEnabled: true,
+                                      myLocationEnabled: true,
+                                      zoomGesturesEnabled: true,
+                                      markers: marker,
+                                      onMapCreated: _onMapCreated,
+                                      initialCameraPosition: CameraPosition(
+                                        target: LatLng(
+                                          charter?.location?.lat ?? 51.5072,
+                                          charter?.location?.long ?? 0.1276,
+                                        ),
+                                        zoom: 14.0,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                h1,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text(
-                                            "Day Charter Hosted By\n${snapshot.data?.get("first_name") ?? ""}",
-                                            // "${charter?.host?.firstName}",
+                                            charter?.location?.adress ??
+                                                "MIAMI BEACH MARINA",
                                             style: R.textStyle
-                                                .helveticaBold()
-                                                .copyWith(
-                                                    color: R.colors.whiteColor,
-                                                    fontSize: 14.sp),
+                                                .helvetica()
+                                                .copyWith(color: Colors.white),
                                           ),
-                                          h1,
+                                          h0P7,
                                           Text(
-                                            charter?.subHeading ??
-                                                "Capacity, Rooms, Bathrooms",
+                                            charter?.location?.adress ??
+                                                "D-2, Water Lake, Johar Town, Lahore",
                                             style: R.textStyle
                                                 .helvetica()
                                                 .copyWith(
-                                                    color: R.colors.whiteDull,
-                                                    fontSize: 12.sp,
-                                                    fontWeight:
-                                                        FontWeight.bold),
+                                                  color: Colors.white,
+                                                  fontSize: 10.sp,
+                                                ),
                                           ),
                                         ],
                                       ),
                                     ),
                                   ],
                                 ),
+                              ],
+                            ),
+                            if (settingsVm.allReviews
+                                .where(
+                                  (element) =>
+                                      element.hostId == appwrite.user.$id &&
+                                      element.charterFleetDetail?.id ==
+                                          charter?.id,
+                                )
+                                .toList()
+                                .isEmpty)
+                              SizedBox()
+                            else
+                              h4,
+                            if (settingsVm.allReviews
+                                .where(
+                                  (element) =>
+                                      element.hostId == appwrite.user.$id &&
+                                      element.charterFleetDetail?.id ==
+                                          charter?.id,
+                                )
+                                .toList()
+                                .isEmpty)
+                              SizedBox()
+                            else
+                              GeneralWidgets.seeAllWidget(
+                                context,
+                                "rating_and_reviews",
+                                isPadding: false,
+                                onTap: () {
+                                  Get.toNamed(
+                                    ReviewScreen.route,
+                                    arguments: {
+                                      "reviews":
+                                          settingsVm.allReviews
+                                              .where(
+                                                (element) =>
+                                                    element.hostId ==
+                                                        appwrite.user.$id &&
+                                                    element
+                                                            .charterFleetDetail
+                                                            ?.id ==
+                                                        charter?.id,
+                                              )
+                                              .toList(),
+                                    },
+                                  );
+                                },
                               ),
-                              h1,
+                            h2,
+                            SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: List.generate(
+                                  settingsVm.allReviews
+                                              .where(
+                                                (element) =>
+                                                    element.hostId ==
+                                                        appwrite.user.$id &&
+                                                    element
+                                                            .charterFleetDetail
+                                                            ?.id ==
+                                                        charter?.id,
+                                              )
+                                              .toList()
+                                              .length >
+                                          3
+                                      ? 3
+                                      : settingsVm.allReviews
+                                          .where(
+                                            (element) =>
+                                                element.hostId ==
+                                                    appwrite.user.$id &&
+                                                element
+                                                        .charterFleetDetail
+                                                        ?.id ==
+                                                    charter?.id,
+                                          )
+                                          .toList()
+                                          .length,
+                                  (index) {
+                                    ReviewModel review =
+                                        settingsVm.allReviews
+                                            .where(
+                                              (element) =>
+                                                  element.hostId ==
+                                                      appwrite.user.$id &&
+                                                  element
+                                                          .charterFleetDetail
+                                                          ?.id ==
+                                                      charter?.id,
+                                            )
+                                            .toList()[index];
+                                    return RatingReviewsCard(
+                                      reviewModel: review,
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            if (isEdit == true) SizedBox() else h3,
+                            if (isEdit == true)
+                              SizedBox()
+                            else
                               Container(
                                 decoration: BoxDecoration(
-                                    color: R.colors.blackDull,
-                                    borderRadius: BorderRadius.circular(15)),
+                                  color: R.colors.blackDull,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: Get.width * .05,
-                                    vertical: Get.height * .02),
+                                  horizontal: Get.width * .04,
+                                  vertical: Get.height * .02,
+                                ),
                                 child: Column(
                                   children: [
-                                    h1,
                                     Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          getTranslated(context,
-                                                  "what_this_charter_offers") ??
-                                              "",
-                                          style: R.textStyle
-                                              .helveticaBold()
-                                              .copyWith(
-                                                  color: R.colors.whiteDull,
-                                                  fontSize: 15.sp),
+                                        Container(
+                                          height: Get.height * .1,
+                                          width: Get.width * .2,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              14,
+                                            ),
+                                            border: Border.all(
+                                              color: R.colors.lightGrey,
+                                            ),
+                                          ),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              14,
+                                            ),
+                                            child: CachedNetworkImage(
+                                              imageUrl:
+                                                  snapshot.data?.get(
+                                                    "image_url",
+                                                  ) ??
+                                                  R.images.userImageUrl,
+                                              fit: BoxFit.cover,
+                                              height: Get.height * .08,
+                                              progressIndicatorBuilder:
+                                                  (
+                                                    context,
+                                                    url,
+                                                    downloadProgress,
+                                                  ) => SpinKitPulse(
+                                                    color: R.colors.themeMud,
+                                                  ),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      Icon(Icons.error),
+                                            ),
+                                          ),
+                                        ),
+                                        w3,
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            h2,
+                                            Text(
+                                              "${getTranslated(context, "hosted_by")} \n${snapshot.data?.get("first_name") ?? ""}",
+                                              style: R.textStyle
+                                                  .helveticaBold()
+                                                  .copyWith(
+                                                    color: Colors.white,
+                                                  ),
+                                            ),
+                                            h0P7,
+                                            Text(
+                                              "${getTranslated(context, "verified_booking_reviews")}",
+                                              style: R.textStyle
+                                                  .helvetica()
+                                                  .copyWith(
+                                                    color: Colors.white,
+                                                    fontSize: 12.sp,
+                                                  ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
                                     h2,
-                                    Wrap(
-                                        crossAxisAlignment:
-                                            WrapCrossAlignment.center,
-                                        alignment: WrapAlignment.center,
-                                        runSpacing: 20,
-                                        spacing: 10,
-                                        children: List.generate(
-                                            charter?.chartersOffers?.length ??
-                                                0,
-                                            (index) => FutureBuilder(
-                                                future: FbCollections
-                                                    .chartersOffers
-                                                    .doc(charter
-                                                            ?.chartersOffers?[
-                                                        index])
-                                                    .get(),
-                                                builder: (context,
-                                                    AsyncSnapshot<
-                                                            DocumentSnapshot>
-                                                        charterSnapshot) {
-                                                  if (!charterSnapshot
-                                                      .hasData) {
-                                                    return SizedBox();
-                                                  } else {
-                                                    ChooseOffers offer =
-                                                        ChooseOffers.fromJson(
-                                                            charterSnapshot.data
-                                                                ?.data());
-                                                    return services(
-                                                        offer.title ?? "",
-                                                        // charter?.chartersOffers?[index].title ?? "",
-                                                        // charter?.services?[index].image ??
-                                                        offer.icon ?? "");
-                                                  }
-                                                }))),
-                                    h4,
                                     GestureDetector(
-                                      onTap: () {
-                                        Get.toNamed(ViewAllServices.route,
-                                            arguments: {"charter": charter});
+                                      onTap: () async {
+                                        ChatHeadModel? chatHead =
+                                            await createChatHead(inboxVm);
+                                        setState(() {});
+                                        log(
+                                          "__________________CHat head id:${chatHead?.id}__${chatHead?.createdBy}",
+                                        );
+                                        Get.toNamed(
+                                          ChatView.route,
+                                          arguments: {
+                                            "chatHeadModel": chatHead,
+                                          },
+                                        );
                                       },
                                       child: Container(
                                         height: Get.height * .05,
                                         width: Get.width * .6,
                                         decoration:
                                             AppDecorations.gradientButton(
-                                                radius: 30),
+                                              radius: 30,
+                                            ),
                                         child: Center(
                                           child: Text(
-                                            "${getTranslated(context, "view_all")?.toUpperCase()}",
+                                            "${getTranslated(context, "message_host")?.toUpperCase()}",
                                             style: R.textStyle
                                                 .helvetica()
                                                 .copyWith(
-                                                    color: R.colors.black,
-                                                    fontSize: 12.sp,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              h3,
-                              Row(
-                                children: [
-                                  Text(
-                                    getTranslated(context, "boarding") ?? "",
-                                    style: R.textStyle.helvetica().copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: R.colors.whiteColor,
-                                        fontSize: 15.sp),
-                                  ),
-                                ],
-                              ),
-                              h1,
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    height: Get.height * .25,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15),
-                                      color: R.colors.blackLight,
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(15),
-                                      child: GoogleMap(
-                                        myLocationButtonEnabled: true,
-                                        myLocationEnabled: true,
-                                        zoomGesturesEnabled: true,
-                                        markers: marker,
-                                        onMapCreated: _onMapCreated,
-                                        initialCameraPosition: CameraPosition(
-                                            target: LatLng(
-                                                charter?.location?.lat ??
-                                                    51.5072,
-                                                charter?.location?.long ??
-                                                    0.1276),
-                                            zoom: 14.0),
-                                      ),
-                                    ),
-                                  ),
-                                  h1,
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              charter?.location?.adress ??
-                                                  "MIAMI BEACH MARINA",
-                                              style: R.textStyle
-                                                  .helvetica()
-                                                  .copyWith(
-                                                      color: Colors.white),
-                                            ),
-                                            h0P7,
-                                            Text(
-                                              charter?.location?.adress ??
-                                                  "D-2, Water Lake, Johar Town, Lahore",
-                                              style: R.textStyle
-                                                  .helvetica()
-                                                  .copyWith(
-                                                      color: Colors.white,
-                                                      fontSize: 10.sp),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              if (settingsVm.allReviews
-                                  .where((element) =>
-                                      element.hostId == appwrite.user.$id &&
-                                      element.charterFleetDetail?.id ==
-                                          charter?.id)
-                                  .toList()
-                                  .isEmpty)
-                                SizedBox()
-                              else
-                                h4,
-                              if (settingsVm.allReviews
-                                  .where((element) =>
-                                      element.hostId == appwrite.user.$id &&
-                                      element.charterFleetDetail?.id ==
-                                          charter?.id)
-                                  .toList()
-                                  .isEmpty)
-                                SizedBox()
-                              else
-                                GeneralWidgets.seeAllWidget(
-                                    context, "rating_and_reviews",
-                                    isPadding: false, onTap: () {
-                                  Get.toNamed(ReviewScreen.route, arguments: {
-                                    "reviews": settingsVm.allReviews
-                                        .where((element) =>
-                                            element.hostId ==
-                                                appwrite.user.$id &&
-                                            element.charterFleetDetail?.id ==
-                                                charter?.id)
-                                        .toList()
-                                  });
-                                }),
-                              h2,
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                    children: List.generate(
-                                        settingsVm.allReviews
-                                                    .where((element) =>
-                                                        element.hostId ==
-                                                            appwrite.user.$id &&
-                                                        element.charterFleetDetail
-                                                                ?.id ==
-                                                            charter?.id)
-                                                    .toList()
-                                                    .length >
-                                                3
-                                            ? 3
-                                            : settingsVm.allReviews
-                                                .where((element) =>
-                                                    element.hostId ==
-                                                        appwrite.user.$id &&
-                                                    element.charterFleetDetail
-                                                            ?.id ==
-                                                        charter?.id)
-                                                .toList()
-                                                .length, (index) {
-                                  ReviewModel review = settingsVm.allReviews
-                                      .where((element) =>
-                                          element.hostId == appwrite.user.$id &&
-                                          element.charterFleetDetail?.id ==
-                                              charter?.id)
-                                      .toList()[index];
-                                  return RatingReviewsCard(
-                                    reviewModel: review,
-                                  );
-                                })),
-                              ),
-                              if (isEdit == true) SizedBox() else h3,
-                              if (isEdit == true)
-                                SizedBox()
-                              else
-                                Container(
-                                  decoration: BoxDecoration(
-                                      color: R.colors.blackDull,
-                                      borderRadius: BorderRadius.circular(12)),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: Get.width * .04,
-                                      vertical: Get.height * .02),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            height: Get.height * .1,
-                                            width: Get.width * .2,
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(14),
-                                                border: Border.all(
-                                                    color: R.colors.lightGrey)),
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(14),
-                                              child: CachedNetworkImage(
-                                                imageUrl: snapshot.data
-                                                        ?.get("image_url") ??
-                                                    R.images.userImageUrl,
-                                                fit: BoxFit.cover,
-                                                height: Get.height * .08,
-                                                progressIndicatorBuilder:
-                                                    (context, url,
-                                                            downloadProgress) =>
-                                                        SpinKitPulse(
-                                                  color: R.colors.themeMud,
+                                                  color: R.colors.black,
+                                                  fontSize: 12.sp,
+                                                  fontWeight: FontWeight.bold,
                                                 ),
-                                                errorWidget:
-                                                    (context, url, error) =>
-                                                        Icon(Icons.error),
-                                              ),
-                                            ),
-                                          ),
-                                          w3,
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              h2,
-                                              Text(
-                                                "${getTranslated(context, "hosted_by")} \n${snapshot.data?.get("first_name") ?? ""}",
-                                                style: R.textStyle
-                                                    .helveticaBold()
-                                                    .copyWith(
-                                                        color: Colors.white),
-                                              ),
-                                              h0P7,
-                                              Text(
-                                                "${getTranslated(context, "verified_booking_reviews")}",
-                                                style: R.textStyle
-                                                    .helvetica()
-                                                    .copyWith(
-                                                        color: Colors.white,
-                                                        fontSize: 12.sp),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      h2,
-                                      GestureDetector(
-                                        onTap: () async {
-                                          ChatHeadModel? chatHead =
-                                              await createChatHead(inboxVm);
-                                          setState(() {});
-                                          log("__________________CHat head id:${chatHead?.id}__${chatHead?.createdBy}");
-                                          Get.toNamed(ChatView.route,
-                                              arguments: {
-                                                "chatHeadModel": chatHead
-                                              });
-                                        },
-                                        child: Container(
-                                          height: Get.height * .05,
-                                          width: Get.width * .6,
-                                          decoration:
-                                              AppDecorations.gradientButton(
-                                                  radius: 30),
-                                          child: Center(
-                                            child: Text(
-                                              "${getTranslated(context, "message_host")?.toUpperCase()}",
-                                              style: R.textStyle
-                                                  .helvetica()
-                                                  .copyWith(
-                                                      color: R.colors.black,
-                                                      fontSize: 12.sp,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                            ),
                                           ),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              h3,
-                              Container(
-                                decoration: BoxDecoration(
-                                    color: R.colors.blackDull,
-                                    borderRadius: BorderRadius.circular(12)),
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: Get.width * .04,
-                                    vertical: Get.height * .02),
-                                child: Column(
-                                  children: [
-                                    tiles(
-                                        0,
-                                        "availability",
-                                        "${charter?.availability?.startTime} - ${charter?.availability?.endTime}",
-                                        ""),
-                                    tiles(
-                                        4,
-                                        "capacity",
-                                        charter?.guestCapacity.toString() ?? "",
-                                        "",
-                                        isDivider:
-                                            (charter?.healthSafety?.title !=
-                                                    null) &&
-                                                (charter?.yachtRules?.title !=
-                                                    null)),
-                                    if (charter?.yachtRules?.title != null)
-                                      tiles(
-                                          1,
-                                          charter?.yachtRules?.title ?? "",
-                                          charter?.yachtRules?.description ??
-                                              "",
-                                          "${getTranslated(context, "hosts_yacht_rules")}",
-                                          isDivider:
-                                              charter?.healthSafety?.title !=
-                                                  null),
-                                    if (charter?.healthSafety?.title != null)
-                                      tiles(
-                                          2,
-                                          charter?.healthSafety?.title ?? "",
-                                          charter?.healthSafety?.description ??
-                                              "",
-                                          getTranslated(context,
-                                                  "yacht_masters_health_and_safety_requirements") ??
-                                              "",
-                                          isDivider: false),
-                                    // tiles(3,charter?.cancelationPolicy?.title?? "" , charter?.cancelationPolicy?.description??"",getTranslated(context, "cancellation_policy") ?? "",
-                                    //     isDivider: false),
+                                    ),
                                   ],
                                 ),
                               ),
-                              h3,
-                              Padding(
-                                padding: EdgeInsets.only(left: 10),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    Get.toNamed(RulesRegulations.route,
-                                        arguments: {
-                                          "appBarTitle": settingsVm.allContent
-                                                  .where((element) =>
-                                                      element.type ==
-                                                      AppContentType
-                                                          .reportListing.index)
-                                                  .first
-                                                  .title ??
-                                              "",
-                                          "title": "",
-                                          "desc": settingsVm.allContent
-                                                  .where((element) =>
-                                                      element.type ==
-                                                      AppContentType
-                                                          .reportListing.index)
-                                                  .first
-                                                  .content ??
-                                              "",
-                                          "textStyle": R.textStyle
-                                              .helvetica()
-                                              .copyWith(
-                                                  color: R.colors.whiteDull,
-                                                  fontSize: 14.sp)
-                                        });
-                                  },
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        "${getTranslated(context, "report_listing")}?",
-                                        style: R.textStyle
-                                            .helveticaBold()
-                                            .copyWith(
-                                                color: R.colors.themeMud,
-                                                fontSize: 15.sp,
-                                                decoration:
-                                                    TextDecoration.underline),
-                                      ),
-                                    ],
+                            h3,
+                            Container(
+                              decoration: BoxDecoration(
+                                color: R.colors.blackDull,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: Get.width * .04,
+                                vertical: Get.height * .02,
+                              ),
+                              child: Column(
+                                children: [
+                                  tiles(
+                                    0,
+                                    "availability",
+                                    "${charter?.availability?.startTime} - ${charter?.availability?.endTime}",
+                                    "",
                                   ),
-                                ),
+                                  tiles(
+                                    4,
+                                    "capacity",
+                                    charter?.guestCapacity.toString() ?? "",
+                                    "",
+                                    isDivider:
+                                        (charter?.healthSafety?.title !=
+                                            null) &&
+                                        (charter?.yachtRules?.title != null),
+                                  ),
+                                  if (charter?.yachtRules?.title != null)
+                                    tiles(
+                                      1,
+                                      charter?.yachtRules?.title ?? "",
+                                      charter?.yachtRules?.description ?? "",
+                                      "${getTranslated(context, "hosts_yacht_rules")}",
+                                      isDivider:
+                                          charter?.healthSafety?.title != null,
+                                    ),
+                                  if (charter?.healthSafety?.title != null)
+                                    tiles(
+                                      2,
+                                      charter?.healthSafety?.title ?? "",
+                                      charter?.healthSafety?.description ?? "",
+                                      getTranslated(
+                                            context,
+                                            "yacht_masters_health_and_safety_requirements",
+                                          ) ??
+                                          "",
+                                      isDivider: false,
+                                    ),
+                                  // tiles(3,charter?.cancelationPolicy?.title?? "" , charter?.cancelationPolicy?.description??"",getTranslated(context, "cancellation_policy") ?? "",
+                                  //     isDivider: false),
+                                ],
                               ),
-                              h4,
-                            ],
-                          );
-                        }
-                      }),
-                ),
-              )),
-          bottomNavigationBar: isEdit == true ||
-                  charter?.createdBy == appwrite.user.$id
-              ? GestureDetector(
-                  onTap: () {
-                    Get.toNamed(AddfeaturedCharters.route, arguments: {
-                      "charterModel": charter,
-                      "isEdit": true,
-                      "index": index
-                    });
-                  },
-                  child: Container(
-                    height: Get.height * .055,
-                    width: Get.width * .7,
-                    margin:
-                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 2.h),
-                    decoration: AppDecorations.gradientButton(radius: 30),
-                    child: Center(
-                      child: Text(
-                        "Edit",
-                        style: R.textStyle.helvetica().copyWith(
-                            color: R.colors.black,
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                )
-              : Container(
-                  height: Get.height * .1,
-                  decoration: BoxDecoration(
-                      border: Border(
-                          top: BorderSide(
-                              color: R.colors.whiteColor, width: 0.5)),
-                      color: R.colors.blackDull),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Get.width * .05,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                bookingVm.bookingsModel.durationType ==
-                                        CharterDayType.halfDay.index
-                                    ? "\$${Helper.numberFormatter(double.parse(charter?.priceFourHours.toString() ?? "0"))}"
-                                    : bookingVm.bookingsModel.durationType ==
-                                            CharterDayType.multiDay.index
-                                        ? "\$${Helper.numberFormatter(double.parse(((charter?.priceFullDay ?? 0)).toString()))}"
-                                        : "\$${Helper.numberFormatter(double.parse(charter?.priceHalfDay.toString() ?? "0"))}",
-                                style: R.textStyle.helveticaBold().copyWith(
-                                    color: R.colors.whiteColor,
-                                    fontSize: 18.sp),
-                              ),
-                              w2,
-                              PopupMenuButton(
-                                offset: Offset(windowSize.width / 5, 20),
-                                elevation: 2,
-                                color: R.colors.black,
-                                itemBuilder: (BuildContext context) {
-                                  return charterDayList
-                                      .toList()
-                                      .map((e) => PopupMenuItem(
-                                            value: charterDayList.indexOf(e),
-                                            child: Text(
-                                              e.title.split("C").first,
-                                              style: R.textStyle
-                                                  .helveticaBold()
-                                                  .copyWith(
-                                                      color: Colors.white,
-                                                      fontSize: 11.sp,
-                                                      height: 1.2),
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ))
-                                      .toList();
+                            ),
+                            h3,
+                            Padding(
+                              padding: EdgeInsets.only(left: 10),
+                              child: GestureDetector(
+                                onTap: () {
+                                  Get.toNamed(
+                                    RulesRegulations.route,
+                                    arguments: {
+                                      "appBarTitle":
+                                          settingsVm.allContent
+                                              .where(
+                                                (element) =>
+                                                    element.type ==
+                                                    AppContentType
+                                                        .reportListing
+                                                        .index,
+                                              )
+                                              .first
+                                              .title ??
+                                          "",
+                                      "title": "",
+                                      "desc":
+                                          settingsVm.allContent
+                                              .where(
+                                                (element) =>
+                                                    element.type ==
+                                                    AppContentType
+                                                        .reportListing
+                                                        .index,
+                                              )
+                                              .first
+                                              .content ??
+                                          "",
+                                      "textStyle": R.textStyle
+                                          .helvetica()
+                                          .copyWith(
+                                            color: R.colors.whiteDull,
+                                            fontSize: 14.sp,
+                                          ),
+                                    },
+                                  );
                                 },
-                                onSelected: (int index) {
-                                  log("______________INDEX:$index");
-                                  provider.selectedCharterDayType =
-                                      charterDayList[index];
-                                  bookingVm.bookingsModel.durationType =
-                                      provider.selectedCharterDayType!.type;
-                                  bookingVm.update();
-                                  provider.update();
-                                },
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20)),
                                 child: Row(
-                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      provider.selectedCharterDayType!.title
-                                          .split("C")
-                                          .first,
+                                      "${getTranslated(context, "report_listing")}?",
                                       style: R.textStyle
                                           .helveticaBold()
                                           .copyWith(
-                                              color: Colors.white,
-                                              fontSize: 11.sp,
-                                              height: 1.2),
-                                    ),
-                                    w1,
-                                    Image.asset(
-                                      R.images.dropArrow,
-                                      scale: 4,
+                                            color: R.colors.themeMud,
+                                            fontSize: 15.sp,
+                                            decoration:
+                                                TextDecoration.underline,
+                                          ),
                                     ),
                                   ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      GestureDetector(
-                        onTap: () async {
-                          startLoader();
-                          await bookingVm.onClickBookCharter(
-                              isReserve, charter, context);
-                          stopLoader();
-                        },
-                        child: Container(
-                          height: Get.height * .05,
-                          width: Get.width * .28,
-                          decoration: AppDecorations.gradientButton(radius: 30),
-                          child: Center(
-                            child: Text(
-                              isReserve == false
-                                  ? "${getTranslated(context, "book_now")?.toUpperCase()}"
-                                  : "${getTranslated(context, "reserve")?.toUpperCase()}",
-                              style: R.textStyle.helvetica().copyWith(
-                                  color: R.colors.black,
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.bold),
+                            ),
+                            h4,
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+            bottomNavigationBar:
+                isEdit == true || charter?.createdBy == appwrite.user.$id
+                    ? GestureDetector(
+                      onTap: () {
+                        Get.toNamed(
+                          AddfeaturedCharters.route,
+                          arguments: {
+                            "charterModel": charter,
+                            "isEdit": true,
+                            "index": index,
+                          },
+                        );
+                      },
+                      child: Container(
+                        height: Get.height * .055,
+                        width: Get.width * .7,
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 10.w,
+                          vertical: 2.h,
+                        ),
+                        decoration: AppDecorations.gradientButton(radius: 30),
+                        child: Center(
+                          child: Text(
+                            "Edit",
+                            style: R.textStyle.helvetica().copyWith(
+                              color: R.colors.black,
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-        ),
-      );
-    });
+                    )
+                    : Container(
+                      height: Get.height * .1,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(
+                            color: R.colors.whiteColor,
+                            width: 0.5,
+                          ),
+                        ),
+                        color: R.colors.blackDull,
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Get.width * .05,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    bookingVm.bookingsModel.durationType ==
+                                            CharterDayType.halfDay.index
+                                        ? "\$${Helper.numberFormatter(double.parse(charter?.priceFourHours.toString() ?? "0"))}"
+                                        : bookingVm
+                                                .bookingsModel
+                                                .durationType ==
+                                            CharterDayType.multiDay.index
+                                        ? "\$${Helper.numberFormatter(double.parse(((charter?.priceFullDay ?? 0)).toString()))}"
+                                        : "\$${Helper.numberFormatter(double.parse(charter?.priceHalfDay.toString() ?? "0"))}",
+                                    style: R.textStyle.helveticaBold().copyWith(
+                                      color: R.colors.whiteColor,
+                                      fontSize: 18.sp,
+                                    ),
+                                  ),
+                                  w2,
+                                  PopupMenuButton(
+                                    offset: Offset(windowSize.width / 5, 20),
+                                    elevation: 2,
+                                    color: R.colors.black,
+                                    itemBuilder: (BuildContext context) {
+                                      return charterDayList
+                                          .toList()
+                                          .map(
+                                            (e) => PopupMenuItem(
+                                              value: charterDayList.indexOf(e),
+                                              child: Text(
+                                                e.title.split("C").first,
+                                                style: R.textStyle
+                                                    .helveticaBold()
+                                                    .copyWith(
+                                                      color: Colors.white,
+                                                      fontSize: 11.sp,
+                                                      height: 1.2,
+                                                    ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                          )
+                                          .toList();
+                                    },
+                                    onSelected: (int index) {
+                                      log("______________INDEX:$index");
+                                      provider.selectedCharterDayType =
+                                          charterDayList[index];
+                                      bookingVm.bookingsModel.durationType =
+                                          provider.selectedCharterDayType!.type;
+                                      bookingVm.update();
+                                      provider.update();
+                                    },
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          provider.selectedCharterDayType!.title
+                                              .split("C")
+                                              .first,
+                                          style: R.textStyle
+                                              .helveticaBold()
+                                              .copyWith(
+                                                color: Colors.white,
+                                                fontSize: 11.sp,
+                                                height: 1.2,
+                                              ),
+                                        ),
+                                        w1,
+                                        Image.asset(
+                                          R.images.dropArrow,
+                                          scale: 4,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          GestureDetector(
+                            onTap: () async {
+                              startLoader();
+                              await bookingVm.onClickBookCharter(
+                                isReserve,
+                                charter,
+                                context,
+                              );
+                              stopLoader();
+                            },
+                            child: Container(
+                              height: Get.height * .05,
+                              width: Get.width * .28,
+                              decoration: AppDecorations.gradientButton(
+                                radius: 30,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  isReserve == false
+                                      ? "${getTranslated(context, "book_now")?.toUpperCase()}"
+                                      : "${getTranslated(context, "reserve")?.toUpperCase()}",
+                                  style: R.textStyle.helvetica().copyWith(
+                                    color: R.colors.black,
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+          ),
+        );
+      },
+    );
   }
 
-  Widget tiles(int index, String title, String subTitle, String appBarTitle,
-      {bool isDivider = true}) {
+  Widget tiles(
+    int index,
+    String title,
+    String subTitle,
+    String appBarTitle, {
+    bool isDivider = true,
+  }) {
     return GestureDetector(
       onTap: () {
         index == 0
-            ? Get.toNamed(DefineAvailibility.route,
-                arguments: {"charter": charter, "isReadOnly": true})
-            : Get.toNamed(RulesRegulations.route, arguments: {
+            ? Get.toNamed(
+              DefineAvailibility.route,
+              arguments: {"charter": charter, "isReadOnly": true},
+            )
+            : Get.toNamed(
+              RulesRegulations.route,
+              arguments: {
                 "title": title,
                 "desc": subTitle,
                 "appBarTitle": appBarTitle,
-                "textStyle": R.textStyle
-                    .helvetica()
-                    .copyWith(color: R.colors.whiteDull, fontSize: 13.sp)
-              });
+                "textStyle": R.textStyle.helvetica().copyWith(
+                  color: R.colors.whiteDull,
+                  fontSize: 13.sp,
+                ),
+              },
+            );
       },
       child: Container(
         color: Colors.transparent,
@@ -1151,34 +1308,40 @@ class _CharterDetailState extends State<CharterDetail> {
                     h2,
                     Text(
                       title.capitalizeFirst ?? "",
-                      style: R.textStyle
-                          .helveticaBold()
-                          .copyWith(color: R.colors.whiteDull, fontSize: 12.sp),
+                      style: R.textStyle.helveticaBold().copyWith(
+                        color: R.colors.whiteDull,
+                        fontSize: 12.sp,
+                      ),
                     ),
                     h0P7,
                     Text(
                       subTitle,
                       style: R.textStyle.helvetica().copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 10.sp),
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 10.sp,
+                      ),
                     ),
                   ],
                 ),
-                Icon(Icons.arrow_forward_ios_rounded,
-                    color: R.colors.whiteColor, size: 15.sp)
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: R.colors.whiteColor,
+                  size: 15.sp,
+                ),
               ],
             ),
-            isDivider == false
-                ? SizedBox()
-                : Container(
-                    margin: EdgeInsets.only(top: Get.height * .01),
-                    width: Get.width,
-                    child: Divider(
-                      color: R.colors.grey.withOpacity(.30),
-                      thickness: 2,
-                    ),
-                  )
+            if (isDivider == false)
+              SizedBox()
+            else
+              Container(
+                margin: EdgeInsets.only(top: Get.height * .01),
+                width: Get.width,
+                child: Divider(
+                  color: R.colors.grey.withValues(alpha: .30),
+                  thickness: 2,
+                ),
+              ),
           ],
         ),
       ),
@@ -1186,22 +1349,22 @@ class _CharterDetailState extends State<CharterDetail> {
   }
 
   Widget services(String title, String img) {
-    return Container(
+    return SizedBox(
       width: Get.width * .4,
       child: Row(
         children: [
           SizedBox(
-              height: Get.height * .018,
-              width: Get.width * .06,
-              child: Image.network(
-                img,
-              )),
+            height: Get.height * .018,
+            width: Get.width * .06,
+            child: Image.network(img),
+          ),
           w3,
           Text(
             title,
-            style: R.textStyle
-                .helvetica()
-                .copyWith(color: R.colors.whiteColor, fontSize: 12.sp),
+            style: R.textStyle.helvetica().copyWith(
+              color: R.colors.whiteColor,
+              fontSize: 12.sp,
+            ),
           ),
         ],
       ),
@@ -1236,9 +1399,7 @@ class _CharterDetailState extends State<CharterDetail> {
     //     setMapStyle(mapStyle);
   }
 
-  moveToLocation(
-    LatLng latLng,
-  ) async {
+  moveToLocation(LatLng latLng) async {
     await setSourceAndDestinationIcons();
     setState(() {
       lat = latLng.latitude;
@@ -1246,9 +1407,7 @@ class _CharterDetailState extends State<CharterDetail> {
     });
 
     mapController?.moveCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(target: latLng, zoom: 12),
-      ),
+      CameraUpdate.newCameraPosition(CameraPosition(target: latLng, zoom: 12)),
     );
     latlngs.forEach((element) {
       setMarker(LatLng(element.lat, element.lng), false);
@@ -1260,10 +1419,13 @@ class _CharterDetailState extends State<CharterDetail> {
     // markers.clear();
     setState(() {
       marker.clear();
-      marker.add(Marker(
+      marker.add(
+        Marker(
           icon: sourceIcon!,
           markerId: MarkerId("selected-location"),
-          position: latLng));
+          position: latLng,
+        ),
+      );
     });
   }
 

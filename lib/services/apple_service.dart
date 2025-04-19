@@ -14,7 +14,6 @@ import 'package:yacht_master/src/auth/model/user_model.dart';
 import '../src/auth/view_model/auth_vm.dart';
 import '../utils/zbot_toast.dart';
 
-
 class AuthWithApple {
   var p = Provider.of<AuthVm>(Get.context!, listen: false);
   Future<User?> apple() async {
@@ -23,15 +22,14 @@ class AuthWithApple {
       bool internet = await CheckInternetService.checkInternet();
       if (!internet) {
         ZBotToast.showToastError(message: "No Internet Connection");
-      }
-      else {
+      } else {
         final AuthorizationCredentialAppleID credential =
-        await SignInWithApple.getAppleIDCredential(
-          scopes: [
-            AppleIDAuthorizationScopes.email,
-            AppleIDAuthorizationScopes.fullName
-          ],
-        );
+            await SignInWithApple.getAppleIDCredential(
+              scopes: [
+                AppleIDAuthorizationScopes.email,
+                AppleIDAuthorizationScopes.fullName,
+              ],
+            );
 
         ZBotToast.loadingShow();
         UserModel userData = UserModel(
@@ -45,20 +43,25 @@ class AuthWithApple {
           accessToken: credential.authorizationCode,
         );
 
-        UserCredential? userCredential = await signInWithSocial(oauthCredential);
+        UserCredential? userCredential = await signInWithSocial(
+          oauthCredential,
+        );
         user = userCredential!.user;
 
-
-        p.appleUserName=credential.givenName?.contains(" ")==true?credential.givenName?.split(" ").first??"":credential.givenName;
-        p.appleUserEmail=credential.email;
+        p.appleUserName =
+            credential.givenName?.contains(" ") == true
+                ? credential.givenName?.split(" ").first ?? ""
+                : credential.givenName;
+        p.appleUserEmail = credential.email;
         p.update();
       }
       return user;
     } on Exception catch (e) {
       log("ERR:${e.toString()}");
-
     }
+    return null;
   }
+
   Future<UserCredential?> signInWithSocial(AuthCredential credential) async {
     try {
       var user = (await FirebaseAuth.instance.signInWithCredential(credential));
@@ -67,11 +70,13 @@ class AuthWithApple {
       ZBotToast.loadingClose();
       String error = e.toString();
       log("sign in error $e");
-      if(error.contains('network-request-failed')){
+      if (error.contains('network-request-failed')) {
         ZBotToast.showToastError(message: "No or poor internet connection");
-      }else
-      if (error.contains("too-many-requests")) {
-        ZBotToast.showToastError(message: "This Device is blocked for some time due to unusual activity.");
+      } else if (error.contains("too-many-requests")) {
+        ZBotToast.showToastError(
+          message:
+              "This Device is blocked for some time due to unusual activity.",
+        );
       } else if (error.contains("wrong-password")) {
         ZBotToast.showToastError(message: "ENTER CORRECT PASSWORD");
       } else if (error.contains("user-not-found")) {
@@ -81,7 +86,6 @@ class AuthWithApple {
     }
   }
 }
-
 
 class CheckInternetService {
   static Future<bool> checkInternet() async {
