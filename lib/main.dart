@@ -89,28 +89,34 @@ import 'src/landing_page/view_model/landing_vm.dart';
 import 'utils/no_internet_screen.dart';
 
 void onDidReceiveLocalNotification(
-    int id, String? title, String? body, String? payload) async {
+  int id,
+  String? title,
+  String? body,
+  String? payload,
+) async {
   // display a dialog with the notification details, tap ok to go to another page
   showDialog(
     context: Get.context!,
-    builder: (BuildContext context) => CupertinoAlertDialog(
-      title: Text(title ?? "TITLE"),
-      content: Text(body ?? "BODY"),
-      actions: [
-        CupertinoDialogAction(
-          isDefaultAction: true,
-          child: Text('Ok'),
-          onPressed: () async {
-            Navigator.of(context, rootNavigator: true).pop();
-          },
-        )
-      ],
-    ),
+    builder:
+        (BuildContext context) => CupertinoAlertDialog(
+          title: Text(title ?? "TITLE"),
+          content: Text(body ?? "BODY"),
+          actions: [
+            CupertinoDialogAction(
+              isDefaultAction: true,
+              child: Text('Ok'),
+              onPressed: () async {
+                Navigator.of(context, rootNavigator: true).pop();
+              },
+            ),
+          ],
+        ),
   );
 }
 
 void onDidReceiveNotificationResponse(
-    NotificationResponse notificationResponse) async {
+  NotificationResponse notificationResponse,
+) async {
   final String? payload = notificationResponse.payload;
   if (notificationResponse.payload != null) {
     debugPrint('notification payload: $payload');
@@ -129,38 +135,47 @@ void main() async {
 
   final DarwinInitializationSettings initializationSettingsDarwin =
       DarwinInitializationSettings(
-    requestSoundPermission: false,
-    requestBadgePermission: false,
-    requestAlertPermission: false,
-    onDidReceiveLocalNotification: onDidReceiveLocalNotification,
-  );
+        requestSoundPermission: false,
+        requestBadgePermission: false,
+        requestAlertPermission: false,
+      );
   await FirebaseMessaging.instance.getAPNSToken().then((value) => print(value));
   final LinuxInitializationSettings initializationSettingsLinux =
       LinuxInitializationSettings(defaultActionName: 'Open notification');
   final InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsDarwin,
-      macOS: initializationSettingsDarwin,
-      linux: initializationSettingsLinux);
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-      onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
+    android: initializationSettingsAndroid,
+    iOS: initializationSettingsDarwin,
+    macOS: initializationSettingsDarwin,
+    linux: initializationSettingsLinux,
+  );
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+  );
   final storage = await HydratedStorage.build(
-      storageDirectory: await getApplicationDocumentsDirectory());
+    storageDirectory: await getApplicationDocumentsDirectory(),
+  );
   HydratedBlocOverrides.runZoned(
-      () => runApp(MultiProvider(providers: [
-            ChangeNotifierProvider(create: (_) => LandingVm()),
-            ChangeNotifierProvider(create: (_) => AuthVm()),
-            ChangeNotifierProvider(create: (_) => SearchVm()),
-            ChangeNotifierProvider(create: (_) => SettingsVm()),
-            ChangeNotifierProvider(create: (_) => BaseVm()),
-            ChangeNotifierProvider(create: (_) => HomeVm()),
-            ChangeNotifierProvider(create: (_) => YachtVm()),
-            ChangeNotifierProvider(create: (_) => InboxVm()),
-            ChangeNotifierProvider(create: (_) => FavouritesVm()),
-            ChangeNotifierProvider(create: (_) => BookingsVm()),
-            ChangeNotifierProvider(create: (_) => AdminChatVM()),
-          ], child: MyApp())),
-      storage: storage);
+    () => runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => LandingVm()),
+          ChangeNotifierProvider(create: (_) => AuthVm()),
+          ChangeNotifierProvider(create: (_) => SearchVm()),
+          ChangeNotifierProvider(create: (_) => SettingsVm()),
+          ChangeNotifierProvider(create: (_) => BaseVm()),
+          ChangeNotifierProvider(create: (_) => HomeVm()),
+          ChangeNotifierProvider(create: (_) => YachtVm()),
+          ChangeNotifierProvider(create: (_) => InboxVm()),
+          ChangeNotifierProvider(create: (_) => FavouritesVm()),
+          ChangeNotifierProvider(create: (_) => BookingsVm()),
+          ChangeNotifierProvider(create: (_) => AdminChatVM()),
+        ],
+        child: MyApp(),
+      ),
+    ),
+    storage: storage,
+  );
 }
 
 String? publishableKey;
@@ -169,10 +184,12 @@ String? connectKey;
 Future<FirebaseRemoteConfig> setupRemoteConfig() async {
   final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
   print("fetch kar rha bro .....hahahaha");
-  await remoteConfig.setConfigSettings(RemoteConfigSettings(
-    fetchTimeout: const Duration(minutes: 10),
-    minimumFetchInterval: const Duration(hours: 1),
-  ));
+  await remoteConfig.setConfigSettings(
+    RemoteConfigSettings(
+      fetchTimeout: const Duration(minutes: 10),
+      minimumFetchInterval: const Duration(hours: 1),
+    ),
+  );
   print("kyaa error yahan hai");
   await remoteConfig.fetchAndActivate();
   print("yaan phir yahan hai");
@@ -209,10 +226,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   String connectionStatus = 'Unknown';
   final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> connectivitySubscription;
+  late StreamSubscription<List<ConnectivityResult>> connectivitySubscription;
 
   initConnectivity() async {
-    ConnectivityResult result = ConnectivityResult.none;
+    List<ConnectivityResult> result = [ConnectivityResult.none];
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       result = await _connectivity.checkConnectivity();
@@ -226,28 +243,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return _updateConnectionStatus(result);
   }
 
-  _updateConnectionStatus(ConnectivityResult result) async {
-    switch (result) {
-      case ConnectivityResult.wifi:
-        {}
-        break;
-      case ConnectivityResult.mobile:
-        {}
-        break;
-      case ConnectivityResult.none:
-        {
-          Get.toNamed(NoInternetScreen.route);
-        }
-        setState(() => connectionStatus = result.toString());
-        break;
-      default:
-        break;
+  _updateConnectionStatus(List<ConnectivityResult> result) async {
+    if (result.contains(ConnectivityResult.none)) {
+      Get.toNamed(NoInternetScreen.route);
     }
+    setState(() => connectionStatus = result.toString());
   }
 
   void startConnectionStream() {
-    connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    connectivitySubscription = _connectivity.onConnectivityChanged.listen(
+      _updateConnectionStatus,
+    );
   }
 
   @override
@@ -307,119 +313,142 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-    ]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.light),
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+      ),
     );
-    return Sizer(builder: (context, orientation, deviceType) {
-      return BlocProvider(
-        create: (context) => CitiesBloc(),
-        child: GetMaterialApp(
-          builder: BotToastInit(),
-          navigatorObservers: [BotToastNavigatorObserver()],
-          locale: _locale,
-          fallbackLocale: const Locale('en', 'US'),
-          localizationsDelegates: const [
-            AppLocalization.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale('en', 'US'),
-            Locale('ar', 'SA'),
-          ],
-          localeResolutionCallback:
-              (Locale? deviceLocale, Iterable<Locale> supportedLocales) {
-            for (var locale in supportedLocales) {
-              if (locale.languageCode == deviceLocale?.languageCode &&
-                  locale.countryCode == deviceLocale?.countryCode) {
-                return deviceLocale;
+    return Sizer(
+      builder: (context, orientation, deviceType) {
+        return BlocProvider(
+          create: (context) => CitiesBloc(),
+          child: GetMaterialApp(
+            builder: BotToastInit(),
+            navigatorObservers: [BotToastNavigatorObserver()],
+            locale: _locale,
+            fallbackLocale: const Locale('en', 'US'),
+            localizationsDelegates: const [
+              AppLocalization.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('en', 'US'), Locale('ar', 'SA')],
+            localeResolutionCallback: (
+              Locale? deviceLocale,
+              Iterable<Locale> supportedLocales,
+            ) {
+              for (var locale in supportedLocales) {
+                if (locale.languageCode == deviceLocale?.languageCode &&
+                    locale.countryCode == deviceLocale?.countryCode) {
+                  return deviceLocale;
+                }
               }
-            }
-            return supportedLocales.first;
-          },
-          debugShowCheckedModeBanner: false,
-          home: Application(
-            page: SplashScreen(),
-          ),
-          getPages: [
-            GetPage(name: Vanilla.route, page: () => Vanilla()),
-            GetPage(name: InviteAndEarn.route, page: () => InviteAndEarn()),
-            GetPage(name: BecomeHost.route, page: () => BecomeHost()),
-            GetPage(name: BecomeVerified.route, page: () => BecomeVerified()),
-            GetPage(name: AdminChatView.route, page: () => AdminChatView()),
-            GetPage(name: PayWithCrypto.route, page: () => PayWithCrypto()),
-            GetPage(name: PayWithWallet.route, page: () => PayWithWallet()),
-            GetPage(name: WithdrawMoney.route, page: () => WithdrawMoney()),
-            GetPage(name: CreateUsername.route, page: () => CreateUsername()),
-            GetPage(
-                name: NoInternetScreen.route, page: () => NoInternetScreen()),
-            GetPage(
-                name: HostBookingDetail.route, page: () => HostBookingDetail()),
-            GetPage(name: PaymentPayouts.route, page: () => PaymentPayouts()),
-            GetPage(name: BookingsDetail.route, page: () => BookingsDetail()),
-            GetPage(name: AllBookings.route, page: () => AllBookings()),
-            GetPage(name: SplitPayment.route, page: () => SplitPayment()),
-            GetPage(name: WhosComing.route, page: () => WhosComing()),
-            GetPage(name: WhenWillBeThere.route, page: () => WhenWillBeThere()),
-            GetPage(name: WhatLookingFor.route, page: () => WhatLookingFor()),
-            GetPage(name: WhereGoing.route, page: () => WhereGoing()),
-            GetPage(name: SplashScreen.route, page: () => SplashScreen()),
-            GetPage(name: LoginScreen.route, page: () => LoginScreen()),
-            GetPage(name: SignUpScreen.route, page: () => SignUpScreen()),
-            GetPage(name: SearchScreen.route, page: () => SearchScreen()),
-            GetPage(name: BaseView.route, page: () => BaseView()),
-            GetPage(name: HomeView.route, page: () => HomeView()),
-            GetPage(name: AllBookings.route, page: () => AllBookings()),
-            GetPage(name: HelpCenter.route, page: () => HelpCenter()),
-            GetPage(name: CharterDetail.route, page: () => CharterDetail()),
-            GetPage(
+              return supportedLocales.first;
+            },
+            debugShowCheckedModeBanner: false,
+            home: Application(page: SplashScreen()),
+            getPages: [
+              GetPage(name: Vanilla.route, page: () => Vanilla()),
+              GetPage(name: InviteAndEarn.route, page: () => InviteAndEarn()),
+              GetPage(name: BecomeHost.route, page: () => BecomeHost()),
+              GetPage(name: BecomeVerified.route, page: () => BecomeVerified()),
+              GetPage(name: AdminChatView.route, page: () => AdminChatView()),
+              GetPage(name: PayWithCrypto.route, page: () => PayWithCrypto()),
+              GetPage(name: PayWithWallet.route, page: () => PayWithWallet()),
+              GetPage(name: WithdrawMoney.route, page: () => WithdrawMoney()),
+              GetPage(name: CreateUsername.route, page: () => CreateUsername()),
+              GetPage(
+                name: NoInternetScreen.route,
+                page: () => NoInternetScreen(),
+              ),
+              GetPage(
+                name: HostBookingDetail.route,
+                page: () => HostBookingDetail(),
+              ),
+              GetPage(name: PaymentPayouts.route, page: () => PaymentPayouts()),
+              GetPage(name: BookingsDetail.route, page: () => BookingsDetail()),
+              GetPage(name: AllBookings.route, page: () => AllBookings()),
+              GetPage(name: SplitPayment.route, page: () => SplitPayment()),
+              GetPage(name: WhosComing.route, page: () => WhosComing()),
+              GetPage(
+                name: WhenWillBeThere.route,
+                page: () => WhenWillBeThere(),
+              ),
+              GetPage(name: WhatLookingFor.route, page: () => WhatLookingFor()),
+              GetPage(name: WhereGoing.route, page: () => WhereGoing()),
+              GetPage(name: SplashScreen.route, page: () => SplashScreen()),
+              GetPage(name: LoginScreen.route, page: () => LoginScreen()),
+              GetPage(name: SignUpScreen.route, page: () => SignUpScreen()),
+              GetPage(name: SearchScreen.route, page: () => SearchScreen()),
+              GetPage(name: BaseView.route, page: () => BaseView()),
+              GetPage(name: HomeView.route, page: () => HomeView()),
+              GetPage(name: AllBookings.route, page: () => AllBookings()),
+              GetPage(name: HelpCenter.route, page: () => HelpCenter()),
+              GetPage(name: CharterDetail.route, page: () => CharterDetail()),
+              GetPage(
                 name: YachtReservePayment.route,
-                page: () => YachtReservePayment()),
-            GetPage(name: SettingsView.route, page: () => SettingsView()),
-            GetPage(name: UserProfile.route, page: () => UserProfile()),
-            GetPage(name: ChatView.route, page: () => ChatView()),
-            GetPage(name: PaymentMethods.route, page: () => PaymentMethods()),
-            GetPage(name: AddCreditCard.route, page: () => AddCreditCard()),
-            GetPage(name: PrivacySharing.route, page: () => PrivacySharing()),
-            GetPage(name: HostProfile.route, page: () => HostProfile()),
-            GetPage(name: AddServices.route, page: () => AddServices()),
-            GetPage(
+                page: () => YachtReservePayment(),
+              ),
+              GetPage(name: SettingsView.route, page: () => SettingsView()),
+              GetPage(name: UserProfile.route, page: () => UserProfile()),
+              GetPage(name: ChatView.route, page: () => ChatView()),
+              GetPage(name: PaymentMethods.route, page: () => PaymentMethods()),
+              GetPage(name: AddCreditCard.route, page: () => AddCreditCard()),
+              GetPage(name: PrivacySharing.route, page: () => PrivacySharing()),
+              GetPage(name: HostProfile.route, page: () => HostProfile()),
+              GetPage(name: AddServices.route, page: () => AddServices()),
+              GetPage(
                 name: AddfeaturedCharters.route,
-                page: () => AddfeaturedCharters()),
-            GetPage(name: ChooseServices.route, page: () => ChooseServices()),
-            GetPage(name: AddYachtForSale.route, page: () => AddYachtForSale()),
-            GetPage(name: AskSuperHost.route, page: () => AskSuperHost()),
-            GetPage(name: PrivacyPolicy.route, page: () => PrivacyPolicy()),
-            GetPage(name: TermsOfServices.route, page: () => TermsOfServices()),
-            GetPage(name: SafetyCenter.route, page: () => SafetyCenter()),
-            GetPage(name: AboutApp.route, page: () => AboutApp()),
-            GetPage(name: ServiceDetail.route, page: () => ServiceDetail()),
-            GetPage(
-                name: RulesRegulations.route, page: () => RulesRegulations()),
-            GetPage(
-                name: HostProfileOthers.route, page: () => HostProfileOthers()),
-            GetPage(name: YachtDetail.route, page: () => YachtDetail()),
-            GetPage(name: ReviewScreen.route, page: () => ReviewScreen()),
-            GetPage(
+                page: () => AddfeaturedCharters(),
+              ),
+              GetPage(name: ChooseServices.route, page: () => ChooseServices()),
+              GetPage(
+                name: AddYachtForSale.route,
+                page: () => AddYachtForSale(),
+              ),
+              GetPage(name: AskSuperHost.route, page: () => AskSuperHost()),
+              GetPage(name: PrivacyPolicy.route, page: () => PrivacyPolicy()),
+              GetPage(
+                name: TermsOfServices.route,
+                page: () => TermsOfServices(),
+              ),
+              GetPage(name: SafetyCenter.route, page: () => SafetyCenter()),
+              GetPage(name: AboutApp.route, page: () => AboutApp()),
+              GetPage(name: ServiceDetail.route, page: () => ServiceDetail()),
+              GetPage(
+                name: RulesRegulations.route,
+                page: () => RulesRegulations(),
+              ),
+              GetPage(
+                name: HostProfileOthers.route,
+                page: () => HostProfileOthers(),
+              ),
+              GetPage(name: YachtDetail.route, page: () => YachtDetail()),
+              GetPage(name: ReviewScreen.route, page: () => ReviewScreen()),
+              GetPage(
                 name: DefineAvailibility.route,
-                page: () => DefineAvailibility()),
-            GetPage(name: SearchSeeAll.route, page: () => SearchSeeAll()),
-            GetPage(name: ViewAllServices.route, page: () => ViewAllServices()),
-            GetPage(name: SeeAllHost.route, page: () => SeeAllHost()),
-            GetPage(name: SocialSignup.route, page: () => SocialSignup()),
-            GetPage(
-                name: TipPaymentMethods.route, page: () => TipPaymentMethods()),
-            GetPage(name: ManageAccount.route, page: () => ManageAccount()),
-          ],
-          title: "YachtMaster App",
-        ),
-      );
-    });
+                page: () => DefineAvailibility(),
+              ),
+              GetPage(name: SearchSeeAll.route, page: () => SearchSeeAll()),
+              GetPage(
+                name: ViewAllServices.route,
+                page: () => ViewAllServices(),
+              ),
+              GetPage(name: SeeAllHost.route, page: () => SeeAllHost()),
+              GetPage(name: SocialSignup.route, page: () => SocialSignup()),
+              GetPage(
+                name: TipPaymentMethods.route,
+                page: () => TipPaymentMethods(),
+              ),
+              GetPage(name: ManageAccount.route, page: () => ManageAccount()),
+            ],
+            title: "YachtMaster App",
+          ),
+        );
+      },
+    );
   }
 }

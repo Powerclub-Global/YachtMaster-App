@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_google_places_hoc081098/flutter_google_places_hoc081098.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_webservice/places.dart';
+import 'package:flutter_google_places_hoc081098/google_maps_webservice_places.dart';
 import 'package:provider/provider.dart';
 import '../../../../services/time_schedule_service.dart';
 import '../view/bookings/model/bookings.dart';
@@ -33,10 +33,7 @@ class SearchVm extends ChangeNotifier {
     "03:00 - 07:00",
     "08:00 - 12:00",
   ];
-  List<String> fullDayTimeList = [
-    "10:00 - 02:00",
-    "03:00 - 07:00",
-  ];
+  List<String> fullDayTimeList = ["10:00 - 02:00", "03:00 - 07:00"];
   DateTime? start;
   DateTime? end;
   List<DateTime> holidayFormat = [];
@@ -68,12 +65,24 @@ class SearchVm extends ChangeNotifier {
     // CityModel("Islamabad", R.images.v3, "CALA SOANA"),
   ];
   List<CharterDayModel> charterDayList = [
-    CharterDayModel("Half Day Charter", "4 Hours", R.images.v2,
-        CharterDayType.halfDay.index),
-    CharterDayModel("Full Day Charter", "8 Hours", R.images.v3,
-        CharterDayType.fullDay.index),
-    CharterDayModel("24 Hours", "Stays and Expeditions", R.images.v1,
-        CharterDayType.multiDay.index),
+    CharterDayModel(
+      "Half Day Charter",
+      "4 Hours",
+      R.images.v2,
+      CharterDayType.halfDay.index,
+    ),
+    CharterDayModel(
+      "Full Day Charter",
+      "8 Hours",
+      R.images.v3,
+      CharterDayType.fullDay.index,
+    ),
+    CharterDayModel(
+      "24 Hours",
+      "Stays and Expeditions",
+      R.images.v1,
+      CharterDayType.multiDay.index,
+    ),
   ];
 
   final GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: Helper.mapApiKey);
@@ -87,13 +96,15 @@ class SearchVm extends ChangeNotifier {
   getCharterFromBooking(charterModel) async {
     var bookingsVm = Provider.of<BookingsVm>(Get.context!, listen: false);
     bookingsVm.bookingsModel.charterFleetDetail = CharterFleetDetail(
-        id: charterModel.id,
-        location: charterModel.location?.adress,
-        name: charterModel.name,
-        image: charterModel.images?.first);
-    DocumentSnapshot charterDoc = await FbCollections.charterFleet
-        .doc(bookingsVm.bookingsModel.charterFleetDetail?.id)
-        .get();
+      id: charterModel.id,
+      location: charterModel.location?.adress,
+      name: charterModel.name,
+      image: charterModel.images?.first,
+    );
+    DocumentSnapshot charterDoc =
+        await FbCollections.charterFleet
+            .doc(bookingsVm.bookingsModel.charterFleetDetail?.id)
+            .get();
     CharterModel charter = CharterModel.fromJson(charterDoc.data());
     return charter;
   }
@@ -103,8 +114,10 @@ class SearchVm extends ChangeNotifier {
     String searchAddress,
     TextEditingController searchController,
   ) async {
-    List<Placemark> placemarks =
-        await placemarkFromCoordinates(latLng.latitude, latLng.longitude);
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+      latLng.latitude,
+      latLng.longitude,
+    );
 
     var first = placemarks.first;
     String address;
@@ -138,8 +151,9 @@ class SearchVm extends ChangeNotifier {
 
     if (p != null) {
       // get detail (lat/lng)
-      PlacesDetailsResponse detail =
-          await _places.getDetailsByPlaceId(p.placeId!);
+      PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(
+        p.placeId!,
+      );
       final lat = detail.result.geometry!.location.lat;
       final lng = detail.result.geometry!.location.lng;
       newLocationLatLng = LatLng(lat, lng);
@@ -147,16 +161,10 @@ class SearchVm extends ChangeNotifier {
       print('place:${p.description}');
       googleController?.animateCamera(
         CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: LatLng(lat, lng),
-            zoom: 4.0,
-          ),
+          CameraPosition(target: LatLng(lat, lng), zoom: 4.0),
         ),
       );
-      marker.add(Marker(
-        markerId: MarkerId("id"),
-        position: LatLng(lat, lng),
-      ));
+      marker.add(Marker(markerId: MarkerId("id"), position: LatLng(lat, lng)));
 
       await getCity(LatLng(lat, lng), p.description!, searchController);
     }
@@ -164,8 +172,10 @@ class SearchVm extends ChangeNotifier {
     return p;
   }
 
-  search(TextEditingController searchController,
-      GoogleMapController googleController) async {
+  search(
+    TextEditingController searchController,
+    GoogleMapController googleController,
+  ) async {
     Prediction? p = await PlacesAutocomplete.show(
       context: Get.context!,
       apiKey: Helper.mapApiKey,
@@ -195,11 +205,13 @@ class SearchVm extends ChangeNotifier {
     final DateTime? picked = await showDatePicker(
       builder: (BuildContext context, Widget? child) {
         return Theme(
-            data: ThemeData.light().copyWith(
-                colorScheme: ColorScheme.fromSwatch(
-                    primarySwatch:
-                        Helper.createMaterialColor(R.colors.themeMud))),
-            child: child!);
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.fromSwatch(
+              primarySwatch: Helper.createMaterialColor(R.colors.themeMud),
+            ),
+          ),
+          child: child!,
+        );
       },
       context: context,
       initialDate: initialDate,
@@ -212,12 +224,14 @@ class SearchVm extends ChangeNotifier {
       pickedDate = picked;
       if (isStart) {
         startDate = pickedDate;
-        startController.text =
-            DateFormat("EEE, MMM dd yyyy").format(pickedDate ?? now);
+        startController.text = DateFormat(
+          "EEE, MMM dd yyyy",
+        ).format(pickedDate ?? now);
       } else {
         endDate = pickedDate;
-        endController.text =
-            DateFormat("EEE, MMM dd yyyy").format(pickedDate ?? now);
+        endController.text = DateFormat(
+          "EEE, MMM dd yyyy",
+        ).format(pickedDate ?? now);
       }
     }
     notifyListeners();

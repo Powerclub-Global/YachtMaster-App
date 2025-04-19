@@ -10,9 +10,8 @@ import '../resources/resources.dart';
 import '../resources/text_style.dart';
 import 'helper.dart';
 
-
 class NoInternetScreen extends StatefulWidget {
-  static String route="/noInternetScreen";
+  static String route = "/noInternetScreen";
   const NoInternetScreen({Key? key}) : super(key: key);
 
   @override
@@ -23,10 +22,10 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
   bool isChecking = false;
   String _connectionStatus = 'Unknown';
   final Connectivity _connectivity = Connectivity();
-  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
 
-   initConnectivity() async {
-    late ConnectivityResult result;
+  initConnectivity() async {
+    late List<ConnectivityResult> result;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       setState(() {
@@ -47,31 +46,34 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
     return _updateConnectionStatus(result);
   }
 
-   _updateConnectionStatus(ConnectivityResult result) async {
-    switch (result) {
+  _updateConnectionStatus(List<ConnectivityResult> result) async {
+    switch (result.first) {
       case ConnectivityResult.wifi:
         {
           Get.back();
           Helper.inSnackBar(
-              "Connectivity" ,
-              "Connection Restored",
-              R.colors.themeMud);
+            "Connectivity",
+            "Connection Restored",
+            R.colors.themeMud,
+          );
         }
         break;
       case ConnectivityResult.mobile:
         {
           Get.back();
           Helper.inSnackBar(
-              "Connectivity" ,
-              "Connection Restored",
-              R.colors.themeMud);
+            "Connectivity",
+            "Connection Restored",
+            R.colors.themeMud,
+          );
         }
         break;
       case ConnectivityResult.none:
         Helper.inSnackBar(
-            "Connectivity" ,
-            "No Internet Connection",
-            R.colors.themeMud);
+          "Connectivity",
+          "No Internet Connection",
+          R.colors.themeMud,
+        );
 
         break;
       // setState(() => _connectionStatus = result.toString());
@@ -85,15 +87,16 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
   }
 
   void startConnectionStream() {
-    _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
+      _updateConnectionStatus,
+    );
   }
 
   Future<bool> checkBeforeGoingBack() async {
-    ConnectivityResult result;
+    List<ConnectivityResult> result;
     result = await _connectivity.checkConnectivity();
-    if (result == ConnectivityResult.mobile ||
-        result == ConnectivityResult.wifi) {
+    if (result.contains(ConnectivityResult.mobile) ||
+        result.contains(ConnectivityResult.wifi)) {
       return Future.value(true);
     } else {
       return Future.value(false);
@@ -121,9 +124,13 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
         backgroundColor: Colors.white.withOpacity(0.5),
         body: Container(
           decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(10)),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
           margin: EdgeInsets.symmetric(
-              vertical: Get.height * 0.27, horizontal: Get.width * 0.08),
+            vertical: Get.height * 0.27,
+            horizontal: Get.width * 0.08,
+          ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -137,23 +144,25 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
                     child: Text(
                       "No Internet Connection",
                       style: TextStyle(
-                          fontSize: Get.width * 0.045,
-                          fontFamily: 'monts',
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black),
+                        fontSize: Get.width * 0.045,
+                        fontFamily: 'monts',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),
                 ],
               ),
-              SizedBox(
-                height: Get.height * 0.02,
-              ),
-              if (isChecking) SizedBox(
-                      height: 50,
-                      width: 50,
-                      child: SpinKitPulse(color: R.colors.themeMud,),
-                    ) else _retryButton(),
+              SizedBox(height: Get.height * 0.02),
+              if (isChecking)
+                SizedBox(
+                  height: 50,
+                  width: 50,
+                  child: SpinKitPulse(color: R.colors.themeMud),
+                )
+              else
+                _retryButton(),
             ],
           ),
         ),
@@ -170,19 +179,23 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
           ElevatedButton(
             style: ButtonStyle(
               padding: MaterialStateProperty.all(const EdgeInsets.all(10)),
-              shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              )),
+              shape: MaterialStateProperty.all(
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
               backgroundColor: MaterialStateProperty.all(R.colors.themeMud),
             ),
             onPressed: () {
               initConnectivity();
             },
             child: Container(
-                padding: EdgeInsets.symmetric(horizontal: Get.width * 0.1),
-                child: Text("Retry",
-                    style: AppTextStyle.poppinsMedium()
-                        .copyWith(color: R.colors.whiteColor))),
+              padding: EdgeInsets.symmetric(horizontal: Get.width * 0.1),
+              child: Text(
+                "Retry",
+                style: AppTextStyle.poppinsMedium().copyWith(
+                  color: R.colors.whiteColor,
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -190,11 +203,7 @@ class _NoInternetScreenState extends State<NoInternetScreen> {
   }
 
   Widget noInternetWidget({double? scale}) {
-    return Icon(
-      Icons.warning_rounded,
-      color: R.colors.themeMud,
-      size: 100,
-    );
+    return Icon(Icons.warning_rounded, color: R.colors.themeMud, size: 100);
     /* Center(
         child: Image.asset(
       AppImages.messageImage,
