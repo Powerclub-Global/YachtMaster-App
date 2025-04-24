@@ -289,6 +289,7 @@ class AuthVm extends ChangeNotifier {
           } else {
             userModel?.fcm = Constants.fcmToken;
           }
+          log('Is this working check 1');
           if (userModel != null) {
             if (userModel?.status == UserStatus.blocked) {
               appwrite.account.deleteSession(sessionId: 'current');
@@ -348,6 +349,7 @@ class AuthVm extends ChangeNotifier {
               }
             }
           } else {
+            //appwrite.account.deleteSession(sessionId: 'current');
             Get.offAllNamed(LoginScreen.route);
           }
         });

@@ -69,26 +69,36 @@ class SettingsVm extends ChangeNotifier {
       hostReviews = [];
 
       notifyListeners();
-      var ref = FbCollections.bookingReviews
-          .orderBy("rating", descending: true)
-          .snapshots()
-          .asBroadcastStream();
-      var res = ref.map((list) =>
-          list.docs.map((e) => ReviewModel.fromJson(e.data())).toList());
+      var ref =
+          FbCollections.bookingReviews
+              .orderBy("rating", descending: true)
+              .snapshots()
+              .asBroadcastStream();
+      var res = ref.map(
+        (list) => list.docs.map((e) => ReviewModel.fromJson(e.data())).toList(),
+      );
       reviewStream ??= res.listen((reviews) async {
         if (reviews.isNotEmpty) {
           allReviews = reviews;
-          hostReviews = reviews
-              .where((element) => element.hostId == appwrite.user.$id)
-              .toList();
+          hostReviews =
+              reviews
+                  .where((element) => element.hostId == appwrite.user.$id)
+                  .toList();
           await reviews.asyncForEach((element) async {
             log(")))))))))))))))))HOSTS:${hosts?.length}");
             var doc = await FbCollections.user.doc(element.hostId).get();
-            UserModel featuredHost = UserModel.fromJson(doc.data());
-            featuredHost.rating = element.rating;
+            UserModel? featuredHost;
+            try {
+              featuredHost = UserModel.fromJson(doc.data());
+            } catch (e) {
+              log(
+                "Error in fetching host data in fetchReviews:${e.toString()}",
+              );
+            }
+            featuredHost!.rating = element.rating;
             notifyListeners();
             hosts?.forEach((hostEl) {
-              if (hostEl.uid == featuredHost.uid) {
+              if (hostEl.uid == featuredHost!.uid) {
                 hosts[hosts.indexOf(hostEl)] = featuredHost;
               }
               // hosts?[hosts.indexWhere((hostEl) => hostEl.uid==featuredHost.uid)]=featuredHost;
@@ -112,7 +122,9 @@ class SettingsVm extends ChangeNotifier {
           log("________FEATURED HOST:${yachtVm.allHosts.length}");
           await yachtVm.sortHostsByBookings();
         }
-        log("//////////////////////All Reviews :${allReviews.length}/////host reviews :${hostReviews.length}____FEATURED HOST:${yachtVm.allHosts.length}");
+        log(
+          "//////////////////////All Reviews :${allReviews.length}/////host reviews :${hostReviews.length}____FEATURED HOST:${yachtVm.allHosts.length}",
+        );
         notifyListeners();
       });
       notifyListeners();
