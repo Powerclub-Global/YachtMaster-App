@@ -5,9 +5,9 @@ import '../resources/resources.dart';
 import 'heights_widths.dart';
 
 class EmptyScreen extends StatefulWidget {
-  String? title;
-  String? subtitle;
-  String? img;
+  final String? title;
+  final String? subtitle;
+  final String? img;
 
   EmptyScreen({this.title, this.subtitle, this.img});
 
