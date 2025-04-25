@@ -53,7 +53,7 @@ class _Application extends State<Application> {
 
   handlePushNavigation(Map data) async {
     debugPrint(" handlePushNavigation notification with type ");
-    Get.to(const InboxView(),arguments: {"selectedTabIndex" : 1});
+    Get.to(const InboxView(), arguments: {"selectedTabIndex": 1});
   }
 
   Future<void> onInit() async {
@@ -65,13 +65,13 @@ class _Application extends State<Application> {
     /// heads up notifications.
     await FirebaseMessaging.instance
         .setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-    await FirebaseMessaging.instance
-        .getInitialMessage()
-        .then((RemoteMessage? message) {
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+    await FirebaseMessaging.instance.getInitialMessage().then((
+      RemoteMessage? message,
+    ) {
       if (message != null) {
         log("msg: $message");
         _handleMessage(message);
@@ -87,19 +87,20 @@ class _Application extends State<Application> {
 
       if (notification != null && android != null) {
         flutterLocalNotificationsPlugin.show(
-            notification.hashCode,
-            notification.title,
-            notification.body,
-            NotificationDetails(
-              android: AndroidNotificationDetails(
-                channel.id,
-                channel.name,
-                channelDescription: channel.description,
-                priority: Priority.max,
-                importance: Importance.max,
-                icon: '@mipmap/launcher_icon',
-              ),
-            ));
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              channelDescription: channel.description,
+              priority: Priority.max,
+              importance: Importance.max,
+              icon: '@mipmap/launcher_icon',
+            ),
+          ),
+        );
       }
     });
 

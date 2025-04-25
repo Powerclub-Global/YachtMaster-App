@@ -206,15 +206,15 @@ Future<FirebaseRemoteConfig> setupRemoteConfig() async {
 
 class MyApp extends StatefulWidget {
   static void setLocale(BuildContext context, Locale locale) {
-    _MyAppState? state = context.findRootAncestorStateOfType<_MyAppState>();
+    MyAppState? state = context.findRootAncestorStateOfType<MyAppState>();
     state?.setLocale(locale);
   }
 
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Locale? _locale;
 
   void setLocale(Locale locale) {

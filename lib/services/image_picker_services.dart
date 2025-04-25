@@ -42,26 +42,35 @@ class ImagePickerServices {
     try {
       FirebaseStorage storage = FirebaseStorage.instance;
       Reference ref = storage.ref().child(
-          "$bucketName/${appwrite.user.$id}/${DateTime.now().millisecondsSinceEpoch.toString()}.jpg");
-      final TaskSnapshot snapshot = await ref.putFile(images);
+        "$bucketName/${appwrite.user.$id}/${DateTime.now().millisecondsSinceEpoch.toString()}.jpg",
+      );
+      final TaskSnapshot snapshot = await ref.putFile(
+        images,
+        SettableMetadata(),
+      );
       final downloadUrl = await snapshot.ref.getDownloadURL();
       image = downloadUrl;
       print(image);
     } on Exception catch (e) {
-      // TODO
       log("____________________________ERRPR:$e");
     }
     return image;
   }
 
   Future<List<String>> uploadPostImages(
-      List<XFile>? images, String bucketName) async {
+    List<XFile>? images,
+    String bucketName,
+  ) async {
     List<String> imageList = [];
     await images!.asyncForEach((value) async {
       FirebaseStorage storage = FirebaseStorage.instance;
       Reference ref = storage.ref().child(
-          "$bucketName/${appwrite.user.$id}/${DateTime.now().toString()}");
-      final TaskSnapshot snapshot = await ref.putFile(File(value.path));
+        "$bucketName/${appwrite.user.$id}/${DateTime.now().toString()}",
+      );
+      final TaskSnapshot snapshot = await ref.putFile(
+        File(value.path),
+        SettableMetadata(),
+      );
       String imageUrl = await snapshot.ref.getDownloadURL();
       imageList.add(imageUrl.toString());
       log(imageUrl.toString());

@@ -9,7 +9,7 @@ class EmptyScreen extends StatefulWidget {
   final String? subtitle;
   final String? img;
 
-  EmptyScreen({this.title, this.subtitle, this.img});
+  const EmptyScreen({this.title, this.subtitle, this.img});
 
   @override
   State<EmptyScreen> createState() => _EmptyScreenState();
@@ -25,23 +25,26 @@ class _EmptyScreenState extends State<EmptyScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              widget.img??R.images.emptyBook,
-              scale: 4,
-            ),
+            Image.asset(widget.img ?? R.images.emptyBook, scale: 4),
             h2,
             Text(
-              getTranslated(context, widget.title??"no_bookings") ?? "",
+              getTranslated(context, widget.title ?? "no_bookings") ?? "",
               style: R.textStyle.helveticaBold().copyWith(
-                  color: Colors.white, fontSize: 13.sp),
+                color: Colors.white,
+                fontSize: 13.sp,
+              ),
             ),
             h2,
             Text(
-              getTranslated(context,
-                  widget.subtitle??"no_bookings_has_been_completed_yet") ??
+              getTranslated(
+                    context,
+                    widget.subtitle ?? "no_bookings_has_been_completed_yet",
+                  ) ??
                   "",
               style: R.textStyle.helvetica().copyWith(
-                  color: Colors.white, fontSize: 11.sp),
+                color: Colors.white,
+                fontSize: 11.sp,
+              ),
             ),
           ],
         ),

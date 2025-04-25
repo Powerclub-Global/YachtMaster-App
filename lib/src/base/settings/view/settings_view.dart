@@ -610,7 +610,7 @@ class _SettingsViewState extends State<SettingsView> {
       ),
       status: 0,
       users: [
-        appwrite.user.$id ?? "",
+        appwrite.user.$id,
         Provider.of<BaseVm>(context, listen: false).allUsers
                 .firstWhereOrNull((element) => element.role == UserType.admin)
                 ?.uid ??

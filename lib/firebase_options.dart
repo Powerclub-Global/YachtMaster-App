@@ -58,7 +58,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyA8wiHcK_W_HwT2fH72V3AgrDYt1aivmas',
-    appId: '1:634115072396:android:4f3cdf3826df28515536a9',
+    appId: '1:634115072396:android:4f87b4debbfc36dc5536a9',
     messagingSenderId: '634115072396',
     projectId: 'yacht-masters',
     storageBucket: 'yacht-masters.appspot.com',
@@ -70,8 +70,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '634115072396',
     projectId: 'yacht-masters',
     storageBucket: 'yacht-masters.appspot.com',
-    androidClientId: '634115072396-593oj377bt8718rl21dt3v9eg7vtjidd.apps.googleusercontent.com',
+    androidClientId: '634115072396-57d2t0fpt166ls3kuj3gd2c7nlepb69k.apps.googleusercontent.com',
     iosClientId: '634115072396-0m1ak1a04pql1126mkcq0c6j2cc2h1u5.apps.googleusercontent.com',
     iosBundleId: 'com.yachtmaster.app',
   );
+
 }

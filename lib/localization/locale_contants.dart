@@ -1,38 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String LANGUAGE_CODE = 'languageCode';
-const String ENGLISH = 'en';
-const String ARABIC = 'ar';
+const String globalLanguageCode = 'languageCode';
+const String english = 'en';
+const String arabic = 'ar';
 
- setLocale(String languageCode) async {
+setLocale(String languageCode) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs
-      .setString(LANGUAGE_CODE, languageCode)
+      .setString(globalLanguageCode, languageCode)
       .then((value) => print('prefs saved lang = $value'));
   return _locale(languageCode);
 }
 
- getLocale() async {
+getLocale() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String languageCode = prefs.getString(LANGUAGE_CODE) ?? "ar";
+  String languageCode = prefs.getString(globalLanguageCode) ?? "ar";
   print('prefs lang code = $languageCode');
   return _locale(languageCode);
 }
 
- getLanguageCode() async {
+getLanguageCode() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  String languageCode = prefs.getString(LANGUAGE_CODE) ?? "ar";
+  String languageCode = prefs.getString(globalLanguageCode) ?? "ar";
   return languageCode;
 }
 
 Locale _locale(String languageCode) {
   switch (languageCode) {
-    case ENGLISH:
-      return const Locale(ENGLISH, 'US');
-    case ARABIC:
-      return const Locale(ARABIC, "SA");
+    case english:
+      return const Locale(english, 'US');
+    case arabic:
+      return const Locale(arabic, "SA");
     default:
-      return const Locale(ENGLISH, 'US');
+      return const Locale(english, 'US');
   }
 }

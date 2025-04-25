@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "634115072396-8gvsqcio0mrgabplluco1ecoh0reh3op.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.assorttech.yacht_master",
+            "certificate_hash": "c3bf673a73dae6fe1601c7c93f24c9009d706726"
+          }
+        },
+        {
           "client_id": "634115072396-909r1kam7g6705p7cb5eqmoeot18nmev.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -109,11 +117,27 @@
       },
       "oauth_client": [
         {
+          "client_id": "634115072396-6tiv489f0h94bepp43d38erbe5cp9ik8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.assorttech.yacht_master.M4",
+            "certificate_hash": "92f74b919a9094ad72af4d1724a5952649b703ed"
+          }
+        },
+        {
           "client_id": "634115072396-e6f39k676k0ghm8k2n9oum2iscj34c60.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.assorttech.yacht_master.M4",
             "certificate_hash": "86432684b3876e55082404b492aab02ad2df4d6b"
+          }
+        },
+        {
+          "client_id": "634115072396-hvgb43upe9ich1umsfe23t4umek7m2ka.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.assorttech.yacht_master.M4",
+            "certificate_hash": "c3bf673a73dae6fe1601c7c93f24c9009d706726"
           }
         },
         {
@@ -155,6 +179,22 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "634115072396-57d2t0fpt166ls3kuj3gd2c7nlepb69k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.assorttech.yacht_master.m4",
+            "certificate_hash": "c3bf673a73dae6fe1601c7c93f24c9009d706726"
+          }
+        },
+        {
+          "client_id": "634115072396-e3r7pfco930d0000ltd3dvgfef0vg08o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.assorttech.yacht_master.m4",
+            "certificate_hash": "92f74b919a9094ad72af4d1724a5952649b703ed"
+          }
+        },
         {
           "client_id": "634115072396-gt7v0ucf2qi34krllv3rtfat860th2hc.apps.googleusercontent.com",
           "client_type": 1,
