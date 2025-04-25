@@ -45,7 +45,7 @@ class _HomeViewState extends State<HomeView> {
                 SliverAppBar(
                   centerTitle: true,
                   backgroundColor: R.colors.black,
-                  expandedHeight: 220.sp,
+                  expandedHeight: 50.h,
                   floating: true,
                   pinned: true,
                   flexibleSpace: FlexibleSpaceBar(
