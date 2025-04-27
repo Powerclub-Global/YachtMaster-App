@@ -1,2 +1,0 @@
-C:/Users/mayan/Desktop/DEV/YachtMaster-App/android/app/.cxx/Debug/2t551j1i/x86/CMakeFiles/edit_cache.dir
-C:/Users/mayan/Desktop/DEV/YachtMaster-App/android/app/.cxx/Debug/2t551j1i/x86/CMakeFiles/rebuild_cache.dir
