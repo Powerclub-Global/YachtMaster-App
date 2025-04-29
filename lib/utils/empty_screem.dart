@@ -25,13 +25,13 @@ class _EmptyScreenState extends State<EmptyScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(widget.img ?? R.images.emptyBook, scale: 4),
+            Image.asset(widget.img ?? R.images.emptyBook, scale: 5),
             h2,
             Text(
               getTranslated(context, widget.title ?? "no_bookings") ?? "",
               style: R.textStyle.helveticaBold().copyWith(
                 color: Colors.white,
-                fontSize: 13.sp,
+                fontSize: 12.sp,
               ),
             ),
             h2,
