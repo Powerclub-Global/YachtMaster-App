@@ -56,42 +56,44 @@ class _HomeViewState extends State<HomeView> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Flexible(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.asset(
-                                  R.images.cover,
-                                  width: double.infinity,
-                                  height: null,
-                                  fit: BoxFit.contain,
+                            Stack(
+                              alignment: Alignment.bottomCenter,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Image.asset(
+                                    R.images.cover,
+                                    height: 168.sp,
+                                  ),
                                 ),
-                              ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Get.toNamed(WhereGoing.route);
+                                  },
+                                  child: Container(
+                                    height: Get.height * .065,
+                                    width: Get.width * .8,
+                                    margin: EdgeInsets.only(
+                                      bottom: Get.height * .015,
+                                    ),
+                                    decoration: AppDecorations.gradientButton(
+                                      radius: 30,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "${getTranslated(context, "start_search")?.toUpperCase()}",
+                                        style: R.textStyle.helvetica().copyWith(
+                                          color: R.colors.black,
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
-                        ),
-                        h2,
-                        GestureDetector(
-                          onTap: () {
-                            Get.toNamed(WhereGoing.route);
-                          },
-                          child: Container(
-                            height: Get.height * .065,
-                            width: Get.width * .8,
-                            margin: EdgeInsets.only(bottom: Get.height * .015),
-                            decoration: AppDecorations.gradientButton(
-                              radius: 30,
-                            ),
-                            child: Center(
-                              child: Text(
-                                "${getTranslated(context, "start_search")?.toUpperCase()}",
-                                style: R.textStyle.helvetica().copyWith(
-                                  color: R.colors.black,
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
                         ),
                       ],
                     ),
@@ -112,83 +114,69 @@ class _HomeViewState extends State<HomeView> {
                       padding: EdgeInsets.symmetric(
                         horizontal: Get.width * .03,
                       ),
-                      child: SizedBox(
-                        height: Get.height * 0.8,
-                        child: SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              h2,
-                              GeneralWidgets.seeAllWidget(
-                                context,
-                                "bookings",
-                                onTap: () {
-                                  Get.toNamed(
-                                    AllBookings.route,
-                                    arguments: {"isHost": false},
-                                  );
-                                },
-                                isPadding: false,
-                                isSeeAll:
-                                    provider.allBookings
-                                            .where(
-                                              (element) =>
-                                                  element.createdBy ==
-                                                      appwrite.user.$id ||
-                                                  element.hostUserUid ==
-                                                      appwrite.user.$id,
-                                            )
-                                            .toList()
-                                            .isEmpty
-                                        ? false
-                                        : true,
-                              ),
-                              h2,
-                              SizedBox(
-                                height: Get.height * 0.5,
-                                child: EmptyScreen(
-                                  title: "no_bookings",
-                                  subtitle:
-                                      "no_bookings_has_been_completed_yet",
-                                  img: R.images.emptyBook,
-                                ),
-                              ),
-                              h4,
-                              GestureDetector(
-                                onTap: () {
-                                  Get.toNamed(HelpCenter.route);
-                                },
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      "${getTranslated(context, "do_not_see_a_past_booking")}",
-                                      style: R.textStyle
-                                          .helveticaBold()
-                                          .copyWith(
-                                            color: Colors.white,
-                                            fontSize: 12.sp,
-                                          ),
-                                    ),
-                                    w1,
-                                    Text(
-                                      getTranslated(
-                                            context,
-                                            "visit_help_center",
-                                          ) ??
-                                          "",
-                                      style: R.textStyle
-                                          .helveticaBold()
-                                          .copyWith(
-                                            color: R.colors.themeMud,
-                                            fontSize: 12.sp,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              h7,
-                            ],
+                      child: Column(
+                        children: [
+                          h2,
+                          GeneralWidgets.seeAllWidget(
+                            context,
+                            "bookings",
+                            onTap: () {
+                              Get.toNamed(
+                                AllBookings.route,
+                                arguments: {"isHost": false},
+                              );
+                            },
+                            isPadding: false,
+                            isSeeAll:
+                                provider.allBookings
+                                        .where(
+                                          (element) =>
+                                              element.createdBy ==
+                                                  appwrite.user.$id ||
+                                              element.hostUserUid ==
+                                                  appwrite.user.$id,
+                                        )
+                                        .toList()
+                                        .isEmpty
+                                    ? false
+                                    : true,
                           ),
-                        ),
+                          h2,
+                          Expanded(
+                            child: EmptyScreen(
+                              title: "no_bookings",
+                              subtitle: "no_bookings_has_been_completed_yet",
+                              img: R.images.emptyBook,
+                            ),
+                          ),
+                          h4,
+                          GestureDetector(
+                            onTap: () {
+                              Get.toNamed(HelpCenter.route);
+                            },
+                            child: Row(
+                              children: [
+                                Text(
+                                  "${getTranslated(context, "do_not_see_a_past_booking")}",
+                                  style: R.textStyle.helveticaBold().copyWith(
+                                    color: Colors.white,
+                                    fontSize: 12.sp,
+                                  ),
+                                ),
+                                w1,
+                                Text(
+                                  getTranslated(context, "visit_help_center") ??
+                                      "",
+                                  style: R.textStyle.helveticaBold().copyWith(
+                                    color: R.colors.themeMud,
+                                    fontSize: 12.sp,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          h7,
+                        ],
                       ),
                     )
                     : SingleChildScrollView(

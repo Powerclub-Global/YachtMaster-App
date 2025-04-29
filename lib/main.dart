@@ -154,7 +154,7 @@ void main() async {
   );
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory: HydratedStorageDirectory(
-      (await getTemporaryDirectory()).path,
+      (await getApplicationDocumentsDirectory()).path,
     ),
   );
   runApp(
