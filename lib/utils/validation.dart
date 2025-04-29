@@ -72,8 +72,9 @@ class FieldValidator {
     if (value!.isEmpty) {
       return getTranslated(Get.context!, "enter_card_holder_name");
     }
-    if (!RegExp(r"^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$")
-        .hasMatch(value)) {
+    if (!RegExp(
+      r"^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$",
+    ).hasMatch(value)) {
       return getTranslated(Get.context!, "invalid_name");
     }
     return null;
@@ -145,8 +146,8 @@ class FieldValidator {
       return getTranslated(Get.context!, "email_is_required");
     }
     if (!RegExp(
-            r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?")
-        .hasMatch(value)) {
+      r"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?",
+    ).hasMatch(value)) {
       return getTranslated(Get.context!, "please_enter_a_valid_email_address");
     }
 
@@ -290,15 +291,21 @@ class FieldValidator {
     }
     if (value.length < 6) {
       return getTranslated(
-          Get.context!, "password_should_consists_of_minimum_6_character");
+        Get.context!,
+        "password_should_consists_of_minimum_6_character",
+      );
     }
     if (!RegExp(r"^(?=.*?[0-9])").hasMatch(value)) {
       return getTranslated(
-          Get.context!, "password_should_include_at_least_1_number");
+        Get.context!,
+        "password_should_include_at_least_1_number",
+      );
     }
     if (!RegExp(r'^(?=.*?[!@#\$&*~])').hasMatch(value)) {
       return getTranslated(
-          Get.context!, "password_should_include_1_special_character");
+        Get.context!,
+        "password_should_include_1_special_character",
+      );
     }
     return null;
   }

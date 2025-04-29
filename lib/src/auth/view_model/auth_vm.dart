@@ -9,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:yacht_master/utils/countryCodeConverter.dart';
 import '../../../appwrite.dart';
 import '../../../constant/constant.dart';
 import '../../../constant/enums.dart';
@@ -95,7 +96,7 @@ class AuthVm extends ChangeNotifier {
     );
     print("..................................USER EXIST:$isUserExist");
     if (isUserExist == false) {
-      Helper.inSnackBar('Error', "This user does not exist", R.colors.themeMud);
+      // Helper.inSnackBar('Error', "This user does not exist", R.colors.themeMud);
       ZBotToast.loadingClose();
     } else {
       await signInWithOtp(countryCode, phoneNumController);
@@ -105,6 +106,11 @@ class AuthVm extends ChangeNotifier {
   onClickFacebookLogin() async {
     try {
       startLoader();
+      var sessions = await appwrite.account.listSessions();
+      if (sessions.sessions.isNotEmpty) {
+        await appwrite.account.deleteSession(sessionId: 'current');
+      }
+
       await appwrite.signInFacebook();
       await Future.delayed(Duration(seconds: 2));
       await appwrite.getUser();
@@ -145,6 +151,11 @@ class AuthVm extends ChangeNotifier {
 
   onClickGoogleLogin() async {
     try {
+      var sessions = await appwrite.account.listSessions();
+      if (sessions.sessions.isNotEmpty) {
+        await appwrite.account.deleteSession(sessionId: 'current');
+      }
+
       await appwrite.signInGoogle();
       ZBotToast.loadingShow();
       await Future.delayed(Duration(milliseconds: 100));
@@ -185,6 +196,11 @@ class AuthVm extends ChangeNotifier {
   onClickAppleLogin() async {
     try {
       startLoader();
+      var sessions = await appwrite.account.listSessions();
+      if (sessions.sessions.isNotEmpty) {
+        await appwrite.account.deleteSession(sessionId: 'current');
+      }
+
       await appwrite.signInApple();
       await Future.delayed(Duration(seconds: 2));
       await appwrite.getUser();
@@ -777,6 +793,7 @@ class AuthVm extends ChangeNotifier {
   Future<bool> chechUserCollectionExists(
     String docValue, {
     bool isEmail = false,
+    bool skipError = false, 
   }) async {
     try {
       bool userExists = false;
@@ -795,6 +812,13 @@ class AuthVm extends ChangeNotifier {
       debugPrintStack();
       log(e.toString());
       stopLoader();
+      if (!skipError) {
+        Helper.inSnackBar(
+          "Error",
+          "This user does not exist",
+          R.colors.themeMud,
+        );
+      }
       return false;
     }
   }
@@ -1044,6 +1068,91 @@ class AuthVm extends ChangeNotifier {
       stopLoader();
       debugPrintStack();
       log(e.toString());
+    }
+  }
+
+  Future<void> updateEmailAndPhoneNumber(
+    String email,
+    String phoneNumber,
+  ) async {
+    try {
+      await FbCollections.user.doc(userModel!.uid).update({
+        "email": email,
+        "phone_number": phoneNumber,
+        "number": phoneNumber,
+      });
+      update();
+      Fluttertoast.showToast(
+        msg: "Email and phone number updated successfully.",
+      );
+    } catch (e) {
+      log("Error updating email and phone number: $e");
+      Fluttertoast.showToast(msg: "Failed to update email and phone number.");
+    }
+  }
+
+  Future<void> verifyOtpForUsernameChange(
+    String countryCode,
+    String number,
+    String code,
+    String newUsername,
+  ) async {
+    try {
+      startLoader();
+      print('loader started');
+      var sessions = await appwrite.account.listSessions();
+      if (sessions.sessions.isNotEmpty) {
+        await appwrite.account.deleteSession(sessionId: 'current');
+      }
+      await appwrite
+          .verifySMS(code)
+          .then((result) async {
+            print('sms verified');
+            await appwrite.getUser();
+            print('user fetched');
+            Future.delayed(Duration(seconds: 2), () async {
+              if (userModel?.status == UserStatus.blocked) {
+                appwrite.account.deleteSession(sessionId: 'current');
+                Fluttertoast.showToast(msg: "You have been blocked by admin");
+              } else {
+                userModel?.fcm = Constants.fcmToken;
+                await updateUsernameDataToDB(newUsername);
+                print("Otp verified and username updated successfully");
+                await fetchUser();
+                ZBotToast.loadingClose();
+                Get.offAllNamed(BaseView.route);
+              }
+            });
+          })
+          .catchError((e) {
+            Fluttertoast.showToast(msg: "$e");
+            debugPrintStack();
+            stopLoader();
+          });
+    } catch (e) {
+      debugPrintStack();
+      log(e.toString());
+      stopLoader();
+    }
+  }
+
+  Future<void> sendOtpForUsernameChange(
+    String countryCode,
+    String number,
+  ) async {
+    try {
+      startLoader();
+      String dialCode = CountryCodeConverter.getDialCode(countryCode);
+      String formattedPhone = "$dialCode$number";
+      print("Formatted Phone: $formattedPhone");
+      await appwrite.sendSMS(formattedPhone);
+      print("OTP sent successfully");
+      stopLoader();
+    } catch (e) {
+      debugPrintStack();
+      log("Error sending OTP: $e");
+      stopLoader();
+      Fluttertoast.showToast(msg: "Failed to send OTP: $e");
     }
   }
 }
