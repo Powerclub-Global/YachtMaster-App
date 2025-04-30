@@ -9,7 +9,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
-import 'package:yacht_master/utils/countryCodeConverter.dart';
 import '../../../appwrite.dart';
 import '../../../constant/constant.dart';
 import '../../../constant/enums.dart';
@@ -96,7 +95,6 @@ class AuthVm extends ChangeNotifier {
     );
     print("..................................USER EXIST:$isUserExist");
     if (isUserExist == false) {
-      // Helper.inSnackBar('Error', "This user does not exist", R.colors.themeMud);
       ZBotToast.loadingClose();
     } else {
       await signInWithOtp(countryCode, phoneNumController);
@@ -793,7 +791,7 @@ class AuthVm extends ChangeNotifier {
   Future<bool> chechUserCollectionExists(
     String docValue, {
     bool isEmail = false,
-    bool skipError = false, 
+    bool skipError = false,
   }) async {
     try {
       bool userExists = false;
@@ -883,11 +881,16 @@ class AuthVm extends ChangeNotifier {
     String firstName,
     String lastName,
     String username,
+    String email,
+    String phoneNumber,
   ) async {
     await FbCollections.user.doc(userModel!.uid).update({
       "first_name": firstName,
       "last_name": lastName,
       "username": username,
+      "email": email,
+      "phone_number": phoneNumber,
+      "number": phoneNumber,
     });
     update();
   }
@@ -912,7 +915,13 @@ class AuthVm extends ChangeNotifier {
     if (pickedImage != null) {
       userModel?.imageUrl = await uploadUserImage(pickedImage);
     }
-    await updateProfileDataToDB(firstName, lastName, username);
+    await updateProfileDataToDB(
+      firstName,
+      lastName,
+      username,
+      userModel?.email ?? '',
+      userModel?.phoneNumber ?? '',
+    );
     update();
     stopLoader();
     Navigator.pop(context);
@@ -1071,25 +1080,40 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
-  Future<void> updateEmailAndPhoneNumber(
-    String email,
-    String phoneNumber,
-  ) async {
-    try {
-      await FbCollections.user.doc(userModel!.uid).update({
+Future<void> updateEmailAndPhoneNumber(
+  String email,
+  String phoneNumber,
+  String dialCode,
+) async {
+  try {
+    startLoader();
+    userModel?.email = email;
+    userModel?.number = phoneNumber;
+    userModel?.dialCode = dialCode;
+    final userId = userModel?.uid;
+    if (userId != null) {
+      await FirebaseFirestore.instance.collection("users").doc(userId).update({
         "email": email,
-        "phone_number": phoneNumber,
         "number": phoneNumber,
+        "dialCode": dialCode,
       });
-      update();
-      Fluttertoast.showToast(
-        msg: "Email and phone number updated successfully.",
-      );
-    } catch (e) {
-      log("Error updating email and phone number: $e");
-      Fluttertoast.showToast(msg: "Failed to update email and phone number.");
+      print("Email and phone number updated successfully in database");
+      notifyListeners();
+    } else {
+      throw Exception("User ID is null, cannot update user data");
     }
+    stopLoader();
+  } catch (e) {
+    stopLoader();
+    print("Error updating email and phone number: $e");
+    throw e; 
   }
+}
+
+void setUsernameAvailable(bool isAvailable) {
+  usernameIsAvailable = isAvailable;
+  notifyListeners();
+}
 
   Future<void> verifyOtpForUsernameChange(
     String countryCode,
@@ -1111,17 +1135,11 @@ class AuthVm extends ChangeNotifier {
             await appwrite.getUser();
             print('user fetched');
             Future.delayed(Duration(seconds: 2), () async {
-              if (userModel?.status == UserStatus.blocked) {
-                appwrite.account.deleteSession(sessionId: 'current');
-                Fluttertoast.showToast(msg: "You have been blocked by admin");
-              } else {
-                userModel?.fcm = Constants.fcmToken;
-                await updateUsernameDataToDB(newUsername);
-                print("Otp verified and username updated successfully");
-                await fetchUser();
-                ZBotToast.loadingClose();
-                Get.offAllNamed(BaseView.route);
-              }
+              userModel?.fcm = Constants.fcmToken;
+              await updateUsernameDataToDB(newUsername);
+              print("Otp verified and username updated successfully");
+              await fetchUser();
+              ZBotToast.loadingClose();
             });
           })
           .catchError((e) {
@@ -1136,13 +1154,10 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
-  Future<void> sendOtpForUsernameChange(
-    String countryCode,
-    String number,
-  ) async {
+  Future<void> sendOtpForUsernameChange(String number) async {
     try {
       startLoader();
-      String dialCode = CountryCodeConverter.getDialCode(countryCode);
+      String dialCode = userModel?.dialCode ?? "";
       String formattedPhone = "$dialCode$number";
       print("Formatted Phone: $formattedPhone");
       await appwrite.sendSMS(formattedPhone);
