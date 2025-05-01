@@ -1080,40 +1080,48 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
-Future<void> updateEmailAndPhoneNumber(
-  String email,
-  String phoneNumber,
-  String dialCode,
-) async {
-  try {
-    startLoader();
-    userModel?.email = email;
-    userModel?.number = phoneNumber;
-    userModel?.dialCode = dialCode;
-    final userId = userModel?.uid;
-    if (userId != null) {
-      await FirebaseFirestore.instance.collection("users").doc(userId).update({
-        "email": email,
-        "number": phoneNumber,
-        "dialCode": dialCode,
-      });
-      print("Email and phone number updated successfully in database");
-      notifyListeners();
-    } else {
-      throw Exception("User ID is null, cannot update user data");
-    }
-    stopLoader();
-  } catch (e) {
-    stopLoader();
-    print("Error updating email and phone number: $e");
-    throw e; 
-  }
-}
+  Future<void> updateEmailAndPhoneNumber(
+    String email,
+    String phoneNumber,
+    String dialCode,
+  ) async {
+    try {
+      startLoader();
+      print("Phone Number: $phoneNumber");
+      print("Dial Code: $dialCode");
+      print("Combined: $dialCode$phoneNumber");
+      userModel?.email = email;
+      userModel?.number = phoneNumber;
+      userModel?.dialCode = dialCode;
+      userModel?.phoneNumber = "$dialCode$phoneNumber";
 
-void setUsernameAvailable(bool isAvailable) {
-  usernameIsAvailable = isAvailable;
-  notifyListeners();
-}
+      final userId = userModel?.uid;
+      if (userId != null) {
+        await FirebaseFirestore.instance.collection("users").doc(userId).update({
+          "email": email,
+          "number": phoneNumber,
+          "dial_code": dialCode,
+          "phone_number":
+              "$dialCode$phoneNumber", 
+        });
+        print("Email and phone number updated successfully in database");
+        print("DEBUG: Updated phone_number field with: $dialCode$phoneNumber");
+        notifyListeners();
+      } else {
+        throw Exception("User ID is null, cannot update user data");
+      }
+      stopLoader();
+    } catch (e) {
+      stopLoader();
+      print("Error updating email and phone number: $e");
+      throw e;
+    }
+  }
+
+  void setUsernameAvailable(bool isAvailable) {
+    usernameIsAvailable = isAvailable;
+    notifyListeners();
+  }
 
   Future<void> verifyOtpForUsernameChange(
     String countryCode,
@@ -1123,24 +1131,16 @@ void setUsernameAvailable(bool isAvailable) {
   ) async {
     try {
       startLoader();
-      print('loader started');
-      var sessions = await appwrite.account.listSessions();
-      if (sessions.sessions.isNotEmpty) {
-        await appwrite.account.deleteSession(sessionId: 'current');
-      }
+      print('loader started for username change verification');
       await appwrite
           .verifySMS(code)
           .then((result) async {
-            print('sms verified');
-            await appwrite.getUser();
-            print('user fetched');
-            Future.delayed(Duration(seconds: 2), () async {
-              userModel?.fcm = Constants.fcmToken;
-              await updateUsernameDataToDB(newUsername);
-              print("Otp verified and username updated successfully");
-              await fetchUser();
-              ZBotToast.loadingClose();
-            });
+            print('sms verified for username change');
+            print('updating username only');
+            await updateUsernameDataToDB(newUsername);
+            print("Otp verified and username updated successfully");
+            await fetchUser();
+            ZBotToast.loadingClose();
           })
           .catchError((e) {
             Fluttertoast.showToast(msg: "$e");

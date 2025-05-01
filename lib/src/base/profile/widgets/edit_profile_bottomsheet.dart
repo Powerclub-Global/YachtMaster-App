@@ -21,7 +21,6 @@ import '../../base_vm.dart';
 import '../../../../utils/heights_widths.dart';
 import '../../../../utils/helper.dart';
 import '../../../../utils/validation.dart';
-import '../../../../utils/countryCodeConverter.dart';
 
 class EditProfile extends StatefulWidget {
   @override
@@ -41,11 +40,12 @@ class _EditProfileState extends State<EditProfile> {
   FocusNode phoneNumFn = FocusNode();
   FocusNode emailFn = FocusNode();
   String? countryCode;
+  String? originalDialCode;
   File? pickedImage;
   String? originalPhoneNumber;
   String? originalUsername;
   String? originalEmail;
-  
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -54,9 +54,7 @@ class _EditProfileState extends State<EditProfile> {
       pickedImage = null;
       Future.delayed(Duration(milliseconds: 100), () {
         setState(() {
-          countryCode = seperatePhoneAndDialCode(
-            authVm.userModel?.dialCode ?? "",
-          );
+          originalDialCode = authVm.userModel?.dialCode;
         });
       });
       firstNameController.text = authVm.userModel?.firstName ?? "";
@@ -64,8 +62,6 @@ class _EditProfileState extends State<EditProfile> {
       phoneNumController.text = authVm.userModel?.number ?? "";
       usernameController.text = authVm.userModel?.username ?? "";
       emailController.text = authVm.userModel?.email ?? "";
-      
-      // Store original values for comparison
       originalPhoneNumber = authVm.userModel?.number ?? "";
       originalUsername = authVm.userModel?.username ?? "";
       originalEmail = authVm.userModel?.email ?? "";
@@ -292,7 +288,8 @@ class _EditProfileState extends State<EditProfile> {
                                     focusNode: usernameFn,
                                     textInputAction: TextInputAction.next,
                                     onChanged: (v) async {
-                                      if (v.length >= 5 && v != originalUsername) {
+                                      if (v.length >= 5 &&
+                                          v != originalUsername) {
                                         await authVm.isUsernameAvailable(v);
                                         print('Checking username availability');
                                         setState(() {});
@@ -326,7 +323,9 @@ class _EditProfileState extends State<EditProfile> {
                                                 : R.colors.charcoalColor,
                                         fontSize: 10.sp,
                                       ),
-                                      (usernameController.text == originalUsername || authVm.usernameIsAvailable)
+                                      (usernameController.text ==
+                                                  originalUsername ||
+                                              authVm.usernameIsAvailable)
                                           ? Icon(
                                             Icons.verified_outlined,
                                             size: 23.sp,
@@ -347,53 +346,74 @@ class _EditProfileState extends State<EditProfile> {
                             GestureDetector(
                               onTap: () async {
                                 if (formKey.currentState!.validate()) {
-                                  if (usernameController.text.trim() != originalUsername && 
+                                  if (usernameController.text.trim() !=
+                                          originalUsername &&
                                       !authVm.usernameIsAvailable) {
                                     Fluttertoast.showToast(
-                                      msg: "Username is already taken. Please pick a different one.",
+                                      msg:
+                                          "Username is already taken. Please pick a different one.",
                                     );
                                     return;
                                   }
 
                                   try {
-                                    bool phoneChanged = phoneNumController.text.trim() != originalPhoneNumber;
-                                    bool usernameChanged = usernameController.text.trim() != originalUsername;
-                                    bool emailChanged = emailController.text.trim() != originalEmail;
-                                    
+                                    bool phoneChanged =
+                                        phoneNumController.text.trim() !=
+                                        originalPhoneNumber;
+                                    bool usernameChanged =
+                                        usernameController.text.trim() !=
+                                        originalUsername;
+                                    bool emailChanged =
+                                        emailController.text.trim() !=
+                                        originalEmail;
+                                    String dialCodeToUse =
+                                        originalDialCode ??
+                                        authVm.userModel?.dialCode ??
+                                        "";
+                                    print("Using dial code: $dialCodeToUse");
+
                                     if (usernameChanged) {
                                       await authVm.sendOtpForUsernameChange(
                                         phoneNumController.text.trim(),
                                       );
                                       await Get.dialog(
                                         OTP(
-                                          phoneNumController.text.trim(),
+                                          "$dialCodeToUse${phoneNumController.text.trim()}",
                                           false,
                                           (otpCode) async {
-                                            await authVm.verifyOtpForUsernameChange(
-                                              countryCode ?? "",
-                                              phoneNumController.text.trim(),
-                                              otpCode,
-                                              usernameController.text.trim(),
-                                            );
+                                            await authVm
+                                                .verifyOtpForUsernameChange(
+                                                  dialCodeToUse,
+                                                  phoneNumController.text
+                                                      .trim(),
+                                                  otpCode,
+                                                  usernameController.text
+                                                      .trim(),
+                                                );
                                             if (phoneChanged || emailChanged) {
-                                              await authVm.updateEmailAndPhoneNumber(
-                                                emailController.text.trim(),
-                                                phoneNumController.text.trim(),
-                                                countryCode ?? "",
-                                              );
+                                              await authVm
+                                                  .updateEmailAndPhoneNumber(
+                                                    emailController.text.trim(),
+                                                    phoneNumController.text
+                                                        .trim(),
+                                                    dialCodeToUse,
+                                                  );
                                             }
-                                            
+
                                             Fluttertoast.showToast(
-                                              msg: "Profile updated successfully",
+                                              msg:
+                                                  "Profile updated successfully",
                                             );
 
                                             authVm.stopLoader();
                                             Get.offAllNamed(SettingsView.route);
                                           },
                                           () async {
-                                            await authVm.sendOtpForUsernameChange(
-                                              phoneNumController.text.trim(),
-                                            );
+                                            await authVm
+                                                .sendOtpForUsernameChange(
+                                                  phoneNumController.text
+                                                      .trim(),
+                                                );
                                           },
                                         ),
                                       );
@@ -401,9 +421,9 @@ class _EditProfileState extends State<EditProfile> {
                                       await authVm.updateEmailAndPhoneNumber(
                                         emailController.text.trim(),
                                         phoneNumController.text.trim(),
-                                        countryCode ?? "",
+                                        dialCodeToUse,
                                       );
-                                      
+
                                       Fluttertoast.showToast(
                                         msg: "Profile updated successfully",
                                       );
