@@ -19,17 +19,6 @@ seperatePhoneAndDialCode(String code) {
   return foundedCountry["code"];
 }
 
-class CountryCodeConverter {
-  static String getDialCode(String countryCode) {
-    for (var country in Countries.allCountries) {
-      if (country["code"] == countryCode.toUpperCase()) {
-        return country["dial_code"] ?? "";
-      }
-    }
-    return "";
-  }
-}
-
 class Countries {
   static List<Map<String, String>> allCountries = [
     {"name": "Afghanistan", "dial_code": "+93", "code": "AF"},
