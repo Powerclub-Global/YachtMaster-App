@@ -35,14 +35,18 @@ class ImagePickerServices {
     return pickedFiles;
   }
 
-  uploadSingleImage(File images, {String bucketName = "userProfile"}) async {
+  uploadSingleImage(
+    File images, {
+    String bucketName = "userProfile",
+    String extension = ".jpg",
+  }) async {
     log("__________________________IMAGE:$images");
     String? image;
     print("we are here");
     try {
       FirebaseStorage storage = FirebaseStorage.instance;
       Reference ref = storage.ref().child(
-        "$bucketName/${appwrite.user.$id}/${DateTime.now().millisecondsSinceEpoch.toString()}.jpg",
+        "$bucketName/${appwrite.user.$id}/${DateTime.now().millisecondsSinceEpoch.toString()}$extension",
       );
       final TaskSnapshot snapshot = await ref.putFile(
         images,

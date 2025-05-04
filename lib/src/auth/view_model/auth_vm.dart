@@ -847,6 +847,7 @@ class AuthVm extends ChangeNotifier {
     var imageUrl = await ImagePickerServices().uploadSingleImage(
       pickedImage,
       bucketName: "hostDocuments",
+      extension: ".pdf",
     );
     await FbCollections.user.doc(userModel!.uid).update({
       "host_document_url": imageUrl,

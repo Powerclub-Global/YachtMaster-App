@@ -21,7 +21,7 @@
     <application
         android:label="YachtMaster App"
         android:name="${applicationName}"
-        android:theme="@style/Theme.AppCompat.Light"
+        android:theme="@style/Theme.MaterialComponents.DayNight"
         android:icon="@mipmap/launcher_icon"
         >
         <provider
