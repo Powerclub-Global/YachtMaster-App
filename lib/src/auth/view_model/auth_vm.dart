@@ -9,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:yacht_master/utils/countryCodeConverter.dart';
 import '../../../appwrite.dart';
 import '../../../constant/constant.dart';
 import '../../../constant/enums.dart';
@@ -95,6 +96,7 @@ class AuthVm extends ChangeNotifier {
     );
     print("..................................USER EXIST:$isUserExist");
     if (isUserExist == false) {
+      // Helper.inSnackBar('Error', "This user does not exist", R.colors.themeMud);
       ZBotToast.loadingClose();
     } else {
       await signInWithOtp(countryCode, phoneNumController);
@@ -791,7 +793,7 @@ class AuthVm extends ChangeNotifier {
   Future<bool> chechUserCollectionExists(
     String docValue, {
     bool isEmail = false,
-    bool skipError = false,
+    bool skipError = false, 
   }) async {
     try {
       bool userExists = false;
@@ -882,16 +884,11 @@ class AuthVm extends ChangeNotifier {
     String firstName,
     String lastName,
     String username,
-    String email,
-    String phoneNumber,
   ) async {
     await FbCollections.user.doc(userModel!.uid).update({
       "first_name": firstName,
       "last_name": lastName,
       "username": username,
-      "email": email,
-      "phone_number": phoneNumber,
-      "number": phoneNumber,
     });
     update();
   }
@@ -916,13 +913,7 @@ class AuthVm extends ChangeNotifier {
     if (pickedImage != null) {
       userModel?.imageUrl = await uploadUserImage(pickedImage);
     }
-    await updateProfileDataToDB(
-      firstName,
-      lastName,
-      username,
-      userModel?.email ?? '',
-      userModel?.phoneNumber ?? '',
-    );
+    await updateProfileDataToDB(firstName, lastName, username);
     update();
     stopLoader();
     Navigator.pop(context);
@@ -1084,44 +1075,21 @@ class AuthVm extends ChangeNotifier {
   Future<void> updateEmailAndPhoneNumber(
     String email,
     String phoneNumber,
-    String dialCode,
   ) async {
     try {
-      startLoader();
-      print("Phone Number: $phoneNumber");
-      print("Dial Code: $dialCode");
-      print("Combined: $dialCode$phoneNumber");
-      userModel?.email = email;
-      userModel?.number = phoneNumber;
-      userModel?.dialCode = dialCode;
-      userModel?.phoneNumber = "$dialCode$phoneNumber";
-
-      final userId = userModel?.uid;
-      if (userId != null) {
-        await FirebaseFirestore.instance.collection("users").doc(userId).update({
-          "email": email,
-          "number": phoneNumber,
-          "dial_code": dialCode,
-          "phone_number":
-              "$dialCode$phoneNumber", 
-        });
-        print("Email and phone number updated successfully in database");
-        print("DEBUG: Updated phone_number field with: $dialCode$phoneNumber");
-        notifyListeners();
-      } else {
-        throw Exception("User ID is null, cannot update user data");
-      }
-      stopLoader();
+      await FbCollections.user.doc(userModel!.uid).update({
+        "email": email,
+        "phone_number": phoneNumber,
+        "number": phoneNumber,
+      });
+      update();
+      Fluttertoast.showToast(
+        msg: "Email and phone number updated successfully.",
+      );
     } catch (e) {
-      stopLoader();
-      print("Error updating email and phone number: $e");
-      throw e;
+      log("Error updating email and phone number: $e");
+      Fluttertoast.showToast(msg: "Failed to update email and phone number.");
     }
-  }
-
-  void setUsernameAvailable(bool isAvailable) {
-    usernameIsAvailable = isAvailable;
-    notifyListeners();
   }
 
   Future<void> verifyOtpForUsernameChange(
@@ -1132,16 +1100,30 @@ class AuthVm extends ChangeNotifier {
   ) async {
     try {
       startLoader();
-      print('loader started for username change verification');
+      print('loader started');
+      var sessions = await appwrite.account.listSessions();
+      if (sessions.sessions.isNotEmpty) {
+        await appwrite.account.deleteSession(sessionId: 'current');
+      }
       await appwrite
           .verifySMS(code)
           .then((result) async {
-            print('sms verified for username change');
-            print('updating username only');
-            await updateUsernameDataToDB(newUsername);
-            print("Otp verified and username updated successfully");
-            await fetchUser();
-            ZBotToast.loadingClose();
+            print('sms verified');
+            await appwrite.getUser();
+            print('user fetched');
+            Future.delayed(Duration(seconds: 2), () async {
+              if (userModel?.status == UserStatus.blocked) {
+                appwrite.account.deleteSession(sessionId: 'current');
+                Fluttertoast.showToast(msg: "You have been blocked by admin");
+              } else {
+                userModel?.fcm = Constants.fcmToken;
+                await updateUsernameDataToDB(newUsername);
+                print("Otp verified and username updated successfully");
+                await fetchUser();
+                ZBotToast.loadingClose();
+                Get.offAllNamed(BaseView.route);
+              }
+            });
           })
           .catchError((e) {
             Fluttertoast.showToast(msg: "$e");
@@ -1155,10 +1137,13 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
-  Future<void> sendOtpForUsernameChange(String number) async {
+  Future<void> sendOtpForUsernameChange(
+    String countryCode,
+    String number,
+  ) async {
     try {
       startLoader();
-      String dialCode = userModel?.dialCode ?? "";
+      String dialCode = CountryCodeConverter.getDialCode(countryCode);
       String formattedPhone = "$dialCode$number";
       print("Formatted Phone: $formattedPhone");
       await appwrite.sendSMS(formattedPhone);

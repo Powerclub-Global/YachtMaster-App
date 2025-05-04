@@ -11,7 +11,6 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:yacht_master/src/auth/widgets/otp_dialog.dart';
-import 'package:yacht_master/src/base/settings/view/settings_view.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
 import '../../../../resources/resources.dart';
@@ -21,6 +20,7 @@ import '../../base_vm.dart';
 import '../../../../utils/heights_widths.dart';
 import '../../../../utils/helper.dart';
 import '../../../../utils/validation.dart';
+import '../../../../utils/countryCodeConverter.dart';
 
 class EditProfile extends StatefulWidget {
   @override
@@ -33,19 +33,15 @@ class _EditProfileState extends State<EditProfile> {
   TextEditingController usernameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController phoneNumController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
+  TextEditingController emailController = TextEditingController(
+    text: Get.context!.read<AuthVm>().userModel?.email ?? "",
+  );
   FocusNode firstNameFn = FocusNode();
   FocusNode usernameFn = FocusNode();
   FocusNode lastNameFn = FocusNode();
   FocusNode phoneNumFn = FocusNode();
-  FocusNode emailFn = FocusNode();
   String? countryCode;
-  String? originalDialCode;
   File? pickedImage;
-  String? originalPhoneNumber;
-  String? originalUsername;
-  String? originalEmail;
-
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
@@ -53,19 +49,22 @@ class _EditProfileState extends State<EditProfile> {
       authVm.stopLoader();
       pickedImage = null;
       Future.delayed(Duration(milliseconds: 100), () {
-        setState(() {
-          originalDialCode = authVm.userModel?.dialCode;
-        });
+        countryCode = seperatePhoneAndDialCode(
+          authVm.userModel?.dialCode ?? "+92",
+        );
+        Get.forceAppUpdate();
       });
       firstNameController.text = authVm.userModel?.firstName ?? "";
       lastNameController.text = authVm.userModel?.lastName ?? "";
       phoneNumController.text = authVm.userModel?.number ?? "";
-      usernameController.text = authVm.userModel?.username ?? "";
-      emailController.text = authVm.userModel?.email ?? "";
-      originalPhoneNumber = authVm.userModel?.number ?? "";
-      originalUsername = authVm.userModel?.username ?? "";
-      originalEmail = authVm.userModel?.email ?? "";
+      usernameController.text = authVm.userModel!.username ?? "";
+
+      // if(countries.where((element) => element.dialCode==authVm.userModel?.dialCode?.replaceAll("+", "")).toList().isNotEmpty)
+      // {
+      //   countryCode =countries.where((element) => element.dialCode==authVm.userModel?.dialCode?.replaceAll("+", "")).toList().first.code;
+      // }
     });
+
     super.initState();
   }
 
@@ -242,7 +241,7 @@ class _EditProfileState extends State<EditProfile> {
                                   h0P5,
                                   TextFormField(
                                     textInputAction: TextInputAction.next,
-                                    focusNode: emailFn,
+                                    focusNode: FocusNode(),
                                     onChanged: (v) {
                                       setState(() {});
                                     },
@@ -263,19 +262,13 @@ class _EditProfileState extends State<EditProfile> {
                                     decoration: AppDecorations.suffixTextField(
                                       "enter_email",
                                       R.textStyle.helvetica().copyWith(
-                                        color:
-                                            emailFn.hasFocus
-                                                ? R.colors.themeMud
-                                                : R.colors.charcoalColor,
+                                        color: R.colors.charcoalColor,
                                         fontSize: 10.sp,
                                       ),
                                       Image.asset(
                                         R.images.email,
                                         scale: 14,
-                                        color:
-                                            emailFn.hasFocus
-                                                ? R.colors.themeMud
-                                                : R.colors.charcoalColor,
+                                        color: R.colors.charcoalColor,
                                       ),
                                     ),
                                   ),
@@ -288,15 +281,11 @@ class _EditProfileState extends State<EditProfile> {
                                     focusNode: usernameFn,
                                     textInputAction: TextInputAction.next,
                                     onChanged: (v) async {
-                                      if (v.length >= 5 &&
-                                          v != originalUsername) {
-                                        await authVm.isUsernameAvailable(v);
-                                        print('Checking username availability');
-                                        setState(() {});
-                                      } else if (v == originalUsername) {
-                                        authVm.setUsernameAvailable(true);
-                                        setState(() {});
-                                      }
+                                      await authVm.onClickLoginOTP(
+                                        countryCode ?? "",
+                                        phoneNumController.text.trim(),
+                                      );
+                                      setState(() {});
                                     },
                                     onTap: () {
                                       setState(() {});
@@ -323,19 +312,13 @@ class _EditProfileState extends State<EditProfile> {
                                                 : R.colors.charcoalColor,
                                         fontSize: 10.sp,
                                       ),
-                                      (usernameController.text ==
-                                                  originalUsername ||
-                                              authVm.usernameIsAvailable)
+                                      authVm.usernameIsAvailable
                                           ? Icon(
                                             Icons.verified_outlined,
                                             size: 23.sp,
                                             color: Colors.green,
                                           )
-                                          : Icon(
-                                            Icons.error_outline,
-                                            size: 23.sp,
-                                            color: Colors.red,
-                                          ),
+                                          : null,
                                     ),
                                   ),
                                 ],
@@ -347,100 +330,46 @@ class _EditProfileState extends State<EditProfile> {
                               onTap: () async {
                                 if (formKey.currentState!.validate()) {
                                   if (usernameController.text.trim() !=
-                                          originalUsername &&
-                                      !authVm.usernameIsAvailable) {
-                                    Fluttertoast.showToast(
-                                      msg:
-                                          "Username is already taken. Please pick a different one.",
+                                      authVm.userModel?.username) {
+                                    await authVm.sendOtpForUsernameChange(
+                                      countryCode ?? "",
+                                      phoneNumController.text.trim(),
                                     );
-                                    return;
-                                  }
-
-                                  try {
-                                    bool phoneChanged =
-                                        phoneNumController.text.trim() !=
-                                        originalPhoneNumber;
-                                    bool usernameChanged =
-                                        usernameController.text.trim() !=
-                                        originalUsername;
-                                    bool emailChanged =
-                                        emailController.text.trim() !=
-                                        originalEmail;
-                                    String dialCodeToUse =
-                                        originalDialCode ??
-                                        authVm.userModel?.dialCode ??
-                                        "";
-                                    print("Using dial code: $dialCodeToUse");
-
-                                    if (usernameChanged) {
-                                      await authVm.sendOtpForUsernameChange(
+                                    Get.dialog(
+                                      OTP(
                                         phoneNumController.text.trim(),
-                                      );
-                                      await Get.dialog(
-                                        OTP(
-                                          "$dialCodeToUse${phoneNumController.text.trim()}",
-                                          false,
-                                          (otpCode) async {
-                                            await authVm
-                                                .verifyOtpForUsernameChange(
-                                                  dialCodeToUse,
-                                                  phoneNumController.text
-                                                      .trim(),
-                                                  otpCode,
-                                                  usernameController.text
-                                                      .trim(),
-                                                );
-                                            if (phoneChanged || emailChanged) {
-                                              await authVm
-                                                  .updateEmailAndPhoneNumber(
-                                                    emailController.text.trim(),
-                                                    phoneNumController.text
-                                                        .trim(),
-                                                    dialCodeToUse,
-                                                  );
-                                            }
-
-                                            Fluttertoast.showToast(
-                                              msg:
-                                                  "Profile updated successfully",
-                                            );
-
-                                            authVm.stopLoader();
-                                            Get.offAllNamed(SettingsView.route);
-                                          },
-                                          () async {
-                                            await authVm
-                                                .sendOtpForUsernameChange(
-                                                  phoneNumController.text
-                                                      .trim(),
-                                                );
-                                          },
-                                        ),
-                                      );
-                                    } else if (phoneChanged || emailChanged) {
-                                      await authVm.updateEmailAndPhoneNumber(
-                                        emailController.text.trim(),
-                                        phoneNumController.text.trim(),
-                                        dialCodeToUse,
-                                      );
-
-                                      Fluttertoast.showToast(
-                                        msg: "Profile updated successfully",
-                                      );
-
-                                      authVm.stopLoader();
-                                      Get.offAllNamed(SettingsView.route);
-                                    } else {
-                                      Fluttertoast.showToast(
-                                        msg: "No changes to update",
-                                      );
-                                      Get.back();
-                                    }
-                                  } catch (e) {
-                                    authVm.stopLoader();
-                                    Fluttertoast.showToast(
-                                      msg: "Error updating profile: $e",
+                                        false,
+                                        (otpCode) async {
+                                          await authVm
+                                              .verifyOtpForUsernameChange(
+                                                countryCode ?? "",
+                                                phoneNumController.text.trim(),
+                                                otpCode,
+                                                usernameController.text.trim(),
+                                              );
+                                        },
+                                        () async {
+                                          await authVm.sendOtpForUsernameChange(
+                                            countryCode ?? "",
+                                            phoneNumController.text.trim(),
+                                          );
+                                        },
+                                      ),
                                     );
+                                  } else {
+                                    await authVm.updateEmailAndPhoneNumber(
+                                      emailController.text.trim(),
+                                      phoneNumController.text.trim(),
+                                    );
+                                    await authVm.updateProfileDataToDB(
+                                      firstNameController.text.trim(),
+                                      lastNameController.text.trim(),
+                                      usernameController.text.trim(),
+                                    );
+                                    Fluttertoast.showToast(
+                                      msg: "Profile updated successfully",
+                                    );
+                                    Navigator.pop(context);
                                   }
                                 }
                               },

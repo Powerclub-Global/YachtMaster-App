@@ -1,30 +1,30 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../constant/enums.dart';
 
 class UserModel {
-  UserModel({
-    this.uid,
-    this.fcm,
-    this.number,
-    this.dialCode,
-    this.imageUrl,
-    this.lastName,
-    this.createdAt,
-    this.phoneNumber,
-    this.username,
-    this.firstName,
-    this.stripeCustomerID,
-    this.isActiveUser,
-    this.isFav = false,
-    this.rating = 0.0,
-    this.status,
-    this.hostDocumentUrl,
-    this.email,
-    this.isCardSaved = false,
-    this.role,
-    this.requestStatus,
-    this.inviteStatus,
-  });
+  UserModel(
+      {this.uid,
+      this.fcm,
+      this.number,
+      this.dialCode,
+      this.imageUrl,
+      this.lastName,
+      this.createdAt,
+      this.phoneNumber,
+      this.username,
+      this.firstName,
+      this.stripeCustomerID,
+      this.isActiveUser,
+      this.isFav = false,
+      this.rating = 0.0,
+      this.status,
+      this.hostDocumentUrl,
+      this.email,
+      this.isCardSaved = false,
+      this.role,
+      this.requestStatus,
+      this.inviteStatus,});
 
   UserModel.fromJson(dynamic json) {
     uid = json['uid'];
@@ -32,7 +32,7 @@ class UserModel {
     number = json['number'];
     username = json['username'];
     isActiveUser = json['isActiveUser'] ?? true;
-    dialCode = json['dial_code']; 
+    dialCode = json['dial_code'];
     imageUrl = json['image_url'];
     lastName = json['last_name'];
     createdAt = json['created_at'];
@@ -90,27 +90,29 @@ class UserModel {
     UserType? role,
     RequestStatus? requestStatus,
     int? inviteStatus,
-  }) => UserModel(
-    uid: uid ?? this.uid,
-    fcm: fcm ?? this.fcm,
-    username: username ?? this.username,
-    isCardSaved: isCardSaved ?? this.isCardSaved,
-    isActiveUser: isActiveUser ?? this.isActiveUser,
-    hostDocumentUrl: hostDocumentUrl ?? this.hostDocumentUrl,
-    status: status ?? this.status,
-    requestStatus: requestStatus ?? this.requestStatus,
-    number: number ?? this.number,
-    role: role ?? this.role,
-    dialCode: dialCode ?? this.dialCode,
-    imageUrl: imageUrl ?? this.imageUrl,
-    lastName: lastName ?? this.lastName,
-    createdAt: createdAt ?? this.createdAt,
-    phoneNumber: phoneNumber ?? this.phoneNumber,
-    firstName: firstName ?? this.firstName,
-    stripeCustomerID: stripeCustomerID ?? this.stripeCustomerID,
-    email: email ?? this.email,
-    inviteStatus: inviteStatus ?? this.inviteStatus,
-  );
+  }) =>
+      UserModel(
+        uid: uid ?? this.uid,
+        fcm: fcm ?? this.fcm,
+        username: username ?? this.username,
+        isCardSaved: isCardSaved ?? this.isCardSaved,
+        isActiveUser: isActiveUser ?? this.isActiveUser,
+        hostDocumentUrl: hostDocumentUrl ?? this.hostDocumentUrl,
+        status: status ?? this.status,
+        requestStatus: requestStatus ?? this.requestStatus,
+        number: number ?? this.number,
+        role: role ?? this.role,
+        dialCode: dialCode ?? this.dialCode,
+        imageUrl: imageUrl ?? this.imageUrl,
+        lastName: lastName ?? this.lastName,
+        createdAt: createdAt ?? this.createdAt,
+        phoneNumber: phoneNumber ?? this.phoneNumber,
+        firstName: firstName ?? this.firstName,
+        stripeCustomerID: stripeCustomerID ?? this.stripeCustomerID,
+        email: email ?? this.email,
+        inviteStatus: inviteStatus ?? this.inviteStatus,
+
+      );
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{};
     map['uid'] = uid;
