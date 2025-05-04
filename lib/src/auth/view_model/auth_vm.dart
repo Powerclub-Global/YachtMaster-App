@@ -96,7 +96,7 @@ class AuthVm extends ChangeNotifier {
     );
     print("..................................USER EXIST:$isUserExist");
     if (isUserExist == false) {
-      // Helper.inSnackBar('Error', "This user does not exist", R.colors.themeMud);
+      Helper.inSnackBar('Error', "This user does not exist", R.colors.themeMud);
       ZBotToast.loadingClose();
     } else {
       await signInWithOtp(countryCode, phoneNumController);
@@ -1082,12 +1082,14 @@ Future<void> updateEmailAndPhoneNumber(
     userModel?.email = email;
     userModel?.number = phoneNumber;
     userModel?.dialCode = dialCode;
+    userModel?.phoneNumber = "$dialCode$phoneNumber";
     final userId = userModel?.uid;
     if (userId != null) {
       await FirebaseFirestore.instance.collection("users").doc(userId).update({
         "email": email,
         "number": phoneNumber,
         "dialCode": dialCode,
+        "phoneNumber": "$dialCode$phoneNumber",
       });
       print("Email and phone number updated successfully in database");
       notifyListeners();
@@ -1130,7 +1132,6 @@ void setUsernameAvailable(bool isAvailable) {
               userModel?.fcm = Constants.fcmToken;
               await updateUsernameDataToDB(newUsername);
               print("Otp verified and username updated successfully");
-              await fetchUser();
               ZBotToast.loadingClose();
             });
           })
