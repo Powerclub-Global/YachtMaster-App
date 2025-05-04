@@ -433,5 +433,6 @@
   "manage_account": "Manage Account",
   "user_has_been_deleted_successfully": "User has been deleted successfully",
   "delete_account_desc": "Deleting your account will remove all your data from our database. It can not be undone.",
-  "continue": "Continue"
+  "continue": "Continue",
+  "signed_in_email": "Signed-in Email: {email}"
 }

@@ -9,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:yacht_master/utils/countryCodeConverter.dart';
 import '../../../appwrite.dart';
 import '../../../constant/constant.dart';
 import '../../../constant/enums.dart';
@@ -105,6 +106,11 @@ class AuthVm extends ChangeNotifier {
   onClickFacebookLogin() async {
     try {
       startLoader();
+      var sessions = await appwrite.account.listSessions();
+      if (sessions.sessions.isNotEmpty) {
+        await appwrite.account.deleteSession(sessionId: 'current');
+      }
+
       await appwrite.signInFacebook();
       await Future.delayed(Duration(seconds: 2));
       await appwrite.getUser();
@@ -145,6 +151,11 @@ class AuthVm extends ChangeNotifier {
 
   onClickGoogleLogin() async {
     try {
+      var sessions = await appwrite.account.listSessions();
+      if (sessions.sessions.isNotEmpty) {
+        await appwrite.account.deleteSession(sessionId: 'current');
+      }
+
       await appwrite.signInGoogle();
       ZBotToast.loadingShow();
       await Future.delayed(Duration(milliseconds: 100));
@@ -185,6 +196,11 @@ class AuthVm extends ChangeNotifier {
   onClickAppleLogin() async {
     try {
       startLoader();
+      var sessions = await appwrite.account.listSessions();
+      if (sessions.sessions.isNotEmpty) {
+        await appwrite.account.deleteSession(sessionId: 'current');
+      }
+
       await appwrite.signInApple();
       await Future.delayed(Duration(seconds: 2));
       await appwrite.getUser();
@@ -777,6 +793,7 @@ class AuthVm extends ChangeNotifier {
   Future<bool> chechUserCollectionExists(
     String docValue, {
     bool isEmail = false,
+    bool skipError = false,
   }) async {
     try {
       bool userExists = false;
@@ -795,6 +812,13 @@ class AuthVm extends ChangeNotifier {
       debugPrintStack();
       log(e.toString());
       stopLoader();
+      if (!skipError) {
+        Helper.inSnackBar(
+          "Error",
+          "This user does not exist",
+          R.colors.themeMud,
+        );
+      }
       return false;
     }
   }
@@ -856,48 +880,9 @@ class AuthVm extends ChangeNotifier {
     return imageUrl;
   }
 
-  updateProfileDataToDB(
-    String firstName,
-    String lastName,
-    String username,
-  ) async {
-    await FbCollections.user.doc(userModel!.uid).update({
-      "first_name": firstName,
-      "last_name": lastName,
-      "username": username,
-    });
-    update();
-  }
-
   updateUsernameDataToDB(String username) async {
     await FbCollections.user.doc(userModel!.uid).update({"username": username});
     update();
-  }
-
-  ///EDIT PROFILE
-  onClickEditProfile(
-    String firstName,
-    String lastName,
-    String username,
-    File? pickedImage,
-    BuildContext context,
-  ) async {
-    startLoader();
-    userModel?.firstName = firstName;
-    userModel?.lastName = lastName;
-    userModel?.username = username;
-    if (pickedImage != null) {
-      userModel?.imageUrl = await uploadUserImage(pickedImage);
-    }
-    await updateProfileDataToDB(firstName, lastName, username);
-    update();
-    stopLoader();
-    Navigator.pop(context);
-    Helper.inSnackBar(
-      "Success",
-      "Profile Updated Successfully",
-      R.colors.themeMud,
-    );
   }
 
   Future<bool> updateUser(
@@ -1045,6 +1030,109 @@ class AuthVm extends ChangeNotifier {
       stopLoader();
       debugPrintStack();
       log(e.toString());
+    }
+  }
+
+  Future<void> updateEmailAndPhoneNumber(
+    String email,
+    String phoneNumber,
+    String counntryCode,
+  ) async {
+    try {
+      startLoader();
+      String dialCode =
+          counntryCode.startsWith('+')
+              ? counntryCode
+              : CountryCodeConverter.getDialCode(counntryCode);
+      userModel?.email = email;
+      userModel?.number = phoneNumber;
+      userModel?.dialCode = dialCode;
+      userModel?.phoneNumber = "$dialCode$phoneNumber";
+      final userId = userModel?.uid;
+      if (userId != null) {
+        await FirebaseFirestore.instance
+            .collection("users")
+            .doc(userId)
+            .update({
+              "email": email,
+              "number": phoneNumber,
+              "dial_code": dialCode,
+              "phone_number": "$dialCode$phoneNumber",
+            });
+        await appwrite.account.updateEmail(email: email, password: "password");
+        await appwrite.account.updatePhone(
+          phone: "$dialCode$phoneNumber",
+          password: "password",
+        );
+        notifyListeners();
+      } else {
+        throw Exception("User ID is null, cannot update user data");
+      }
+      stopLoader();
+    } catch (e) {
+      stopLoader();
+      print("Error updating email and phone number: $e");
+      throw e;
+    }
+  }
+
+  void setUsernameAvailable(bool isAvailable) {
+    usernameIsAvailable = isAvailable;
+    notifyListeners();
+  }
+
+  Future<void> verifyOtpForUsernameChange(
+    String countryCode,
+    String number,
+    String code,
+    String newUsername,
+  ) async {
+    try {
+      startLoader();
+      print('loader started');
+      var sessions = await appwrite.account.listSessions();
+      if (sessions.sessions.isNotEmpty) {
+        await appwrite.account.deleteSession(sessionId: 'current');
+      }
+      await appwrite
+          .verifySMS(code)
+          .then((result) async {
+            print('sms verified');
+            await appwrite.getUser();
+            print('user fetched');
+            print("Otp verified and username updated successfully");
+            ZBotToast.loadingClose();
+            await updateUsernameDataToDB(newUsername);
+          })
+          .catchError((e) {
+            Fluttertoast.showToast(msg: "$e");
+            debugPrintStack();
+            stopLoader();
+          });
+    } catch (e) {
+      debugPrintStack();
+      log(e.toString());
+      stopLoader();
+    }
+  }
+
+  Future<void> sendOtpForUsernameChange(
+    String countryCode,
+    String number,
+  ) async {
+    try {
+      startLoader();
+      String dialCode = CountryCodeConverter.getDialCode(countryCode);
+      String formattedPhone = "$dialCode$number";
+      print("Formatted Phone: $formattedPhone");
+      await appwrite.sendSMS(formattedPhone);
+      print("OTP sent successfully");
+      stopLoader();
+    } catch (e) {
+      debugPrintStack();
+      log("Error sending OTP: $e");
+      stopLoader();
+      Fluttertoast.showToast(msg: "Failed to send OTP: $e");
     }
   }
 }

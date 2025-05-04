@@ -152,29 +152,28 @@ void main() async {
     initializationSettings,
     onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
   );
-  final storage = await HydratedStorage.build(
-    storageDirectory: await getApplicationDocumentsDirectory(),
-  );
-  HydratedBlocOverrides.runZoned(
-    () => runApp(
-      MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => LandingVm()),
-          ChangeNotifierProvider(create: (_) => AuthVm()),
-          ChangeNotifierProvider(create: (_) => SearchVm()),
-          ChangeNotifierProvider(create: (_) => SettingsVm()),
-          ChangeNotifierProvider(create: (_) => BaseVm()),
-          ChangeNotifierProvider(create: (_) => HomeVm()),
-          ChangeNotifierProvider(create: (_) => YachtVm()),
-          ChangeNotifierProvider(create: (_) => InboxVm()),
-          ChangeNotifierProvider(create: (_) => FavouritesVm()),
-          ChangeNotifierProvider(create: (_) => BookingsVm()),
-          ChangeNotifierProvider(create: (_) => AdminChatVM()),
-        ],
-        child: MyApp(),
-      ),
+  HydratedBloc.storage = await HydratedStorage.build(
+    storageDirectory: HydratedStorageDirectory(
+      (await getApplicationDocumentsDirectory()).path,
     ),
-    storage: storage,
+  );
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LandingVm()),
+        ChangeNotifierProvider(create: (_) => AuthVm()),
+        ChangeNotifierProvider(create: (_) => SearchVm()),
+        ChangeNotifierProvider(create: (_) => SettingsVm()),
+        ChangeNotifierProvider(create: (_) => BaseVm()),
+        ChangeNotifierProvider(create: (_) => HomeVm()),
+        ChangeNotifierProvider(create: (_) => YachtVm()),
+        ChangeNotifierProvider(create: (_) => InboxVm()),
+        ChangeNotifierProvider(create: (_) => FavouritesVm()),
+        ChangeNotifierProvider(create: (_) => BookingsVm()),
+        ChangeNotifierProvider(create: (_) => AdminChatVM()),
+      ],
+      child: MyApp(),
+    ),
   );
 }
 
