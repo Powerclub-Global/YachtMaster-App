@@ -122,7 +122,7 @@ class UserModel {
     map['isActiveUser'] = isActiveUser;
     map['fcm'] = fcm;
     map['number'] = number;
-    map['dial_code'] = dialCode;
+    map['dial_code'] = dialCode; // Saving dial code directly to Firebase
     map['image_url'] = imageUrl;
     map['last_name'] = lastName;
     map['created_at'] = createdAt;

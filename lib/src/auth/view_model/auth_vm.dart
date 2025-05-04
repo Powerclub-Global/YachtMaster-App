@@ -1072,25 +1072,40 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
-  Future<void> updateEmailAndPhoneNumber(
-    String email,
-    String phoneNumber,
-  ) async {
-    try {
-      await FbCollections.user.doc(userModel!.uid).update({
+Future<void> updateEmailAndPhoneNumber(
+  String email,
+  String phoneNumber,
+  String dialCode,
+) async {
+  try {
+    startLoader();
+    userModel?.email = email;
+    userModel?.number = phoneNumber;
+    userModel?.dialCode = dialCode;
+    final userId = userModel?.uid;
+    if (userId != null) {
+      await FirebaseFirestore.instance.collection("users").doc(userId).update({
         "email": email,
-        "phone_number": phoneNumber,
         "number": phoneNumber,
+        "dialCode": dialCode,
       });
-      update();
-      Fluttertoast.showToast(
-        msg: "Email and phone number updated successfully.",
-      );
-    } catch (e) {
-      log("Error updating email and phone number: $e");
-      Fluttertoast.showToast(msg: "Failed to update email and phone number.");
+      print("Email and phone number updated successfully in database");
+      notifyListeners();
+    } else {
+      throw Exception("User ID is null, cannot update user data");
     }
+    stopLoader();
+  } catch (e) {
+    stopLoader();
+    print("Error updating email and phone number: $e");
+    throw e; 
   }
+}
+
+void setUsernameAvailable(bool isAvailable) {
+  usernameIsAvailable = isAvailable;
+  notifyListeners();
+}
 
   Future<void> verifyOtpForUsernameChange(
     String countryCode,
@@ -1112,17 +1127,11 @@ class AuthVm extends ChangeNotifier {
             await appwrite.getUser();
             print('user fetched');
             Future.delayed(Duration(seconds: 2), () async {
-              if (userModel?.status == UserStatus.blocked) {
-                appwrite.account.deleteSession(sessionId: 'current');
-                Fluttertoast.showToast(msg: "You have been blocked by admin");
-              } else {
-                userModel?.fcm = Constants.fcmToken;
-                await updateUsernameDataToDB(newUsername);
-                print("Otp verified and username updated successfully");
-                await fetchUser();
-                ZBotToast.loadingClose();
-                Get.offAllNamed(BaseView.route);
-              }
+              userModel?.fcm = Constants.fcmToken;
+              await updateUsernameDataToDB(newUsername);
+              print("Otp verified and username updated successfully");
+              await fetchUser();
+              ZBotToast.loadingClose();
             });
           })
           .catchError((e) {
