@@ -880,48 +880,9 @@ class AuthVm extends ChangeNotifier {
     return imageUrl;
   }
 
-  updateProfileDataToDB(
-    String firstName,
-    String lastName,
-    String username,
-  ) async {
-    await FbCollections.user.doc(userModel!.uid).update({
-      "first_name": firstName,
-      "last_name": lastName,
-      "username": username,
-    });
-    update();
-  }
-
   updateUsernameDataToDB(String username) async {
     await FbCollections.user.doc(userModel!.uid).update({"username": username});
     update();
-  }
-
-  ///EDIT PROFILE
-  onClickEditProfile(
-    String firstName,
-    String lastName,
-    String username,
-    File? pickedImage,
-    BuildContext context,
-  ) async {
-    startLoader();
-    userModel?.firstName = firstName;
-    userModel?.lastName = lastName;
-    userModel?.username = username;
-    if (pickedImage != null) {
-      userModel?.imageUrl = await uploadUserImage(pickedImage);
-    }
-    await updateProfileDataToDB(firstName, lastName, username);
-    update();
-    stopLoader();
-    Navigator.pop(context);
-    Helper.inSnackBar(
-      "Success",
-      "Profile Updated Successfully",
-      R.colors.themeMud,
-    );
   }
 
   Future<bool> updateUser(
@@ -1142,7 +1103,6 @@ class AuthVm extends ChangeNotifier {
             print("Otp verified and username updated successfully");
             ZBotToast.loadingClose();
             await updateUsernameDataToDB(newUsername);
-            // Get.toNamed(BaseView.route);
           })
           .catchError((e) {
             Fluttertoast.showToast(msg: "$e");
