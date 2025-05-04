@@ -793,7 +793,7 @@ class AuthVm extends ChangeNotifier {
   Future<bool> chechUserCollectionExists(
     String docValue, {
     bool isEmail = false,
-    bool skipError = false, 
+    bool skipError = false,
   }) async {
     try {
       bool userExists = false;
@@ -1072,42 +1072,53 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
-Future<void> updateEmailAndPhoneNumber(
-  String email,
-  String phoneNumber,
-  String dialCode,
-) async {
-  try {
-    startLoader();
-    userModel?.email = email;
-    userModel?.number = phoneNumber;
-    userModel?.dialCode = dialCode;
-    userModel?.phoneNumber = "$dialCode$phoneNumber";
-    final userId = userModel?.uid;
-    if (userId != null) {
-      await FirebaseFirestore.instance.collection("users").doc(userId).update({
-        "email": email,
-        "number": phoneNumber,
-        "dialCode": dialCode,
-        "phoneNumber": "$dialCode$phoneNumber",
-      });
-      print("Email and phone number updated successfully in database");
-      notifyListeners();
-    } else {
-      throw Exception("User ID is null, cannot update user data");
+  Future<void> updateEmailAndPhoneNumber(
+    String email,
+    String phoneNumber,
+    String counntryCode,
+  ) async {
+    try {
+      startLoader();
+      String dialCode =
+          counntryCode.startsWith('+')
+              ? counntryCode
+              : CountryCodeConverter.getDialCode(counntryCode);
+      userModel?.email = email;
+      userModel?.number = phoneNumber;
+      userModel?.dialCode = dialCode;
+      userModel?.phoneNumber = "$dialCode$phoneNumber";
+      final userId = userModel?.uid;
+      if (userId != null) {
+        await FirebaseFirestore.instance
+            .collection("users")
+            .doc(userId)
+            .update({
+              "email": email,
+              "number": phoneNumber,
+              "dial_code": dialCode,
+              "phone_number": "$dialCode$phoneNumber",
+            });
+        await appwrite.account.updateEmail(email: email, password: "password");
+        await appwrite.account.updatePhone(
+          phone: "$dialCode$phoneNumber",
+          password: "password",
+        );
+        notifyListeners();
+      } else {
+        throw Exception("User ID is null, cannot update user data");
+      }
+      stopLoader();
+    } catch (e) {
+      stopLoader();
+      print("Error updating email and phone number: $e");
+      throw e;
     }
-    stopLoader();
-  } catch (e) {
-    stopLoader();
-    print("Error updating email and phone number: $e");
-    throw e; 
   }
-}
 
-void setUsernameAvailable(bool isAvailable) {
-  usernameIsAvailable = isAvailable;
-  notifyListeners();
-}
+  void setUsernameAvailable(bool isAvailable) {
+    usernameIsAvailable = isAvailable;
+    notifyListeners();
+  }
 
   Future<void> verifyOtpForUsernameChange(
     String countryCode,
@@ -1128,12 +1139,10 @@ void setUsernameAvailable(bool isAvailable) {
             print('sms verified');
             await appwrite.getUser();
             print('user fetched');
-            Future.delayed(Duration(seconds: 2), () async {
-              userModel?.fcm = Constants.fcmToken;
-              await updateUsernameDataToDB(newUsername);
-              print("Otp verified and username updated successfully");
-              ZBotToast.loadingClose();
-            });
+            print("Otp verified and username updated successfully");
+            ZBotToast.loadingClose();
+            await updateUsernameDataToDB(newUsername);
+            // Get.toNamed(BaseView.route);
           })
           .catchError((e) {
             Fluttertoast.showToast(msg: "$e");

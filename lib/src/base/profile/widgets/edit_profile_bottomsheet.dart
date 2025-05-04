@@ -383,14 +383,16 @@ class _EditProfileState extends State<EditProfile> {
                                                     countryCode ?? "",
                                                   );
                                             }
-
                                             Fluttertoast.showToast(
                                               msg:
                                                   "Profile updated successfully",
                                             );
-
                                             authVm.stopLoader();
-                                            Get.to(BaseView.route);
+                                            Navigator.of(context).popUntil(
+                                              (route) =>
+                                                  route.settings.name ==
+                                                  "/base",
+                                            );
                                           },
                                           () async {
                                             await authVm
@@ -414,7 +416,7 @@ class _EditProfileState extends State<EditProfile> {
                                       );
 
                                       authVm.stopLoader();
-                                      Get.to(BaseView.route);
+                                      Get.back();
                                     } else {
                                       Fluttertoast.showToast(
                                         msg: "No changes to update",
@@ -426,7 +428,7 @@ class _EditProfileState extends State<EditProfile> {
                                     Fluttertoast.showToast(
                                       msg: "Profile updated successfully",
                                     );
-                                    Navigator.pop(context);
+                                    Get.back();
                                   }
                                 }
                               },
