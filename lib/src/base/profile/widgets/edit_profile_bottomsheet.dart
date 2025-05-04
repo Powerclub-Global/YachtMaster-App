@@ -355,6 +355,14 @@ class _EditProfileState extends State<EditProfile> {
                                         emailController.text.trim() !=
                                         originalEmail;
 
+                                    if (phoneChanged || emailChanged) {
+                                      await authVm.updateEmailAndPhoneNumber(
+                                        emailController.text.trim(),
+                                        phoneNumController.text.trim(),
+                                        countryCode ?? "",
+                                      );
+                                    }
+
                                     if (usernameChanged) {
                                       await authVm.sendOtpForUsernameChange(
                                         countryCode ?? "",
@@ -374,25 +382,12 @@ class _EditProfileState extends State<EditProfile> {
                                                   usernameController.text
                                                       .trim(),
                                                 );
-                                            if (phoneChanged || emailChanged) {
-                                              await authVm
-                                                  .updateEmailAndPhoneNumber(
-                                                    emailController.text.trim(),
-                                                    phoneNumController.text
-                                                        .trim(),
-                                                    countryCode ?? "",
-                                                  );
-                                            }
                                             Fluttertoast.showToast(
                                               msg:
                                                   "Profile updated successfully",
                                             );
                                             authVm.stopLoader();
-                                            Navigator.of(context).popUntil(
-                                              (route) =>
-                                                  route.settings.name ==
-                                                  "/base",
-                                            );
+                                            Get.offAllNamed(BaseView.route);
                                           },
                                           () async {
                                             await authVm
@@ -404,29 +399,17 @@ class _EditProfileState extends State<EditProfile> {
                                           },
                                         ),
                                       );
-                                    } else if (phoneChanged || emailChanged) {
-                                      await authVm.updateEmailAndPhoneNumber(
-                                        emailController.text.trim(),
-                                        phoneNumController.text.trim(),
-                                        countryCode ?? "",
-                                      );
-
+                                    } else {
                                       Fluttertoast.showToast(
                                         msg: "Profile updated successfully",
                                       );
-
-                                      authVm.stopLoader();
-                                      Get.back();
-                                    } else {
-                                      Fluttertoast.showToast(
-                                        msg: "No changes to update",
-                                      );
-                                      Get.back();
+                                      Get.offAllNamed(BaseView.route);
                                     }
                                   } catch (e) {
                                     authVm.stopLoader();
                                     Fluttertoast.showToast(
-                                      msg: "Profile updated successfully",
+                                      msg:
+                                          "An error occurred. Please try again.",
                                     );
                                     Get.back();
                                   }
