@@ -37,6 +37,7 @@ class _EditProfileState extends State<EditProfile> {
   );
   FocusNode usernameFn = FocusNode();
   FocusNode phoneNumFn = FocusNode();
+  FocusNode emailFn = FocusNode();
   String? countryCode;
   File? pickedImage;
   String? originalPhoneNumber;
@@ -240,7 +241,7 @@ class _EditProfileState extends State<EditProfile> {
                                   h0P5,
                                   TextFormField(
                                     textInputAction: TextInputAction.next,
-                                    focusNode: FocusNode(),
+                                    focusNode: emailFn,
                                     onChanged: (v) {
                                       setState(() {});
                                     },
