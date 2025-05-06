@@ -1360,161 +1360,6 @@ class _SearchScreenState extends State<SearchScreen> {
                           ),
                         ],
                         h2,
-
-                        // if (yachtVm.allServicesList.isEmpty)
-                        //   SizedBox()
-                        // else
-                        //   Padding(
-                        //       padding: EdgeInsets.only(
-                        //         left: Get.width * .03,
-                        //         right: Get.width * .03,
-                        //       ),
-                        //       child: SizedBox(
-                        //         height: Get.height * .29,
-                        //         child: SingleChildScrollView(
-                        //           scrollDirection: Axis.horizontal,
-                        //           child: Row(
-                        //             mainAxisAlignment: MainAxisAlignment.center,
-                        //             children: List.generate(
-                        //                 yachtVm.allServicesList.length > 3
-                        //                     ? 3
-                        //                     : yachtVm.allServicesList.length,
-                        //                 (index) {
-                        //               ServiceModel service =
-                        //                   yachtVm.allServicesList[index];
-                        //               return GestureDetector(
-                        //                 onTap: () {
-                        //                   Get.toNamed(ServiceDetail.route,
-                        //                       arguments: {
-                        //                         "service": service,
-                        //                         "isHostView": service.createdBy ==
-                        //                                 FirebaseAuth.instance
-                        //                                     .currentUser?.uid
-                        //                             ? true
-                        //                             : false,
-                        //                         "index": index
-                        //                       });
-                        //                 },
-                        //                 child: Padding(
-                        //                   padding: EdgeInsets.only(right: 10),
-                        //                   child: HostWidget(
-                        //                     service: service,
-                        //                     width: Get.width * .3,
-                        //                     height: Get.height * .2,
-                        //                     isShowRating: false,
-                        //                     isShowStar: true,
-                        //                     isFav: yachtVm.userFavouritesList.any(
-                        //                         (element) =>
-                        //                             element.favouriteItemId ==
-                        //                                 service.id &&
-                        //                             element.type ==
-                        //                                 FavouriteType
-                        //                                     .service.index),
-                        //                     isFavCallBack: () async {
-                        //                       FavouriteModel favModel =
-                        //                           FavouriteModel(
-                        //                               creaatedAt: Timestamp.now(),
-                        //                               favouriteItemId: service.id,
-                        //                               id: service.id,
-                        //                               type: FavouriteType
-                        //                                   .service.index);
-                        //                       if (yachtVm.userFavouritesList.any(
-                        //                           (element) =>
-                        //                               element.id == service.id)) {
-                        //                         yachtVm.userFavouritesList
-                        //                             .removeAt(index);
-                        //                         yachtVm.update();
-                        //                         await FbCollections.user
-                        //                             .doc(FirebaseAuth.instance
-                        //                                 .currentUser?.uid)
-                        //                             .collection("favourite")
-                        //                             .doc(service.id)
-                        //                             .delete();
-                        //                       } else {
-                        //                         await FbCollections.user
-                        //                             .doc(FirebaseAuth.instance
-                        //                                 .currentUser?.uid)
-                        //                             .collection("favourite")
-                        //                             .doc(service.id)
-                        //                             .set(favModel.toJson());
-                        //                       }
-                        //                       provider.update();
-                        //                     },
-                        //                   ),
-                        //                 ),
-                        //               );
-                        //             }),
-                        //           ),
-                        //         ),
-                        //       )),
-                        // if (yachtVm.allHosts.isNotEmpty) ...[
-                        //   h2,
-                        //   GeneralWidgets.seeAllWidget(context, "superhosts",
-                        //       onTap: () {
-                        //     Get.toNamed(
-                        //       SeeAllHost.route,
-                        //     );
-                        //   }),
-                        //   h2,
-                        //   if (yachtVm.allHosts.isEmpty)
-                        //     SizedBox()
-                        //   else
-                        //     Padding(
-                        //       padding: EdgeInsets.symmetric(
-                        //         horizontal: Get.width * .03,
-                        //       ),
-                        //       child: SingleChildScrollView(
-                        //         scrollDirection: Axis.horizontal,
-                        //         child: Row(
-                        //             mainAxisAlignment: MainAxisAlignment.center,
-                        //             children: List.generate(
-                        //                 yachtVm.allHosts.length > 3
-                        //                     ? 3
-                        //                     : yachtVm.allHosts.length, (index) {
-                        //               UserModel user = yachtVm.allHosts[index];
-                        //               return host(
-                        //                 user,
-                        //                 index,
-                        //                 yachtVm.userFavouritesList.any(
-                        //                     (element) =>
-                        //                         element.favouriteItemId ==
-                        //                             user.uid &&
-                        //                         element.type ==
-                        //                             FavouriteType.host.index),
-                        //                 () async {
-                        //                   FavouriteModel favModel =
-                        //                       FavouriteModel(
-                        //                           creaatedAt: Timestamp.now(),
-                        //                           favouriteItemId: user.uid,
-                        //                           id: user.uid,
-                        //                           type: FavouriteType.host.index);
-                        //                   if (yachtVm.userFavouritesList.any(
-                        //                       (element) =>
-                        //                           element.id == user.uid)) {
-                        //                     yachtVm.userFavouritesList
-                        //                         .removeAt(index);
-                        //                     yachtVm.update();
-                        //                     await FbCollections.user
-                        //                         .doc(FirebaseAuth
-                        //                             .instance.currentUser?.uid)
-                        //                         .collection("favourite")
-                        //                         .doc(user.uid)
-                        //                         .delete();
-                        //                   } else {
-                        //                     await FbCollections.user
-                        //                         .doc(FirebaseAuth
-                        //                             .instance.currentUser?.uid)
-                        //                         .collection("favourite")
-                        //                         .doc(user.uid)
-                        //                         .set(favModel.toJson());
-                        //                   }
-                        //                   provider.update();
-                        //                 },
-                        //               );
-                        //             })),
-                        //       ),
-                        //     ),
-                        // ],
                         h2,
                         if (yachtVm.allYachts.isEmpty)
                           SizedBox()
@@ -1857,26 +1702,6 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
                 ),
                 h1,
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.center,
-                //   children: [
-                //     Padding(
-                //       padding: EdgeInsets.only(top: 4, right: 2),
-                //       child: Text(
-                //         "4.2",
-                //         style: R.textStyle.helvetica().copyWith(
-                //             color: R.colors.yellowDark,
-                //             fontSize: 9.sp,
-                //             fontWeight: FontWeight.bold),
-                //       ),
-                //     ),
-                //     Icon(
-                //       Icons.star,
-                //       color: R.colors.yellowDark,
-                //       size: 17,
-                //     )
-                //   ],
-                // ),
               ],
             ),
           ),
@@ -2081,7 +1906,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Future<ChatHeadModel?> createChatHead(InboxVm chatVm, YachtVm yachtVm) async {
     ChatHeadModel? chatHeadModel;
     List<String> tempSort = [
-      appwrite.user.$id ?? "",
+      appwrite.user.$id,
       yachtVm.allHosts.first.uid ?? "",
     ];
     tempSort.sort();

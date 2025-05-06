@@ -41,7 +41,6 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
 
   ///RED
   CalendarFormat _calendarFormat = CalendarFormat.month;
-  DateTime _focusedDay = DateTime.now();
   DateTime now = DateTime.now();
 
   @override
@@ -63,7 +62,6 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
       );
 
       if (widget.charter != null) {
-        _focusedDay = widget.charter!.availability!.dates!.first.toDate();
       }
       if (widget.isFilter == false) {
         log("hereeee");
@@ -238,7 +236,6 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
           },
           onPageChanged: (focusedDay) {
             log("$focusedDay");
-            _focusedDay = focusedDay;
           },
           calendarStyle: CalendarStyle(
             holidayDecoration: BoxDecoration(
@@ -277,7 +274,6 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
-      _focusedDay = focusedDay;
       // Update values in a Set
       if (pro.selectedBookingDays?.contains(selectedDay) == true) {
         pro.selectedBookingDays?.remove(selectedDay);

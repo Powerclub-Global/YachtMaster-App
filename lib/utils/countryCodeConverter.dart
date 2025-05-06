@@ -10,8 +10,8 @@ seperatePhoneAndDialCode(String code) {
   }
 
   if (foundedCountry.isNotEmpty) {
-    var dialCode = code.substring(0, foundedCountry["dial_code"]?.length);
-    var newPhoneNumber = code.substring(
+    code.substring(0, foundedCountry["dial_code"]?.length);
+    code.substring(
       foundedCountry["dial_code"]?.length ?? 0,
     );
     log("COUNTRUY:${foundedCountry["code"]}");

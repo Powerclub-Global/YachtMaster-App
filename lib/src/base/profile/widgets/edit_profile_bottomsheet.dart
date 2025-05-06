@@ -330,7 +330,6 @@ class _EditProfileState extends State<EditProfile> {
                                 ],
                               ),
                             ),
-                            // Spacer(),
                             SizedBox(height: Get.height * .05),
                             GestureDetector(
                               onTap: () async {

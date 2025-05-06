@@ -32,7 +32,6 @@ class _TipPaymentMethodsState extends State<TipPaymentMethods> {
 
   @override
   void initState() {
-    // TODO: implement initState
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
       log("___INIT");
       await stripeConfig();
@@ -60,16 +59,14 @@ class _TipPaymentMethodsState extends State<TipPaymentMethods> {
             provider.bookingsModel.paymentDetail?.paymentMethod =
                 PaymentMethodEnum.card.index;
             provider.update();
-            //await provider.onClickPaymentMethods("", context, isCompletePayment, splitAmount, userPaidAmount);
-            // Get.toNamed(AddCreditCard.route);
+            
             break;
           case 1:
             {
               Get.bottomSheet(
                 AppleStoreSheet(
                   callBack: () async {
-                    // await provider.onClickPaymentMethods("", context,
-                    //     isCompletePayment, splitAmount, userPaidAmount);
+                    
                   },
                 ),
                 barrierColor: Colors.grey.withValues(alpha: .20),
@@ -87,25 +84,10 @@ class _TipPaymentMethodsState extends State<TipPaymentMethods> {
               );
 
               Map<String, dynamic> data = await json.decode(response.body);
-              // Get.toNamed(PayWithCrypto.route, arguments: {
-              //   "converRate": data['rate'],
-              //   "isCompletePayment": isCompletePayment,
-              //   "userPaidAmount": userPaidAmount,
-              //   "splitAmount": splitAmount,
-              //   "isBitcoin": true
-              // });
+              
             }
             break;
           case 3:
-            // {
-            //   Get.toNamed(PayWithCrypto.route, arguments: {
-            //     "converRate": 1.0,
-            //     "isCompletePayment": isCompletePayment,
-            //     "userPaidAmount": userPaidAmount,
-            //     "splitAmount": splitAmount,
-            //     "isBitcoin": false
-            //   });
-            // }
             break;
           case 4:
             Get.toNamed(PayWithWallet.route);
@@ -142,7 +124,6 @@ class _TipPaymentMethodsState extends State<TipPaymentMethods> {
     );
   }
 
-  ///LOADER
   startLoader() {
     isLoading = true;
     setState(() {});
