@@ -10,8 +10,7 @@ KeyboardActionsConfig buildConfigDone(BuildContext context, FocusNode fn, {Focus
       KeyboardActionsItem(
         focusNode: fn,
         toolbarButtons: [
-          //button 1
-          //button 2
+
               (node) {
             return GestureDetector(
               onTap: () {

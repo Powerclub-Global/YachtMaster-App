@@ -1503,7 +1503,6 @@ class _SearchScreenState extends State<SearchScreen> {
                                         ? "host_profile"
                                         : "become_a_host",
                                   ).toString(),
-                                  // "${getTranslated(context, "chat_with_super_host")?.toUpperCase()}",
                                   style: R.textStyle.helvetica().copyWith(
                                     color: R.colors.black,
                                     fontSize: 12.sp,
@@ -1567,7 +1566,6 @@ class _SearchScreenState extends State<SearchScreen> {
                                 textAlign: TextAlign.center,
                               ),
                               h1P5,
-                              // supportWidget("giving_back", "how_to_donate_with_us", 6,settingsVm),
                               supportWidget(
                                 "refund_policy",
                                 "how_you_are_protected",
@@ -1581,7 +1579,6 @@ class _SearchScreenState extends State<SearchScreen> {
                                 settingsVm,
                               ),
 
-                              // supportWidget("explore_resources", "tips_and_tricks", 10,settingsVm),
                             ],
                           ),
                         ),
@@ -1906,7 +1903,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Future<ChatHeadModel?> createChatHead(InboxVm chatVm, YachtVm yachtVm) async {
     ChatHeadModel? chatHeadModel;
     List<String> tempSort = [
-      appwrite.user.$id,
+      appwrite.user.$id ?? "",
       yachtVm.allHosts.first.uid ?? "",
     ];
     tempSort.sort();

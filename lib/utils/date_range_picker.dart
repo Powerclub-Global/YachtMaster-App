@@ -33,14 +33,12 @@ class DatePickerCalendar extends StatefulWidget {
 }
 
 class DatePickerCalendarState extends State<DatePickerCalendar> {
-  // Using a `LinkedHashSet` is recommended due to equality comparison override
   List<DateTime> unAvailableDates = [];
 
-  ///GREY
   List<DateTime> bookedDates = [];
 
-  ///RED
   CalendarFormat _calendarFormat = CalendarFormat.month;
+  DateTime _focusedDay = DateTime.now();
   DateTime now = DateTime.now();
 
   @override
@@ -62,6 +60,7 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
       );
 
       if (widget.charter != null) {
+        _focusedDay = widget.charter!.availability!.dates!.first.toDate();
       }
       if (widget.isFilter == false) {
         log("hereeee");
@@ -105,10 +104,6 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
                 unAvailableDates.add(i);
               }
             });
-            // print("ADD ${pro.charterAvailableDates?.firstWhere((element) => element.difference(DateFormat("MMMM dd,yyyy").parse(e)).inDays!=0)}");
-            // if(!unAvailableDates.contains(pro.charterAvailableDates?.firstWhere((element) => element.difference(DateFormat("MMMM dd,yyyy").parse(e)).inDays!=0)??now)) {
-            //   unAvailableDates.add(pro.charterAvailableDates?.firstWhere((element) => element.difference(DateFormat("MMMM dd,yyyy").parse(e)).inDays!=0)??now);
-            // }
           }
         });
         log("___UNAV:${unAvailableDates.map((e) => e.toString())}");
@@ -219,11 +214,9 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
             },
           ),
           selectedDayPredicate: (day) {
-            // Use values from Set to mark multiple days as selected
             return pro.selectedBookingDays?.contains(day) == true;
           },
           holidayPredicate: (day) {
-            // Use values from Set to mark multiple days as selected
             return pro.charterAvailableDates?.contains(day) == true;
           },
           onDaySelected: _onDaySelected,
@@ -236,6 +229,7 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
           },
           onPageChanged: (focusedDay) {
             log("$focusedDay");
+            _focusedDay = focusedDay;
           },
           calendarStyle: CalendarStyle(
             holidayDecoration: BoxDecoration(
@@ -245,7 +239,6 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
             defaultTextStyle: R.textStyle
                 .helveticaBold()
                 .copyWith(color: R.colors.whiteColor, fontSize: 12.sp),
-            // rowDecoration: BoxDecoration(borderRadius: BorderRadius.circular(25),border: Border.all(color: AppColors.cream)),
             isTodayHighlighted: false,
             canMarkersOverflow: false,
             todayTextStyle: TextStyle(
@@ -274,12 +267,11 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
-      // Update values in a Set
+      _focusedDay = focusedDay;
       if (pro.selectedBookingDays?.contains(selectedDay) == true) {
         pro.selectedBookingDays?.remove(selectedDay);
       } else {
-        // DateUtil().day(DateFormat("MMMM dd,yyyy").parse(element).day) ==
-        //     DateUtil().day(selectedDay.day)
+
         List<String> days = selectedDay.allDaysOfMonth();
         days.forEach((element) {
           if (DateFormat("yyyy-MM-dd")
@@ -290,7 +282,6 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
                       .difference(DateTime.now())
                       .inDays >=
                   0) {
-            // log("_____________PARSE ${DateFormat("yyyy-MM-dd").format(DateFormat("MMMM dd,yyyy").parse(element))}");
             if (widget.isReserve ==
                     false && /*!bookedDates
                     .map((e) => DateFormat("yyyy-MM-dd").format(e))
@@ -324,22 +315,17 @@ class DatePickerCalendarState extends State<DatePickerCalendar> {
                     .toList()
                     .contains(DateFormat("yyyy-MM-dd")
                         .format(DateFormat("MMMM dd,yyyy").parse(element)))) {
-              // if (widget.type == 2) {
-              //   pro.selectedBookingDays
-              //       ?.add(DateFormat("MMMM dd,yyyy").parse(element));
-              // } else {
+
               pro.selectedBookingDays?.clear();
               pro.selectedBookingDays
                   ?.add(DateFormat("MMMM dd,yyyy").parse(element));
               DateTimePickerServices.selectedStartDate =
                   DateFormat("MMMM dd,yyyy").parse(element);
               widget.onDateSelect!(true);
-              // }
             }
           }
         });
 
-        // log("____SELECTED:${provider.selectedBookingDays.toList()[0]}");
       }
     });
   }
@@ -357,7 +343,6 @@ int getHashCode(DateTime key) {
   return key.day * 1000000 + key.month * 10000 + key.year;
 }
 
-/// Returns a list of [DateTime] objects from [first] to [last], inclusive.
 List<DateTime> daysInRange(DateTime first, DateTime last) {
   final dayCount = last.difference(first).inDays + 1;
   return List.generate(

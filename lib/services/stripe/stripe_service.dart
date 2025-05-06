@@ -5,7 +5,6 @@ import 'package:bulleted_list/bulleted_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
-// ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -58,7 +57,6 @@ class StripeService {
         getCustomerID!(customer?['id']);
       }
 
-      // 2. Create payment method
       if (isCardAvailable!) {
         await Stripe.instance.dangerouslyUpdateCardDetails(card!);
       }
@@ -80,13 +78,11 @@ class StripeService {
           customerId: customer?['id'],
           secretKey: secretKey,
         );
-        // 4. call API to update the user with the payment method
         await updateCustomer(
           paymentId: paymentMethod.id,
           customerId: customer?['id'],
           secretKey: secretKey,
         );
-        // 5. call API to create subscription
 
         var subscription = await createSubscription(
           priceID: priceID!,
@@ -125,16 +121,14 @@ class StripeService {
           }
         }
       } else {
-        // 3. call API to create PaymentIntent
         final paymentIntentResult = await createPaymentIntents(
           amount: price!,
-          currency: 'usd', // mocked data
+          currency: 'usd', 
           secretKey: secretKey,
         );
 
         log("____MAP:$paymentIntentResult");
         if (paymentIntentResult?['error'] != null) {
-          // Error during creating or confirming Intent
           onError!(paymentIntentResult?['error']);
           ZBotToast.loadingClose();
           log("ERROR:${paymentIntentResult?['error']}");

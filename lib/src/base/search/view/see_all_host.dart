@@ -127,26 +127,6 @@ class _SeeAllHostState extends State<SeeAllHost> {
                       fontWeight: FontWeight.bold),
                 ),
                 h1,
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.center,
-                //   children: [
-                //     Padding(
-                //       padding: EdgeInsets.only(top: 4, right: 2),
-                //       child: Text(
-                //         "4.2",
-                //         style: R.textStyle.helvetica().copyWith(
-                //             color: R.colors.yellowDark,
-                //             fontSize: 9.sp,
-                //             fontWeight: FontWeight.bold),
-                //       ),
-                //     ),
-                //     Icon(
-                //       Icons.star,
-                //       color: R.colors.yellowDark,
-                //       size: 17,
-                //     )
-                //   ],
-                // ),
               ],
             ),
           ),

@@ -38,10 +38,6 @@ class _PermissionDialogState extends State<PermissionDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Image.asset(
-              //   R.images.forgotPasswordImage,
-              //   height: 15.h,
-              // ),
               h2,
               Text(
                 "Oops!",
