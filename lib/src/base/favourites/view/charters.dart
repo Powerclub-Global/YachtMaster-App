@@ -18,7 +18,7 @@ import '../../yacht/view_model/yacht_vm.dart';
 import '../../../../utils/empty_screem.dart';
 
 class ChartersView extends StatefulWidget {
-  const ChartersView({Key? key}) : super(key: key);
+  const ChartersView({super.key});
 
   @override
   _ChartersViewState createState() => _ChartersViewState();

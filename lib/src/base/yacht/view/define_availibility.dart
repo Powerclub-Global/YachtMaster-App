@@ -23,7 +23,7 @@ import '../../../../utils/validation.dart';
 
 class DefineAvailibility extends StatefulWidget {
   static String route = "/defineAvailability";
-  const DefineAvailibility({Key? key}) : super(key: key);
+  const DefineAvailibility({super.key});
 
   @override
   _DefineAvailibilityState createState() => _DefineAvailibilityState();

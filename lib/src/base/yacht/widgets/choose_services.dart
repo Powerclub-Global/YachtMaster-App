@@ -20,7 +20,7 @@ import '../../../../utils/heights_widths.dart';
 
 class ChooseServices extends StatefulWidget {
   static String route="/chooseServices";
-  const ChooseServices({Key? key}) : super(key: key);
+  const ChooseServices({super.key});
 
   @override
   _ChooseServicesState createState() => _ChooseServicesState();

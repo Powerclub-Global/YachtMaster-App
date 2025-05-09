@@ -22,7 +22,7 @@ import '../../../auth/view_model/auth_vm.dart';
 
 class UserProfile extends StatefulWidget {
   static String route = "/userProfile";
-  const UserProfile({Key? key}) : super(key: key);
+  const UserProfile({super.key});
 
   @override
   _UserProfileState createState() => _UserProfileState();

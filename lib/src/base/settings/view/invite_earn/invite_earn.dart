@@ -12,7 +12,7 @@ import '../../../../../utils/zbot_toast.dart';
 
 class InviteAndEarn extends StatefulWidget {
   static String route = "/inviteAndEarn";
-  const InviteAndEarn({Key? key}) : super(key: key);
+  const InviteAndEarn({super.key});
 
   @override
   _InviteAndEarnState createState() => _InviteAndEarnState();

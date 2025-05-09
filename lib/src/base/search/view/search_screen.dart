@@ -53,7 +53,7 @@ import '../../settings/view/become_a_host.dart';
 
 class SearchScreen extends StatefulWidget {
   static String route = "/searchScreen";
-  const SearchScreen({Key? key}) : super(key: key);
+  const SearchScreen({super.key});
 
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -1503,6 +1503,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                         ? "host_profile"
                                         : "become_a_host",
                                   ).toString(),
+                                  // "${getTranslated(context, "chat_with_super_host")?.toUpperCase()}",
                                   style: R.textStyle.helvetica().copyWith(
                                     color: R.colors.black,
                                     fontSize: 12.sp,
@@ -1536,6 +1537,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 textAlign: TextAlign.center,
                               ),
                               h1P5,
+                              // supportWidget("giving_back", "how_to_donate_with_us", 6,settingsVm),
                               supportWidget(
                                 "help_center",
                                 "get_support",
@@ -1548,6 +1550,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 2,
                                 settingsVm,
                               ),
+                              // supportWidget("explore_resources", "tips_and_tricks", 10,settingsVm),
                             ],
                           ),
                         ),
@@ -1578,7 +1581,6 @@ class _SearchScreenState extends State<SearchScreen> {
                                 9,
                                 settingsVm,
                               ),
-
                             ],
                           ),
                         ),

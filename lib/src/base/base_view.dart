@@ -25,7 +25,7 @@ import 'package:yacht_master/utils/zbot_toast.dart';
 
 class BaseView extends StatefulWidget {
   static String route = "/baseViewScreen";
-  const BaseView({Key? key}) : super(key: key);
+  const BaseView({super.key});
 
   @override
   _BaseViewState createState() => _BaseViewState();

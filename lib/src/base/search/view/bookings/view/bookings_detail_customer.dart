@@ -34,7 +34,7 @@ import '../../../../../../utils/helper.dart';
 class BookingsDetail extends StatefulWidget {
   static String route = "/bookingsDetail";
 
-  const BookingsDetail({Key? key}) : super(key: key);
+  const BookingsDetail({super.key});
 
   @override
   _BookingsDetailState createState() => _BookingsDetailState();

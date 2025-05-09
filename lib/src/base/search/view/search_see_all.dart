@@ -43,7 +43,7 @@ import '../../../../utils/empty_screem.dart';
 
 class SearchSeeAll extends StatefulWidget {
   static String route = '/searchSeeAll';
-  const SearchSeeAll({Key? key}) : super(key: key);
+  const SearchSeeAll({super.key});
 
   @override
   _SearchSeeAllState createState() => _SearchSeeAllState();
@@ -1146,6 +1146,7 @@ class _SearchSeeAllState extends State<SearchSeeAll> {
     );
   }
 
+ ///MAP FUNCTIONS
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
     mapController?.setMapStyle(Utils.mapStyles);

@@ -8,7 +8,7 @@ import '../../../../utils/heights_widths.dart';
 
 class InboxView extends StatefulWidget {
   static String route = "/inboxView";
-  const InboxView({Key? key}) : super(key: key);
+  const InboxView({super.key});
 
   @override
   _InboxViewState createState() => _InboxViewState();

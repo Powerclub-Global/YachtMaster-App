@@ -9,7 +9,7 @@ import '../../../../utils/general_app_bar.dart';
 
 class PrivacyPolicy extends StatefulWidget {
   static String route = "/privacyPolicy";
-  const PrivacyPolicy({Key? key}) : super(key: key);
+  const PrivacyPolicy({super.key});
 
   @override
   _PrivacyPolicyState createState() => _PrivacyPolicyState();

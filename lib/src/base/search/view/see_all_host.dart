@@ -21,7 +21,7 @@ import '../../../../utils/heights_widths.dart';
 
 class SeeAllHost extends StatefulWidget {
   static String route="/seeAllHost";
-  const SeeAllHost({Key? key}) : super(key: key);
+  const SeeAllHost({super.key});
 
   @override
   _SeeAllHostState createState() => _SeeAllHostState();

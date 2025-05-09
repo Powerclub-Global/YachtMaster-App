@@ -1,5 +1,6 @@
 /// icon : "https://firebasestorage.googleapis.com/v0/b/yacht-masters.appspot.com/o/s1.png?alt=media&token=75e3fbad-48ca-417b-aa3e-506c8d5dcf52"
 /// title : "Jet Skies"
+library;
 
 class ChooseOffers {
   ChooseOffers({

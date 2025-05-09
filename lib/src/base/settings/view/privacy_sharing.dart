@@ -9,7 +9,7 @@ import '../../../../utils/general_app_bar.dart';
 
 class PrivacySharing extends StatefulWidget {
   static String route = "/privacySharing";
-  const PrivacySharing({Key? key}) : super(key: key);
+  const PrivacySharing({super.key});
 
   @override
   _PrivacySharingState createState() => _PrivacySharingState();

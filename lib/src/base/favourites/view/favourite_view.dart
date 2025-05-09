@@ -9,7 +9,7 @@ import '../../../../utils/heights_widths.dart';
 
 class FavouritesView extends StatefulWidget {
   static String route = "/favouritesView";
-  const FavouritesView({Key? key}) : super(key: key);
+  const FavouritesView({super.key});
 
   @override
   _FavouritesViewState createState() => _FavouritesViewState();

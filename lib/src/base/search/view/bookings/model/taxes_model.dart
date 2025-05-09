@@ -2,6 +2,7 @@
 /// service_fee : 135
 /// taxes : 315
 /// tip : 450
+library;
 
 class TaxesModel {
   TaxesModel({

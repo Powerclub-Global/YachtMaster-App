@@ -19,7 +19,7 @@ import '../../../../../../utils/heights_widths.dart';
 class TipPaymentMethods extends StatefulWidget {
   static String route = "/paymentTipMethods";
 
-  const TipPaymentMethods({Key? key}) : super(key: key);
+  const TipPaymentMethods({super.key});
 
   @override
   _TipPaymentMethodsState createState() => _TipPaymentMethodsState();
@@ -59,16 +59,12 @@ class _TipPaymentMethodsState extends State<TipPaymentMethods> {
             provider.bookingsModel.paymentDetail?.paymentMethod =
                 PaymentMethodEnum.card.index;
             provider.update();
-            
+
             break;
           case 1:
             {
               Get.bottomSheet(
-                AppleStoreSheet(
-                  callBack: () async {
-                    
-                  },
-                ),
+                AppleStoreSheet(callBack: () async {}),
                 barrierColor: Colors.grey.withValues(alpha: .20),
               );
             }
@@ -84,7 +80,6 @@ class _TipPaymentMethodsState extends State<TipPaymentMethods> {
               );
 
               Map<String, dynamic> data = await json.decode(response.body);
-              
             }
             break;
           case 3:
@@ -124,6 +119,7 @@ class _TipPaymentMethodsState extends State<TipPaymentMethods> {
     );
   }
 
+  ///LOADER
   startLoader() {
     isLoading = true;
     setState(() {});

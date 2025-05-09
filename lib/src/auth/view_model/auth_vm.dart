@@ -788,7 +788,7 @@ class AuthVm extends ChangeNotifier {
     }
   }
 
-
+  ///CHECK USRR COLLECTION EXIST
   Future<bool> chechUserCollectionExists(
     String docValue, {
     bool isEmail = false,
@@ -1047,7 +1047,7 @@ class AuthVm extends ChangeNotifier {
     } catch (e) {
       stopLoader();
       print("Error updating email and phone number: $e");
-      throw e;
+      rethrow;
     }
   }
 

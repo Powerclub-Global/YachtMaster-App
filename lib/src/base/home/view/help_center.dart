@@ -19,7 +19,7 @@ import '../../../../utils/validation.dart';
 
 class HelpCenter extends StatefulWidget {
   static String route = "/helpCenter";
-  const HelpCenter({Key? key}) : super(key: key);
+  const HelpCenter({super.key});
 
   @override
   _HelpCenterState createState() => _HelpCenterState();

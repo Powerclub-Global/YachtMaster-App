@@ -19,7 +19,7 @@ import '../../../../utils/empty_screem.dart';
 import '../../../../utils/heights_widths.dart';
 
 class Messages extends StatefulWidget {
-  const Messages({Key? key}) : super(key: key);
+  const Messages({super.key});
 
   @override
   _MessagesState createState() => _MessagesState();

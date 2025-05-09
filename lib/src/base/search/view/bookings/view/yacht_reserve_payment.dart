@@ -31,7 +31,7 @@ import '../../../../../../utils/helper.dart';
 class YachtReservePayment extends StatefulWidget {
   static String route = "/yachtReservePayment";
 
-  const YachtReservePayment({Key? key}) : super(key: key);
+  const YachtReservePayment({super.key});
 
   @override
   _YachtReservePaymentState createState() => _YachtReservePaymentState();

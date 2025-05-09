@@ -32,7 +32,7 @@ import '../../../../../../utils/helper.dart';
 class PaymentMethods extends StatefulWidget {
   static String route = "/paymentMethods";
 
-  const PaymentMethods({Key? key}) : super(key: key);
+  const PaymentMethods({super.key});
 
   @override
   _PaymentMethodsState createState() => _PaymentMethodsState();
