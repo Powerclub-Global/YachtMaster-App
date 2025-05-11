@@ -64,7 +64,12 @@ class _TipPaymentMethodsState extends State<TipPaymentMethods> {
           case 1:
             {
               Get.bottomSheet(
-                AppleStoreSheet(callBack: () async {}),
+                AppleStoreSheet(
+                  callBack: () async {
+                    // await provider.onClickPaymentMethods("", context,
+                    //     isCompletePayment, splitAmount, userPaidAmount);
+                  },
+                ),
                 barrierColor: Colors.grey.withValues(alpha: .20),
               );
             }
