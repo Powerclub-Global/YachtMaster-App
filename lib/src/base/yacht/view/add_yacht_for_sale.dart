@@ -28,7 +28,7 @@ import '../../../../utils/validation.dart';
 
 class AddYachtForSale extends StatefulWidget {
   static String route = "/addYachtForSale";
-  const AddYachtForSale({Key? key}) : super(key: key);
+  const AddYachtForSale({super.key});
 
   @override
   _AddYachtForSaleState createState() => _AddYachtForSaleState();

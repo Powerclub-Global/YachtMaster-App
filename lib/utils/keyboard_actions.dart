@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
-KeyboardActionsConfig buildConfigDone(BuildContext context, FocusNode fn, {FocusNode? nextFocus , bool isDone = false}) {
+KeyboardActionsConfig buildConfigDone(
+  BuildContext context,
+  FocusNode fn, {
+  FocusNode? nextFocus,
+  bool isDone = false,
+}) {
   return KeyboardActionsConfig(
     keyboardActionsPlatform: KeyboardActionsPlatform.ALL,
     keyboardBarColor: Colors.grey[200],
@@ -12,25 +17,25 @@ KeyboardActionsConfig buildConfigDone(BuildContext context, FocusNode fn, {Focus
         toolbarButtons: [
           //button 1
           //button 2
-              (node) {
+          (node) {
             return GestureDetector(
               onTap: () {
-                if(isDone){
+                if (isDone) {
                   node.unfocus();
-                }else{
+                } else {
                   FocusScope.of(context).requestFocus(nextFocus);
                 }
               },
               child: Container(
                 color: Colors.white,
                 padding: const EdgeInsets.all(8.0),
-                child:  Text(
+                child: Text(
                   isDone ? "DONE" : "NEXT",
                   style: const TextStyle(color: Colors.black),
                 ),
               ),
             );
-          }
+          },
         ],
       ),
     ],

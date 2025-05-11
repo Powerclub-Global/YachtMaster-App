@@ -40,7 +40,7 @@ import '../../../../utils/heights_widths.dart';
 
 class HostProfileOthers extends StatefulWidget {
   static String route = "/hostProfileOthers";
-  const HostProfileOthers({Key? key}) : super(key: key);
+  const HostProfileOthers({super.key});
 
   @override
   _HostProfileOthersState createState() => _HostProfileOthersState();

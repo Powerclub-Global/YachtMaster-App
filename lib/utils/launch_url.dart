@@ -4,8 +4,8 @@ class LaunchUrl
 {
   static   launchURL(String url) async {
     print(url);
-    if (await canLaunch(url)) {
-      await launch(url);
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.platformDefault);
     } else {
       throw 'Could not launch $url';
     }

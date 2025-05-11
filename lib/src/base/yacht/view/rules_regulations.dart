@@ -12,7 +12,7 @@ import '../../../../utils/heights_widths.dart';
 
 class RulesRegulations extends StatefulWidget {
   static String route = "/rulesRegulations";
-  const RulesRegulations({Key? key}) : super(key: key);
+  const RulesRegulations({super.key});
 
   @override
   _RulesRegulationsState createState() => _RulesRegulationsState();

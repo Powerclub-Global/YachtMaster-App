@@ -3,6 +3,7 @@
 /// uid : ""
 /// amount : ""
 /// invited_user_uid : ""
+library;
 
 class ReferralModel {
   ReferralModel({

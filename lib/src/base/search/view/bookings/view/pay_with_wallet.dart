@@ -24,7 +24,7 @@ class PayWithWallet extends StatefulWidget {
   static String route = "/payWithWallet";
   bool isTip;
   double amount = 0.0;
-  PayWithWallet({Key? key, this.isTip = false}) : super(key: key);
+  PayWithWallet({super.key, this.isTip = false});
 
   @override
   _PayWithWalletState createState() => _PayWithWalletState();

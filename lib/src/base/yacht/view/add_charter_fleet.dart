@@ -31,7 +31,7 @@ import '../../../../utils/validation.dart';
 
 class AddfeaturedCharters extends StatefulWidget {
   static String route = "/addfeaturedCharters";
-  const AddfeaturedCharters({Key? key}) : super(key: key);
+  const AddfeaturedCharters({super.key});
 
   @override
   _AddfeaturedChartersState createState() => _AddfeaturedChartersState();

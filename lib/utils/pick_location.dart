@@ -240,27 +240,6 @@ class PickLocationState extends State<PickLocation> {
         await [Permission.location].request();
     print(statuses[Permission.location]);
   }
-
-  //  enableBackgroundMode() async {
-  //   bool _bgModeEnabled = await location.isBackgroundModeEnabled();
-  //   log("_________________________IS BACKGROUND MODE ENABLE:${_bgModeEnabled}");
-  //   if (_bgModeEnabled) {
-  //     return true;
-  //   } else {
-  //     try {
-  //       await location.enableBackgroundMode();
-  //     } catch (e) {
-  //       log(e.toString());
-  //     }
-  //     try {
-  //       _bgModeEnabled = await location.enableBackgroundMode();
-  //     } catch (e) {
-  //       log(e.toString());
-  //     }
-  //     log("++++++++++++++++++BG${_bgModeEnabled}"); //True!
-  //     return _bgModeEnabled;
-  //   }
-  // }
   getMyLoc() async {
     try {
       print("___IN GET MY LOC");

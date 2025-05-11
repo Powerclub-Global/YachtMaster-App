@@ -20,7 +20,7 @@ import '../../../../utils/empty_screem.dart';
 import '../../../../utils/heights_widths.dart';
 
 class HostView extends StatefulWidget {
-  const HostView({Key? key}) : super(key: key);
+  const HostView({super.key});
 
   @override
   _HostViewState createState() => _HostViewState();

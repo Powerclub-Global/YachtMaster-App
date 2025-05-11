@@ -5,6 +5,7 @@
 /// twitter_url : ""
 /// google_url : ""
 /// admin_crypto_email : "bodhi@labworld.org"
+library;
 
 class AppUrlModel {
   AppUrlModel({

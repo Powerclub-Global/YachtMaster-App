@@ -7,7 +7,7 @@ import '../../../../utils/heights_widths.dart';
 import '../resources/decorations.dart';
 
 class PermissionDialog extends StatefulWidget {
-  const PermissionDialog({Key? key}) : super(key: key);
+  const PermissionDialog({super.key});
 
   @override
   State<PermissionDialog> createState() => _PermissionDialogState();
@@ -38,10 +38,6 @@ class _PermissionDialogState extends State<PermissionDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Image.asset(
-              //   R.images.forgotPasswordImage,
-              //   height: 15.h,
-              // ),
               h2,
               Text(
                 "Oops!",

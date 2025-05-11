@@ -19,7 +19,7 @@ import '../../../../../utils/validation.dart';
 
 class WithdrawMoney extends StatefulWidget {
   static String route = "/withdrawMoney";
-  const WithdrawMoney({Key? key}) : super(key: key);
+  const WithdrawMoney({super.key});
 
   @override
   _WithdrawMoneyState createState() => _WithdrawMoneyState();

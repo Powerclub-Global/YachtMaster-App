@@ -33,7 +33,7 @@ import '../../../../utils/mapstyle.dart';
 
 class ServiceDetail extends StatefulWidget {
   static String route = "/serviceDetail";
-  const ServiceDetail({Key? key}) : super(key: key);
+  const ServiceDetail({super.key});
 
   @override
   _ServiceDetailState createState() => _ServiceDetailState();

@@ -17,7 +17,7 @@ import '../../../../utils/zbot_toast.dart';
 import '../../../auth/view_model/auth_vm.dart';
 
 class DeleteAccountSheet extends StatefulWidget {
-  const DeleteAccountSheet({Key? key}) : super(key: key);
+  const DeleteAccountSheet({super.key});
 
   @override
   State<DeleteAccountSheet> createState() => _DeleteAccountSheetState();

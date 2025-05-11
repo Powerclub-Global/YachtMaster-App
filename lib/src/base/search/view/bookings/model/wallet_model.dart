@@ -1,5 +1,6 @@
 /// uid : ""
 /// amount : ""
+library;
 
 class WalletModel {
   WalletModel({

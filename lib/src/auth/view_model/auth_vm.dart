@@ -789,7 +789,6 @@ class AuthVm extends ChangeNotifier {
   }
 
   ///CHECK USRR COLLECTION EXIST
-
   Future<bool> chechUserCollectionExists(
     String docValue, {
     bool isEmail = false,
@@ -822,30 +821,6 @@ class AuthVm extends ChangeNotifier {
       return false;
     }
   }
-
-  // Future<UserCredential?> linkPhoneNumber(AuthCredential credential) async {
-  //   try {
-  //     UserCredential? cred = await FirebaseAuth.instance.currentUser
-  //         ?.linkWithCredential(credential);
-  //     return cred;
-  //   } catch (e) {
-  //     log("++++++++++++++++++++++++++++++++++$e");
-  //     if (e.toString().contains("firebase_auth/session-expired")) {
-  //       Fluttertoast.showToast(
-  //           msg:
-  //               "The sms code has expired. Please re-send the verification code to try again.");
-  //     } else if (e
-  //         .toString()
-  //         .contains("firebase_auth/invalid-verification-code")) {
-  //       Helper.inSnackBar("Error", "Wrong OTP code", R.colors.themeMud);
-  //     } else {
-  //       Fluttertoast.showToast(msg: "$e");
-  //     }
-  //     stopLoader();
-  //     debugPrintStack();
-  //   }
-  //   return null;
-  // }
 
   Future<String> uploadUserImage(File pickedImage) async {
     var imageUrl = await ImagePickerServices().uploadSingleImage(pickedImage);
@@ -1072,7 +1047,7 @@ class AuthVm extends ChangeNotifier {
     } catch (e) {
       stopLoader();
       print("Error updating email and phone number: $e");
-      throw e;
+      rethrow;
     }
   }
 

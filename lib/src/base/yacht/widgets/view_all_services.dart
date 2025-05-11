@@ -18,7 +18,7 @@ import '../../../../utils/heights_widths.dart';
 
 class ViewAllServices extends StatefulWidget {
   static String route="/viewAllServices";
-  const ViewAllServices({Key? key}) : super(key: key);
+  const ViewAllServices({super.key});
 
   @override
   _ViewAllServicesState createState() => _ViewAllServicesState();

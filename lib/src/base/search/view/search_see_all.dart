@@ -43,7 +43,7 @@ import '../../../../utils/empty_screem.dart';
 
 class SearchSeeAll extends StatefulWidget {
   static String route = '/searchSeeAll';
-  const SearchSeeAll({Key? key}) : super(key: key);
+  const SearchSeeAll({super.key});
 
   @override
   _SearchSeeAllState createState() => _SearchSeeAllState();
@@ -1146,12 +1146,11 @@ class _SearchSeeAllState extends State<SearchSeeAll> {
     );
   }
 
-  ///MAP FUNCTIONS
+ ///MAP FUNCTIONS
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
     mapController?.setMapStyle(Utils.mapStyles);
-    // mapController?.
-    //     setMapStyle(mapStyle);
+
   }
 
   moveToLocation(LatLng latLng, dynamic charterModel) async {
@@ -1204,7 +1203,6 @@ class _SearchSeeAllState extends State<SearchSeeAll> {
             lng = position.longitude;
             print('CURRENT POS: $_currentPosition');
             print('CURRENT Laritude: $lat');
-            // _sourceMarker(latitude, longitude);
             mapController?.animateCamera(
               CameraUpdate.newCameraPosition(
                 CameraPosition(
@@ -1214,7 +1212,6 @@ class _SearchSeeAllState extends State<SearchSeeAll> {
               ),
             );
           });
-          // await _getAddress();
         })
         .catchError((e) {
           print(e);

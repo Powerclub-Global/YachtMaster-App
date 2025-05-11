@@ -31,7 +31,7 @@ import '../../../../utils/mapstyle.dart';
 
 class YachtDetail extends StatefulWidget {
   static String route = "/yachtDetail";
-  const YachtDetail({Key? key}) : super(key: key);
+  const YachtDetail({super.key});
 
   @override
   _YachtDetailState createState() => _YachtDetailState();
