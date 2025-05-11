@@ -75,7 +75,7 @@ class _BecomeHostState extends State<BecomeHost> {
             SizedBox(
               width: Get.width * .85,
               child: Text(
-                "In order to receive payouts from YachtMaster App you must complete a W-9 Tax form as Mandated by the Federal Tax Commission\n\nPlease Download the W-9 Form provided below, and upload the completed document to request Payouts.",
+                "In order to receive payouts from YachtMaster App you must complete a W-9 Tax form as Mandated by the Federal Tax Commission\n\nPlease press the button below to continue",
                 style: R.textStyle.helvetica().copyWith(
                   fontWeight: FontWeight.w600,
                   height: 1.5,

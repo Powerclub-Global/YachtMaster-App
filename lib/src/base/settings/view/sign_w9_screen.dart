@@ -162,6 +162,7 @@ class SignW9Screen extends StatelessWidget {
                     "Verification was cancelled",
                     R.colors.themeMud,
                   );
+
                 case VerificationResult.failed:
                   Helper.inSnackBar(
                     'Error',

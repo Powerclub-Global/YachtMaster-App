@@ -19,7 +19,7 @@ import '../../../../utils/general_app_bar.dart';
 import '../../../../utils/heights_widths.dart';
 
 class ChooseServices extends StatefulWidget {
-  static String route="/chooseServices";
+  static String route = "/chooseServices";
   const ChooseServices({super.key});
 
   @override
@@ -31,40 +31,55 @@ class _ChooseServicesState extends State<ChooseServices> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    var yachtVm=Provider.of<YachtVm>(context,listen: false);
+    var yachtVm = Provider.of<YachtVm>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+      log('ajsaj');
       yachtVm.startLoader();
-      yachtVm.selectedOffers=[];
+      yachtVm.selectedOffers = [];
       yachtVm.fetchCharterOffers();
       yachtVm.charterModel?.chartersOffers?.forEach((element) async {
-        DocumentSnapshot doc=await FbCollections.chartersOffers.doc(element).get();
+        DocumentSnapshot doc =
+            await FbCollections.chartersOffers.doc(element).get();
+
         yachtVm.selectedOffers.add(ChooseOffers.fromJson(doc.data()));
         yachtVm.update();
       });
       yachtVm.update();
       yachtVm.stopLoader();
-
     });
   }
+
   @override
   Widget build(BuildContext context) {
-    return Consumer2<YachtVm,SearchVm>(
-        builder: (context, provider, searchVm,_) {
-          return ModalProgressHUD(
-            inAsyncCall: provider.isLoading,
-            progressIndicator:SpinKitPulse(color: R.colors.themeMud,),
-            child: Scaffold(
+    return Consumer2<YachtVm, SearchVm>(
+      builder: (context, provider, searchVm, _) {
+        log(provider.charterModel?.chartersOffers.toString() ?? "none");
+        return ModalProgressHUD(
+          inAsyncCall: provider.isLoading,
+          progressIndicator: SpinKitPulse(color: R.colors.themeMud),
+          child: Scaffold(
             backgroundColor: R.colors.black,
-            appBar: GeneralAppBar.simpleAppBar(context, getTranslated(context, "charter_offers")??""),
+            appBar: GeneralAppBar.simpleAppBar(
+              context,
+              getTranslated(context, "charter_offers") ?? "",
+            ),
             body: Padding(
-              padding:  EdgeInsets.symmetric(horizontal: Get.width*.05,vertical: Get.height*.02),
+              padding: EdgeInsets.symmetric(
+                horizontal: Get.width * .05,
+                vertical: Get.height * .02,
+              ),
               child: Column(
                 children: [
                   Row(
                     children: [
-                      Text(getTranslated(context, "choose")??"",style: R.textStyle.helvetica().copyWith(
-                        color: R.colors.whiteColor,fontWeight: FontWeight.bold,fontSize: 15.sp
-                      ),),
+                      Text(
+                        getTranslated(context, "choose") ?? "",
+                        style: R.textStyle.helvetica().copyWith(
+                          color: R.colors.whiteColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15.sp,
+                        ),
+                      ),
                     ],
                   ),
                   h2,
@@ -74,29 +89,43 @@ class _ChooseServicesState extends State<ChooseServices> {
                       alignment: WrapAlignment.center,
                       runSpacing: 20,
                       spacing: 20,
-                      children:List.generate(provider.chooseServicesList.length, (index) {
-
-                      return choose(provider.chooseServicesList[index], index,provider);
-                    }),),
+                      children: List.generate(
+                        provider.chooseServicesList.length,
+                        (index) {
+                          return choose(
+                            provider.chooseServicesList[index],
+                            index,
+                            provider,
+                          );
+                        },
+                      ),
+                    ),
                   ),
                   Spacer(),
                   GestureDetector(
                     onTap: () async {
-                      provider.charterModel?.chartersOffers=[];
-                      provider.charterModel?.chartersOffers=List.from(provider.selectedOffers.map((e) => e.id).toList());
+                      provider.charterModel?.chartersOffers = [];
+                      provider.charterModel?.chartersOffers = List.from(
+                        provider.selectedOffers.map((e) => e.id).toList(),
+                      );
+
                       provider.update();
                       Get.forceAppUpdate();
                       Get.back();
                     },
                     child: Container(
-                      height: Get.height*.06,
-                      width: Get.width*.6,
+                      height: Get.height * .06,
+                      width: Get.width * .6,
                       decoration: AppDecorations.gradientButton(radius: 30),
                       child: Center(
-                        child: Text("${getTranslated(context, "save")?.toUpperCase()}",
-                          style: R.textStyle.helvetica().copyWith(color: R.colors.black,
-                            fontSize: 12.sp,fontWeight: FontWeight.bold,
-                          ) ,),
+                        child: Text(
+                          "${getTranslated(context, "save")?.toUpperCase()}",
+                          style: R.textStyle.helvetica().copyWith(
+                            color: R.colors.black,
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -104,79 +133,111 @@ class _ChooseServicesState extends State<ChooseServices> {
                 ],
               ),
             ),
-        ),
-          );
-      }
+          ),
+        );
+      },
     );
   }
-  Widget choose(ChooseOffers service,int index,YachtVm provider)
-  {
-    return
-      GestureDetector(
-        onTap: (){
-          // provider.chooseServicesList[index].isSelected==true?
-          // provider.chooseServicesList[index].isSelected=false:
-          // provider.chooseServicesList[index].isSelected=true;
-          log("________________________isSeele:${provider.selectedOffers.any((element) => element.id==service.id)}___${provider.selectedOffers.indexOf(service)}");
 
-          provider.selectedOffers.any((element) => element.id==service.id)?
-          provider.selectedOffers.removeWhere((element) => element.id==service.id):
-          provider.selectedOffers.add(service);
-          provider.update();
-        },
-        child: Container(
-        height: Get.height*.13,
-        width: Get.width*.4,
+  Widget choose(ChooseOffers service, int index, YachtVm provider) {
+    return GestureDetector(
+      onTap: () {
+        // provider.chooseServicesList[index].isSelected==true?
+        // provider.chooseServicesList[index].isSelected=false:
+        // provider.chooseServicesList[index].isSelected=true;
+
+        provider.selectedOffers.any((element) => element.id == service.id)
+            ? provider.selectedOffers.removeWhere(
+              (element) => element.id == service.id,
+            )
+            : provider.selectedOffers.add(service);
+        provider.update();
+      },
+      child: Container(
+        height: Get.height * .13,
+        width: Get.width * .4,
         decoration: BoxDecoration(
-            color: R.colors.whiteColor,
-            border: Border.all(color:
-           provider.selectedOffers.any((element) => element.id==service.id)?R.colors.themeMud:
-            R.colors.black
-            ,width: 2),
-            borderRadius: BorderRadius.circular(12)
+          color: R.colors.whiteColor,
+          border: Border.all(
+            color:
+                provider.selectedOffers.any(
+                      (element) => element.id == service.id,
+                    )
+                    ? R.colors.themeMud
+                    : R.colors.black,
+            width: 2,
+          ),
+          borderRadius: BorderRadius.circular(12),
         ),
-        child: Stack(alignment: Alignment.center,
+        child: Stack(
+          alignment: Alignment.center,
           children: [
-            Column(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                CachedNetworkImage(imageUrl: service.icon??
-                    R.images.serviceUrl
-                  ,color:
-                  provider.selectedOffers.any((element) => element.id==service.id)? R.colors.themeMud:
-                  R.colors.black,height: Get.height*.045,
-                  progressIndicatorBuilder: (context, url, downloadProgress) =>
-                      SpinKitPulse(color: R.colors.themeMud,),
+                CachedNetworkImage(
+                  imageUrl: service.icon ?? R.images.serviceUrl,
+                  color:
+                      provider.selectedOffers.any(
+                            (element) => element.id == service.id,
+                          )
+                          ? R.colors.themeMud
+                          : R.colors.black,
+                  height: Get.height * .045,
+                  progressIndicatorBuilder:
+                      (context, url, downloadProgress) =>
+                          SpinKitPulse(color: R.colors.themeMud),
                   errorWidget: (context, url, error) => Icon(Icons.error),
                 ),
 
-                Text(service.title??"",style: R.textStyle.helvetica().copyWith(color:
-                provider.selectedOffers.any((element) => element.id==service.id)?R.colors.themeMud:
-                R.colors.black,fontSize: 13.sp),)
-              ],),
+                Text(
+                  service.title ?? "",
+                  style: R.textStyle.helvetica().copyWith(
+                    color:
+                        provider.selectedOffers.any(
+                              (element) => element.id == service.id,
+                            )
+                            ? R.colors.themeMud
+                            : R.colors.black,
+                    fontSize: 13.sp,
+                  ),
+                ),
+              ],
+            ),
             Positioned(
               right: 10,
               top: 10,
               child: Container(
                 decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color:
-                    provider.selectedOffers.any((element) => element.id==service.id)?R.colors.themeMud:
-                    Colors.grey)
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color:
+                        provider.selectedOffers.any(
+                              (element) => element.id == service.id,
+                            )
+                            ? R.colors.themeMud
+                            : Colors.grey,
+                  ),
                 ),
                 padding: EdgeInsets.all(2),
-                child: Container(height: 13,width: 13,
+                child: Container(
+                  height: 13,
+                  width: 13,
                   decoration: BoxDecoration(
-                      color:
-                      provider.selectedOffers.any((element) => element.id==service.id)?R.colors.themeMud:
-                      Colors.transparent,
-                      shape: BoxShape.circle
+                    color:
+                        provider.selectedOffers.any(
+                              (element) => element.id == service.id,
+                            )
+                            ? R.colors.themeMud
+                            : Colors.transparent,
+                    shape: BoxShape.circle,
                   ),
                 ),
               ),
             ),
           ],
         ),
-    ),
-      );
+      ),
+    );
   }
 }

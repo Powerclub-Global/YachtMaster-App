@@ -104,7 +104,7 @@ class PickLocationState extends State<PickLocation> {
                   myLocationEnabled: true,
                   zoomGesturesEnabled: true,
                   zoomControlsEnabled: true,
-                  style: Utils.mapStyles,
+                  // style: Utils.mapStyles,
                   // markers: model.markers,
                   onMapCreated: (GoogleMapController controller) {
                     googleController = controller;
