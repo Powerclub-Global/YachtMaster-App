@@ -13,7 +13,6 @@ import '../resources/resources.dart';
 import '../src/base/search/view_model/search_vm.dart';
 import '../src/base/settings/view_model/settings_vm.dart';
 import 'helper.dart';
-import 'mapstyle.dart';
 import 'permission_dialog.dart';
 
 class PickLocation extends StatefulWidget {

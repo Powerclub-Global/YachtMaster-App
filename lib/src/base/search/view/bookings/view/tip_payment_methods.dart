@@ -19,7 +19,7 @@ import '../../../../../../utils/heights_widths.dart';
 class TipPaymentMethods extends StatefulWidget {
   static String route = "/paymentTipMethods";
 
-  const TipPaymentMethods({Key? key}) : super(key: key);
+  const TipPaymentMethods({super.key});
 
   @override
   _TipPaymentMethodsState createState() => _TipPaymentMethodsState();
