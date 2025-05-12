@@ -448,32 +448,40 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
                           h1P5,
                           label(getTranslated(context, "guest_capacity") ?? ""),
                           h0P5,
-                          TextFormField(
-                            textInputAction: TextInputAction.next,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.allow(
-                                RegExp("[0-9]"),
+                          DropdownButtonFormField<int>(
+                            isExpanded: true,
+                            icon: Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: Icon(
+                                Icons.arrow_drop_down,
+                                color: R.colors.black,
                               ),
-                              LengthLimitingTextInputFormatter(10),
-                            ],
-                            keyboardType: TextInputType.number,
-                            focusNode: guestCountFn,
-                            onChanged: (v) {
-                              setState(() {});
-                            },
-                            onTap: () {
-                              setState(() {});
-                            },
-                            onFieldSubmitted: (a) {
+                            ),
+
+                            style: R.textStyle.helvetica().copyWith(
+                              color: R.colors.black,
+                              fontSize: 10.sp,
+                            ),
+                            value:
+                                guestCountCon.text.isNotEmpty
+                                    ? int.tryParse(guestCountCon.text)
+                                    : null,
+                            items: List.generate(
+                              13,
+                              (index) => DropdownMenuItem(
+                                value: index + 1,
+                                child: Text('${index + 1}'),
+                              ),
+                            ),
+                            onChanged: (value) {
                               setState(() {
-                                FocusScope.of(
-                                  Get.context!,
-                                ).requestFocus(FocusNode());
+                                guestCountCon.text = value?.toString() ?? '';
                               });
                             },
-                            controller: guestCountCon,
                             validator:
-                                (val) => FieldValidator.validateRequired(val),
+                                (val) => FieldValidator.validateRequired(
+                                  guestCountCon.text,
+                                ),
                             decoration: AppDecorations.suffixTextField(
                               "enter_guest_capacity",
                               R.textStyle.helvetica().copyWith(
@@ -485,6 +493,7 @@ class _AddfeaturedChartersState extends State<AddfeaturedCharters> {
                               ),
                               SizedBox(),
                             ),
+                            focusNode: guestCountFn,
                           ),
                           h1P5,
                           label(getTranslated(context, "allow_pets") ?? ""),
