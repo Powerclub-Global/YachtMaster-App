@@ -141,12 +141,9 @@ class _BecomeHostState extends State<BecomeHost> {
             h3,
 
             GestureDetector(
-              onTap:
-                  vm!.isLoading
-                      ? () {}
-                      : () async {
-                        Get.to(FillW9Screen());
-                      },
+              onTap: () async {
+                Get.to(FillW9Screen());
+              },
               child: Container(
                 height: Get.height * .055,
                 width: Get.width * .8,
