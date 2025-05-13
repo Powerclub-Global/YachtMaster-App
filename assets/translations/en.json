@@ -434,5 +434,7 @@
   "user_has_been_deleted_successfully": "User has been deleted successfully",
   "delete_account_desc": "Deleting your account will remove all your data from our database. It can not be undone.",
   "continue": "Continue",
-  "signed_in_email": "Signed-in Email: {email}"
+  "signed_in_email": "Signed-in Email: {email}",
+  "identity": "Verify your Identity",
+  "fill_w9": "Fill W-9 Form"
 }
