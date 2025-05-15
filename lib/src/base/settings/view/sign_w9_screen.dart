@@ -74,27 +74,37 @@ class SignW9Screen extends StatelessWidget {
                   '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.pdf';
               final pdfFile = File(filePath);
               await pdfFile.writeAsBytes(signedPdfBytes, flush: true);
-
-              ZBotToast.loadingShow();
-
-              await db
-                  .collection("users")
-                  .doc(appwrite.user.$id)
-                  .collection("agreements")
-                  .doc("host")
-                  .set({"time": DateTime.now()});
               AuthVm vm = Provider.of(context, listen: false);
-              String imageUrl = await vm.uploadHostDocument(pdfFile);
-              vm.userModel?.requestStatus = RequestStatus.requestHost;
-              vm.userModel?.hostDocumentUrl = imageUrl;
-              vm.update();
-              await vm.updateUser(vm.userModel ?? UserModel());
-              ZBotToast.showToastSuccess(
-                message:
-                    "Request has been sent to admin.Please wait for the approval!",
-              );
-              Get.toNamed(BaseView.route);
+              ZBotToast.loadingShow();
+              if (vm.isVerifyingForHost) {
+                await db
+                    .collection("users")
+                    .doc(appwrite.user.$id)
+                    .collection("agreements")
+                    .doc("host")
+                    .set({"time": DateTime.now()});
 
+                String imageUrl = await vm.uploadHostDocument(pdfFile);
+                vm.userModel?.requestStatus = RequestStatus.requestHost;
+                vm.userModel?.hostDocumentUrl = imageUrl;
+                vm.update();
+                await vm.updateUser(vm.userModel ?? UserModel());
+                ZBotToast.showToastSuccess(
+                  message:
+                      "Request has been sent to admin.Please wait for the approval!",
+                );
+              } else {
+                String imageUrl = await vm.uploadHostDocument(pdfFile);
+                vm.userModel?.inviteStatus = 1;
+                vm.userModel?.hostDocumentUrl = imageUrl;
+                vm.update();
+                await vm.updateUser(vm.userModel ?? UserModel());
+                ZBotToast.showToastSuccess(
+                  message:
+                      "Request has been sent to admin.Please wait for the approval!",
+                );
+              }
+              Get.toNamed(BaseView.route);
               ZBotToast.loadingClose();
             },
             child: Container(

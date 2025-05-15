@@ -41,6 +41,7 @@ class AuthVm extends ChangeNotifier {
   String? appleUserEmail;
   WalletModel? wallet;
   String? yachtId;
+  bool isVerifyingForHost = true;
   StreamSubscription<DocumentSnapshot<UserModel>>? currentUserStream;
 
   final GoogleSignIn googleSignIn = GoogleSignIn();

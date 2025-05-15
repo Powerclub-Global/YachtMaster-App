@@ -10,7 +10,6 @@ import '../../../../utils/general_app_bar.dart';
 import '../../../../utils/heights_widths.dart';
 import '../../../../resources/decorations.dart';
 
-
 class W9InfoScreen extends StatefulWidget {
   static String route = "/w9InfoScreen";
 
@@ -48,7 +47,7 @@ class _W9InfoScreenState extends State<W9InfoScreen> {
             SizedBox(
               width: Get.width * .85,
               child: Text(
-                "In order to receive payouts from YachtMaster App you must complete a W-9 Tax form as Mandated by the Federal Tax Commission\n\nPlease press the button below to continue",
+                "Thank you for verifying your Identity. Now you must complete a W-9 Tax form as Mandated by the Federal Tax Commission\n\nPlease press the button below to continue",
                 style: R.textStyle.helvetica().copyWith(
                   fontWeight: FontWeight.w600,
                   height: 1.5,

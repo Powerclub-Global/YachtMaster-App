@@ -38,8 +38,6 @@ class BecomeHost extends StatefulWidget {
 }
 
 class _BecomeHostState extends State<BecomeHost> {
-  final stripeIdentity = StripeIdentityPlugin();
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -95,6 +93,7 @@ class _BecomeHostState extends State<BecomeHost> {
     return (status, message);
   }
 
+  final stripeIdentity = StripeIdentityPlugin();
   AuthVm? vm;
   @override
   Widget build(BuildContext context) {
@@ -142,6 +141,7 @@ class _BecomeHostState extends State<BecomeHost> {
                 switch (stripeResult) {
                   case VerificationResult.completed:
                     {
+                      vm?.isVerifyingForHost = true;
                       Get.to(W9InfoScreen());
                     }
 
@@ -151,6 +151,7 @@ class _BecomeHostState extends State<BecomeHost> {
                       "Verification was cancelled",
                       R.colors.themeMud,
                     );
+                    Get.to(W9InfoScreen());
 
                   case VerificationResult.failed:
                     Helper.inSnackBar(
