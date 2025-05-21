@@ -165,6 +165,7 @@ class _EditProfileState extends State<EditProfile> {
                                     pickedImage =
                                         await ImagePickerServices().getImage();
                                     setState(() {});
+                                    await authVm.uploadUserImage(pickedImage!);
                                   },
                                   child: Container(
                                     decoration: BoxDecoration(

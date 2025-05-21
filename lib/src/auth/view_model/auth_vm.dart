@@ -144,7 +144,7 @@ class AuthVm extends ChangeNotifier {
         Get.toNamed(SocialSignup.route);
       }
     } on AppwriteException catch (e) {
-      log("THIS IS ERRROR $e");
+      log("onClickFacebookLogin: THIS IS ERRROR $e");
       Fluttertoast.showToast(msg: "$e");
       logoutUser();
     }
@@ -188,7 +188,7 @@ class AuthVm extends ChangeNotifier {
         Get.toNamed(SocialSignup.route);
       }
     } on AppwriteException catch (e) {
-      log("THIS IS ERRROR $e");
+      log("onClickGoogleLogin: THIS IS ERRROR $e");
       Fluttertoast.showToast(msg: "$e");
       logoutUser();
     }
@@ -236,7 +236,7 @@ class AuthVm extends ChangeNotifier {
         );
       }
     } on AppwriteException catch (e) {
-      log("THIS IS ERRROR$e");
+      log("onClickAppleLogin: THIS IS ERRROR$e");
       Fluttertoast.showToast(msg: "$e");
       logoutUser();
     }
@@ -280,7 +280,7 @@ class AuthVm extends ChangeNotifier {
       Helper.inSnackBar('Error', "User already exist", R.colors.themeMud);
       stopLoader();
     } else {
-      log("____USER display name:${appwrite.user.name}");
+      log("onClickSocialSignup: ____USER display name:${appwrite.user.name}");
       print("Starting registration");
       await registerUserSocial(countryCode, phoneNumController);
     }
@@ -375,7 +375,7 @@ class AuthVm extends ChangeNotifier {
       }
     } catch (e) {
       debugPrintStack();
-      log("///////////NOT ANY CURRENT USER");
+      log("checkCurrentUser: " + e.toString());
       Get.offAllNamed(LoginScreen.route);
     }
   }
@@ -403,7 +403,7 @@ class AuthVm extends ChangeNotifier {
       });
     } catch (e) {
       debugPrintStack();
-      log(e.toString());
+      log("getUserWallet: " + e.toString());
     }
   }
 
@@ -416,7 +416,7 @@ class AuthVm extends ChangeNotifier {
       await getUserWallet();
     } catch (e) {
       debugPrintStack();
-      log(e.toString());
+      log("updateUserWallet: " + e.toString());
     }
   }
 
@@ -463,7 +463,7 @@ class AuthVm extends ChangeNotifier {
       } else {
         Fluttertoast.showToast(msg: e.toString().split("]").last);
       }
-      log(e.toString());
+      log("registerUserSocial: " + e.toString());
       stopLoader();
     }
   }
@@ -567,7 +567,7 @@ class AuthVm extends ChangeNotifier {
       } else {
         Fluttertoast.showToast(msg: e.toString().split("]").last);
       }
-      log(e.toString());
+      log("signInWithOtp: " + e.toString());
       stopLoader();
     }
   }
@@ -638,7 +638,7 @@ class AuthVm extends ChangeNotifier {
       } else {
         Fluttertoast.showToast(msg: "$e");
       }
-      log(e.toString());
+      log("signupWithOtp: " + e.toString());
       stopLoader();
     }
   }
@@ -692,7 +692,7 @@ class AuthVm extends ChangeNotifier {
           });
     } catch (e) {
       debugPrintStack();
-      log(e.toString());
+      log("verifySignUpOtp: " + e.toString());
       stopLoader();
     }
   }
@@ -734,7 +734,7 @@ class AuthVm extends ChangeNotifier {
           });
     } catch (e) {
       debugPrintStack();
-      log(e.toString());
+      log("verifyOtp: " + e.toString());
       stopLoader();
     }
   }
@@ -784,7 +784,7 @@ class AuthVm extends ChangeNotifier {
       }
     } catch (e) {
       debugPrintStack();
-      log(e.toString());
+      log("setSignupUserData: " + e.toString());
       stopLoader();
     }
   }
@@ -877,7 +877,7 @@ class AuthVm extends ChangeNotifier {
       Get.forceAppUpdate();
     } catch (e) {
       ZBotToast.loadingClose();
-      log(e.toString());
+      log("updateUser: " + e.toString());
     }
     return proceed;
   }
@@ -918,7 +918,7 @@ class AuthVm extends ChangeNotifier {
     } on Exception catch (e) {
       // TODO
       debugPrintStack();
-      log(e.toString());
+      log("fetchUser: " + e.toString());
     }
   }
 
@@ -968,7 +968,7 @@ class AuthVm extends ChangeNotifier {
     } catch (e) {
       stopLoader();
       debugPrintStack();
-      log(e.toString());
+      log("logoutUser: " + e.toString());
     }
   }
 
@@ -1005,7 +1005,7 @@ class AuthVm extends ChangeNotifier {
     } catch (e) {
       stopLoader();
       debugPrintStack();
-      log(e.toString());
+      log("cancleStreams: " + e.toString());
     }
   }
 
@@ -1087,7 +1087,7 @@ class AuthVm extends ChangeNotifier {
           });
     } catch (e) {
       debugPrintStack();
-      log(e.toString());
+      log("verifyOtpForUsernameChange: " + e.toString());
       stopLoader();
     }
   }
@@ -1106,7 +1106,7 @@ class AuthVm extends ChangeNotifier {
       stopLoader();
     } catch (e) {
       debugPrintStack();
-      log("Error sending OTP: $e");
+      log("sendOtpForUsernameChange: Error sending OTP: $e");
       stopLoader();
       Fluttertoast.showToast(msg: "Failed to send OTP: $e");
     }

@@ -161,7 +161,7 @@ class _SearchScreenState extends State<SearchScreen> {
               } on Exception catch (e) {
                 // TODO
                 debugPrintStack();
-                log(e.toString());
+                log("submitReview: " + e.toString());
               }
               Get.back();
               Get.back();

@@ -297,7 +297,7 @@ class _BecomeVerifiedState extends State<BecomeVerified> {
         chatHeadModel = AdminChatHeadModel.fromJson(doc.data());
       }
     } catch (e) {
-      log(e.toString());
+      log("getChatHeadModel: " + e.toString());
     }
     return chatHeadModel;
   }

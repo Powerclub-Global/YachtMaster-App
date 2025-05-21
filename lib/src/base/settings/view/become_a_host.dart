@@ -292,7 +292,7 @@ class _BecomeHostState extends State<BecomeHost> {
         chatHeadModel = AdminChatHeadModel.fromJson(doc.data());
       }
     } catch (e) {
-      log(e.toString());
+      log("getChatHeadModel: " + e.toString());
     }
     return chatHeadModel;
   }

@@ -28,24 +28,21 @@ class _ChartersViewState extends State<ChartersView> {
   @override
   Widget build(BuildContext context) {
     return Consumer<YachtVm>(
-        builder: (context, yachtVm, _) {
-          return
-            yachtVm.userFavouritesList
+      builder: (context, yachtVm, _) {
+        return yachtVm.userFavouritesList
                 .where((element) => element.type == FavouriteType.charter.index)
                 .toList()
                 .isEmpty
-                ?
-          EmptyScreen(
-            title: "no_charter",
-            subtitle: "no_charter_has_been_saved_yet",
-            img: R.images.noFav,
-          ):
-            ModalProgressHUD(
+            ? EmptyScreen(
+              title: "no_charter",
+              subtitle: "no_charter_has_been_saved_yet",
+              img: R.images.noFav,
+            )
+            : ModalProgressHUD(
               inAsyncCall: yachtVm.isLoading,
-              progressIndicator:SpinKitPulse(color: R.colors.themeMud,),
+              progressIndicator: SpinKitPulse(color: R.colors.themeMud),
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                   vertical: Get.height * .02),
+                padding: EdgeInsets.symmetric(vertical: Get.height * .02),
                 child: SingleChildScrollView(
                   child: Center(
                     child: Wrap(
@@ -53,36 +50,50 @@ class _ChartersViewState extends State<ChartersView> {
                       crossAxisAlignment: WrapCrossAlignment.start,
                       alignment: WrapAlignment.start,
                       children: List.generate(
-                          yachtVm.userFavouritesList
-                              .where((element) =>
-                          element.type == FavouriteType.charter.index)
-                              .toList()
-                              .length, (index) {
-                        FavouriteModel favModel = yachtVm.userFavouritesList
-                            .where((element) =>
-                        element.type == FavouriteType.charter.index)
-                            .toList()[index];
-                        log("____________LEN:${favModel.id}");
-                        return
-                          FutureBuilder(
+                        yachtVm.userFavouritesList
+                            .where(
+                              (element) =>
+                                  element.type == FavouriteType.charter.index,
+                            )
+                            .toList()
+                            .length,
+                        (index) {
+                          FavouriteModel favModel =
+                              yachtVm.userFavouritesList
+                                  .where(
+                                    (element) =>
+                                        element.type ==
+                                        FavouriteType.charter.index,
+                                  )
+                                  .toList()[index];
+                          log("____________LEN:${favModel.id}");
+                          return FutureBuilder(
                             future:
-                            FbCollections.charterFleet.doc(favModel.id).get(),
-                            builder: (context,
-                                AsyncSnapshot<DocumentSnapshot> snapshot) {
+                                FbCollections.charterFleet
+                                    .doc(favModel.id)
+                                    .get(),
+                            builder: (
+                              context,
+                              AsyncSnapshot<DocumentSnapshot> snapshot,
+                            ) {
                               if (!snapshot.hasData) {
                                 return SizedBox();
                               } else {
                                 CharterModel charter = CharterModel.fromJson(
-                                    snapshot.data?.data());
+                                  snapshot.data?.data(),
+                                );
                                 log("++++++++++++++++++CHARTEE:${charter.id}");
                                 return GestureDetector(
                                   onTap: () {
-                                    Get.toNamed(CharterDetail.route, arguments: {
-                                      "yacht": charter,
-                                      "isReserve": false,
-                                      "index":-1,
-                                      "isEdit":false
-                                    });
+                                    Get.toNamed(
+                                      CharterDetail.route,
+                                      arguments: {
+                                        "yacht": charter,
+                                        "isReserve": false,
+                                        "index": -1,
+                                        "isEdit": false,
+                                      },
+                                    );
                                   },
                                   child: CharterWidget(
                                     charter: charter,
@@ -90,29 +101,30 @@ class _ChartersViewState extends State<ChartersView> {
                                     height: Get.height * .2,
                                     isSmall: false,
                                     isFav: yachtVm.userFavouritesList.any(
-                                            (element) =>
-                                        element.favouriteItemId ==
-                                            charter.id &&
-                                            element.type ==
-                                                FavouriteType.charter.index),
+                                      (element) =>
+                                          element.favouriteItemId ==
+                                              charter.id &&
+                                          element.type ==
+                                              FavouriteType.charter.index,
+                                    ),
                                     isShowStar: true,
                                     isFavCallBack: () async {
                                       yachtVm.startLoader();
-                                      FavouriteModel favModel =
-                                      FavouriteModel(
-                                          creaatedAt: Timestamp.now(),
-                                          favouriteItemId: charter.id,
-                                          id: charter.id,
-                                          type: FavouriteType
-                                              .charter.index);
+                                      FavouriteModel favModel = FavouriteModel(
+                                        creaatedAt: Timestamp.now(),
+                                        favouriteItemId: charter.id,
+                                        id: charter.id,
+                                        type: FavouriteType.charter.index,
+                                      );
                                       if (yachtVm.userFavouritesList.any(
-                                              (element) =>
-                                          element.id == charter.id &&
-                                              element.type ==
-                                                  FavouriteType
-                                                      .charter.index)) {
-                                        yachtVm.userFavouritesList
-                                            .removeAt(index);
+                                        (element) =>
+                                            element.id == charter.id &&
+                                            element.type ==
+                                                FavouriteType.charter.index,
+                                      )) {
+                                        yachtVm.userFavouritesList.removeAt(
+                                          index,
+                                        );
                                         yachtVm.update();
                                         try {
                                           await FbCollections.user
@@ -121,7 +133,7 @@ class _ChartersViewState extends State<ChartersView> {
                                               .doc(charter.id)
                                               .delete();
                                         } on Exception catch (e) {
-                                          log(e.toString());
+                                          log("onFavCharter: " + e.toString());
                                           yachtVm.stopLoader();
                                         }
                                       } else {
@@ -132,7 +144,7 @@ class _ChartersViewState extends State<ChartersView> {
                                               .doc(charter.id)
                                               .set(favModel.toJson());
                                         } on Exception catch (e) {
-                                          log(e.toString());
+                                          log("onFavCharter: " + e.toString());
                                           yachtVm.stopLoader();
                                         }
                                       }
@@ -143,16 +155,16 @@ class _ChartersViewState extends State<ChartersView> {
                                   ),
                                 );
                               }
-                            });
-                      }),
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
               ),
             );
-
-        }
+      },
     );
   }
-
 }

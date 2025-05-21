@@ -28,7 +28,6 @@ class SignW9Screen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AuthVm vm = Provider.of(context, listen: false);
     GlobalKey<SfSignaturePadState> signaturePadKey = GlobalKey();
 
     return Scaffold(

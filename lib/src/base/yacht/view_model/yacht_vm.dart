@@ -36,8 +36,9 @@ class YachtVm extends ChangeNotifier {
   StreamSubscription<List<CharterModel>>? charterStream;
   StreamSubscription<List<YachtsModel>>? yachtStream;
   StreamSubscription<List<FavouriteModel>>? userFavouritesStream;
-  CharterModel? charterModel =
-      CharterModel(availability: Availability(dates: []));
+  CharterModel? charterModel = CharterModel(
+    availability: Availability(dates: []),
+  );
   YachtsModel? yachtsModel;
   List<ChooseOffers> selectedOffers = [];
   List<ChooseOffers> chooseServicesList = [];
@@ -55,24 +56,32 @@ class YachtVm extends ChangeNotifier {
     hostServicesList = [];
     allServicesList = [];
     AuthVm authVm = Provider.of<AuthVm>(Get.context!, listen: false);
-    var ref = FbCollections.services
-        // .where("created_by",isEqualTo:authVm.userModel?.uid)
-        .snapshots()
-        .asBroadcastStream();
-    var res = ref.map((list) =>
-        list.docs.map((e) => ServiceModel.fromJson(e.data())).toList());
+    var ref =
+        FbCollections.services
+            // .where("created_by",isEqualTo:authVm.userModel?.uid)
+            .snapshots()
+            .asBroadcastStream();
+    var res = ref.map(
+      (list) => list.docs.map((e) => ServiceModel.fromJson(e.data())).toList(),
+    );
     try {
       servicesStream ??= res.listen((services) async {
         if (services.isNotEmpty) {
           allServicesList =
               services.where((element) => element.status == 0).toList();
           log("__________HOST UID:${appwrite.user.$id}");
-          hostServicesList = services
-              .where((element) =>
-                  element.createdBy == appwrite.user.$id && element.status == 0)
-              .toList();
+          hostServicesList =
+              services
+                  .where(
+                    (element) =>
+                        element.createdBy == appwrite.user.$id &&
+                        element.status == 0,
+                  )
+                  .toList();
           notifyListeners();
-          log("//////////////////////////////////////////////All SERVICES :${allServicesList.length}/////host SERVICES :${hostServicesList.length}/////${appwrite.user.$id}");
+          log(
+            "//////////////////////////////////////////////All SERVICES :${allServicesList.length}/////host SERVICES :${hostServicesList.length}/////${appwrite.user.$id}",
+          );
         }
         notifyListeners();
       });
@@ -107,27 +116,34 @@ class YachtVm extends ChangeNotifier {
       allCharters = [];
       print("cleared charters");
       var ref = FbCollections.charterFleet.snapshots().asBroadcastStream();
-      var res = ref.map((list) =>
-          list.docs.map((e) => CharterModel.fromJson(e.data())).toList());
+      var res = ref.map(
+        (list) =>
+            list.docs.map((e) => CharterModel.fromJson(e.data())).toList(),
+      );
       charterStream = res.listen((charters) async {
         if (charters.isNotEmpty) {
-          allCharters = charters.where((element) {
-            return element.status == CharterStatus.active.index;
-          }).toList();
+          allCharters =
+              charters.where((element) {
+                return element.status == CharterStatus.active.index;
+              }).toList();
           print("I am here Just got all charters here");
           print(allCharters.length);
-          hostCharters = charters
-              .where((element) =>
-                  element.createdBy == appwrite.user.$id &&
-                  element.status == CharterStatus.active.index)
-              .toList();
+          hostCharters =
+              charters
+                  .where(
+                    (element) =>
+                        element.createdBy == appwrite.user.$id &&
+                        element.status == CharterStatus.active.index,
+                  )
+                  .toList();
           List<UserModel>? hosts = await fetchAllHost(charters);
           notifyListeners();
           await settingsVm.fetchReviews(hosts);
           notifyListeners();
           await getCitiesList();
           print(
-              "//////////////////////All Charters :${allCharters.length}/////host charters :${hostCharters.length}____hosts:${hosts?.length}____");
+            "//////////////////////All Charters :${allCharters.length}/////host charters :${hostCharters.length}____hosts:${hosts?.length}____",
+          );
         }
       });
       notifyListeners();
@@ -206,18 +222,25 @@ class YachtVm extends ChangeNotifier {
       hostYachts = [];
       allYachts = [];
       var ref = FbCollections.yachtForSale.snapshots().asBroadcastStream();
-      var res = ref.map((list) =>
-          list.docs.map((e) => YachtsModel.fromJson(e.data())).toList());
+      var res = ref.map(
+        (list) => list.docs.map((e) => YachtsModel.fromJson(e.data())).toList(),
+      );
       yachtStream ??= res.listen((yachts) async {
         if (yachts.isNotEmpty) {
           log("__________YACHT:${yachts.length}");
           allYachts = yachts.where((element) => element.status == 0).toList();
-          hostYachts = yachts
-              .where((element) =>
-                  element.createdBy == appwrite.user.$id && element.status == 0)
-              .toList();
+          hostYachts =
+              yachts
+                  .where(
+                    (element) =>
+                        element.createdBy == appwrite.user.$id &&
+                        element.status == 0,
+                  )
+                  .toList();
           notifyListeners();
-          log("//////////////////////////////////////////////All YACHT :${allYachts.length}/////host yachts :${hostYachts.length}");
+          log(
+            "//////////////////////////////////////////////All YACHT :${allYachts.length}/////host yachts :${hostYachts.length}",
+          );
         }
         notifyListeners();
       });
@@ -226,56 +249,62 @@ class YachtVm extends ChangeNotifier {
     } on Exception catch (e) {
       // TODO
       debugPrintStack();
-      log(e.toString());
+      log("fetchYachtServices: " + e.toString());
     }
   }
 
   Future<void> fetchUserFavourites() async {
     log("/////////////////////IN FETCH Fav${appwrite.user.$id}");
     userFavouritesList = [];
-    var ref = FbCollections.user
-        .doc(appwrite.user.$id)
-        .collection("favourite")
-        .snapshots()
-        .asBroadcastStream();
-    var res = ref.map((list) =>
-        list.docs.map((e) => FavouriteModel.fromJson(e.data())).toList());
+    var ref =
+        FbCollections.user
+            .doc(appwrite.user.$id)
+            .collection("favourite")
+            .snapshots()
+            .asBroadcastStream();
+    var res = ref.map(
+      (list) =>
+          list.docs.map((e) => FavouriteModel.fromJson(e.data())).toList(),
+    );
     try {
       userFavouritesStream ??= res.listen((fav) async {
         if (fav.isNotEmpty) {
           userFavouritesList = fav;
           notifyListeners();
-          log("//////////////////////////////////////////////USER FAV :${userFavouritesList.length}//");
+          log(
+            "//////////////////////////////////////////////USER FAV :${userFavouritesList.length}//",
+          );
         }
         notifyListeners();
       });
     } on Exception catch (e) {
-      // TODO
-      debugPrintStack();
-      log(e.toString());
+      log("fetchUserFavourites: " + e.toString());
     }
     notifyListeners();
   }
 
   onClickAddService(
-      String? city,
-      bool isEdit,
-      List<XFile> fileImages,
-      List<String> networkImagesList,
-      List<String> deletedImagesRef,
-      String whatYouDoCon,
-      String nameCon,
-      String locationCon,
-      LatLng? locationLatLng,
-      BuildContext context) async {
+    String? city,
+    bool isEdit,
+    List<XFile> fileImages,
+    List<String> networkImagesList,
+    List<String> deletedImagesRef,
+    String whatYouDoCon,
+    String nameCon,
+    String locationCon,
+    LatLng? locationLatLng,
+    BuildContext context,
+  ) async {
     ZBotToast.loadingShow();
 
     var authVm = Provider.of<AuthVm>(context, listen: false);
     var searchVm = Provider.of<SearchVm>(context, listen: false);
     log("_____________FILES IMAGES LEN:${fileImages.length}");
     if (fileImages.isNotEmpty) {
-      networkImagesList =
-          await uploadServiceImages(fileImages, "serviceImages");
+      networkImagesList = await uploadServiceImages(
+        fileImages,
+        "serviceImages",
+      );
     }
     if (networkImagesList.isEmpty) {
       Helper.inSnackBar("Error", "Please upload images", R.colors.themeMud);
@@ -297,17 +326,18 @@ class YachtVm extends ChangeNotifier {
         serviceModel?.name = nameCon;
         serviceModel?.images = List.from(networkImagesList);
         serviceModel?.location = LocationModel(
-            address: locationCon,
-            lat: locationLatLng?.latitude,
-            log: locationLatLng?.longitude,
-            city: city);
+          address: locationCon,
+          lat: locationLatLng?.latitude,
+          log: locationLatLng?.longitude,
+          city: city,
+        );
         log("____________SERVICE ID:${serviceModel?.id}");
         try {
           await FbCollections.services.doc(serviceModel?.id).update({
             "name": serviceModel?.name,
             "description": serviceModel?.description,
             "location": serviceModel?.location?.toJson(),
-            "images": networkImagesList
+            "images": networkImagesList,
           });
         } on Exception catch (e) {
           // TODO
@@ -327,10 +357,11 @@ class YachtVm extends ChangeNotifier {
           createdAt: Timestamp.now(),
           createdBy: authVm.userModel?.uid,
           location: LocationModel(
-              address: locationCon,
-              lat: locationLatLng?.latitude,
-              log: locationLatLng?.longitude,
-              city: city),
+            address: locationCon,
+            lat: locationLatLng?.latitude,
+            log: locationLatLng?.longitude,
+            city: city,
+          ),
           description: whatYouDoCon,
         );
         try {
@@ -352,19 +383,22 @@ class YachtVm extends ChangeNotifier {
       }
 
       Helper.inSnackBar(
-          "Success",
-          isEdit == true
-              ? "Service updated successfully"
-              : "Service added successfully",
-          R.colors.themeMud);
+        "Success",
+        isEdit == true
+            ? "Service updated successfully"
+            : "Service added successfully",
+        R.colors.themeMud,
+      );
     }
   }
 
   uploadServiceImages(List<XFile> fileImages, String bucketName) async {
     List<String> newUploadedImages = [];
     try {
-      newUploadedImages =
-          await ImagePickerServices().uploadPostImages(fileImages, bucketName);
+      newUploadedImages = await ImagePickerServices().uploadPostImages(
+        fileImages,
+        bucketName,
+      );
       update();
       return newUploadedImages;
     } on Exception catch (e) {
@@ -376,17 +410,18 @@ class YachtVm extends ChangeNotifier {
   }
 
   onClickAddYacht(
-      String? city,
-      bool isEdit,
-      List<XFile> fileImages,
-      List<String> networkImagesList,
-      List<String> deletedImagesRef,
-      String whatYouDoCon,
-      String priceCon,
-      String nameCon,
-      String locationCon,
-      LatLng? locationLatLng,
-      BuildContext context) async {
+    String? city,
+    bool isEdit,
+    List<XFile> fileImages,
+    List<String> networkImagesList,
+    List<String> deletedImagesRef,
+    String whatYouDoCon,
+    String priceCon,
+    String nameCon,
+    String locationCon,
+    LatLng? locationLatLng,
+    BuildContext context,
+  ) async {
     var authVm = Provider.of<AuthVm>(context, listen: false);
     var searchVm = Provider.of<SearchVm>(context, listen: false);
     ZBotToast.loadingShow();
@@ -415,17 +450,18 @@ class YachtVm extends ChangeNotifier {
         yachtsModel?.price = double.parse(priceCon);
         yachtsModel?.images = List.from(networkImagesList);
         yachtsModel?.location = YachtLocation(
-            address: locationCon,
-            lat: locationLatLng?.latitude,
-            long: locationLatLng?.longitude,
-            city: city);
+          address: locationCon,
+          lat: locationLatLng?.latitude,
+          long: locationLatLng?.longitude,
+          city: city,
+        );
         log("______________YACHT ID:${yachtsModel?.id}");
         await FbCollections.yachtForSale.doc(yachtsModel?.id).update({
           "name": yachtsModel?.name,
           "description": yachtsModel?.description,
           "price": yachtsModel?.price,
           "location": yachtsModel?.location?.toJson(),
-          "images": networkImagesList
+          "images": networkImagesList,
         });
         // servicesList[index]=serviceModel??ServiceModel();
       } else {
@@ -439,10 +475,11 @@ class YachtVm extends ChangeNotifier {
           createdBy: authVm.userModel?.uid,
           price: double.parse(priceCon),
           location: YachtLocation(
-              address: locationCon,
-              lat: locationLatLng?.latitude,
-              long: locationLatLng?.longitude,
-              city: city),
+            address: locationCon,
+            lat: locationLatLng?.latitude,
+            long: locationLatLng?.longitude,
+            city: city,
+          ),
           description: whatYouDoCon,
         );
         try {
@@ -464,37 +501,41 @@ class YachtVm extends ChangeNotifier {
         Get.back();
       }
       Helper.inSnackBar(
-          "Success",
-          isEdit == true
-              ? "Yacht updated successfully"
-              : "Yacht added successfully",
-          R.colors.themeMud);
+        "Success",
+        isEdit == true
+            ? "Yacht updated successfully"
+            : "Yacht added successfully",
+        R.colors.themeMud,
+      );
     }
   }
 
   onClickAddCharter(
-      int? isPetAllow,
-      String? city,
-      bool isEdit,
-      List<XFile> fileImages,
-      List<String> networkImagesList,
-      List<String> deletedImagesRef,
-      String subheadingCon,
-      String guestCountCon,
-      String priceFourCon,
-      String priceEightCon,
-      String priceFullCon,
-      String nameCon,
-      String locationCon,
-      LatLng? locationLatLng,
-      String dockNo,
-      String slipNo,
-      BuildContext context) async {
+    int? isPetAllow,
+    String? city,
+    bool isEdit,
+    List<XFile> fileImages,
+    List<String> networkImagesList,
+    List<String> deletedImagesRef,
+    String subheadingCon,
+    String guestCountCon,
+    String priceFourCon,
+    String priceEightCon,
+    String priceFullCon,
+    String nameCon,
+    String locationCon,
+    LatLng? locationLatLng,
+    String dockNo,
+    String slipNo,
+    BuildContext context,
+  ) async {
     var searchVm = Provider.of<SearchVm>(context, listen: false);
     ZBotToast.loadingShow();
     if (fileImages.isNotEmpty) {
-      networkImagesList =
-          await uploadServiceImages(fileImages, "charterImages");
+      networkImagesList = await uploadServiceImages(
+        fileImages,
+        "charterImages",
+      );
     }
     if (networkImagesList.isEmpty) {
       Helper.inSnackBar("Error", "Please upload images", R.colors.themeMud);
@@ -507,12 +548,13 @@ class YachtVm extends ChangeNotifier {
       charterModel?.guestCapacity = int.parse(guestCountCon);
       charterModel?.images = List.from(networkImagesList);
       charterModel?.location = CharterLocationModel(
-          adress: locationCon,
-          lat: locationLatLng?.latitude,
-          long: locationLatLng?.longitude,
-          city: city,
-          dockno: dockNo,
-          slipno: slipNo);
+        adress: locationCon,
+        lat: locationLatLng?.latitude,
+        long: locationLatLng?.longitude,
+        city: city,
+        dockno: dockNo,
+        slipno: slipNo,
+      );
       charterModel?.priceFullDay =
           priceFullCon.isNotEmpty ? double.parse(priceFullCon) : 0;
       charterModel?.priceHalfDay =
@@ -585,11 +627,12 @@ class YachtVm extends ChangeNotifier {
         Get.back();
       }
       Helper.inSnackBar(
-          "Success",
-          isEdit == true
-              ? "Charter updated successfully"
-              : "Charter Fleet added successfully",
-          R.colors.themeMud);
+        "Success",
+        isEdit == true
+            ? "Charter updated successfully"
+            : "Charter Fleet added successfully",
+        R.colors.themeMud,
+      );
     }
   }
 

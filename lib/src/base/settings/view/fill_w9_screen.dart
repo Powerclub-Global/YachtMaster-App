@@ -1,9 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:yacht_master/resources/resources.dart';
 import 'package:yacht_master/src/base/settings/view/sign_w9_screen.dart';
+import 'package:yacht_master/utils/general_app_bar.dart';
 import 'package:yacht_master/utils/helper.dart';
 
 class FillW9Screen extends StatelessWidget {
@@ -78,6 +78,11 @@ class FillW9Screen extends StatelessWidget {
     List<PdfFormField>? formFields;
     return SafeArea(
       child: Scaffold(
+        appBar: GeneralAppBar.simpleAppBar(
+          context,
+          "Fill W-9 Tax Form",
+          style: TextStyle(color: Colors.black),
+        ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: R.colors.themeMud,
           foregroundColor: R.colors.black,
