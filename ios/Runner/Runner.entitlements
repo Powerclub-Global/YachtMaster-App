@@ -15,6 +15,7 @@
 	<key>com.apple.developer.in-app-payments</key>
 	<array>
 		<string>merchant.com.yachtmaster.app</string>
+		<string>merchant.com.yachtmasterapp.yachtmaster</string>
 	</array>
 </dict>
 </plist>

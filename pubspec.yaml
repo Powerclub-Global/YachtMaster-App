@@ -22,7 +22,7 @@ dependencies:
   shared_preferences: ^2.5.3
   fluttertoast: ^8.2.12
   connectivity_plus: ^6.1.4
-  intl: ^0.19.0
+  intl: ^0.20.2
   pin_code_fields: ^8.0.1
   paged_vertical_calendar: ^1.1.9
   circular_profile_avatar: ^2.0.5
@@ -103,6 +103,7 @@ dependency_overrides:
   chewie: ^1.11.3
   video_player_android: ^2.8.2
   flutter_web_auth_2: ^4.1.0
+  device_info_plus: ^11.0.0
 
 flutter_icons:
   image_path: "assets/images/icon.png"
@@ -142,4 +143,4 @@ flutter:
         - asset: assets/fonts/Poppins-Regular.ttf
     - family: Arial-Narrow
       fonts:
-        - asset: assets/fonts/ARIALNB.TTF
+        - asset: assets/fonts/ARIALNB.ttf
