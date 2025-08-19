@@ -24,7 +24,7 @@ import '../../../../utils/empty_screem.dart';
 import '../../../../utils/heights_widths.dart';
 
 class ExperiencesView extends StatefulWidget {
-  const ExperiencesView({Key? key}) : super(key: key);
+  const ExperiencesView({super.key});
 
   @override
   _ExperiencesViewState createState() => _ExperiencesViewState();

@@ -10,7 +10,7 @@ import '../../../../utils/general_app_bar.dart';
 import '../../../../utils/heights_widths.dart';
 
 class Translate extends StatefulWidget {
-  const Translate({Key? key}) : super(key: key);
+  const Translate({super.key});
 
   @override
   _TranslateState createState() => _TranslateState();

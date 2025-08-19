@@ -55,8 +55,7 @@ class SettingsVm extends ChangeNotifier {
 
       log("__________ Data ${allContent.length}");
     } catch (e) {
-      debugPrintStack();
-      log(e.toString());
+      log("fetchContent: " + e.toString());
     }
   }
 

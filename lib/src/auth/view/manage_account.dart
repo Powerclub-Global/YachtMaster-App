@@ -10,7 +10,7 @@ import '../../../../utils/general_app_bar.dart';
 
 class ManageAccount extends StatefulWidget {
   static String route = "/manageAccount";
-  const ManageAccount({Key? key}) : super(key: key);
+  const ManageAccount({super.key});
 
   @override
   _ManageAccountState createState() => _ManageAccountState();

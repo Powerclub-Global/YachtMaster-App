@@ -13,7 +13,6 @@ import '../resources/resources.dart';
 import '../src/base/search/view_model/search_vm.dart';
 import '../src/base/settings/view_model/settings_vm.dart';
 import 'helper.dart';
-import 'mapstyle.dart';
 import 'permission_dialog.dart';
 
 class PickLocation extends StatefulWidget {
@@ -104,7 +103,7 @@ class PickLocationState extends State<PickLocation> {
                   myLocationEnabled: true,
                   zoomGesturesEnabled: true,
                   zoomControlsEnabled: true,
-                  style: Utils.mapStyles,
+                  // style: Utils.mapStyles,
                   // markers: model.markers,
                   onMapCreated: (GoogleMapController controller) {
                     googleController = controller;
@@ -240,27 +239,6 @@ class PickLocationState extends State<PickLocation> {
         await [Permission.location].request();
     print(statuses[Permission.location]);
   }
-
-  //  enableBackgroundMode() async {
-  //   bool _bgModeEnabled = await location.isBackgroundModeEnabled();
-  //   log("_________________________IS BACKGROUND MODE ENABLE:${_bgModeEnabled}");
-  //   if (_bgModeEnabled) {
-  //     return true;
-  //   } else {
-  //     try {
-  //       await location.enableBackgroundMode();
-  //     } catch (e) {
-  //       log(e.toString());
-  //     }
-  //     try {
-  //       _bgModeEnabled = await location.enableBackgroundMode();
-  //     } catch (e) {
-  //       log(e.toString());
-  //     }
-  //     log("++++++++++++++++++BG${_bgModeEnabled}"); //True!
-  //     return _bgModeEnabled;
-  //   }
-  // }
   getMyLoc() async {
     try {
       print("___IN GET MY LOC");

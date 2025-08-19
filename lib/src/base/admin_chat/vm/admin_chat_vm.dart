@@ -18,14 +18,18 @@ class AdminChatVM extends ChangeNotifier {
     ZBotToast.loadingClose();
     update();
   }
+
   List<AdminChatHeadModel> allChatHeadsList = [];
 
   Future<void> getAllChatHeads() async {
     try {
       QuerySnapshot q = await FbCollections.adminChat.get();
-      allChatHeadsList = q.docs
-          .map<AdminChatHeadModel>((e) => AdminChatHeadModel.fromJson(e.data()))
-          .toList();
+      allChatHeadsList =
+          q.docs
+              .map<AdminChatHeadModel>(
+                (e) => AdminChatHeadModel.fromJson(e.data()),
+              )
+              .toList();
       log("_____CHAT:${allChatHeadsList.length}");
     } on Exception catch (e) {
       stopLoader();
@@ -33,21 +37,27 @@ class AdminChatVM extends ChangeNotifier {
       debugPrintStack();
     }
   }
-  Future<void> setLastMessage(
-      {required AdminChatModel lastMessage, required String id}) async {
+
+  Future<void> setLastMessage({
+    required AdminChatModel lastMessage,
+    required String id,
+  }) async {
     try {
       var ref = FbCollections.message(id).doc();
       ref
           .set(lastMessage.toJson())
-          .then((value) => FbCollections.adminChat.doc(id).update({
-        'last_message': lastMessage.toJson(),
-      }));
+          .then(
+            (value) => FbCollections.adminChat.doc(id).update({
+              'last_message': lastMessage.toJson(),
+            }),
+          );
 
       notifyListeners();
     } catch (e) {
-      log(e.toString());
+      log("sendMessage: " + e.toString());
     }
   }
+
   void update() {
     notifyListeners();
   }

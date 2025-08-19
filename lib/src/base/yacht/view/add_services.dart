@@ -29,7 +29,7 @@ import '../../../../utils/validation.dart';
 
 class AddServices extends StatefulWidget {
   static String route="/addService";
-  const AddServices({Key? key}) : super(key: key);
+  const AddServices({super.key});
 
   @override
   _AddServicesState createState() => _AddServicesState();

@@ -18,7 +18,7 @@ import '../../../../utils/empty_screem.dart';
 import '../../../../utils/heights_widths.dart';
 
 class Notifications extends StatefulWidget {
-  const Notifications({Key? key}) : super(key: key);
+  const Notifications({super.key});
 
   @override
   _NotificationsState createState() => _NotificationsState();

@@ -19,7 +19,7 @@ import '../../../../utils/heights_widths.dart';
 
 class AllBookings extends StatefulWidget {
   static String route = "/allBookings";
-  const AllBookings({Key? key}) : super(key: key);
+  const AllBookings({super.key});
 
   @override
   _AllBookingsState createState() => _AllBookingsState();

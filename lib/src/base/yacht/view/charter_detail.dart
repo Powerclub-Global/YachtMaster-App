@@ -55,7 +55,7 @@ class LatLngModel {
 
 class CharterDetail extends StatefulWidget {
   static String route = "/charterDetail";
-  const CharterDetail({Key? key}) : super(key: key);
+  const CharterDetail({super.key});
 
   @override
   _CharterDetailState createState() => _CharterDetailState();

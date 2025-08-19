@@ -25,7 +25,7 @@ import 'package:yacht_master/utils/zbot_toast.dart';
 
 class BaseView extends StatefulWidget {
   static String route = "/baseViewScreen";
-  const BaseView({Key? key}) : super(key: key);
+  const BaseView({super.key});
 
   @override
   _BaseViewState createState() => _BaseViewState();
@@ -223,32 +223,32 @@ class _BaseViewState extends State<BaseView> {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return CupertinoAlertDialog(
-              title: Text('Allow Notifications'),
-              content: Text('Allow Permission for notifications？'),
-              actions: [
-                CupertinoButton(
-                  child: Center(
-                    child: Text(
-                      'Continue',
-                      style: TextStyle(color: Colors.red),
-                    ),
+            return CupertinoTheme(
+              data: CupertinoThemeData(brightness: Brightness.dark),
+              child: CupertinoAlertDialog(
+                title: Text('Allow Notifications'),
+                content: Text('Allow Permission for notifications?'),
+                actions: [
+                  CupertinoButton(
+                    child: Center(child: Text('Allow')),
+                    onPressed: () async {
+                      await Permission.notification.request();
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setBool("isNotificationAllowed", true);
+                      Navigator.pop(context);
+                    },
                   ),
-                  onPressed: () async {
-                    await Permission.notification.request();
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    prefs.setBool("isNotificationAllowed", true);
-                    Navigator.pop(context);
-                  },
-                ),
-                CupertinoButton(
-                  child: Center(child: Text('No')),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
+                  CupertinoButton(
+                    child: Center(
+                      child: Text('No', style: TextStyle(color: Colors.red)),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -258,32 +258,32 @@ class _BaseViewState extends State<BaseView> {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return CupertinoAlertDialog(
-              title: Text('Allow Permissions'),
-              content: Text('Allow Permission for notifications？'),
-              actions: [
-                CupertinoButton(
-                  child: Center(
-                    child: Text(
-                      'Continue',
-                      style: TextStyle(color: Colors.red),
-                    ),
+            return CupertinoTheme(
+              data: CupertinoThemeData(brightness: Brightness.dark),
+              child: CupertinoAlertDialog(
+                title: Text('Allow Permissions'),
+                content: Text('Allow Permission for notifications？'),
+                actions: [
+                  CupertinoButton(
+                    child: Center(child: Text('Allow')),
+                    onPressed: () async {
+                      await Permission.notification.request();
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setBool("isNotificationAllowed", true);
+                      Navigator.pop(context);
+                    },
                   ),
-                  onPressed: () async {
-                    await Permission.notification.request();
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    prefs.setBool("isNotificationAllowed", true);
-                    Navigator.pop(context);
-                  },
-                ),
-                CupertinoButton(
-                  child: Center(child: Text('No')),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
+                  CupertinoButton(
+                    child: Center(
+                      child: Text('No', style: TextStyle(color: Colors.red)),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -293,32 +293,32 @@ class _BaseViewState extends State<BaseView> {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return CupertinoAlertDialog(
-              title: Text('Allow Permissions'),
-              content: Text('Allow Permission for notifications？'),
-              actions: [
-                CupertinoButton(
-                  child: Center(
-                    child: Text(
-                      'Continue',
-                      style: TextStyle(color: Colors.red),
-                    ),
+            return CupertinoTheme(
+              data: CupertinoThemeData(brightness: Brightness.dark),
+              child: CupertinoAlertDialog(
+                title: Text('Allow Permissions'),
+                content: Text('Allow Permission for notifications？'),
+                actions: [
+                  CupertinoButton(
+                    child: Center(child: Text('Allow')),
+                    onPressed: () async {
+                      await Permission.notification.request();
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setBool("isNotificationAllowed", true);
+                      Navigator.pop(context);
+                    },
                   ),
-                  onPressed: () async {
-                    await Permission.notification.request();
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    prefs.setBool("isNotificationAllowed", true);
-                    Navigator.pop(context);
-                  },
-                ),
-                CupertinoButton(
-                  child: Center(child: Text('No')),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
+                  CupertinoButton(
+                    child: Center(
+                      child: Text('No', style: TextStyle(color: Colors.red)),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -349,32 +349,32 @@ class _BaseViewState extends State<BaseView> {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return CupertinoAlertDialog(
-              title: Text('Allow Access to Photos'),
-              content: Text('Allow Permission to access photo/gallery？'),
-              actions: [
-                CupertinoButton(
-                  child: Center(
-                    child: Text(
-                      'Continue',
-                      style: TextStyle(color: Colors.red),
-                    ),
+            return CupertinoTheme(
+              data: CupertinoThemeData(brightness: Brightness.dark),
+              child: CupertinoAlertDialog(
+                title: Text('Allow Access to Photos'),
+                content: Text('Allow Permission to access photo/gallery？'),
+                actions: [
+                  CupertinoButton(
+                    child: Center(child: Text('Allow')),
+                    onPressed: () async {
+                      await Permission.photos.request();
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setBool("isGalleryAllowed", true);
+                      Navigator.pop(context);
+                    },
                   ),
-                  onPressed: () async {
-                    await Permission.photos.request();
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    prefs.setBool("isGalleryAllowed", true);
-                    Navigator.pop(context);
-                  },
-                ),
-                CupertinoButton(
-                  child: Center(child: Text('No')),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
+                  CupertinoButton(
+                    child: Center(
+                      child: Text('No', style: TextStyle(color: Colors.red)),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -384,32 +384,32 @@ class _BaseViewState extends State<BaseView> {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return CupertinoAlertDialog(
-              title: Text('Allow Access to Photos'),
-              content: Text('Allow Permission to access photo/gallery？'),
-              actions: [
-                CupertinoButton(
-                  child: Center(
-                    child: Text(
-                      'Continue',
-                      style: TextStyle(color: Colors.red),
-                    ),
+            return CupertinoTheme(
+              data: CupertinoThemeData(brightness: Brightness.dark),
+              child: CupertinoAlertDialog(
+                title: Text('Allow Access to Photos'),
+                content: Text('Allow Permission to access photo/gallery？'),
+                actions: [
+                  CupertinoButton(
+                    child: Center(child: Text('Allow')),
+                    onPressed: () async {
+                      await Permission.photos.request();
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setBool("isGalleryAllowed", true);
+                      Navigator.pop(context);
+                    },
                   ),
-                  onPressed: () async {
-                    await Permission.photos.request();
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    prefs.setBool("isGalleryAllowed", true);
-                    Navigator.pop(context);
-                  },
-                ),
-                CupertinoButton(
-                  child: Center(child: Text('No')),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
+                  CupertinoButton(
+                    child: Center(
+                      child: Text('No', style: TextStyle(color: Colors.red)),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -419,32 +419,32 @@ class _BaseViewState extends State<BaseView> {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return CupertinoAlertDialog(
-              title: Text('Allow Access to Photos'),
-              content: Text('Allow Permission to access photo/gallery？'),
-              actions: [
-                CupertinoButton(
-                  child: Center(
-                    child: Text(
-                      'Continue',
-                      style: TextStyle(color: Colors.red),
-                    ),
+            return CupertinoTheme(
+              data: CupertinoThemeData(brightness: Brightness.dark),
+              child: CupertinoAlertDialog(
+                title: Text('Allow Access to Photos'),
+                content: Text('Allow Permission to access photo/gallery？'),
+                actions: [
+                  CupertinoButton(
+                    child: Center(child: Text('Allow')),
+                    onPressed: () async {
+                      await Permission.notification.request();
+                      SharedPreferences prefs =
+                          await SharedPreferences.getInstance();
+                      prefs.setBool("isGalleryAllowed", true);
+                      Navigator.pop(context);
+                    },
                   ),
-                  onPressed: () async {
-                    await Permission.notification.request();
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    prefs.setBool("isGalleryAllowed", true);
-                    Navigator.pop(context);
-                  },
-                ),
-                CupertinoButton(
-                  child: Center(child: Text('No')),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
+                  CupertinoButton(
+                    child: Center(
+                      child: Text('No', style: TextStyle(color: Colors.red)),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
             );
           },
         );

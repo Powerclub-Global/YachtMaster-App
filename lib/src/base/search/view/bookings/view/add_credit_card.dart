@@ -19,7 +19,7 @@ import '../../../../../../utils/validation.dart';
 
 class AddCreditCard extends StatefulWidget {
   static String route="/addCreditCard";
-  const AddCreditCard({Key? key}) : super(key: key);
+  const AddCreditCard({super.key});
 
   @override
   _AddCreditCardState createState() => _AddCreditCardState();

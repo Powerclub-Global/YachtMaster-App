@@ -46,7 +46,7 @@ import 'become_a_host.dart';
 class SettingsView extends StatefulWidget {
   static String route = "/settingsView";
 
-  const SettingsView({Key? key}) : super(key: key);
+  const SettingsView({super.key});
 
   @override
   _SettingsViewState createState() => _SettingsViewState();

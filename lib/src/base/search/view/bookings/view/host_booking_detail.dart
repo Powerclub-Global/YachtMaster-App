@@ -33,7 +33,7 @@ import '../../../../inbox/model/notification_model.dart';
 class HostBookingDetail extends StatefulWidget {
   static String route = "/hostBookingDetail";
 
-  const HostBookingDetail({Key? key}) : super(key: key);
+  const HostBookingDetail({super.key});
 
   @override
   _HostBookingDetailState createState() => _HostBookingDetailState();

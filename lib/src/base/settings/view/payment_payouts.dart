@@ -21,7 +21,7 @@ import '../../../../utils/heights_widths.dart';
 
 class PaymentPayouts extends StatefulWidget {
   static String route = "/paymentPayouts";
-  const PaymentPayouts({Key? key}) : super(key: key);
+  const PaymentPayouts({super.key});
 
   @override
   _PaymentPayoutsState createState() => _PaymentPayoutsState();

@@ -12,7 +12,7 @@ import '../../base_vm.dart';
 import '../../../../utils/heights_widths.dart';
 
 class LogoutBottomSheet extends StatefulWidget {
-  const LogoutBottomSheet({Key? key}) : super(key: key);
+  const LogoutBottomSheet({super.key});
 
   @override
   _LogoutBottomSheetState createState() => _LogoutBottomSheetState();

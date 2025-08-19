@@ -9,7 +9,7 @@ import '../../../../utils/general_app_bar.dart';
 
 class SafetyCenter extends StatefulWidget {
   static String route = "/safetyCenter";
-  const SafetyCenter({Key? key}) : super(key: key);
+  const SafetyCenter({super.key});
 
   @override
   _SafetyCenterState createState() => _SafetyCenterState();

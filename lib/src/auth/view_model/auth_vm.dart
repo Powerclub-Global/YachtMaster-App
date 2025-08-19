@@ -9,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:yacht_master/utils/countryCodeConverter.dart';
 import '../../../appwrite.dart';
 import '../../../constant/constant.dart';
 import '../../../constant/enums.dart';
@@ -40,6 +41,7 @@ class AuthVm extends ChangeNotifier {
   String? appleUserEmail;
   WalletModel? wallet;
   String? yachtId;
+  bool isVerifyingForHost = true;
   StreamSubscription<DocumentSnapshot<UserModel>>? currentUserStream;
 
   final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -105,6 +107,11 @@ class AuthVm extends ChangeNotifier {
   onClickFacebookLogin() async {
     try {
       startLoader();
+      var sessions = await appwrite.account.listSessions();
+      if (sessions.sessions.isNotEmpty) {
+        await appwrite.account.deleteSession(sessionId: 'current');
+      }
+
       await appwrite.signInFacebook();
       await Future.delayed(Duration(seconds: 2));
       await appwrite.getUser();
@@ -137,7 +144,7 @@ class AuthVm extends ChangeNotifier {
         Get.toNamed(SocialSignup.route);
       }
     } on AppwriteException catch (e) {
-      log("THIS IS ERRROR $e");
+      log("onClickFacebookLogin: THIS IS ERRROR $e");
       Fluttertoast.showToast(msg: "$e");
       logoutUser();
     }
@@ -145,6 +152,11 @@ class AuthVm extends ChangeNotifier {
 
   onClickGoogleLogin() async {
     try {
+      var sessions = await appwrite.account.listSessions();
+      if (sessions.sessions.isNotEmpty) {
+        await appwrite.account.deleteSession(sessionId: 'current');
+      }
+
       await appwrite.signInGoogle();
       ZBotToast.loadingShow();
       await Future.delayed(Duration(milliseconds: 100));
@@ -176,7 +188,7 @@ class AuthVm extends ChangeNotifier {
         Get.toNamed(SocialSignup.route);
       }
     } on AppwriteException catch (e) {
-      log("THIS IS ERRROR $e");
+      log("onClickGoogleLogin: THIS IS ERRROR $e");
       Fluttertoast.showToast(msg: "$e");
       logoutUser();
     }
@@ -185,6 +197,11 @@ class AuthVm extends ChangeNotifier {
   onClickAppleLogin() async {
     try {
       startLoader();
+      var sessions = await appwrite.account.listSessions();
+      if (sessions.sessions.isNotEmpty) {
+        await appwrite.account.deleteSession(sessionId: 'current');
+      }
+
       await appwrite.signInApple();
       await Future.delayed(Duration(seconds: 2));
       await appwrite.getUser();
@@ -219,7 +236,7 @@ class AuthVm extends ChangeNotifier {
         );
       }
     } on AppwriteException catch (e) {
-      log("THIS IS ERRROR$e");
+      log("onClickAppleLogin: THIS IS ERRROR$e");
       Fluttertoast.showToast(msg: "$e");
       logoutUser();
     }
@@ -263,7 +280,7 @@ class AuthVm extends ChangeNotifier {
       Helper.inSnackBar('Error', "User already exist", R.colors.themeMud);
       stopLoader();
     } else {
-      log("____USER display name:${appwrite.user.name}");
+      log("onClickSocialSignup: ____USER display name:${appwrite.user.name}");
       print("Starting registration");
       await registerUserSocial(countryCode, phoneNumController);
     }
@@ -358,7 +375,7 @@ class AuthVm extends ChangeNotifier {
       }
     } catch (e) {
       debugPrintStack();
-      log("///////////NOT ANY CURRENT USER");
+      log("checkCurrentUser: " + e.toString());
       Get.offAllNamed(LoginScreen.route);
     }
   }
@@ -386,7 +403,7 @@ class AuthVm extends ChangeNotifier {
       });
     } catch (e) {
       debugPrintStack();
-      log(e.toString());
+      log("getUserWallet: " + e.toString());
     }
   }
 
@@ -399,7 +416,7 @@ class AuthVm extends ChangeNotifier {
       await getUserWallet();
     } catch (e) {
       debugPrintStack();
-      log(e.toString());
+      log("updateUserWallet: " + e.toString());
     }
   }
 
@@ -446,7 +463,7 @@ class AuthVm extends ChangeNotifier {
       } else {
         Fluttertoast.showToast(msg: e.toString().split("]").last);
       }
-      log(e.toString());
+      log("registerUserSocial: " + e.toString());
       stopLoader();
     }
   }
@@ -550,7 +567,7 @@ class AuthVm extends ChangeNotifier {
       } else {
         Fluttertoast.showToast(msg: e.toString().split("]").last);
       }
-      log(e.toString());
+      log("signInWithOtp: " + e.toString());
       stopLoader();
     }
   }
@@ -621,7 +638,7 @@ class AuthVm extends ChangeNotifier {
       } else {
         Fluttertoast.showToast(msg: "$e");
       }
-      log(e.toString());
+      log("signupWithOtp: " + e.toString());
       stopLoader();
     }
   }
@@ -675,7 +692,7 @@ class AuthVm extends ChangeNotifier {
           });
     } catch (e) {
       debugPrintStack();
-      log(e.toString());
+      log("verifySignUpOtp: " + e.toString());
       stopLoader();
     }
   }
@@ -717,7 +734,7 @@ class AuthVm extends ChangeNotifier {
           });
     } catch (e) {
       debugPrintStack();
-      log(e.toString());
+      log("verifyOtp: " + e.toString());
       stopLoader();
     }
   }
@@ -767,16 +784,16 @@ class AuthVm extends ChangeNotifier {
       }
     } catch (e) {
       debugPrintStack();
-      log(e.toString());
+      log("setSignupUserData: " + e.toString());
       stopLoader();
     }
   }
 
   ///CHECK USRR COLLECTION EXIST
-
   Future<bool> chechUserCollectionExists(
     String docValue, {
     bool isEmail = false,
+    bool skipError = false,
   }) async {
     try {
       bool userExists = false;
@@ -795,33 +812,16 @@ class AuthVm extends ChangeNotifier {
       debugPrintStack();
       log(e.toString());
       stopLoader();
+      if (!skipError) {
+        Helper.inSnackBar(
+          "Error",
+          "This user does not exist",
+          R.colors.themeMud,
+        );
+      }
       return false;
     }
   }
-
-  // Future<UserCredential?> linkPhoneNumber(AuthCredential credential) async {
-  //   try {
-  //     UserCredential? cred = await FirebaseAuth.instance.currentUser
-  //         ?.linkWithCredential(credential);
-  //     return cred;
-  //   } catch (e) {
-  //     log("++++++++++++++++++++++++++++++++++$e");
-  //     if (e.toString().contains("firebase_auth/session-expired")) {
-  //       Fluttertoast.showToast(
-  //           msg:
-  //               "The sms code has expired. Please re-send the verification code to try again.");
-  //     } else if (e
-  //         .toString()
-  //         .contains("firebase_auth/invalid-verification-code")) {
-  //       Helper.inSnackBar("Error", "Wrong OTP code", R.colors.themeMud);
-  //     } else {
-  //       Fluttertoast.showToast(msg: "$e");
-  //     }
-  //     stopLoader();
-  //     debugPrintStack();
-  //   }
-  //   return null;
-  // }
 
   Future<String> uploadUserImage(File pickedImage) async {
     var imageUrl = await ImagePickerServices().uploadSingleImage(pickedImage);
@@ -847,6 +847,7 @@ class AuthVm extends ChangeNotifier {
     var imageUrl = await ImagePickerServices().uploadSingleImage(
       pickedImage,
       bucketName: "hostDocuments",
+      extension: ".pdf",
     );
     await FbCollections.user.doc(userModel!.uid).update({
       "host_document_url": imageUrl,
@@ -855,48 +856,9 @@ class AuthVm extends ChangeNotifier {
     return imageUrl;
   }
 
-  updateProfileDataToDB(
-    String firstName,
-    String lastName,
-    String username,
-  ) async {
-    await FbCollections.user.doc(userModel!.uid).update({
-      "first_name": firstName,
-      "last_name": lastName,
-      "username": username,
-    });
-    update();
-  }
-
   updateUsernameDataToDB(String username) async {
     await FbCollections.user.doc(userModel!.uid).update({"username": username});
     update();
-  }
-
-  ///EDIT PROFILE
-  onClickEditProfile(
-    String firstName,
-    String lastName,
-    String username,
-    File? pickedImage,
-    BuildContext context,
-  ) async {
-    startLoader();
-    userModel?.firstName = firstName;
-    userModel?.lastName = lastName;
-    userModel?.username = username;
-    if (pickedImage != null) {
-      userModel?.imageUrl = await uploadUserImage(pickedImage);
-    }
-    await updateProfileDataToDB(firstName, lastName, username);
-    update();
-    stopLoader();
-    Navigator.pop(context);
-    Helper.inSnackBar(
-      "Success",
-      "Profile Updated Successfully",
-      R.colors.themeMud,
-    );
   }
 
   Future<bool> updateUser(
@@ -915,7 +877,7 @@ class AuthVm extends ChangeNotifier {
       Get.forceAppUpdate();
     } catch (e) {
       ZBotToast.loadingClose();
-      log(e.toString());
+      log("updateUser: " + e.toString());
     }
     return proceed;
   }
@@ -956,7 +918,7 @@ class AuthVm extends ChangeNotifier {
     } on Exception catch (e) {
       // TODO
       debugPrintStack();
-      log(e.toString());
+      log("fetchUser: " + e.toString());
     }
   }
 
@@ -1006,7 +968,7 @@ class AuthVm extends ChangeNotifier {
     } catch (e) {
       stopLoader();
       debugPrintStack();
-      log(e.toString());
+      log("logoutUser: " + e.toString());
     }
   }
 
@@ -1043,7 +1005,110 @@ class AuthVm extends ChangeNotifier {
     } catch (e) {
       stopLoader();
       debugPrintStack();
-      log(e.toString());
+      log("cancleStreams: " + e.toString());
+    }
+  }
+
+  Future<void> updateEmailAndPhoneNumber(
+    String email,
+    String phoneNumber,
+    String counntryCode,
+  ) async {
+    try {
+      startLoader();
+      String dialCode =
+          counntryCode.startsWith('+')
+              ? counntryCode
+              : CountryCodeConverter.getDialCode(counntryCode);
+      userModel?.email = email;
+      userModel?.number = phoneNumber;
+      userModel?.dialCode = dialCode;
+      userModel?.phoneNumber = "$dialCode$phoneNumber";
+      final userId = userModel?.uid;
+      if (userId != null) {
+        await FirebaseFirestore.instance
+            .collection("users")
+            .doc(userId)
+            .update({
+              "email": email,
+              "number": phoneNumber,
+              "dial_code": dialCode,
+              "phone_number": "$dialCode$phoneNumber",
+            });
+        await appwrite.account.updateEmail(email: email, password: "password");
+        await appwrite.account.updatePhone(
+          phone: "$dialCode$phoneNumber",
+          password: "password",
+        );
+        notifyListeners();
+      } else {
+        throw Exception("User ID is null, cannot update user data");
+      }
+      stopLoader();
+    } catch (e) {
+      stopLoader();
+      print("Error updating email and phone number: $e");
+      rethrow;
+    }
+  }
+
+  void setUsernameAvailable(bool isAvailable) {
+    usernameIsAvailable = isAvailable;
+    notifyListeners();
+  }
+
+  Future<void> verifyOtpForUsernameChange(
+    String countryCode,
+    String number,
+    String code,
+    String newUsername,
+  ) async {
+    try {
+      startLoader();
+      print('loader started');
+      var sessions = await appwrite.account.listSessions();
+      if (sessions.sessions.isNotEmpty) {
+        await appwrite.account.deleteSession(sessionId: 'current');
+      }
+      await appwrite
+          .verifySMS(code)
+          .then((result) async {
+            print('sms verified');
+            await appwrite.getUser();
+            print('user fetched');
+            print("Otp verified and username updated successfully");
+            ZBotToast.loadingClose();
+            await updateUsernameDataToDB(newUsername);
+          })
+          .catchError((e) {
+            Fluttertoast.showToast(msg: "$e");
+            debugPrintStack();
+            stopLoader();
+          });
+    } catch (e) {
+      debugPrintStack();
+      log("verifyOtpForUsernameChange: " + e.toString());
+      stopLoader();
+    }
+  }
+
+  Future<void> sendOtpForUsernameChange(
+    String countryCode,
+    String number,
+  ) async {
+    try {
+      startLoader();
+      String dialCode = CountryCodeConverter.getDialCode(countryCode);
+      String formattedPhone = "$dialCode$number";
+      print("Formatted Phone: $formattedPhone");
+      await appwrite.sendSMS(formattedPhone);
+      print("OTP sent successfully");
+      stopLoader();
+    } catch (e) {
+      debugPrintStack();
+      log("sendOtpForUsernameChange: Error sending OTP: $e");
+      stopLoader();
+      Fluttertoast.showToast(msg: "Failed to send OTP: $e");
     }
   }
 }

@@ -25,7 +25,7 @@ import 'package:yacht_master/utils/helper.dart';
 
 class PayWithCrypto extends StatefulWidget {
   static String route = "/payWithCrypto";
-  const PayWithCrypto({Key? key}) : super(key: key);
+  const PayWithCrypto({super.key});
 
   @override
   _PayWithCryptoState createState() => _PayWithCryptoState();

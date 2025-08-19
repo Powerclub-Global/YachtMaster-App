@@ -12,7 +12,7 @@ import 'helper.dart';
 
 class NoInternetScreen extends StatefulWidget {
   static String route = "/noInternetScreen";
-  const NoInternetScreen({Key? key}) : super(key: key);
+  const NoInternetScreen({super.key});
 
   @override
   _NoInternetScreenState createState() => _NoInternetScreenState();

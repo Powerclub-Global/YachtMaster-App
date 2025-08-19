@@ -10,7 +10,7 @@ import '../../../../utils/general_app_bar.dart';
 
 class TermsOfServices extends StatefulWidget {
   static String route = "/termsOfServices";
-  const TermsOfServices({Key? key}) : super(key: key);
+  const TermsOfServices({super.key});
 
   @override
   _TermsOfServicesState createState() => _TermsOfServicesState();

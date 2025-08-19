@@ -11,7 +11,7 @@ import '../../../../utils/validation.dart';
 
 class AskSuperHost extends StatefulWidget {
   static String route="/askSuperHost";
-  const AskSuperHost({Key? key}) : super(key: key);
+  const AskSuperHost({super.key});
 
   @override
   _AskSuperHostState createState() => _AskSuperHostState();

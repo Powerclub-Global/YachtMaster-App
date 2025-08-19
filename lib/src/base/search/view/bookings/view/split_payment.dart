@@ -33,7 +33,7 @@ import '../../../../../../utils/textfield_search.dart';
 class SplitPayment extends StatefulWidget {
   static String route = "/splitPayment";
 
-  const SplitPayment({Key? key}) : super(key: key);
+  const SplitPayment({super.key});
 
   @override
   _SplitPaymentState createState() => _SplitPaymentState();
