@@ -30,7 +30,9 @@ exports.deleteuser = onRequest(async (req, res) => {
   res.json({ result: `User with ID: ${userId} deleted.` });
 });
 
-const stripe = Stripe(process.env.STRIPE_API_KEY || ''); // Environment variable
+// Initialize Stripe with API key from environment (placeholder for deployment)
+const stripeKey = process.env.STRIPE_API_KEY || 'sk_test_placeholder';
+const stripe = Stripe(stripeKey);
 
 exports.createVerificationSession = onRequest((req, res) => {
   cors(req, res, async () => {

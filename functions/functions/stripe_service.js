@@ -4,7 +4,9 @@ const Stripe = require('stripe');
 const admin = require('firebase-admin');
 
 // Initialize Stripe with secret key from environment
-const stripe = Stripe(process.env.STRIPE_SECRET_KEY || '');
+// Use a placeholder during deployment, will be set via firebase functions:config:set
+const stripeKey = process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder';
+const stripe = Stripe(stripeKey);
 
 /**
  * Create a Payment Intent
