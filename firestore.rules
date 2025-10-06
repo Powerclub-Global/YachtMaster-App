@@ -1,0 +1,141 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function valueOrNull(data, key) {
+      return (key in data) ? data[key] : null;
+    }
+
+    function isOwnerId(userId) {
+      return isSignedIn() && userId != null && request.auth.uid == userId;
+    }
+
+    function ownerId(data) {
+      let direct = valueOrNull(data, 'ownerId');
+      return direct != null ? direct : valueOrNull(data, 'owner_id');
+    }
+
+    function bookingUserId(data) {
+      let direct = valueOrNull(data, 'userId');
+      return direct != null ? direct : valueOrNull(data, 'created_by');
+    }
+
+    function bookingOwnerId(data) {
+      let direct = valueOrNull(data, 'yachtOwnerId');
+      return direct != null ? direct : valueOrNull(data, 'host_user_uid');
+    }
+
+    function bookingYachtId(data) {
+      let direct = valueOrNull(data, 'yachtId');
+      return direct != null ? direct : valueOrNull(data, 'yacht_id');
+    }
+
+    function isBookingParticipant(data) {
+      return isOwnerId(bookingUserId(data)) || isOwnerId(bookingOwnerId(data));
+    }
+
+    function validateBookingData(data) {
+      let user = bookingUserId(data);
+      let yacht = bookingYachtId(data);
+      let startPrimary = valueOrNull(data, 'startDate');
+      let start = startPrimary != null ? startPrimary : valueOrNull(data, 'start_date');
+      let endPrimary = valueOrNull(data, 'endDate');
+      let end = endPrimary != null ? endPrimary : valueOrNull(data, 'end_date');
+      let amountPrimary = valueOrNull(data, 'totalAmount');
+      let amount = amountPrimary != null ? amountPrimary : valueOrNull(data, 'total_amount');
+
+      return user != null &&
+        yacht != null &&
+        start is timestamp &&
+        end is timestamp &&
+        start < end &&
+        amount is number &&
+        amount > 0;
+    }
+
+    function validateChatData(data) {
+      return data.keys().hasAll(['participants', 'createdAt', 'lastMessage']) &&
+        data.participants.size() >= 2 &&
+        request.auth.uid in data.participants;
+    }
+
+    function validateMessageData(data) {
+      return data.keys().hasAll(['senderId', 'text', 'timestamp']) &&
+        data.senderId == request.auth.uid &&
+        data.text is string &&
+        data.text.size() <= 1000 &&
+        data.timestamp is timestamp;
+    }
+
+    function validateReviewData(data) {
+      return data.keys().hasAll(['reviewerId', 'yachtId', 'rating', 'comment', 'createdAt']) &&
+        data.reviewerId == request.auth.uid &&
+        data.rating is number &&
+        data.rating >= 1 &&
+        data.rating <= 5 &&
+        data.comment is string &&
+        data.comment.size() <= 500;
+    }
+
+    match /users/{userId} {
+      allow create: if isOwnerId(userId);
+      allow get, update, delete: if isOwnerId(userId);
+      allow list: if false;
+    }
+
+    match /yachts/{yachtId} {
+      allow read: if true;
+      allow create: if isVerified() && isOwnerId(ownerId(request.resource.data));
+      allow update, delete: if isVerified() && isOwnerId(ownerId(resource.data));
+    }
+
+    match /bookings/{bookingId} {
+      allow create: if isVerified() && isOwnerId(bookingUserId(request.resource.data)) && validateBookingData(request.resource.data);
+      allow read: if isVerified() && isBookingParticipant(resource.data);
+      allow update: if isVerified() && isBookingParticipant(resource.data) && validateBookingData(request.resource.data);
+      allow delete: if false;
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if isVerified() && isOwnerId(valueOrNull(resource.data, 'userId') != null
+        ? valueOrNull(resource.data, 'userId')
+        : valueOrNull(resource.data, 'user_id'));
+      allow write: if false;
+    }
+
+    match /chats/{chatId} {
+      allow create: if isVerified() && validateChatData(request.resource.data);
+      allow read, update: if isVerified() && request.auth.uid in resource.data.participants;
+    }
+
+    match /chats/{chatId}/messages/{messageId} {
+      allow read: if isVerified() && request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+      allow create: if isVerified() && validateMessageData(request.resource.data);
+      allow update, delete: if false;
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isVerified() && validateReviewData(request.resource.data);
+      allow update: if isVerified() && resource.data.reviewerId == request.auth.uid && request.time < resource.data.createdAt + duration.value(7, 'd');
+      allow delete: if false;
+    }
+
+    match /admin/{document=**} {
+      allow read, write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

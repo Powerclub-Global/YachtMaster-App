@@ -53,11 +53,44 @@ android {
         multiDexEnabled true
     }
 
+    def keystorePath = System.getenv("STORE_FILE") ?: project.findProperty("storeFile")
+    def keystorePassword = System.getenv("STORE_PASSWORD") ?: project.findProperty("storePassword")
+    def keyAliasValue = System.getenv("KEY_ALIAS") ?: project.findProperty("keyAlias")
+    def keyPasswordValue = System.getenv("KEY_PASSWORD") ?: project.findProperty("keyPassword")
+    def hasReleaseKeystore = [keystorePath, keystorePassword, keyAliasValue, keyPasswordValue]
+        .every { it != null && !it.toString().trim().isEmpty() }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+            if (!hasReleaseKeystore) {
+                signingConfig signingConfigs.debug
+                println "⚠️  Release keystore configuration missing. Using debug signing for release builds."
+            }
+            debuggable false
+            jniDebuggable false
+            renderscriptDebuggable false
+            zipAlignEnabled true
+            shrinkResources true
+        }
+        debug {
             signingConfig signingConfigs.debug
+            debuggable true
+        }
+    }
+
+    signingConfigs {
+        release {
+            if (hasReleaseKeystore) {
+                storeFile file(keystorePath)
+                storePassword keystorePassword
+                keyAlias keyAliasValue
+                keyPassword keyPasswordValue
+            } else {
+                initWith signingConfigs.debug
+            }
         }
     }
 }

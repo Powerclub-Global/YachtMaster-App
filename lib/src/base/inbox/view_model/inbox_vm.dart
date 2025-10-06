@@ -63,4 +63,11 @@ class InboxVm extends ChangeNotifier {
   {
     notifyListeners();
   }
+
+  @override
+  void dispose() {
+    notificationStream?.cancel();
+    notificationStream = null;
+    super.dispose();
+  }
 }

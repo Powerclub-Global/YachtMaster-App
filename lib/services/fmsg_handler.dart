@@ -37,6 +37,8 @@ class Application extends StatefulWidget {
 }
 
 class _Application extends State<Application> {
+  bool _initialized = false;
+
   Future<void> requestPermissions() async {
     await FirebaseMessaging.instance.requestPermission(
       announcement: true,
@@ -45,18 +47,23 @@ class _Application extends State<Application> {
     );
   }
 
-  getFcmToken() async {
-    log("___GET FCM");
-    Constants.fcmToken = await FirebaseMessaging.instance.getToken() ?? "";
-    log("___FCM:${Constants.fcmToken}");
+  Future<void> _cacheFcmToken() async {
+    final token = await FirebaseMessaging.instance.getToken();
+    if (token != null && token.isNotEmpty) {
+      Constants.fcmToken = token;
+      log('FCM token refreshed', name: 'FMSGHandler');
+    }
   }
 
   handlePushNavigation(Map data) async {
-    debugPrint(" handlePushNavigation notification with type ");
     Get.to(const InboxView(), arguments: {"selectedTabIndex": 1});
   }
 
   Future<void> onInit() async {
+    if (_initialized) {
+      return;
+    }
+    _initialized = true;
     log("___INIT FCM");
     await requestPermissions();
     log("___REQ FCM");
@@ -73,11 +80,10 @@ class _Application extends State<Application> {
       RemoteMessage? message,
     ) {
       if (message != null) {
-        log("msg: $message");
         _handleMessage(message);
       }
     });
-    getFcmToken();
+    await _cacheFcmToken();
     FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
@@ -108,21 +114,14 @@ class _Application extends State<Application> {
   }
 
   Future<void> _handleMessage(RemoteMessage message) async {
-    log("THIS IS MESSAGE");
-    log(message.data.toString());
+    log('Handling opened push notification', name: 'FMSGHandler');
     await handlePushNavigation(message.data);
   }
 
   @override
-  void didChangeDependencies() {
-    onInit();
-    super.didChangeDependencies();
-  }
-
-  @override
   void initState() {
-    onInit();
     super.initState();
+    Future.microtask(onInit);
   }
 
   @override

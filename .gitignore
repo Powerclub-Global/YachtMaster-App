@@ -47,3 +47,34 @@ app.*.map.json
 /android/app/release
 .node_modules
 /android/app/.cxx
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.jks
+*.keystore
+key.properties
+
+# Firebase config (should be managed separately per environment)
+# Uncomment if you want to keep these out of version control:
+# android/app/google-services.json
+# ios/Runner/GoogleService-Info.plist
+# ios/firebase_app_id_file.json
+
+# Sensitive data
+secrets/
+*.secret
+.firebase/
+
+# Node modules in functions
+functions/node_modules/
+functions/.env
+functions/.env.*
+!functions/.env.example
+
+# macOS
+.DS_Store

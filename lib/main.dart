@@ -3,9 +3,11 @@ import 'dart:developer';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -20,7 +22,9 @@ import 'package:yacht_master/src/auth/view/manage_account.dart';
 import 'appwrite.dart';
 import 'blocs/bloc_exports.dart';
 import 'localization/app_localization.dart';
+import 'services/analytics_service.dart';
 import 'services/fmsg_handler.dart';
+import 'services/security_service.dart';
 import 'src/auth/view/create_username.dart';
 import 'src/auth/view/login.dart';
 import 'src/auth/view/sign_up.dart';
@@ -87,6 +91,7 @@ import 'src/landing_page/view/splash_view.dart';
 import 'src/landing_page/view/vanilla.dart';
 import 'src/landing_page/view_model/landing_vm.dart';
 import 'utils/no_internet_screen.dart';
+import 'utils/app_logger.dart';
 
 void onDidReceiveLocalNotification(
   int id,
@@ -124,10 +129,44 @@ void onDidReceiveNotificationResponse(
 }
 
 bool isLogin = false;
+bool stripeConfigReady = false;
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  appwrite.initialiseAppwrite();
-  await Firebase.initializeApp();
+  runZonedGuarded<Future<void>>(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // Initialize logging first
+    AppLogger.initialize();
+
+    // Initialize Firebase first
+    await Firebase.initializeApp();
+
+    // Set up Crashlytics
+    FlutterError.onError = (errorDetails) {
+      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+    };
+
+    // Pass all uncaught asynchronous errors to Crashlytics
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+
+    appwrite.initialiseAppwrite();
+
+    // Initialize analytics service
+    await AnalyticsService.initialize();
+    await SecurityService.initialize();
+    AnalyticsService.setCustomKey('security_is_secure', SecurityService.isSecure);
+    AppLogger.setCustomKey('security_is_secure', SecurityService.isSecure);
+
+    if (!SecurityService.isSecure && kReleaseMode) {
+      AppLogger.warning('Security checks failed; running with limited trust');
+    }
+    try {
+      await setupRemoteConfig();
+    } catch (error, stack) {
+      AppLogger.error('Remote config bootstrap failed; Stripe payments disabled', error, stack);
+    }
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   const AndroidInitializationSettings initializationSettingsAndroid =
@@ -139,7 +178,7 @@ void main() async {
         requestBadgePermission: false,
         requestAlertPermission: false,
       );
-  await FirebaseMessaging.instance.getAPNSToken().then((value) => print(value));
+  await FirebaseMessaging.instance.getAPNSToken();
   final LinuxInitializationSettings initializationSettingsLinux =
       LinuxInitializationSettings(defaultActionName: 'Open notification');
   final InitializationSettings initializationSettings = InitializationSettings(
@@ -157,51 +196,65 @@ void main() async {
       (await getApplicationDocumentsDirectory()).path,
     ),
   );
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => LandingVm()),
-        ChangeNotifierProvider(create: (_) => AuthVm()),
-        ChangeNotifierProvider(create: (_) => SearchVm()),
-        ChangeNotifierProvider(create: (_) => SettingsVm()),
-        ChangeNotifierProvider(create: (_) => BaseVm()),
-        ChangeNotifierProvider(create: (_) => HomeVm()),
-        ChangeNotifierProvider(create: (_) => YachtVm()),
-        ChangeNotifierProvider(create: (_) => InboxVm()),
-        ChangeNotifierProvider(create: (_) => FavouritesVm()),
-        ChangeNotifierProvider(create: (_) => BookingsVm()),
-        ChangeNotifierProvider(create: (_) => AdminChatVM()),
-      ],
-      child: MyApp(),
-    ),
-  );
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => LandingVm()),
+          ChangeNotifierProvider(create: (_) => AuthVm()),
+          ChangeNotifierProvider(create: (_) => SearchVm()),
+          ChangeNotifierProvider(create: (_) => SettingsVm()),
+          ChangeNotifierProvider(create: (_) => BaseVm()),
+          ChangeNotifierProvider(create: (_) => HomeVm()),
+          ChangeNotifierProvider(create: (_) => YachtVm()),
+          ChangeNotifierProvider(create: (_) => InboxVm()),
+          ChangeNotifierProvider(create: (_) => FavouritesVm()),
+          ChangeNotifierProvider(create: (_) => BookingsVm()),
+          ChangeNotifierProvider(create: (_) => AdminChatVM()),
+        ],
+        child: MyApp(),
+      ),
+    );
+  }, (error, stack) {
+    // Handle errors that weren't caught by Flutter
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+  });
 }
 
 String? publishableKey;
-String? secretKey;
-String? connectKey;
-Future<FirebaseRemoteConfig> setupRemoteConfig() async {
-  final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
-  print("fetch kar rha bro .....hahahaha");
-  await remoteConfig.setConfigSettings(
-    RemoteConfigSettings(
-      fetchTimeout: const Duration(minutes: 10),
-      minimumFetchInterval: const Duration(hours: 1),
-    ),
-  );
-  print("kyaa error yahan hai");
-  await remoteConfig.fetchAndActivate();
-  print("yaan phir yahan hai");
 
-  publishableKey = remoteConfig.getString("publishable_key");
-  secretKey = remoteConfig.getString("secret_key");
-  connectKey = remoteConfig.getString("connect_key");
-  print("THIS IS SECRET $publishableKey");
-  Stripe.merchantIdentifier = 'any string works';
-  Stripe.publishableKey = publishableKey ?? "";
-  await Stripe.instance.applySettings();
-  RemoteConfigValue(null, ValueSource.valueStatic);
-  return remoteConfig;
+bool get hasStripeKeys =>
+    stripeConfigReady &&
+    (publishableKey?.isNotEmpty ?? false);
+
+Future<void> setupRemoteConfig() async {
+  final FirebaseRemoteConfig remoteConfig = FirebaseRemoteConfig.instance;
+  try {
+    await remoteConfig.setConfigSettings(
+      RemoteConfigSettings(
+        fetchTimeout: const Duration(minutes: 10),
+        minimumFetchInterval: const Duration(hours: 1),
+      ),
+    );
+
+    await remoteConfig.fetchAndActivate();
+
+    final fetchedPublishableKey = remoteConfig.getString('publishable_key');
+
+    if (fetchedPublishableKey.isEmpty) {
+      throw StateError('Stripe publishable key is missing from remote config');
+    }
+
+    publishableKey = fetchedPublishableKey;
+
+    Stripe.merchantIdentifier = 'any string works';
+    Stripe.publishableKey = publishableKey!;
+    await Stripe.instance.applySettings();
+    stripeConfigReady = true;
+  } catch (error) {
+    stripeConfigReady = false;
+    publishableKey = null;
+    rethrow;
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -216,6 +269,8 @@ class MyApp extends StatefulWidget {
 
 class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   Locale? _locale;
+  bool _isShowingNoInternet = false;
+  bool _isRefreshingStripeConfig = false;
 
   void setLocale(Locale locale) {
     setState(() {
@@ -233,7 +288,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     try {
       result = await _connectivity.checkConnectivity();
     } on PlatformException catch (e) {
-      print(e.toString());
+      AppLogger.error('Connectivity check failed', e);
     }
     if (!mounted) {
       return null;
@@ -242,11 +297,22 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     return _updateConnectionStatus(result);
   }
 
-  _updateConnectionStatus(List<ConnectivityResult> result) async {
-    if (result.contains(ConnectivityResult.none)) {
-      Get.toNamed(NoInternetScreen.route);
+  Future<void> _updateConnectionStatus(List<ConnectivityResult> result) async {
+    final hasConnection = result.any((status) => status != ConnectivityResult.none);
+    if (!hasConnection && !_isShowingNoInternet) {
+      _isShowingNoInternet = true;
+      Get.toNamed(NoInternetScreen.route)?.whenComplete(() {
+        _isShowingNoInternet = false;
+      });
+    } else if (hasConnection) {
+      _isShowingNoInternet = false;
+      if (!stripeConfigReady) {
+        Future.microtask(_warmStripeConfig);
+      }
     }
-    setState(() => connectionStatus = result.toString());
+    if (mounted) {
+      setState(() => connectionStatus = result.toString());
+    }
   }
 
   void startConnectionStream() {
@@ -258,31 +324,31 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     var p = Provider.of<AuthVm>(context, listen: false);
-    log("__________________________STATYE:$state");
+    AppLogger.debug("App lifecycle state changed: $state");
 
     switch (state) {
       case AppLifecycleState.resumed:
-        log("resumed");
+        AppLogger.debug("App resumed");
         if (p.userModel?.uid != null) {
           p.userModel?.isActiveUser = true;
           await p.updateUser(p.userModel!);
         }
         break;
       case AppLifecycleState.detached:
-        log("detached");
+        AppLogger.debug("App detached");
         break;
       case AppLifecycleState.inactive:
-        log("inactive");
+        AppLogger.debug("App inactive");
         if (p.userModel?.uid != null) {
           p.userModel?.isActiveUser = false;
           await p.updateUser(p.userModel!);
         }
         break;
       case AppLifecycleState.paused:
-        log("paused");
+        AppLogger.debug("App paused");
         break;
       case AppLifecycleState.hidden:
-        log("hidden");
+        AppLogger.debug("App hidden");
         break;
     }
   }
@@ -296,18 +362,31 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      await setupRemoteConfig();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await initConnectivity();
       startConnectionStream();
     });
     setLocale(const Locale("en"));
     super.initState();
   }
 
+  Future<void> _warmStripeConfig() async {
+    if (stripeConfigReady || _isRefreshingStripeConfig) {
+      return;
+    }
+    try {
+      _isRefreshingStripeConfig = true;
+      await setupRemoteConfig();
+    } catch (error, stack) {
+      AppLogger.error('Stripe config refresh failed', error, stack);
+    } finally {
+      _isRefreshingStripeConfig = false;
+    }
+  }
+
   readPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     isLogin = prefs.getBool("loginEmail") ?? false;
-    print(isLogin);
   }
 
   @override

@@ -83,4 +83,11 @@ class BaseVm extends ChangeNotifier {
       inboxVm.fetchNotificatoins(),
     ]);
   }
+
+  @override
+  void dispose() {
+    userFavouritesStream?.cancel();
+    userFavouritesStream = null;
+    super.dispose();
+  }
 }

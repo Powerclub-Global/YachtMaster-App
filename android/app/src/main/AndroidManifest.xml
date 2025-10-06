@@ -23,6 +23,10 @@
         android:name="${applicationName}"
         android:theme="@style/Theme.MaterialComponents.DayNight"
         android:icon="@mipmap/launcher_icon"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:extractNativeLibs="false"
         >
         <provider
             android:name="androidx.core.content.FileProvider"

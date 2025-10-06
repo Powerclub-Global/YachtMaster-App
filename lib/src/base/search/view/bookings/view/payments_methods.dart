@@ -28,6 +28,7 @@ import '../view_model/bookings_vm.dart';
 import '../../../../../../utils/general_app_bar.dart';
 import '../../../../../../utils/heights_widths.dart';
 import '../../../../../../utils/helper.dart';
+import '../../../../../../utils/zbot_toast.dart';
 
 class PaymentMethods extends StatefulWidget {
   static String route = "/paymentMethods";
@@ -68,7 +69,6 @@ class _PaymentMethodsState extends State<PaymentMethods> {
             status: pay.PaymentItemStatus.final_price,
           ),
         ];
-        log("_____key:$publishableKey");
         return ModalProgressHUD(
           inAsyncCall: isLoading,
           progressIndicator: SpinKitPulse(color: R.colors.themeMud),
@@ -1551,6 +1551,13 @@ class _PaymentMethodsState extends State<PaymentMethods> {
 
   Future<void> stripeConfig() async {
     try {
+      if (!hasStripeKeys) {
+        ZBotToast.showToastError(
+          message: getTranslated(context, "payment_unavailable") ??
+              "Payments are temporarily unavailable",
+        );
+        return;
+      }
       Stripe.publishableKey = publishableKey ?? "";
       Stripe.merchantIdentifier = 'merchant.flutter.stripe.test';
       Stripe.urlScheme = 'flutterstripe';

@@ -53,10 +53,12 @@ double percentOfAmount(double amount, double percent) {
 }
 
 class Helper {
-  static String mapApiKey = "AIzaSyB3-PXBvW4UuH10ZRBY7kd20EFcxDZksQU";
+  static String mapApiKey = const String.fromEnvironment(
+    'GOOGLE_MAPS_API_KEY',
+    defaultValue: '', // Will be provided via build configuration
+  );
 
   static Future<LatLng> getLocation() async {
-    print("___GET LOC");
 
     loc.Location location = loc.Location();
     //await location.changeSettings(accuracy: loc.LocationAccuracy.a, interval: 1000, distanceFilter: 0);

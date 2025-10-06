@@ -25,7 +25,6 @@ class ImagePickerServices {
 
   getMultipleImages() async {
     List<XFile>? pictures = (await picker.pickMultiImage(imageQuality: 80));
-    log("___________LEN:${pickedFiles?.length}");
     if (pictures.isNotEmpty) {
       pictures.forEach((element) {
         pickedFiles!.add(element);
@@ -40,9 +39,7 @@ class ImagePickerServices {
     String bucketName = "userProfile",
     String extension = ".jpg",
   }) async {
-    log("__________________________IMAGE:$images");
     String? image;
-    print("we are here");
     try {
       FirebaseStorage storage = FirebaseStorage.instance;
       Reference ref = storage.ref().child(
@@ -54,7 +51,6 @@ class ImagePickerServices {
       );
       final downloadUrl = await snapshot.ref.getDownloadURL();
       image = downloadUrl;
-      print(image);
     } on Exception catch (e) {
       log("____________________________ERRPR:$e");
     }

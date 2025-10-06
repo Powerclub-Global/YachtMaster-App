@@ -22,15 +22,12 @@ class BookingsModel {
     charterFleetDetail = json['charter_fleet_detail'] != null
         ? CharterFleetDetail.fromJson(json['charter_fleet_detail'])
         : null;
-    print("serialised charter fleet");
     paymentDetail = json['payment_detail'] != null
         ? PaymentDetail.fromJson(json['payment_detail'])
         : null;
-    print("serialised Payment Detials");
     schedule = json['schedule '] != null
         ? BookingScheduleModel.fromJson(json['schedule '])
         : null;
-    print("serialised Booking Schedule Model");
     durationType = json['duration_type'];
     createdAt = json['created_at'];
     bookingStatus = json['booking_status'];

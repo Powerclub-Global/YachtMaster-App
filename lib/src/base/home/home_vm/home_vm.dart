@@ -11,15 +11,12 @@ class HomeVm extends ChangeNotifier {
   List walletHistory = [];
   StreamSubscription<List<BookingsModel>>? bookingsStream;
   Future<void> fetchAllBookings() async {
-    print("=============== Starting to fetch all bookings =================");
     allBookings = [];
     try {
       var ref = FbCollections.bookings.snapshots().asBroadcastStream();
 
       var res = ref.map((list) {
-        print("bookings are being printed");
         return list.docs.map((e) {
-          print(e.data());
           return BookingsModel.fromJson(e.data());
         }).toList();
       });
@@ -47,11 +44,16 @@ class HomeVm extends ChangeNotifier {
     walletHistory = fetchHistory.docs
         .map((e) => e.data() as Map<String, dynamic>)
         .toList();
-    print("printing wallet history");
-    print(walletHistory);
   }
 
   update() {
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    bookingsStream?.cancel();
+    bookingsStream = null;
+    super.dispose();
   }
 }

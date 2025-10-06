@@ -2,6 +2,7 @@ import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/enums.dart';
 import 'package:appwrite/models.dart';
 import 'package:http/http.dart' as http;
+import 'package:yacht_master/utils/logger.dart';
 
 Appwrite appwrite = Appwrite();
 
@@ -20,13 +21,12 @@ class Appwrite {
 
   void initialiseAppwrite() {
     account = Account(client);
-    print("initialised appwrite");
+    AppLogger.debug('Appwrite client initialised');
   }
 
   Future<void> getUser() async {
-    print("Getting user");
     user = await account.get();
-    print("User has been getted");
+    AppLogger.debug('Fetched Appwrite user ${user.$id}');
   }
 
   Future<void> sendSMS(String phone) async {
@@ -37,44 +37,38 @@ class Appwrite {
   }
 
   Future<void> updateAndVerifyPhoneNumber(String phone) async {
-    print("updating phone no");
     await account.updatePhone(phone: phone, password: 'passwords');
     await account.createPhoneVerification();
+    AppLogger.debug('Initiated phone update for $phone');
   }
 
   Future<void> updatePhoneVerification(String code) async {
-    print("updating verification");
     account.updatePhoneVerification(userId: appwrite.user.$id, secret: code);
+    AppLogger.debug('Requested phone verification update');
   }
 
   Future<void> verifySMS(String sms) async {
-    print("verifying sms");
-    session = await account
-        .updatePhoneSession(userId: sessionToken.userId, secret: sms)
-        .then((Session sesh) {
-          print("session created");
-          return sesh;
-        });
+    AppLogger.debug('Verifying SMS code');
+    session = await account.updatePhoneSession(
+      userId: sessionToken.userId,
+      secret: sms,
+    );
+    AppLogger.debug('Appwrite session created');
   }
 
   Future<void> signInApple() async {
-    print("creating session");
     await account.createOAuth2Session(provider: OAuthProvider.apple);
-    print("session created");
+    AppLogger.debug('Created Apple OAuth session');
   }
 
   Future<void> signInGoogle() async {
-    print("creating session");
-
     await account.createOAuth2Session(provider: OAuthProvider.google);
-    print("session created");
+    AppLogger.debug('Created Google OAuth session');
   }
 
   Future<void> signInFacebook() async {
-    print("creating session");
-
     await account.createOAuth2Session(provider: OAuthProvider.facebook);
-    print("session created");
+    AppLogger.debug('Created Facebook OAuth session');
   }
 
   Future<void> deleteUser() async {

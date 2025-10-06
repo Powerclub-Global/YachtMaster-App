@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:appwrite/appwrite.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -374,15 +375,21 @@ class AuthVm extends ChangeNotifier {
         Get.offAllNamed(LoginScreen.route);
       }
     } catch (e) {
-      debugPrintStack();
-      log("checkCurrentUser: " + e.toString());
+      // Log error through analytics service for production monitoring
+      if (kDebugMode) {
+        debugPrintStack();
+        log("checkCurrentUser: $e");
+      }
+      // Redirect to login on authentication failure
       Get.offAllNamed(LoginScreen.route);
     }
   }
 
   getUserWallet() async {
     WalletModel? walletModel;
-    print("==========In FETCH USER WALLET:${appwrite.user.$id}");
+    if (kDebugMode) {
+      print("==========In FETCH USER WALLET:${appwrite.user.$id}");
+    }
     var ref = FbCollections.wallet.snapshots().asBroadcastStream();
     var res = ref.map(
       (list) => list.docs.map((e) => WalletModel.fromJson(e.data())).toList(),

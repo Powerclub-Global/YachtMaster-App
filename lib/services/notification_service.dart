@@ -82,10 +82,6 @@ class NotificationService {
     required String title,
     required String body,
   }) async {
-    log(
-      "${{'Content-Type': 'application/json', 'Authorization': 'key=${Constants.fcmServiceKey}'}}",
-    );
-
     var response = await http.post(
       Uri.parse('https://fcm.googleapis.com/fcm/send'),
       headers: <String, String>{
@@ -105,6 +101,8 @@ class NotificationService {
         'token': fcmToken,
       }),
     );
-    log("RESPONSE:${response.body}");
+    if (response.statusCode != 200) {
+      log('FCM sendNotification failed: ${response.statusCode}', name: 'NotificationService');
+    }
   }
 }

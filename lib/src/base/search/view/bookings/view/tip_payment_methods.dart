@@ -15,6 +15,7 @@ import 'apple_store_sheet.dart';
 import 'pay_with_wallet.dart';
 import '../view_model/bookings_vm.dart';
 import '../../../../../../utils/heights_widths.dart';
+import '../../../../../../utils/zbot_toast.dart';
 
 class TipPaymentMethods extends StatefulWidget {
   static String route = "/paymentTipMethods";
@@ -155,6 +156,13 @@ class _TipPaymentMethodsState extends State<TipPaymentMethods> {
 
   Future<void> stripeConfig() async {
     try {
+      if (!hasStripeKeys) {
+        ZBotToast.showToastError(
+          message: getTranslated(context, "payment_unavailable") ??
+              "Payments are temporarily unavailable",
+        );
+        return;
+      }
       Stripe.publishableKey = publishableKey ?? "";
       Stripe.merchantIdentifier = 'merchant.flutter.stripe.test';
       Stripe.urlScheme = 'flutterstripe';

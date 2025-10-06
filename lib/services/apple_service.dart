@@ -3,13 +3,11 @@
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import 'package:yacht_master/src/auth/model/user_model.dart';
 
 import '../src/auth/view_model/auth_vm.dart';
 import '../utils/zbot_toast.dart';
@@ -32,11 +30,6 @@ class AuthWithApple {
             );
 
         ZBotToast.loadingShow();
-        UserModel userData = UserModel(
-          createdAt: Timestamp.now(),
-          email: credential.email ?? "",
-          firstName: credential.givenName ?? "",
-        );
         log("____FIRST NAME:${credential.givenName}");
         OAuthCredential oauthCredential = OAuthProvider("apple.com").credential(
           idToken: credential.identityToken,

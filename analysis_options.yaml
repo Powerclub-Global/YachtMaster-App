@@ -34,7 +34,7 @@ linter:
     sized_box_for_whitespace: true
     use_key_in_widget_constructors: false
     avoid_function_literals_in_foreach_calls: false
-    avoid_print: false
+    avoid_print: true
     prefer_const_literals_to_create_immutables: false
     use_decorated_box: true
 

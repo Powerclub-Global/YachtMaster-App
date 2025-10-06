@@ -53,8 +53,7 @@ class StripeService {
           userEmail: userEmail,
           secretKey: secretKey,
         );
-        print("SECRET $secretKey");
-        print("CUSTOMER $customer");
+        log('Stripe customer created', name: 'StripeService');
         getCustomerID!(customer?['id']);
       }
 
@@ -96,7 +95,6 @@ class StripeService {
         // log(subscription?["id"]);
         getSubscriptionID!(subscription?["id"]);
         if (subscription?['status'] == 'active') {
-          print(5);
           onPaymentSuccess();
         } else {
           var invoice = await getInvoice(
@@ -120,7 +118,6 @@ class StripeService {
           );
           if (confirm.status == PaymentIntentsStatus.Succeeded) {
             paymentDetails!(confirm);
-            print(4);
             onPaymentSuccess();
           }
         }
@@ -132,7 +129,6 @@ class StripeService {
           secretKey: secretKey,
         );
 
-        log("____MAP:$paymentIntentResult");
         if (paymentIntentResult?['error'] != null) {
           // Error during creating or confirming Intent
           onError!(paymentIntentResult?['error']);
@@ -141,11 +137,11 @@ class StripeService {
           return;
         }
         if (!isCardAvailable) {
-          var intent = await createSetupIntent(
+          await createSetupIntent(
             secretKey: secretKey,
             customerId: customer?['id'],
           );
-          print("Bhai bout to start payment sheet");
+          log('Initializing Stripe payment sheet', name: 'StripeService');
           await Stripe.instance.initPaymentSheet(
             paymentSheetParameters: SetupPaymentSheetParameters(
               customerId: customerID,
@@ -158,7 +154,7 @@ class StripeService {
 
           await Stripe.instance.presentPaymentSheet().then(
             (value) => {
-              print("Printing status now ........"),
+              log('Payment sheet completed', name: 'StripeService'),
               onPaymentSuccess(),
             },
           );
@@ -170,7 +166,6 @@ class StripeService {
           // await Stripe.instance.confirmPaymentSheetPayment();
 
           if (paymentIntent.status == PaymentIntentsStatus.Succeeded) {
-            print(1);
           } else {
             ZBotToast.showToastError(
               message: getTranslated(Get.context!, "payment_failed"),
@@ -179,16 +174,13 @@ class StripeService {
         } else {
           if (paymentIntentResult?['client_secret'] != null &&
               paymentIntentResult?['status'] == "succeeded") {
-            print(2);
             onPaymentSuccess();
             return;
           }
 
           if (paymentIntentResult?['client_secret'] != null &&
               paymentIntentResult?['status'] == "requires_confirmation") {
-            log(
-              "____HERE:${paymentIntentResult?['status']}_____${paymentIntentResult?['client_secret']}",
-            );
+            log('Confirming payment intent requiring action', name: 'StripeService');
             // 4. if payment requires action calling handleNextAction
             // final paymentIntent = await Stripe.instance.handleNextAction(paymentIntentResult?['client_secret']);
 
@@ -207,23 +199,20 @@ class StripeService {
                 ),
               );
               if (confirm.status == PaymentIntentsStatus.Succeeded) {
-                log(
-                  "____PAYMENT METHOD ID:${confirm.paymentMethodId}___$customerID",
-                );
+                log('Payment intent confirmed', name: 'StripeService');
                 paymentDetails!(confirm);
-                print(3);
                 onPaymentSuccess();
               }
             } else {
               onError!(paymentIntentResult?['error']);
               ZBotToast.loadingClose();
-              log("ERROR:${paymentIntentResult?['error']}");
+              log('Stripe payment error response', name: 'StripeService');
             }
           }
         }
       }
     } catch (e) {
-      log(e.toString());
+      log('Stripe payment error: $e', name: 'StripeService');
       ZBotToast.loadingClose();
     }
   }
@@ -384,9 +373,11 @@ class StripeService {
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
-      print(await response.stream.bytesToString());
+      log('Payout initiated successfully', name: 'StripeService');
+      await response.stream.drain();
     } else {
-      Get.dialog(AlertDialog(content: Text(response.reasonPhrase!)));
+      log('Payout failed: ${response.statusCode}', name: 'StripeService');
+      Get.dialog(AlertDialog(content: Text(response.reasonPhrase ?? 'Error')));
     }
   }
 
@@ -416,7 +407,7 @@ class StripeService {
       });
       return accountData['id'];
     } else {
-      print(response.reasonPhrase);
+      log('Failed to create connected account: ${response.statusCode}', name: 'StripeService');
       return "internet error";
     }
   }
@@ -444,7 +435,7 @@ class StripeService {
       var accountLinkData = jsonDecode(await response.stream.bytesToString());
       return accountLinkData["url"];
     } else {
-      print(response.reasonPhrase);
+      log('Failed to create account link: ${response.statusCode}', name: 'StripeService');
       return "internet error";
     }
   }
@@ -507,17 +498,14 @@ class StripeService {
     );
     request.bodyFields = {'amount': amount, 'currency': currency};
     request.headers.addAll(headers);
-    print("about to make request");
+    log('Creating payment intent', name: 'StripeService');
     http.StreamedResponse response = await request.send();
-    print("request made");
-    print(response.statusCode);
-    print(response.reasonPhrase);
+    log('Stripe payment intent response: ${response.statusCode}', name: 'StripeService');
     if (response.statusCode == 200) {
       result = await response.stream.bytesToString();
-      print(jsonDecode(result));
       return jsonDecode(result);
     } else {
-      log("${response.reasonPhrase}");
+      log('Stripe payment intent failed: ${response.statusCode}', name: 'StripeService');
     }
     return null;
   }
@@ -527,7 +515,7 @@ class StripeService {
     required String userEmail,
     required String secretKey,
   }) async {
-    log("$userName$userEmail$secretKey");
+    log('Ensuring Stripe customer exists', name: 'StripeService');
     String result = "";
     var headers = {
       'Authorization': 'Bearer $secretKey',
@@ -600,7 +588,7 @@ class StripeService {
 
     if (response.statusCode == 200) {
       result = await response.stream.bytesToString();
-      log("____get card successs:$request");
+      log('Retrieved card list for customer', name: 'StripeService');
       return jsonDecode(result);
     } else {
       log("get card err:${response.reasonPhrase.toString()}");

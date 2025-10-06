@@ -8,7 +8,12 @@ import GoogleMaps
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    GMSServices.provideAPIKey("AIzaSyB3-PXBvW4UuH10ZRBY7kd20EFcxDZksQU")
+    // API key should be provided via Info.plist or environment configuration
+    if let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
+       let plist = NSDictionary(contentsOfFile: path),
+       let apiKey = plist["API_KEY"] as? String {
+      GMSServices.provideAPIKey(apiKey)
+    }
     if #available(iOS 10.0, *) {
               UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
