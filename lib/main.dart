@@ -4,6 +4,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/cupertino.dart';
@@ -138,18 +139,32 @@ void main() async {
     AppLogger.initialize();
 
     // Initialize Firebase first
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
-    // Set up Crashlytics
-    FlutterError.onError = (errorDetails) {
-      FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
-    };
+    // Set up Crashlytics (not supported on web)
+    if (!kIsWeb) {
+      FlutterError.onError = (errorDetails) {
+        FirebaseCrashlytics.instance.recordFlutterFatalError(errorDetails);
+      };
 
-    // Pass all uncaught asynchronous errors to Crashlytics
-    PlatformDispatcher.instance.onError = (error, stack) {
-      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-      return true;
-    };
+      // Pass all uncaught asynchronous errors to Crashlytics
+      PlatformDispatcher.instance.onError = (error, stack) {
+        FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+        return true;
+      };
+    } else {
+      // On web, just log errors to console
+      FlutterError.onError = (errorDetails) {
+        AppLogger.error('Flutter error', errorDetails.exception, errorDetails.stack);
+      };
+
+      PlatformDispatcher.instance.onError = (error, stack) {
+        AppLogger.error('Uncaught error', error, stack);
+        return true;
+      };
+    }
 
     appwrite.initialiseAppwrite();
 
@@ -167,35 +182,50 @@ void main() async {
     } catch (error, stack) {
       AppLogger.error('Remote config bootstrap failed; Stripe payments disabled', error, stack);
     }
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/launcher_icon');
 
-  final DarwinInitializationSettings initializationSettingsDarwin =
-      DarwinInitializationSettings(
-        requestSoundPermission: false,
-        requestBadgePermission: false,
-        requestAlertPermission: false,
-      );
-  await FirebaseMessaging.instance.getAPNSToken();
-  final LinuxInitializationSettings initializationSettingsLinux =
-      LinuxInitializationSettings(defaultActionName: 'Open notification');
-  final InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-    iOS: initializationSettingsDarwin,
-    macOS: initializationSettingsDarwin,
-    linux: initializationSettingsLinux,
-  );
-  await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
-    onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
-  );
-  HydratedBloc.storage = await HydratedStorage.build(
-    storageDirectory: HydratedStorageDirectory(
-      (await getApplicationDocumentsDirectory()).path,
-    ),
-  );
+  // Platform-specific initialization (skip on web)
+  if (!kIsWeb) {
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+        FlutterLocalNotificationsPlugin();
+    const AndroidInitializationSettings initializationSettingsAndroid =
+        AndroidInitializationSettings('@mipmap/launcher_icon');
+
+    final DarwinInitializationSettings initializationSettingsDarwin =
+        DarwinInitializationSettings(
+          requestSoundPermission: false,
+          requestBadgePermission: false,
+          requestAlertPermission: false,
+        );
+
+    // Only get APNS token on iOS
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      await FirebaseMessaging.instance.getAPNSToken();
+    }
+
+    final LinuxInitializationSettings initializationSettingsLinux =
+        LinuxInitializationSettings(defaultActionName: 'Open notification');
+    final InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsDarwin,
+      macOS: initializationSettingsDarwin,
+      linux: initializationSettingsLinux,
+    );
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+    );
+
+    HydratedBloc.storage = await HydratedStorage.build(
+      storageDirectory: HydratedStorageDirectory(
+        (await getApplicationDocumentsDirectory()).path,
+      ),
+    );
+  } else {
+    // Web: HydratedBloc uses IndexedDB automatically, just provide a dummy path
+    HydratedBloc.storage = await HydratedStorage.build(
+      storageDirectory: HydratedStorageDirectory('hydrated_bloc_web'),
+    );
+  }
     runApp(
       MultiProvider(
         providers: [
@@ -216,11 +246,27 @@ void main() async {
     );
   }, (error, stack) {
     // Handle errors that weren't caught by Flutter
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    if (!kIsWeb) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    } else {
+      AppLogger.error('Zone error', error, stack);
+    }
   });
 }
 
 String? publishableKey;
+
+/// DEPRECATED: Secret keys moved to secure Cloud Functions for PCI compliance
+/// Use SecurePaymentService instead of direct Stripe API calls
+/// This is a placeholder to allow legacy code to compile - will throw runtime error if used
+@Deprecated('Use SecurePaymentService from lib/services/secure_payment_service.dart')
+String? secretKey = null;
+
+/// DEPRECATED: Connect keys moved to secure Cloud Functions for PCI compliance
+/// Use SecurePaymentService instead of direct Stripe API calls
+/// This is a placeholder to allow legacy code to compile - will throw runtime error if used
+@Deprecated('Use SecurePaymentService from lib/services/secure_payment_service.dart')
+String? connectKey = null;
 
 bool get hasStripeKeys =>
     stripeConfigReady &&

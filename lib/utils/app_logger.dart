@@ -35,8 +35,8 @@ class AppLogger {
         developer.log(message);
       }
 
-      // Send errors to Crashlytics
-      if (record.level >= Level.SEVERE && record.error != null) {
+      // Send errors to Crashlytics (not available on web)
+      if (!kIsWeb && record.level >= Level.SEVERE && record.error != null) {
         FirebaseCrashlytics.instance.recordError(
           record.error,
           record.stackTrace,
@@ -77,27 +77,32 @@ class AppLogger {
   static void fatal(String message, Object error, [StackTrace? stackTrace]) {
     if (!_initialized) initialize();
     _logger.shout(message, error, stackTrace);
-    FirebaseCrashlytics.instance.recordError(
-      error,
-      stackTrace ?? StackTrace.current,
-      reason: message,
-      fatal: true,
-    );
+    if (!kIsWeb) {
+      FirebaseCrashlytics.instance.recordError(
+        error,
+        stackTrace ?? StackTrace.current,
+        reason: message,
+        fatal: true,
+      );
+    }
   }
 
-  /// Set custom key for Crashlytics
+  /// Set custom key for Crashlytics (not available on web)
   static void setCustomKey(String key, dynamic value) {
+    if (kIsWeb) return;
     FirebaseCrashlytics.instance.setCustomKey(key, value);
   }
 
-  /// Set user identifier for Crashlytics
+  /// Set user identifier for Crashlytics (not available on web)
   static void setUserId(String userId) {
+    if (kIsWeb) return;
     FirebaseCrashlytics.instance.setUserIdentifier(userId);
   }
 
-  /// Log breadcrumb for debugging
+  /// Log breadcrumb for debugging (not available on web)
   static void breadcrumb(String message) {
     if (!_initialized) initialize();
+    if (kIsWeb) return;
     FirebaseCrashlytics.instance.log(message);
     if (kDebugMode) {
       _logger.config(message);
