@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../../../constant/enums.dart';
 import '../../../../../../localization/app_localization.dart';
 import '../../../../../../resources/decorations.dart';
@@ -883,7 +883,7 @@ class _YachtReservePaymentState extends State<YachtReservePayment> {
                                 yesCallBack: () async {
                                   await db
                                       .collection("users")
-                                      .doc(appwrite.user.$id)
+                                      .doc(firebaseAuthService.currentUserId)
                                       .collection("agreements")
                                       .add(charter!.toJson());
                                   startLoader();

@@ -10,7 +10,7 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:yacht_master/src/auth/view/manage_account.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
 import '../../../../resources/resources.dart';
@@ -437,7 +437,7 @@ class _SettingsViewState extends State<SettingsView> {
                   AppFeedbackModel appFeedbackModel = AppFeedbackModel(
                     id: docID,
                     feedback: desc,
-                    userId: appwrite.user.$id,
+                    userId: firebaseAuthService.currentUserId,
                     rating: rating,
                     createdAt: Timestamp.now(),
                   );
@@ -593,13 +593,13 @@ class _SettingsViewState extends State<SettingsView> {
   ) async {
     AdminChatHeadModel? chatHeadModel;
     AdminChatHeadModel chatData = AdminChatHeadModel(
-      id: appwrite.user.$id,
+      id: firebaseAuthService.currentUserId,
       createdAt: Timestamp.now(),
       lastMessage: AdminChatModel(
         message: "",
         createdAt: Timestamp.now(),
-        senderId: appwrite.user.$id,
-        chatHeadId: appwrite.user.$id,
+        senderId: firebaseAuthService.currentUserId,
+        chatHeadId: firebaseAuthService.currentUserId,
         type: 0,
         isSeen: false,
         receiverId:
@@ -610,7 +610,7 @@ class _SettingsViewState extends State<SettingsView> {
       ),
       status: 0,
       users: [
-        appwrite.user.$id,
+        firebaseAuthService.currentUserId,
         Provider.of<BaseVm>(context, listen: false).allUsers
                 .firstWhereOrNull((element) => element.role == UserType.admin)
                 ?.uid ??
@@ -633,12 +633,12 @@ class _SettingsViewState extends State<SettingsView> {
       if (doc.data() == null) {
         chatHeadModel = AdminChatHeadModel(
           createdAt: Timestamp.now(),
-          id: appwrite.user.$id,
+          id: firebaseAuthService.currentUserId,
           lastMessage: AdminChatModel(
             message: "",
             createdAt: Timestamp.now(),
-            senderId: appwrite.user.$id,
-            chatHeadId: appwrite.user.$id,
+            senderId: firebaseAuthService.currentUserId,
+            chatHeadId: firebaseAuthService.currentUserId,
             type: 0,
             isSeen: false,
             receiverId:
@@ -651,7 +651,7 @@ class _SettingsViewState extends State<SettingsView> {
           ),
           status: 0,
           users: [
-            appwrite.user.$id ?? "",
+            firebaseAuthService.currentUserId ?? "",
             Provider.of<BaseVm>(context, listen: false).allUsers
                     .firstWhereOrNull(
                       (element) => element.role == UserType.admin,

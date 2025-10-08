@@ -10,7 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:syncfusion_flutter_signaturepad/signaturepad.dart';
-import 'package:yacht_master/appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import 'package:yacht_master/constant/enums.dart';
 import 'package:yacht_master/localization/app_localization.dart';
 import 'package:yacht_master/resources/decorations.dart';
@@ -78,7 +78,7 @@ class SignW9Screen extends StatelessWidget {
               if (vm.isVerifyingForHost) {
                 await db
                     .collection("users")
-                    .doc(appwrite.user.$id)
+                    .doc(firebaseAuthService.currentUserId)
                     .collection("agreements")
                     .doc("host")
                     .set({"time": DateTime.now()});

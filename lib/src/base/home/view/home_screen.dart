@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../appwrite.dart';
+import '../../../../services/firebase_auth_service.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
 import '../../../../resources/resources.dart';
@@ -105,8 +105,8 @@ class _HomeViewState extends State<HomeView> {
                 provider.allBookings
                         .where(
                           (element) =>
-                              element.createdBy == appwrite.user.$id ||
-                              element.hostUserUid == appwrite.user.$id,
+                              element.createdBy == firebaseAuthService.currentUserId ||
+                              element.hostUserUid == firebaseAuthService.currentUserId,
                         )
                         .toList()
                         .isEmpty
@@ -132,9 +132,9 @@ class _HomeViewState extends State<HomeView> {
                                         .where(
                                           (element) =>
                                               element.createdBy ==
-                                                  appwrite.user.$id ||
+                                                  firebaseAuthService.currentUserId ||
                                               element.hostUserUid ==
-                                                  appwrite.user.$id,
+                                                  firebaseAuthService.currentUserId,
                                         )
                                         .toList()
                                         .isEmpty
@@ -203,9 +203,9 @@ class _HomeViewState extends State<HomeView> {
                                           .where(
                                             (element) =>
                                                 element.createdBy ==
-                                                    appwrite.user.$id ||
+                                                    firebaseAuthService.currentUserId ||
                                                 element.hostUserUid ==
-                                                    appwrite.user.$id,
+                                                    firebaseAuthService.currentUserId,
                                           )
                                           .toList()
                                           .isEmpty
@@ -219,9 +219,9 @@ class _HomeViewState extends State<HomeView> {
                                             .where(
                                               (element) =>
                                                   element.createdBy ==
-                                                      appwrite.user.$id ||
+                                                      firebaseAuthService.currentUserId ||
                                                   element.hostUserUid ==
-                                                      appwrite.user.$id,
+                                                      firebaseAuthService.currentUserId,
                                             )
                                             .toList()
                                             .length >=
@@ -231,9 +231,9 @@ class _HomeViewState extends State<HomeView> {
                                         .where(
                                           (element) =>
                                               element.createdBy ==
-                                                  appwrite.user.$id ||
+                                                  firebaseAuthService.currentUserId ||
                                               element.hostUserUid ==
-                                                  appwrite.user.$id,
+                                                  firebaseAuthService.currentUserId,
                                         )
                                         .toList()
                                         .length,
@@ -247,9 +247,9 @@ class _HomeViewState extends State<HomeView> {
                                           .where(
                                             (element) =>
                                                 element.createdBy ==
-                                                    appwrite.user.$id ||
+                                                    firebaseAuthService.currentUserId ||
                                                 element.hostUserUid ==
-                                                    appwrite.user.$id,
+                                                    firebaseAuthService.currentUserId,
                                           )
                                           .toList()[index];
                                   print(booking.id);
@@ -257,10 +257,10 @@ class _HomeViewState extends State<HomeView> {
                                   return InkWell(
                                     onTap: () {
                                       log(
-                                        "____here:HOST ID${booking.hostUserUid}______CURRENT:${appwrite.user.$id}___CREATEDBY:${booking.createdBy}_____YACHTID:${booking.id}",
+                                        "____here:HOST ID${booking.hostUserUid}______CURRENT:${firebaseAuthService.currentUserId}___CREATEDBY:${booking.createdBy}_____YACHTID:${booking.id}",
                                       );
                                       if (booking.createdBy ==
-                                          appwrite.user.$id) {
+                                          firebaseAuthService.currentUserId) {
                                         print(
                                           "I am here now means the booking was created bt me ",
                                         );
@@ -277,7 +277,7 @@ class _HomeViewState extends State<HomeView> {
                                           arguments: {"bookingsModel": booking},
                                         );
                                       } else if (booking.hostUserUid ==
-                                          appwrite.user.$id) {
+                                          firebaseAuthService.currentUserId) {
                                         print("booking model was hosted by me");
                                         Get.toNamed(
                                           HostBookingDetail.route,

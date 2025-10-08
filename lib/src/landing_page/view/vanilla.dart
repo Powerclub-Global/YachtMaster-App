@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import '../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../localization/app_localization.dart';
 import '../../../resources/resources.dart';
 import '../../../services/firebase_collections.dart';
@@ -69,14 +69,14 @@ class _VanillaState extends State<Vanilla> {
           "yacht": yacht,
           "isReserve": false,
           "index": index,
-          "isEdit": yacht.createdBy == appwrite.user.$id ? true : false,
+          "isEdit": yacht.createdBy == firebaseAuthService.currentUserId ? true : false,
           "isLink": true,
         });
       });
     }
     String? senderId = Get.parameters["from"];
     if (senderId != null) {
-      var inviteData = {'from': senderId, 'to': appwrite.user.$id};
+      var inviteData = {'from': senderId, 'to': firebaseAuthService.currentUserId};
       await FbCollections.invites.add(inviteData);
     }
     if (Get.parameters['status'] != null) {

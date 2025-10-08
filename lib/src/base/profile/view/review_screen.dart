@@ -8,7 +8,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/resources.dart';
 import '../../../../services/firebase_collections.dart';
@@ -53,7 +53,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
             reviewsQuery.docs
                 .map((e) => ReviewModel.fromJson(e.data()))
                 .toList()
-                .where((element) => element.hostId == appwrite.user.$id)
+                .where((element) => element.hostId == firebaseAuthService.currentUserId)
                 .toList();
       }
       var settingsVm = Provider.of<SettingsVm>(context, listen: false);

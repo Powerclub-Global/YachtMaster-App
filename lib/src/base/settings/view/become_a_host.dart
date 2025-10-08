@@ -11,7 +11,7 @@ import 'package:stripe_identity_plugin/utils/enum.dart';
 import 'package:yacht_master/src/base/settings/view/w9_info_screen.dart';
 import 'package:yacht_master/utils/helper.dart';
 import 'package:yacht_master/utils/zbot_toast.dart';
-import '../../../../appwrite.dart';
+import '../../../../services/firebase_auth_service.dart';
 import '../../../../constant/enums.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/resources.dart';
@@ -223,12 +223,12 @@ class _BecomeHostState extends State<BecomeHost> {
   ) async {
     AdminChatHeadModel? chatHeadModel;
     AdminChatHeadModel chatData = AdminChatHeadModel(
-      id: appwrite.user.$id,
+      id: firebaseAuthService.currentUserId,
       lastMessage: AdminChatModel(
         message: "",
         createdAt: Timestamp.now(),
-        senderId: appwrite.user.$id,
-        chatHeadId: appwrite.user.$id,
+        senderId: firebaseAuthService.currentUserId,
+        chatHeadId: firebaseAuthService.currentUserId,
         type: 0,
         isSeen: false,
         receiverId:
@@ -239,7 +239,7 @@ class _BecomeHostState extends State<BecomeHost> {
       ),
       status: 0,
       users: [
-        appwrite.user.$id ?? "",
+        firebaseAuthService.currentUserId ?? "",
         Provider.of<BaseVm>(context, listen: false).allUsers
                 .firstWhereOrNull((element) => element.role == UserType.admin)
                 ?.uid ??
@@ -261,12 +261,12 @@ class _BecomeHostState extends State<BecomeHost> {
 
       if (doc.data() == null) {
         chatHeadModel = AdminChatHeadModel(
-          id: appwrite.user.$id,
+          id: firebaseAuthService.currentUserId,
           lastMessage: AdminChatModel(
             message: "",
             createdAt: Timestamp.now(),
-            senderId: appwrite.user.$id,
-            chatHeadId: appwrite.user.$id,
+            senderId: firebaseAuthService.currentUserId,
+            chatHeadId: firebaseAuthService.currentUserId,
             type: 0,
             isSeen: false,
             receiverId:
@@ -279,7 +279,7 @@ class _BecomeHostState extends State<BecomeHost> {
           ),
           status: 0,
           users: [
-            appwrite.user.$id ?? "",
+            firebaseAuthService.currentUserId ?? "",
             Provider.of<BaseVm>(context, listen: false).allUsers
                     .firstWhereOrNull(
                       (element) => element.role == UserType.admin,

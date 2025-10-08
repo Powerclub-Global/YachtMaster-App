@@ -6,7 +6,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import 'package:yacht_master/appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import 'package:yacht_master/resources/decorations.dart';
 import 'package:yacht_master/resources/resources.dart';
 import 'package:yacht_master/src/base/home/home_vm/home_vm.dart';
@@ -152,7 +152,7 @@ class _CharterWidgetState extends State<CharterWidget> {
                                               element.charterFleetDetail?.id ==
                                                   widget.charter?.id &&
                                               element.createdBy ==
-                                                  appwrite.user.$id,
+                                                  firebaseAuthService.currentUserId,
                                         )
                                         .isNotEmpty
                                     ? "${widget.charter?.location?.adress?.trim()}"
@@ -229,7 +229,7 @@ class _CharterWidgetState extends State<CharterWidget> {
                   ),
                 ),
                 if (widget.isShowStar == false ||
-                    widget.charter?.createdBy == appwrite.user.$id)
+                    widget.charter?.createdBy == firebaseAuthService.currentUserId)
                   SizedBox()
                 else
                   Positioned(

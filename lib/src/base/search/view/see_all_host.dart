@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../constant/enums.dart';
 import '../../../../resources/decorations.dart';
 import '../../../../resources/resources.dart';
@@ -69,11 +69,11 @@ class _SeeAllHostState extends State<SeeAllHost> {
                                   {
                                     yachtVm.userFavouritesList.removeAt(index);
                                     yachtVm.update();
-                                    await FbCollections.user.doc(appwrite.user.$id).collection("favourite").doc(user.uid).delete();
+                                    await FbCollections.user.doc(firebaseAuthService.currentUserId).collection("favourite").doc(user.uid).delete();
                                   }
                                   else
                                   {
-                                    await FbCollections.user.doc(appwrite.user.$id).collection("favourite").doc(user.uid).set(favModel.toJson());
+                                    await FbCollections.user.doc(firebaseAuthService.currentUserId).collection("favourite").doc(user.uid).set(favModel.toJson());
 
                                   }
                                   provider.update();

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-import 'package:appwrite/appwrite.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +10,7 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:yacht_master/utils/countryCodeConverter.dart';
-import '../../../appwrite.dart';
+import '../../../services/firebase_auth_service.dart';
 import '../../../constant/constant.dart';
 import '../../../constant/enums.dart';
 import '../../../services/firebase_collections.dart';
@@ -43,6 +43,7 @@ class AuthVm extends ChangeNotifier {
   String? yachtId;
   bool isVerifyingForHost = true;
   StreamSubscription<DocumentSnapshot<UserModel>>? currentUserStream;
+  String? _usernameChangeVerificationId;
 
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
@@ -107,17 +108,18 @@ class AuthVm extends ChangeNotifier {
   onClickFacebookLogin() async {
     try {
       startLoader();
-      var sessions = await appwrite.account.listSessions();
-      if (sessions.sessions.isNotEmpty) {
-        await appwrite.account.deleteSession(sessionId: 'current');
+
+      final credential = await firebaseAuthService.signInWithFacebook();
+
+      if (credential == null) {
+        stopLoader();
+        return;
       }
 
-      await appwrite.signInFacebook();
-      await Future.delayed(Duration(seconds: 2));
-      await appwrite.getUser();
+      await Future.delayed(Duration(seconds: 1));
       bool isUserExist = false;
       isUserExist = await chechUserCollectionExists(
-        appwrite.user.$id,
+        firebaseAuthService.currentUserId,
         isEmail: true,
       );
       if (isUserExist == true) {
@@ -125,7 +127,7 @@ class AuthVm extends ChangeNotifier {
         Future.delayed(Duration(seconds: 2), () async {
           if (userModel != null) {
             if (userModel?.status == UserStatus.blocked) {
-              appwrite.account.deleteSession(sessionId: 'current');
+              await firebaseAuthService.signOut();
               Fluttertoast.showToast(msg: "You have been blocked by admin");
             } else {
               userModel?.fcm = Constants.fcmToken;
@@ -143,34 +145,33 @@ class AuthVm extends ChangeNotifier {
         print("Here before navigating to social sign up");
         Get.toNamed(SocialSignup.route);
       }
-    } on AppwriteException catch (e) {
+    } on FirebaseAuthException catch (e) {
       log("onClickFacebookLogin: THIS IS ERRROR $e");
-      Fluttertoast.showToast(msg: "$e");
+      Fluttertoast.showToast(msg: "${e.message}");
       logoutUser();
     }
   }
 
   onClickGoogleLogin() async {
     try {
-      var sessions = await appwrite.account.listSessions();
-      if (sessions.sessions.isNotEmpty) {
-        await appwrite.account.deleteSession(sessionId: 'current');
+      final credential = await firebaseAuthService.signInWithGoogle();
+
+      if (credential == null) {
+        return;
       }
 
-      await appwrite.signInGoogle();
       ZBotToast.loadingShow();
       await Future.delayed(Duration(milliseconds: 100));
-      await appwrite.getUser();
       bool isUserExist = false;
       isUserExist = await chechUserCollectionExists(
-        appwrite.user.$id,
+        firebaseAuthService.currentUserId,
         isEmail: true,
       );
       if (isUserExist == true) {
         await fetchUser();
         if (userModel != null) {
           if (userModel?.status == UserStatus.blocked) {
-            appwrite.account.deleteSession(sessionId: 'current');
+            await firebaseAuthService.signOut();
             Fluttertoast.showToast(msg: "You have been blocked by admin");
           } else {
             userModel?.fcm = Constants.fcmToken;
@@ -187,9 +188,9 @@ class AuthVm extends ChangeNotifier {
         print("Here before navigating to social sign up");
         Get.toNamed(SocialSignup.route);
       }
-    } on AppwriteException catch (e) {
+    } on FirebaseAuthException catch (e) {
       log("onClickGoogleLogin: THIS IS ERRROR $e");
-      Fluttertoast.showToast(msg: "$e");
+      Fluttertoast.showToast(msg: "${e.message}");
       logoutUser();
     }
   }
@@ -197,17 +198,18 @@ class AuthVm extends ChangeNotifier {
   onClickAppleLogin() async {
     try {
       startLoader();
-      var sessions = await appwrite.account.listSessions();
-      if (sessions.sessions.isNotEmpty) {
-        await appwrite.account.deleteSession(sessionId: 'current');
+
+      final credential = await firebaseAuthService.signInWithApple();
+
+      if (credential == null) {
+        stopLoader();
+        return;
       }
 
-      await appwrite.signInApple();
-      await Future.delayed(Duration(seconds: 2));
-      await appwrite.getUser();
+      await Future.delayed(Duration(seconds: 1));
       bool isUserExist = false;
       isUserExist = await chechUserCollectionExists(
-        appwrite.user.$id,
+        firebaseAuthService.currentUserId,
         isEmail: true,
       );
       if (isUserExist == true) {
@@ -215,7 +217,7 @@ class AuthVm extends ChangeNotifier {
         Future.delayed(Duration(seconds: 2), () async {
           if (userModel != null) {
             if (userModel?.status == UserStatus.blocked) {
-              appwrite.account.deleteSession(sessionId: 'current');
+              await firebaseAuthService.signOut();
               Fluttertoast.showToast(msg: "You have been blocked by admin");
             } else {
               userModel?.fcm = Constants.fcmToken;
@@ -232,12 +234,12 @@ class AuthVm extends ChangeNotifier {
         stopLoader();
         Get.toNamed(
           SocialSignup.route,
-          arguments: {"user": appwrite.user, "isApple": true},
+          arguments: {"user": firebaseAuthService.currentUser, "isApple": true},
         );
       }
-    } on AppwriteException catch (e) {
+    } on FirebaseAuthException catch (e) {
       log("onClickAppleLogin: THIS IS ERRROR$e");
-      Fluttertoast.showToast(msg: "$e");
+      Fluttertoast.showToast(msg: "${e.message}");
       logoutUser();
     }
   }
@@ -280,20 +282,30 @@ class AuthVm extends ChangeNotifier {
       Helper.inSnackBar('Error', "User already exist", R.colors.themeMud);
       stopLoader();
     } else {
-      log("onClickSocialSignup: ____USER display name:${appwrite.user.name}");
+      log(
+        "onClickSocialSignup: ____USER display name:${firebaseAuthService.userName}",
+      );
       print("Starting registration");
       await registerUserSocial(countryCode, phoneNumController);
     }
   }
 
-  // Migrated to Appwrite
+  // Migrated to Firebase Auth
   checkCurrentUser(BuildContext context) async {
     try {
       print("////////////////in check current user");
-      await appwrite.getUser();
+
+      if (!firebaseAuthService.isSignedIn) {
+        Get.offAllNamed(LoginScreen.route);
+        return;
+      }
+
+      await firebaseAuthService.reloadUser();
       Future.delayed(Duration(seconds: 1));
-      if (appwrite.user.phoneVerification) {
-        print("phone verification has been done");
+
+      if (firebaseAuthService.isPhoneVerified ||
+          firebaseAuthService.currentUser != null) {
+        print("user is authenticated");
         await fetchUser();
         var yachtProvider = Provider.of<YachtVm>(Get.context!, listen: false);
         await yachtProvider.fetchCharters();
@@ -309,7 +321,7 @@ class AuthVm extends ChangeNotifier {
           log('Is this working check 1');
           if (userModel != null) {
             if (userModel?.status == UserStatus.blocked) {
-              appwrite.account.deleteSession(sessionId: 'current');
+              await firebaseAuthService.signOut();
               Fluttertoast.showToast(msg: "You have been blocked by admin");
             } else {
               userModel?.fcm = Constants.fcmToken;
@@ -354,19 +366,23 @@ class AuthVm extends ChangeNotifier {
                     "isReserve": false,
                     "index": index,
                     "isEdit":
-                        yacht.createdBy == appwrite.user.$id ? true : false,
+                        yacht.createdBy == firebaseAuthService.currentUserId
+                            ? true
+                            : false,
                     "isLink": true,
                   },
                 );
               }
               String? senderId = Get.parameters["from"];
               if (senderId != null) {
-                var inviteData = {'from': senderId, 'to': appwrite.user.$id};
+                var inviteData = {
+                  'from': senderId,
+                  'to': firebaseAuthService.currentUserId,
+                };
                 await FbCollections.invites.add(inviteData);
               }
             }
           } else {
-            //appwrite.account.deleteSession(sessionId: 'current');
             Get.offAllNamed(LoginScreen.route);
           }
         });
@@ -382,7 +398,9 @@ class AuthVm extends ChangeNotifier {
 
   getUserWallet() async {
     WalletModel? walletModel;
-    print("==========In FETCH USER WALLET:${appwrite.user.$id}");
+    print(
+      "==========In FETCH USER WALLET:${firebaseAuthService.currentUserId}",
+    );
     var ref = FbCollections.wallet.snapshots().asBroadcastStream();
     var res = ref.map(
       (list) => list.docs.map((e) => WalletModel.fromJson(e.data())).toList(),
@@ -393,7 +411,7 @@ class AuthVm extends ChangeNotifier {
         log("____len:${event.length}");
         if (event.isNotEmpty) {
           walletModel = event.firstWhereOrNull(
-            (element) => element.uid == appwrite.user.$id,
+            (element) => element.uid == firebaseAuthService.currentUserId,
           );
           wallet = walletModel;
           update();
@@ -410,7 +428,7 @@ class AuthVm extends ChangeNotifier {
   updateUserWallet(double amount) async {
     try {
       print("==========In UPDATE USER WALLET}");
-      await FbCollections.wallet.doc(appwrite.user.$id).update({
+      await FbCollections.wallet.doc(firebaseAuthService.currentUserId).update({
         "amount": amount,
       });
       await getUserWallet();
@@ -423,31 +441,40 @@ class AuthVm extends ChangeNotifier {
   Future registerUserSocial(String countryCode, String number) async {
     try {
       print("About to verify phone number");
-      // Different Stuff needs to be used here
       print("Updating phone and sending message");
-      await appwrite.updateAndVerifyPhoneNumber(countryCode + number);
-      print("sms sent");
-      Get.dialog(
-        OTP(
-          countryCode + number,
-          true,
-          (otpCode) async {
-            startLoader();
-            await verifySignUpOtpSocial(
-              countryCode,
-              number,
-              otpCode,
-            ).whenComplete(() {
-              stopLoader();
-            });
-          },
-          () async {
-            startLoader();
-            await registerUserSocial(countryCode, number);
-          },
-        ),
-        barrierDismissible: true,
-        barrierColor: Colors.grey.withValues(alpha: .25),
+
+      await firebaseAuthService.sendPhoneVerification(
+        countryCode + number,
+        onCodeSent: (verificationId) {
+          print("sms sent");
+          Get.dialog(
+            OTP(
+              countryCode + number,
+              true,
+              (otpCode) async {
+                startLoader();
+                await verifySignUpOtpSocial(
+                  countryCode,
+                  number,
+                  otpCode,
+                  verificationId,
+                ).whenComplete(() {
+                  stopLoader();
+                });
+              },
+              () async {
+                startLoader();
+                await registerUserSocial(countryCode, number);
+              },
+            ),
+            barrierDismissible: true,
+            barrierColor: Colors.grey.withValues(alpha: .25),
+          );
+        },
+        onError: (error) {
+          Fluttertoast.showToast(msg: error);
+          stopLoader();
+        },
       );
     } catch (e) {
       debugPrintStack();
@@ -476,18 +503,18 @@ class AuthVm extends ChangeNotifier {
     await setSignupUserData(
       countryCode,
       number,
-      appwrite.user.email,
-      appwrite.user.name.contains(" ") == true
-          ? appwrite.user.name.split(" ").first
-          : appwrite.user.name,
-      appwrite.user.name.contains(" ") == true
-          ? appwrite.user.name.split(" ").last
+      firebaseAuthService.userEmail,
+      firebaseAuthService.userName.contains(" ") == true
+          ? firebaseAuthService.userName.split(" ").first
+          : firebaseAuthService.userName,
+      firebaseAuthService.userName.contains(" ") == true
+          ? firebaseAuthService.userName.split(" ").last
           : "",
       username,
     ).then((value) async {
       await fetchUser();
       if (userModel?.status == UserStatus.blocked) {
-        appwrite.account.deleteSession(sessionId: 'current');
+        await firebaseAuthService.signOut();
         Fluttertoast.showToast(msg: "You have been blocked by admin");
       } else {
         userModel?.fcm = Constants.fcmToken;
@@ -500,58 +527,77 @@ class AuthVm extends ChangeNotifier {
     });
   }
 
-  verifySignUpOtpSocial(String countryCode, String number, String code) async {
+  verifySignUpOtpSocial(
+    String countryCode,
+    String number,
+    String code,
+    String verificationId,
+  ) async {
     startLoader();
-    // start work here
-    await appwrite
-        .updatePhoneVerification(code)
-        .then((cred) async {
-          await appwrite.getUser();
-          Get.offNamed(
-            CreateUsername.route,
-            arguments: {"phoneNo": number, "countryCode": countryCode},
-          );
-        })
-        .catchError((e) {
-          if (e.toString().contains("firebase_auth/session-expired")) {
-            Fluttertoast.showToast(
-              msg:
-                  "The sms code has expired. Please re-send the verification code to try again.",
-            );
-          } else if (e.toString().contains(
-            "firebase_auth/invalid-verification-code",
-          )) {
-            Helper.inSnackBar("Error", "Wrong OTP code", R.colors.themeMud);
-          } else {
-            Fluttertoast.showToast(msg: "$e");
-          }
-          stopLoader();
-        });
+    try {
+      await firebaseAuthService.verifyPhoneNumberUpdate(
+        code,
+        verificationId: verificationId,
+      );
+      await firebaseAuthService.reloadUser();
+      Get.offNamed(
+        CreateUsername.route,
+        arguments: {"phoneNo": number, "countryCode": countryCode},
+      );
+    } catch (e) {
+      if (e.toString().contains("firebase_auth/session-expired")) {
+        Fluttertoast.showToast(
+          msg:
+              "The sms code has expired. Please re-send the verification code to try again.",
+        );
+      } else if (e.toString().contains(
+        "firebase_auth/invalid-verification-code",
+      )) {
+        Helper.inSnackBar("Error", "Wrong OTP code", R.colors.themeMud);
+      } else {
+        Fluttertoast.showToast(msg: "$e");
+      }
+      stopLoader();
+    }
   }
 
   signInWithOtp(String countryCode, String number) async {
     print("+++++++++++++++++++++++++++++++MOBILE:$countryCode $number");
     try {
-      appwrite.sendSMS(countryCode + number);
-      log("___________CODE SENT:");
-      print("I am here code is sent");
-      Get.dialog(
-        OTP(
-          countryCode + number,
-          false,
-          // verification call back
-          (otpCode) async {
-            stopLoader();
-            print("about to verify otp");
-            await verifyOtp("", countryCode, number, otpCode);
-          },
-          // resend call back
-          () async {
-            await signInWithOtp(countryCode, number);
-          },
-        ),
-        barrierDismissible: true,
-        barrierColor: Colors.grey.withValues(alpha: .25),
+      await firebaseAuthService.sendOTP(
+        countryCode + number,
+        onCodeSent: (verificationId) {
+          log("___________CODE SENT:");
+          print("I am here code is sent");
+          Get.dialog(
+            OTP(
+              countryCode + number,
+              false,
+              // verification call back
+              (otpCode) async {
+                stopLoader();
+                print("about to verify otp");
+                await verifyOtp(
+                  "",
+                  countryCode,
+                  number,
+                  otpCode,
+                  verificationId,
+                );
+              },
+              // resend call back
+              () async {
+                await signInWithOtp(countryCode, number);
+              },
+            ),
+            barrierDismissible: true,
+            barrierColor: Colors.grey.withValues(alpha: .25),
+          );
+        },
+        onError: (error) {
+          Fluttertoast.showToast(msg: error);
+          stopLoader();
+        },
       );
     } catch (e) {
       debugPrintStack();
@@ -584,45 +630,55 @@ class AuthVm extends ChangeNotifier {
       print(countryCode + num);
       String phono = countryCode + num;
       print("Sending SMS");
-      await appwrite.sendSMS(phono);
-      print("Sent SMS");
-      log("_______________________WHEN COMP");
-      stopLoader();
-      Get.dialog(
-        OTP(
-          countryCode + num,
-          true,
-          (otpCode) async {
-            startLoader();
-            print(otpCode);
-            await verifySignUpOtp(
-              countryCode,
-              email,
-              firstName,
-              lastName,
-              num,
-              otpCode,
-              username,
-            ).whenComplete(() {
-              stopLoader();
-            });
-          },
-          () async {
-            startLoader();
-            await signupWithOtp(
-              countryCode,
-              num,
-              email,
-              firstName,
-              lastName,
-              username,
-            ).whenComplete(() {
-              stopLoader();
-            });
-          },
-        ),
-        barrierDismissible: true,
-        barrierColor: Colors.grey.withValues(alpha: .25),
+
+      await firebaseAuthService.sendOTP(
+        phono,
+        onCodeSent: (verificationId) {
+          print("Sent SMS");
+          log("_______________________WHEN COMP");
+          stopLoader();
+          Get.dialog(
+            OTP(
+              countryCode + num,
+              true,
+              (otpCode) async {
+                startLoader();
+                print(otpCode);
+                await verifySignUpOtp(
+                  countryCode,
+                  email,
+                  firstName,
+                  lastName,
+                  num,
+                  otpCode,
+                  username,
+                  verificationId,
+                ).whenComplete(() {
+                  stopLoader();
+                });
+              },
+              () async {
+                startLoader();
+                await signupWithOtp(
+                  countryCode,
+                  num,
+                  email,
+                  firstName,
+                  lastName,
+                  username,
+                ).whenComplete(() {
+                  stopLoader();
+                });
+              },
+            ),
+            barrierDismissible: true,
+            barrierColor: Colors.grey.withValues(alpha: .25),
+          );
+        },
+        onError: (error) {
+          Fluttertoast.showToast(msg: error);
+          stopLoader();
+        },
       );
     } catch (e) {
       debugPrintStack();
@@ -651,88 +707,73 @@ class AuthVm extends ChangeNotifier {
     String num,
     String code,
     String username,
+    String verificationId,
   ) async {
     try {
       startLoader();
-      await appwrite
-          .verifySMS(code)
-          .then((result) async {
-            await appwrite.getUser();
-            print(appwrite.user.$id);
-            await Future.delayed(Duration(seconds: 1));
-            await setSignupUserData(
-              countryCode,
-              num,
-              email,
-              firstName,
-              lastName,
-              username,
-            );
-            Get.offAllNamed(BaseView.route);
-            // Get.offAll(DashboardPage());
-          })
-          .catchError((e) {
-            if (e.toString().contains("firebase_auth/session-expired")) {
-              Fluttertoast.showToast(
-                msg:
-                    "The sms code has expired. Please re-send the verification code to try again.",
-              );
-            } else if (e.toString().contains(
-              "firebase_auth/invalid-verification-code",
-            )) {
-              Helper.inSnackBar(
-                "Error",
-                "Wrong OTP entered",
-                R.colors.themeMud,
-              );
-            } else {
-              Fluttertoast.showToast(msg: "$e");
-            }
-            stopLoader();
-          });
+      await firebaseAuthService.verifyOTP(code, verificationId: verificationId);
+      await firebaseAuthService.reloadUser();
+      print(firebaseAuthService.currentUserId);
+      await Future.delayed(Duration(seconds: 1));
+      await setSignupUserData(
+        countryCode,
+        num,
+        email,
+        firstName,
+        lastName,
+        username,
+      );
+      Get.offAllNamed(BaseView.route);
     } catch (e) {
+      if (e.toString().contains("firebase_auth/session-expired")) {
+        Fluttertoast.showToast(
+          msg:
+              "The sms code has expired. Please re-send the verification code to try again.",
+        );
+      } else if (e.toString().contains(
+        "firebase_auth/invalid-verification-code",
+      )) {
+        Helper.inSnackBar("Error", "Wrong OTP entered", R.colors.themeMud);
+      } else {
+        Fluttertoast.showToast(msg: "$e");
+      }
       debugPrintStack();
       log("verifySignUpOtp: " + e.toString());
       stopLoader();
     }
   }
 
-  verifyOtp(String uid, String countryCode, String number, String code) async {
+  verifyOtp(
+    String uid,
+    String countryCode,
+    String number,
+    String code,
+    String verificationId,
+  ) async {
     try {
       startLoader();
       print('loader started');
-      await appwrite
-          .verifySMS(code)
-          .then((result) async {
-            print('sms verified');
-            await appwrite.getUser();
-            print('user fetched');
-            Future.delayed(Duration(seconds: 2), () async {
-              if (userModel?.status == UserStatus.blocked) {
-                appwrite.account.deleteSession(sessionId: 'current');
-                Fluttertoast.showToast(msg: "You have been blocked by admin");
-              } else {
-                userModel?.fcm = Constants.fcmToken;
-                // userModel?.isActiveUser = true;
-                await updateUser(userModel);
-                print(
-                  "Otp verified now fetching user after updating user modal",
-                );
+      await firebaseAuthService.verifyOTP(code, verificationId: verificationId);
+      print('sms verified');
+      await firebaseAuthService.reloadUser();
+      print('user fetched');
+      Future.delayed(Duration(seconds: 2), () async {
+        if (userModel?.status == UserStatus.blocked) {
+          await firebaseAuthService.signOut();
+          Fluttertoast.showToast(msg: "You have been blocked by admin");
+        } else {
+          userModel?.fcm = Constants.fcmToken;
+          // userModel?.isActiveUser = true;
+          await updateUser(userModel);
+          print("Otp verified now fetching user after updating user modal");
 
-                await fetchUser();
-                ZBotToast.loadingClose();
-                Get.offAllNamed(BaseView.route);
-              }
-            });
-          })
-          .catchError((e) {
-            // yet to configure appwrite error message
-
-            Fluttertoast.showToast(msg: "$e");
-            debugPrintStack();
-            stopLoader();
-          });
+          await fetchUser();
+          ZBotToast.loadingClose();
+          Get.offAllNamed(BaseView.route);
+        }
+      });
     } catch (e) {
+      Fluttertoast.showToast(msg: "$e");
       debugPrintStack();
       log("verifyOtp: " + e.toString());
       stopLoader();
@@ -749,13 +790,13 @@ class AuthVm extends ChangeNotifier {
   ) async {
     try {
       bool isUserExist = false;
-      isUserExist = await chechUserCollectionExists("$countryCode$num");
+      isUserExist = await chechUserCollectionExists("$countryCode$number");
       print("printing user id before collection creation");
-      print(appwrite.user.$id);
+      print(firebaseAuthService.currentUserId);
 
       if (isUserExist == false) {
-        await FbCollections.user.doc(appwrite.user.$id).set({
-          "uid": appwrite.user.$id,
+        await FbCollections.user.doc(firebaseAuthService.currentUserId).set({
+          "uid": firebaseAuthService.currentUserId,
           "username": username,
           "created_at": Timestamp.now(),
           "email": email.replaceAll(' ', ''),
@@ -774,10 +815,10 @@ class AuthVm extends ChangeNotifier {
         print("made collection");
         WalletModel walletModel = WalletModel(
           amount: 0.0,
-          uid: appwrite.user.$id,
+          uid: firebaseAuthService.currentUserId,
         );
         await FbCollections.wallet
-            .doc(appwrite.user.$id)
+            .doc(firebaseAuthService.currentUserId)
             .set(walletModel.toJson());
       } else {
         Helper.inSnackBar("Error", "User already exist", R.colors.themeMud);
@@ -884,12 +925,12 @@ class AuthVm extends ChangeNotifier {
 
   Future<void> fetchUser() async {
     try {
-      log("___HERE IN STREAM:${appwrite.user.$id}");
-      print(appwrite.user.$id);
+      log("___HERE IN STREAM:${firebaseAuthService.currentUserId}");
+      print(firebaseAuthService.currentUserId);
 
       var ref =
           FbCollections.user
-              .doc(appwrite.user.$id)
+              .doc(firebaseAuthService.currentUserId)
               .snapshots()
               .asBroadcastStream();
 
@@ -963,7 +1004,7 @@ class AuthVm extends ChangeNotifier {
       Provider.of<AuthVm>(Get.context!, listen: false)
         ..walletStream?.cancel()
         ..walletStream = null;
-      appwrite.account.deleteSession(sessionId: 'current');
+      await firebaseAuthService.signOut();
       stopLoader();
     } catch (e) {
       stopLoader();
@@ -1035,11 +1076,8 @@ class AuthVm extends ChangeNotifier {
               "dial_code": dialCode,
               "phone_number": "$dialCode$phoneNumber",
             });
-        await appwrite.account.updateEmail(email: email, password: "password");
-        await appwrite.account.updatePhone(
-          phone: "$dialCode$phoneNumber",
-          password: "password",
-        );
+        await firebaseAuthService.updateEmail(email);
+        // Phone update needs verification, handle separately
         notifyListeners();
       } else {
         throw Exception("User ID is null, cannot update user data");
@@ -1066,28 +1104,23 @@ class AuthVm extends ChangeNotifier {
     try {
       startLoader();
       print('loader started');
-      var sessions = await appwrite.account.listSessions();
-      if (sessions.sessions.isNotEmpty) {
-        await appwrite.account.deleteSession(sessionId: 'current');
+
+      if (_usernameChangeVerificationId == null) {
+        throw Exception("Verification ID not found. Please request OTP again.");
       }
-      await appwrite
-          .verifySMS(code)
-          .then((result) async {
-            print('sms verified');
-            await appwrite.getUser();
-            print('user fetched');
-            print("Otp verified and username updated successfully");
-            ZBotToast.loadingClose();
-            await updateUsernameDataToDB(newUsername);
-          })
-          .catchError((e) {
-            Fluttertoast.showToast(msg: "$e");
-            debugPrintStack();
-            stopLoader();
-          });
+
+      await firebaseAuthService.verifyOTP(code, verificationId: _usernameChangeVerificationId);
+      print('sms verified');
+      await firebaseAuthService.reloadUser();
+      print('user fetched');
+      print("Otp verified and username updated successfully");
+      ZBotToast.loadingClose();
+      await updateUsernameDataToDB(newUsername);
+      _usernameChangeVerificationId = null; // Clear after use
     } catch (e) {
+      Fluttertoast.showToast(msg: "$e");
       debugPrintStack();
-      log("verifyOtpForUsernameChange: " + e.toString());
+      log("verifyOtpForUsernameChange: ${e.toString()}");
       stopLoader();
     }
   }
@@ -1101,9 +1134,19 @@ class AuthVm extends ChangeNotifier {
       String dialCode = CountryCodeConverter.getDialCode(countryCode);
       String formattedPhone = "$dialCode$number";
       print("Formatted Phone: $formattedPhone");
-      await appwrite.sendSMS(formattedPhone);
-      print("OTP sent successfully");
-      stopLoader();
+
+      await firebaseAuthService.sendOTP(
+        formattedPhone,
+        onCodeSent: (verificationId) {
+          _usernameChangeVerificationId = verificationId;
+          print("OTP sent successfully");
+          stopLoader();
+        },
+        onError: (error) {
+          Fluttertoast.showToast(msg: "Failed to send OTP: $error");
+          stopLoader();
+        },
+      );
     } catch (e) {
       debugPrintStack();
       log("sendOtpForUsernameChange: Error sending OTP: $e");

@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:async_foreach/async_foreach.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:yacht_master/appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 
 class ImagePickerServices {
   final picker = ImagePicker();
@@ -46,7 +46,7 @@ class ImagePickerServices {
     try {
       FirebaseStorage storage = FirebaseStorage.instance;
       Reference ref = storage.ref().child(
-        "$bucketName/${appwrite.user.$id}/${DateTime.now().millisecondsSinceEpoch.toString()}$extension",
+        "$bucketName/${firebaseAuthService.currentUserId}/${DateTime.now().millisecondsSinceEpoch.toString()}$extension",
       );
       final TaskSnapshot snapshot = await ref.putFile(
         images,
@@ -69,7 +69,7 @@ class ImagePickerServices {
     await images!.asyncForEach((value) async {
       FirebaseStorage storage = FirebaseStorage.instance;
       Reference ref = storage.ref().child(
-        "$bucketName/${appwrite.user.$id}/${DateTime.now().toString()}",
+        "$bucketName/${firebaseAuthService.currentUserId}/${DateTime.now().toString()}",
       );
       final TaskSnapshot snapshot = await ref.putFile(
         File(value.path),

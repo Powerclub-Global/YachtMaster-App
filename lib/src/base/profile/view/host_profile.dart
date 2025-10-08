@@ -7,7 +7,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
 import '../../../../resources/resources.dart';
@@ -74,7 +74,7 @@ class _HostProfileState extends State<HostProfile> {
           reviewsQuery.docs.map((e) => ReviewModel.fromJson(e.data())).toList();
       averageRating = settingsVm.averageRating(
         settingsVm.allReviews
-            .where((element) => element.hostId == appwrite.user.$id)
+            .where((element) => element.hostId == firebaseAuthService.currentUserId)
             .toList(),
       );
       setState(() {});
@@ -286,7 +286,7 @@ class _HostProfileState extends State<HostProfile> {
                                 child: Column(
                                   children: [
                                     Text(
-                                      "${homeVm.allBookings.where((element) => element.hostUserUid == appwrite.user.$id).toList().length}",
+                                      "${homeVm.allBookings.where((element) => element.hostUserUid == firebaseAuthService.currentUserId).toList().length}",
                                       style: R.textStyle
                                           .helveticaBold()
                                           .copyWith(
@@ -317,7 +317,7 @@ class _HostProfileState extends State<HostProfile> {
                                             .where(
                                               (element) =>
                                                   element.hostId ==
-                                                  appwrite.user.$id,
+                                                  firebaseAuthService.currentUserId,
                                             )
                                             .toList(),
                                   },
@@ -604,7 +604,7 @@ class _HostProfileState extends State<HostProfile> {
                             settingsVm.allReviews
                                 .where(
                                   (element) =>
-                                      element.hostId == appwrite.user.$id,
+                                      element.hostId == firebaseAuthService.currentUserId,
                                 )
                                 .toList(),
                       },
@@ -614,7 +614,7 @@ class _HostProfileState extends State<HostProfile> {
                       settingsVm.allReviews
                               .where(
                                 (element) =>
-                                    element.hostId == appwrite.user.$id,
+                                    element.hostId == firebaseAuthService.currentUserId,
                               )
                               .toList()
                               .isEmpty
@@ -628,7 +628,7 @@ class _HostProfileState extends State<HostProfile> {
                       settingsVm.allReviews
                                   .where(
                                     (element) =>
-                                        element.hostId == appwrite.user.$id,
+                                        element.hostId == firebaseAuthService.currentUserId,
                                   )
                                   .toList()
                                   .isEmpty ==
@@ -648,7 +648,7 @@ class _HostProfileState extends State<HostProfile> {
                                 settingsVm.allReviews
                                     .where(
                                       (element) =>
-                                          element.hostId == appwrite.user.$id,
+                                          element.hostId == firebaseAuthService.currentUserId,
                                     )
                                     .toList()
                                     .length,
@@ -658,7 +658,7 @@ class _HostProfileState extends State<HostProfile> {
                                           .where(
                                             (element) =>
                                                 element.hostId ==
-                                                appwrite.user.$id,
+                                                firebaseAuthService.currentUserId,
                                           )
                                           .toList()[index];
                                   return RatingReviewsCard(reviewModel: review);

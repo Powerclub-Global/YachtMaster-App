@@ -10,7 +10,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:yacht_master/appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import 'package:yacht_master/constant/enums.dart';
 import 'package:yacht_master/localization/app_localization.dart';
 import 'package:yacht_master/main.dart';
@@ -877,7 +877,7 @@ class BookingsVm extends ChangeNotifier {
     if (bookingsModel.paymentDetail?.isSplit == true) {
       splitPerson =
           bookingsModel.paymentDetail?.splitPayment
-              ?.where((element) => element.userUid == appwrite.user.$id)
+              ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
               .first;
     }
     if (selectedPaymentMethod == PaymentMethodEnum.card.index) {
@@ -903,7 +903,7 @@ class BookingsVm extends ChangeNotifier {
         splitPerson?.cryptoScreenShot = screenShotUrl;
       }
       bookingsModel.createdAt = Timestamp.now();
-      bookingsModel.createdBy = appwrite.user.$id;
+      bookingsModel.createdBy = firebaseAuthService.currentUserId;
       bookingsModel.paymentDetail?.paymentType =
           bookingsModel.paymentDetail?.isSplit == false &&
                   bookingsModel.paymentDetail?.payInType ==
@@ -985,10 +985,10 @@ class BookingsVm extends ChangeNotifier {
           .doc(bookingsDocId)
           .set(bookingsModel.toJson());
       print("created booking doc");
-      print(appwrite.user.$id);
+      print(firebaseAuthService.currentUserId);
       var invite =
           await FbCollections.invites
-              .where('to', isEqualTo: appwrite.user.$id)
+              .where('to', isEqualTo: firebaseAuthService.currentUserId)
               .get();
       print("is now  here 1");
       if (invite.docs.isNotEmpty) {
@@ -1625,7 +1625,7 @@ Note: Payments are non-refundable.''',
             ? NotificationModel(
               bookingId: docID,
               id: ref.id,
-              sender: appwrite.user.$id,
+              sender: firebaseAuthService.currentUserId,
               createdAt: Timestamp.now(),
               isSeen: false,
               type: NotificationReceiverType.person.index,
@@ -1635,7 +1635,7 @@ Note: Payments are non-refundable.''',
                   "${authVm.userModel?.firstName ?? ""} have made the Split Payment for booking in ${payInTypeList[bookingsModel.paymentDetail?.payInType ?? 0]} at ${DateFormat("hh:mm a").format(bookingsModel.createdAt?.toDate() ?? now)} on ${DateFormat("dd MMM,yyyy").format(bookingsModel.createdAt?.toDate() ?? now)}",
               receiver:
                   bookingsModel.paymentDetail?.splitPayment
-                      ?.where((element) => element.userUid != appwrite.user.$id)
+                      ?.where((element) => element.userUid != firebaseAuthService.currentUserId)
                       .toList()
                       .map((e) => e.userUid)
                       .toList(),
@@ -1643,7 +1643,7 @@ Note: Payments are non-refundable.''',
             : NotificationModel(
               bookingId: docID,
               id: ref.id,
-              sender: appwrite.user.$id,
+              sender: firebaseAuthService.currentUserId,
               createdAt: Timestamp.now(),
               isSeen: false,
               type: NotificationReceiverType.host.index,
@@ -1651,12 +1651,12 @@ Note: Payments are non-refundable.''',
               title: "Booking Alert!",
               text:
                   "${authVm.userModel?.firstName ?? ""} you have 1 minute left in starting your booking for charter ${charter.get("name")}",
-              receiver: [appwrite.user.$id],
+              receiver: [firebaseAuthService.currentUserId],
             );
     NotificationModel notificationModelHost = NotificationModel(
       bookingId: docID,
       id: refHost.id,
-      sender: appwrite.user.$id,
+      sender: firebaseAuthService.currentUserId,
       createdAt: Timestamp.now(),
       isSeen: false,
       type: NotificationReceiverType.host.index,
@@ -1718,7 +1718,7 @@ Note: Payments are non-refundable.''',
 
     if (bookingsModel.paymentDetail?.isSplit == true) {
       bookingsModel.paymentDetail?.splitPayment
-          ?.where((element) => element.userUid != appwrite.user.$id)
+          ?.where((element) => element.userUid != firebaseAuthService.currentUserId)
           .toList()
           .forEach((element) async {
             ///PUSH NOTIFICATION TO SPLIT CUSTOMERS
@@ -1749,100 +1749,100 @@ Note: Payments are non-refundable.''',
     var homeVm = Provider.of<HomeVm>(context, listen: false);
     if (bookingsModel.paymentDetail?.isSplit == true) {
       if (bookingsModel.paymentDetail?.splitPayment
-              ?.where((element) => element.userUid == appwrite.user.$id)
+              ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
               .first
               .depositStatus ==
           DepositStatus.nothingPaid.index) {
         bookingsModel.paymentDetail?.paidAmount =
             bookingsModel.paymentDetail?.paidAmount +
             bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) => element.userUid == appwrite.user.$id)
+                ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
                 .first
                 .remainingDeposit;
         bookingsModel.paymentDetail?.remainingAmount =
             bookingsModel.paymentDetail?.remainingAmount -
             bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) => element.userUid == appwrite.user.$id)
+                ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
                 .first
                 .remainingDeposit;
       } else if (bookingsModel.paymentDetail?.splitPayment
-              ?.where((element) => element.userUid == appwrite.user.$id)
+              ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
               .first
               .depositStatus ==
           DepositStatus.twentyFivePaid.index) {
         bookingsModel.paymentDetail?.paidAmount =
             bookingsModel.paymentDetail?.paidAmount +
             bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) => element.userUid == appwrite.user.$id)
+                ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
                 .first
                 .remainingAmount;
         bookingsModel.paymentDetail?.remainingAmount =
             bookingsModel.paymentDetail?.remainingAmount -
             bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) => element.userUid == appwrite.user.$id)
+                ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
                 .first
                 .remainingAmount;
       }
       bookingsModel
           .paymentDetail
           ?.splitPayment
-          ?.where((element) => element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
           .first
           .paymentType = PaymentType.payInApp.index;
       bookingsModel.paymentDetail?.splitPayment
-              ?.where((element) => element.userUid == appwrite.user.$id)
+              ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
               .first
               .amount =
           bookingsModel.paymentDetail?.payInType == PayType.fullPay.index
               ? bookingsModel.paymentDetail?.splitPayment
-                  ?.where((element) => element.userUid == appwrite.user.$id)
+                  ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
                   .first
                   .amount
               : bookingsModel.paymentDetail?.splitPayment
-                      ?.where((element) => element.userUid == appwrite.user.$id)
+                      ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
                       .first
                       .depositStatus ==
                   DepositStatus.nothingPaid.index
               ? bookingsModel.paymentDetail?.splitPayment
-                  ?.where((element) => element.userUid == appwrite.user.$id)
+                  ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
                   .first
                   .remainingDeposit
               : bookingsModel.paymentDetail?.splitPayment
-                      ?.where((element) => element.userUid == appwrite.user.$id)
+                      ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
                       .first
                       .amount +
                   bookingsModel.paymentDetail?.splitPayment
-                      ?.where((element) => element.userUid == appwrite.user.$id)
+                      ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
                       .first
                       .remainingAmount;
       bookingsModel
           .paymentDetail
           ?.splitPayment
-          ?.where((element) => element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
           .first
           .remainingAmount = bookingsModel.paymentDetail?.splitPayment
-                      ?.where((element) => element.userUid == appwrite.user.$id)
+                      ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
                       .first
                       .depositStatus ==
                   DepositStatus.twentyFivePaid.index
               ? 0.0
               : bookingsModel.paymentDetail?.splitPayment
-                  ?.where((element) => element.userUid == appwrite.user.$id)
+                  ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
                   .first
                   .remainingAmount;
       bookingsModel
           .paymentDetail
           ?.splitPayment
-          ?.where((element) => element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
           .first
           .remainingDeposit = 0.0;
       bookingsModel
           .paymentDetail
           ?.splitPayment
-          ?.where((element) => element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
           .first
           .depositStatus = bookingsModel.paymentDetail?.splitPayment
-                      ?.where((element) => element.userUid == appwrite.user.$id)
+                      ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
                       .first
                       .depositStatus ==
                   DepositStatus.twentyFivePaid.index
@@ -1851,25 +1851,25 @@ Note: Payments are non-refundable.''',
       bookingsModel
           .paymentDetail
           ?.splitPayment
-          ?.where((element) => element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
           .first
           .paymentStatus = PaymentStatus.payInAppOrCash.index;
       bookingsModel
           .paymentDetail
           ?.splitPayment
-          ?.where((element) => element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
           .first
           .paymentMethod = selectedPaymentMethod;
       bookingsModel
           .paymentDetail
           ?.splitPayment
-          ?.where((element) => element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
           .first
           .cryptoReceiverEmail = appUrlModel?.adminCryptoEmail ?? "";
       bookingsModel
           .paymentDetail
           ?.splitPayment
-          ?.where((element) => element.userUid == appwrite.user.$id)
+          ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
           .first
           .cryptoScreenShot = screenShotUrl;
     } else {

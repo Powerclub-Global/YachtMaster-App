@@ -4,7 +4,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
 import '../../../../resources/resources.dart';
@@ -176,7 +176,7 @@ class _UserProfileState extends State<UserProfile> {
                                 child: Column(
                                   children: [
                                     Text(
-                                      "${homeVm.allBookings.where((element) => element.createdBy == appwrite.user.$id).toList().length}",
+                                      "${homeVm.allBookings.where((element) => element.createdBy == firebaseAuthService.currentUserId).toList().length}",
                                       style: R.textStyle
                                           .helveticaBold()
                                           .copyWith(

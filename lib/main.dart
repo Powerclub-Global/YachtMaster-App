@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import 'package:yacht_master/src/auth/view/manage_account.dart';
-import 'appwrite.dart';
+import 'services/firebase_auth_service.dart';
 import 'blocs/bloc_exports.dart';
 import 'localization/app_localization.dart';
 import 'services/fmsg_handler.dart';
@@ -126,8 +126,8 @@ void onDidReceiveNotificationResponse(
 bool isLogin = false;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  appwrite.initialiseAppwrite();
   await Firebase.initializeApp();
+  firebaseAuthService.initialize();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   const AndroidInitializationSettings initializationSettingsAndroid =

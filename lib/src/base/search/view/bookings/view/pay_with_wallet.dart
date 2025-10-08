@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../../../constant/enums.dart';
 import '../../../../../../localization/app_localization.dart';
 import '../../../../../../resources/decorations.dart';
@@ -56,7 +56,7 @@ class _PayWithWalletState extends State<PayWithWallet> {
       if (bookingsVm.bookingsModel.paymentDetail?.isSplit == true) {
         splitPerson =
             bookingsVm.bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) => element.userUid == appwrite.user.$id)
+                ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
                 .first;
       }
       walletAmount = double.parse(authVm.wallet?.amount.toString() ?? "0.00");

@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import '../../../../appwrite.dart';
+import '../../../../services/firebase_auth_service.dart';
 import '../../../../constant/enums.dart';
 import '../../../../resources/resources.dart';
 import '../../../../services/firebase_collections.dart';
@@ -69,18 +69,18 @@ class YachtVm extends ChangeNotifier {
         if (services.isNotEmpty) {
           allServicesList =
               services.where((element) => element.status == 0).toList();
-          log("__________HOST UID:${appwrite.user.$id}");
+          log("__________HOST UID:${firebaseAuthService.currentUserId}");
           hostServicesList =
               services
                   .where(
                     (element) =>
-                        element.createdBy == appwrite.user.$id &&
+                        element.createdBy == firebaseAuthService.currentUserId &&
                         element.status == 0,
                   )
                   .toList();
           notifyListeners();
           log(
-            "//////////////////////////////////////////////All SERVICES :${allServicesList.length}/////host SERVICES :${hostServicesList.length}/////${appwrite.user.$id}",
+            "//////////////////////////////////////////////All SERVICES :${allServicesList.length}/////host SERVICES :${hostServicesList.length}/////${firebaseAuthService.currentUserId}",
           );
         }
         notifyListeners();
@@ -132,7 +132,7 @@ class YachtVm extends ChangeNotifier {
               charters
                   .where(
                     (element) =>
-                        element.createdBy == appwrite.user.$id &&
+                        element.createdBy == firebaseAuthService.currentUserId &&
                         element.status == CharterStatus.active.index,
                   )
                   .toList();
@@ -233,7 +233,7 @@ class YachtVm extends ChangeNotifier {
               yachts
                   .where(
                     (element) =>
-                        element.createdBy == appwrite.user.$id &&
+                        element.createdBy == firebaseAuthService.currentUserId &&
                         element.status == 0,
                   )
                   .toList();
@@ -254,11 +254,11 @@ class YachtVm extends ChangeNotifier {
   }
 
   Future<void> fetchUserFavourites() async {
-    log("/////////////////////IN FETCH Fav${appwrite.user.$id}");
+    log("/////////////////////IN FETCH Fav${firebaseAuthService.currentUserId}");
     userFavouritesList = [];
     var ref =
         FbCollections.user
-            .doc(appwrite.user.$id)
+            .doc(firebaseAuthService.currentUserId)
             .collection("favourite")
             .snapshots()
             .asBroadcastStream();
@@ -596,7 +596,7 @@ class YachtVm extends ChangeNotifier {
         // });
         // servicesList[index]=serviceModel??ServiceModel();
       } else {
-        charterModel?.createdBy = appwrite.user.$id;
+        charterModel?.createdBy = firebaseAuthService.currentUserId;
         charterModel?.id = docID;
         charterModel?.createdAt = Timestamp.now();
         charterModel?.status = 0;

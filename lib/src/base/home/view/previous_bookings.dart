@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../constant/enums.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/resources.dart';
@@ -141,7 +141,7 @@ class _AllBookingsState extends State<AllBookings> {
             .where(
               (element) =>
                   element.bookingStatus == BookingStatus.ongoing.index &&
-                  element.createdBy == appwrite.user.$id,
+                  element.createdBy == firebaseAuthService.currentUserId,
             )
             .toList()
             .isEmpty) {
@@ -156,7 +156,7 @@ class _AllBookingsState extends State<AllBookings> {
             .where(
               (element) =>
                   element.bookingStatus == BookingStatus.ongoing.index &&
-                  element.createdBy == appwrite.user.$id,
+                  element.createdBy == firebaseAuthService.currentUserId,
             )
             .toList()
             .isNotEmpty) {
@@ -166,7 +166,7 @@ class _AllBookingsState extends State<AllBookings> {
               .where(
                 (element) =>
                     element.bookingStatus == BookingStatus.ongoing.index &&
-                    element.createdBy == appwrite.user.$id,
+                    element.createdBy == firebaseAuthService.currentUserId,
               )
               .toList()
               .length,
@@ -177,7 +177,7 @@ class _AllBookingsState extends State<AllBookings> {
                       (element) =>
                           element.bookingStatus ==
                               BookingStatus.ongoing.index &&
-                          element.createdBy == appwrite.user.$id,
+                          element.createdBy == firebaseAuthService.currentUserId,
                     )
                     .toList()[index];
             return Padding(
@@ -205,7 +205,7 @@ class _AllBookingsState extends State<AllBookings> {
             .where(
               (element) =>
                   element.bookingStatus == BookingStatus.completed.index &&
-                  element.createdBy == appwrite.user.$id,
+                  element.createdBy == firebaseAuthService.currentUserId,
             )
             .toList()
             .isEmpty) {
@@ -219,7 +219,7 @@ class _AllBookingsState extends State<AllBookings> {
             .where(
               (element) =>
                   element.bookingStatus == BookingStatus.completed.index &&
-                  element.createdBy == appwrite.user.$id,
+                  element.createdBy == firebaseAuthService.currentUserId,
             )
             .toList()
             .isNotEmpty) {
@@ -229,7 +229,7 @@ class _AllBookingsState extends State<AllBookings> {
               .where(
                 (element) =>
                     element.bookingStatus == BookingStatus.completed.index &&
-                    element.createdBy == appwrite.user.$id,
+                    element.createdBy == firebaseAuthService.currentUserId,
               )
               .toList()
               .length,
@@ -240,7 +240,7 @@ class _AllBookingsState extends State<AllBookings> {
                       (element) =>
                           element.bookingStatus ==
                               BookingStatus.completed.index &&
-                          element.createdBy == appwrite.user.$id,
+                          element.createdBy == firebaseAuthService.currentUserId,
                     )
                     .toList()[index];
             return Padding(
@@ -268,7 +268,7 @@ class _AllBookingsState extends State<AllBookings> {
             .where(
               (element) =>
                   element.bookingStatus == BookingStatus.canceled.index &&
-                  element.createdBy == appwrite.user.$id,
+                  element.createdBy == firebaseAuthService.currentUserId,
             )
             .toList()
             .isEmpty) {
@@ -284,7 +284,7 @@ class _AllBookingsState extends State<AllBookings> {
               .where(
                 (element) =>
                     element.bookingStatus == BookingStatus.canceled.index &&
-                    element.createdBy == appwrite.user.$id,
+                    element.createdBy == firebaseAuthService.currentUserId,
               )
               .toList()
               .length,
@@ -295,7 +295,7 @@ class _AllBookingsState extends State<AllBookings> {
                       (element) =>
                           element.bookingStatus ==
                               BookingStatus.canceled.index &&
-                          element.createdBy == appwrite.user.$id,
+                          element.createdBy == firebaseAuthService.currentUserId,
                     )
                     .toList()[index];
             return Padding(
@@ -327,7 +327,7 @@ class _AllBookingsState extends State<AllBookings> {
             .where(
               (element) =>
                   element.bookingStatus == BookingStatus.ongoing.index &&
-                  element.hostUserUid == appwrite.user.$id,
+                  element.hostUserUid == firebaseAuthService.currentUserId,
             )
             .toList()
             .isEmpty) {
@@ -341,7 +341,7 @@ class _AllBookingsState extends State<AllBookings> {
             .where(
               (element) =>
                   element.bookingStatus == BookingStatus.ongoing.index &&
-                  element.hostUserUid == appwrite.user.$id,
+                  element.hostUserUid == firebaseAuthService.currentUserId,
             )
             .toList()
             .isNotEmpty) {
@@ -351,7 +351,7 @@ class _AllBookingsState extends State<AllBookings> {
               .where(
                 (element) =>
                     element.bookingStatus == BookingStatus.ongoing.index &&
-                    element.hostUserUid == appwrite.user.$id,
+                    element.hostUserUid == firebaseAuthService.currentUserId,
               )
               .toList()
               .length,
@@ -362,7 +362,7 @@ class _AllBookingsState extends State<AllBookings> {
                       (element) =>
                           element.bookingStatus ==
                               BookingStatus.ongoing.index &&
-                          element.hostUserUid == appwrite.user.$id,
+                          element.hostUserUid == firebaseAuthService.currentUserId,
                     )
                     .toList()[index];
             return Padding(
@@ -390,7 +390,7 @@ class _AllBookingsState extends State<AllBookings> {
             .where(
               (element) =>
                   element.bookingStatus == BookingStatus.completed.index &&
-                  element.hostUserUid == appwrite.user.$id,
+                  element.hostUserUid == firebaseAuthService.currentUserId,
             )
             .toList()
             .isEmpty) {
@@ -404,7 +404,7 @@ class _AllBookingsState extends State<AllBookings> {
             .where(
               (element) =>
                   element.bookingStatus == BookingStatus.completed.index &&
-                  element.hostUserUid == appwrite.user.$id,
+                  element.hostUserUid == firebaseAuthService.currentUserId,
             )
             .toList()
             .isNotEmpty) {
@@ -451,7 +451,7 @@ class _AllBookingsState extends State<AllBookings> {
             .where(
               (element) =>
                   element.bookingStatus == BookingStatus.canceled.index &&
-                  element.hostUserUid == appwrite.user.$id,
+                  element.hostUserUid == firebaseAuthService.currentUserId,
             )
             .toList()
             .isEmpty) {
@@ -467,7 +467,7 @@ class _AllBookingsState extends State<AllBookings> {
               .where(
                 (element) =>
                     element.bookingStatus == BookingStatus.canceled.index &&
-                    element.hostUserUid == appwrite.user.$id,
+                    element.hostUserUid == firebaseAuthService.currentUserId,
               )
               .toList()
               .length,
@@ -478,7 +478,7 @@ class _AllBookingsState extends State<AllBookings> {
                       (element) =>
                           element.bookingStatus ==
                               BookingStatus.canceled.index &&
-                          element.hostUserUid == appwrite.user.$id,
+                          element.hostUserUid == firebaseAuthService.currentUserId,
                     )
                     .toList()[index];
             return Padding(

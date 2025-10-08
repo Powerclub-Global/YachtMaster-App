@@ -10,7 +10,7 @@ import 'package:sizer/sizer.dart';
 import 'package:stripe_identity_plugin/stripe_identity_plugin.dart';
 import 'package:stripe_identity_plugin/utils/enum.dart';
 import 'package:yacht_master/src/base/settings/view/w9_info_screen.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../constant/enums.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/resources.dart';
@@ -228,12 +228,12 @@ class _BecomeVerifiedState extends State<BecomeVerified> {
   ) async {
     AdminChatHeadModel? chatHeadModel;
     AdminChatHeadModel chatData = AdminChatHeadModel(
-      id: appwrite.user.$id,
+      id: firebaseAuthService.currentUserId,
       lastMessage: AdminChatModel(
         message: "",
         createdAt: Timestamp.now(),
-        senderId: appwrite.user.$id,
-        chatHeadId: appwrite.user.$id,
+        senderId: firebaseAuthService.currentUserId,
+        chatHeadId: firebaseAuthService.currentUserId,
         type: 0,
         isSeen: false,
         receiverId:
@@ -244,7 +244,7 @@ class _BecomeVerifiedState extends State<BecomeVerified> {
       ),
       status: 0,
       users: [
-        appwrite.user.$id ?? "",
+        firebaseAuthService.currentUserId ?? "",
         Provider.of<BaseVm>(context, listen: false).allUsers
                 .firstWhereOrNull((element) => element.role == UserType.admin)
                 ?.uid ??
@@ -266,12 +266,12 @@ class _BecomeVerifiedState extends State<BecomeVerified> {
 
       if (doc.data() == null) {
         chatHeadModel = AdminChatHeadModel(
-          id: appwrite.user.$id,
+          id: firebaseAuthService.currentUserId,
           lastMessage: AdminChatModel(
             message: "",
             createdAt: Timestamp.now(),
-            senderId: appwrite.user.$id,
-            chatHeadId: appwrite.user.$id,
+            senderId: firebaseAuthService.currentUserId,
+            chatHeadId: firebaseAuthService.currentUserId,
             type: 0,
             isSeen: false,
             receiverId:
@@ -284,7 +284,7 @@ class _BecomeVerifiedState extends State<BecomeVerified> {
           ),
           status: 0,
           users: [
-            appwrite.user.$id ?? "",
+            firebaseAuthService.currentUserId ?? "",
             Provider.of<BaseVm>(context, listen: false).allUsers
                     .firstWhereOrNull(
                       (element) => element.role == UserType.admin,

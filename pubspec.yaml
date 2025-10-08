@@ -81,7 +81,6 @@ dependencies:
   pay: ^3.2.1
   package_info_plus: ^8.3.0
   bulleted_list: ^0.0.1+0.1a
-  appwrite: ^15.0.1
   random_string: ^2.3.1
   stripe_identity_plugin: ^1.0.4
   syncfusion_flutter_pdfviewer: ^28.1.37

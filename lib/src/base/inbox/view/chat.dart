@@ -10,7 +10,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../resources/resources.dart';
 import '../../../../services/firebase_collections.dart';
 import '../../../../services/time_schedule_service.dart';
@@ -102,7 +102,7 @@ class _ChatViewState extends State<ChatView> {
                                   chatHeadModel?.users
                                       ?.where(
                                         (element) =>
-                                            element != appwrite.user.$id,
+                                            element != firebaseAuthService.currentUserId,
                                       )
                                       .first ==
                                   element.uid,
@@ -173,7 +173,7 @@ class _ChatViewState extends State<ChatView> {
                             snapshot.data?.docs[index].data(),
                           );
 
-                          return chatModel.senderId == appwrite.user.$id
+                          return chatModel.senderId == firebaseAuthService.currentUserId
                               ? senderBubble(chatModel, baseVm)
                               : receiverBubble(chatModel, baseVm);
                         },
@@ -256,7 +256,7 @@ class _ChatViewState extends State<ChatView> {
                                 "${chatModel.message}",
                                 style: R.textStyle.helvetica().copyWith(
                                   color:
-                                      chatModel.senderId == appwrite.user.$id
+                                      chatModel.senderId == firebaseAuthService.currentUserId
                                           ? R.colors.whiteColor
                                           : R.colors.blackDull,
                                   fontSize: Get.width * .033,
@@ -281,7 +281,7 @@ class _ChatViewState extends State<ChatView> {
                           .toLowerCase(),
                       style: R.textStyle.helvetica().copyWith(
                         color:
-                            chatModel.senderId == appwrite.user.$id
+                            chatModel.senderId == firebaseAuthService.currentUserId
                                 ? R.colors.whiteColor
                                 : R.colors.black,
                         fontSize: 7.sp,
@@ -320,7 +320,7 @@ class _ChatViewState extends State<ChatView> {
               (element) =>
                   element.uid ==
                   chatHeadModel?.users?.firstWhereOrNull(
-                    (e) => e != appwrite.user.$id,
+                    (e) => e != firebaseAuthService.currentUserId,
                   ),
             ) ==
             null
@@ -337,7 +337,7 @@ class _ChatViewState extends State<ChatView> {
                     "host": baseVm.allUsers.firstWhereOrNull(
                       (element) =>
                           chatHeadModel?.users
-                              ?.where((element) => element != appwrite.user.$id)
+                              ?.where((element) => element != firebaseAuthService.currentUserId)
                               .first ==
                           element.uid,
                     ),
@@ -355,7 +355,7 @@ class _ChatViewState extends State<ChatView> {
                                 element.uid ==
                                 chatHeadModel!.users!
                                     .where(
-                                      (element) => element != appwrite.user.$id,
+                                      (element) => element != firebaseAuthService.currentUserId,
                                     )
                                     .first,
                           )
@@ -420,7 +420,7 @@ class _ChatViewState extends State<ChatView> {
                                                         .where(
                                                           (element) =>
                                                               element !=
-                                                              appwrite.user.$id,
+                                                              firebaseAuthService.currentUserId,
                                                         )
                                                         .first,
                                               )
@@ -438,7 +438,7 @@ class _ChatViewState extends State<ChatView> {
                                     style: R.textStyle.helvetica().copyWith(
                                       color:
                                           chatModel.senderId ==
-                                                  appwrite.user.$id
+                                                  firebaseAuthService.currentUserId
                                               ? R.colors.whiteColor
                                               : R.colors.blackDull,
                                       fontSize: Get.width * .033,
@@ -556,13 +556,13 @@ class _ChatViewState extends State<ChatView> {
                     // DateFormat("hh:mm a")
                     //     .format(DateTime.now())
                     //     .toLowerCase(),
-                    senderId: appwrite.user.$id,
+                    senderId: firebaseAuthService.currentUserId,
                     chatHeadId: chatHeadModel?.id,
                     type: 0,
                     isSeen: false,
                     receiverId:
                         chatHeadModel?.users
-                            ?.where((element) => element != appwrite.user.$id)
+                            ?.where((element) => element != firebaseAuthService.currentUserId)
                             .toList()
                             .first,
                   );
@@ -618,7 +618,7 @@ class _ChatViewState extends State<ChatView> {
                 .firstWhereOrNull(
                   (element) =>
                       chatHeadModel?.users
-                          ?.where((element) => element != appwrite.user.$id)
+                          ?.where((element) => element != firebaseAuthService.currentUserId)
                           .first ==
                       element.uid,
                 )

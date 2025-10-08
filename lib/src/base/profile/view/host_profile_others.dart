@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../constant/enums.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
@@ -253,13 +253,13 @@ class _HostProfileOthersState extends State<HostProfileOthers> {
                                     );
                                     yachtVm.update();
                                     await FbCollections.user
-                                        .doc(appwrite.user.$id)
+                                        .doc(firebaseAuthService.currentUserId)
                                         .collection("favourite")
                                         .doc(host?.uid)
                                         .delete();
                                   } else {
                                     await FbCollections.user
-                                        .doc(appwrite.user.$id)
+                                        .doc(firebaseAuthService.currentUserId)
                                         .collection("favourite")
                                         .doc(host?.uid)
                                         .set(favModel.toJson());
@@ -807,13 +807,13 @@ class _HostProfileOthersState extends State<HostProfileOthers> {
 
   Future<ChatHeadModel?> createChatHead(InboxVm chatVm) async {
     ChatHeadModel? chatHeadModel;
-    List<String> tempSort = [appwrite.user.$id, host?.uid ?? ""];
+    List<String> tempSort = [firebaseAuthService.currentUserId, host?.uid ?? ""];
     tempSort.sort();
     ChatHeadModel chatData = ChatHeadModel(
       createdAt: Timestamp.now(),
       lastMessageTime: Timestamp.now(),
       lastMessage: "",
-      createdBy: appwrite.user.$id,
+      createdBy: firebaseAuthService.currentUserId,
       id: tempSort.join('_'),
       status: 0,
       peerId: host?.uid,

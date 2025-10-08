@@ -5,7 +5,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../services/firebase_collections.dart';
 import '../model/chat_heads_model.dart';
 import '../model/notification_model.dart';
@@ -25,7 +25,7 @@ class InboxVm extends ChangeNotifier {
     try {
       notificationStream ??= res.listen((allnotifications) async {
         if (allnotifications.isNotEmpty) {
-          hostNotificationsList = allnotifications.where((element) => element.receiver?.contains(appwrite.user.$id)==true).toList();
+          hostNotificationsList = allnotifications.where((element) => element.receiver?.contains(firebaseAuthService.currentUserId)==true).toList();
           notifyListeners();
           log("//////////////////////////////////////////////HOST NOTIFICATIONS :${hostNotificationsList.length}");
         }

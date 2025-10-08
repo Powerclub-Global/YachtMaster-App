@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../constant/enums.dart';
 import '../../../../resources/resources.dart';
 import '../../../../services/firebase_collections.dart';
@@ -71,7 +71,7 @@ class _NotificationsState extends State<Notifications> {
                                     BookingsModel.fromJson(doc.data());
 
                                 setState(() {});
-                                e.hostUserId == appwrite.user.$id
+                                e.hostUserId == firebaseAuthService.currentUserId
                                     ? Get.toNamed(
                                       HostBookingDetail.route,
                                       arguments: {

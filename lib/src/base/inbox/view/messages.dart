@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../resources/resources.dart';
 import '../../../../services/firebase_collections.dart';
 import '../../../auth/model/user_model.dart';
@@ -39,7 +39,7 @@ class _MessagesState extends State<Messages> {
         return StreamBuilder(
           stream:
               FbCollections.chatHeads
-                  .where("users", arrayContains: appwrite.user.$id)
+                  .where("users", arrayContains: firebaseAuthService.currentUserId)
                   .orderBy("last_message_time", descending: true)
                   .snapshots(),
           builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -107,7 +107,7 @@ class _MessagesState extends State<Messages> {
               FbCollections.user
                   .doc(
                     chatHead.users!
-                        .where((element) => element != appwrite.user.$id)
+                        .where((element) => element != firebaseAuthService.currentUserId)
                         .first,
                   )
                   .get(),

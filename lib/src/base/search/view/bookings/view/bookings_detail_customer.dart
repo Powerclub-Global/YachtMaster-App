@@ -9,7 +9,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../../../constant/enums.dart';
 import '../../../../../../localization/app_localization.dart';
 import '../../../../../../resources/decorations.dart';
@@ -56,7 +56,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
       if (bookingsModel?.paymentDetail?.isSplit == true) {
         firstSlpliter =
             bookingsModel?.paymentDetail?.splitPayment
-                ?.where((element) => element.userUid == appwrite.user.$id)
+                ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
                 .first;
         bookingsModel?.paymentDetail?.splitPayment?.forEach((element) {
           if (element.depositStatus == 1) {
@@ -766,7 +766,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                           ?.where(
                                             (element) =>
                                                 element.userUid ==
-                                                appwrite.user.$id,
+                                                firebaseAuthService.currentUserId,
                                           )
                                           .toList()
                                           .first
@@ -980,7 +980,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                           ?.where(
                                             (element) =>
                                                 element.userUid ==
-                                                appwrite.user.$id,
+                                                firebaseAuthService.currentUserId,
                                           )
                                           .first
                                           .depositStatus ==
@@ -995,7 +995,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                             ?.where(
                                               (element) =>
                                                   element.userUid ==
-                                                  appwrite.user.$id,
+                                                  firebaseAuthService.currentUserId,
                                             )
                                             .first
                                             .remainingDeposit;
@@ -1010,7 +1010,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                             ?.where(
                                               (element) =>
                                                   element.userUid ==
-                                                  appwrite.user.$id,
+                                                  firebaseAuthService.currentUserId,
                                             )
                                             .first
                                             .remainingDeposit;
@@ -1020,7 +1020,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                           ?.where(
                                             (element) =>
                                                 element.userUid ==
-                                                appwrite.user.$id,
+                                                firebaseAuthService.currentUserId,
                                           )
                                           .first
                                           .depositStatus ==
@@ -1035,7 +1035,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                             ?.where(
                                               (element) =>
                                                   element.userUid ==
-                                                  appwrite.user.$id,
+                                                  firebaseAuthService.currentUserId,
                                             )
                                             .first
                                             .remainingAmount;
@@ -1050,7 +1050,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                             ?.where(
                                               (element) =>
                                                   element.userUid ==
-                                                  appwrite.user.$id,
+                                                  firebaseAuthService.currentUserId,
                                             )
                                             .first
                                             .remainingAmount;
@@ -1061,7 +1061,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                       ?.where(
                                         (element) =>
                                             element.userUid ==
-                                            appwrite.user.$id,
+                                            firebaseAuthService.currentUserId,
                                       )
                                       .first
                                       .paymentType = PaymentType.payCash.index;
@@ -1069,7 +1069,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                           ?.where(
                                             (element) =>
                                                 element.userUid ==
-                                                appwrite.user.$id,
+                                                firebaseAuthService.currentUserId,
                                           )
                                           .first
                                           .amount =
@@ -1081,7 +1081,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                               ?.where(
                                                 (element) =>
                                                     element.userUid ==
-                                                    appwrite.user.$id,
+                                                    firebaseAuthService.currentUserId,
                                               )
                                               .first
                                               .amount
@@ -1091,7 +1091,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                                   ?.where(
                                                     (element) =>
                                                         element.userUid ==
-                                                        appwrite.user.$id,
+                                                        firebaseAuthService.currentUserId,
                                                   )
                                                   .first
                                                   .depositStatus ==
@@ -1102,7 +1102,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                               ?.where(
                                                 (element) =>
                                                     element.userUid ==
-                                                    appwrite.user.$id,
+                                                    firebaseAuthService.currentUserId,
                                               )
                                               .first
                                               .remainingDeposit
@@ -1112,7 +1112,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                                   ?.where(
                                                     (element) =>
                                                         element.userUid ==
-                                                        appwrite.user.$id,
+                                                        firebaseAuthService.currentUserId,
                                                   )
                                                   .first
                                                   .amount +
@@ -1122,7 +1122,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                                   ?.where(
                                                     (element) =>
                                                         element.userUid ==
-                                                        appwrite.user.$id,
+                                                        firebaseAuthService.currentUserId,
                                                   )
                                                   .first
                                                   .remainingAmount;
@@ -1132,7 +1132,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                       ?.where(
                                         (element) =>
                                             element.userUid ==
-                                            appwrite.user.$id,
+                                            firebaseAuthService.currentUserId,
                                       )
                                       .first
                                       .remainingAmount = bookingsModel
@@ -1141,7 +1141,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                                   ?.where(
                                                     (element) =>
                                                         element.userUid ==
-                                                        appwrite.user.$id,
+                                                        firebaseAuthService.currentUserId,
                                                   )
                                                   .first
                                                   .depositStatus ==
@@ -1153,7 +1153,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                               ?.where(
                                                 (element) =>
                                                     element.userUid ==
-                                                    appwrite.user.$id,
+                                                    firebaseAuthService.currentUserId,
                                               )
                                               .first
                                               .remainingAmount;
@@ -1163,7 +1163,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                       ?.where(
                                         (element) =>
                                             element.userUid ==
-                                            appwrite.user.$id,
+                                            firebaseAuthService.currentUserId,
                                       )
                                       .first
                                       .remainingDeposit = 0.0;
@@ -1173,7 +1173,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                       ?.where(
                                         (element) =>
                                             element.userUid ==
-                                            appwrite.user.$id,
+                                            firebaseAuthService.currentUserId,
                                       )
                                       .first
                                       .depositStatus = bookingsModel
@@ -1182,7 +1182,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                                   ?.where(
                                                     (element) =>
                                                         element.userUid ==
-                                                        appwrite.user.$id,
+                                                        firebaseAuthService.currentUserId,
                                                   )
                                                   .first
                                                   .depositStatus ==
@@ -1193,7 +1193,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                           ?.where(
                                             (element) =>
                                                 element.userUid ==
-                                                appwrite.user.$id,
+                                                firebaseAuthService.currentUserId,
                                           )
                                           .first
                                           .paymentStatus =
@@ -1380,7 +1380,7 @@ class _BookingsDetailState extends State<BookingsDetail> {
                                       .toString();
                               ReviewModel reviewModel = ReviewModel(
                                 bookingId: bookingsModel?.id,
-                                userId: appwrite.user.$id,
+                                userId: firebaseAuthService.currentUserId,
                                 rating: rat,
                                 description: desc,
                                 createdAt: Timestamp.now(),

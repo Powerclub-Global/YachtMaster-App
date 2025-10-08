@@ -9,7 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../constant/enums.dart';
 import '../../../../resources/resources.dart';
 import '../../../../services/firebase_collections.dart';
@@ -144,7 +144,7 @@ class _ExperiencesViewState extends State<ExperiencesView> {
                                           yachtVm.update();
                                           try {
                                             await FbCollections.user
-                                                .doc(appwrite.user.$id)
+                                                .doc(firebaseAuthService.currentUserId)
                                                 .collection("favourite")
                                                 .doc(service.id)
                                                 .delete();
@@ -155,7 +155,7 @@ class _ExperiencesViewState extends State<ExperiencesView> {
                                         } else {
                                           try {
                                             await FbCollections.user
-                                                .doc(appwrite.user.$id)
+                                                .doc(firebaseAuthService.currentUserId)
                                                 .collection("favourite")
                                                 .doc(service.id)
                                                 .set(favModel.toJson());

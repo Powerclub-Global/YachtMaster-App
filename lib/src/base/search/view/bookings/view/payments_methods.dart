@@ -11,7 +11,7 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:pay/pay.dart' as pay;
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../../../constant/enums.dart';
 import '../../../../../../localization/app_localization.dart';
 import '../../../../../../main.dart';
@@ -1577,7 +1577,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
     if (bookingVm.bookingsModel.paymentDetail?.isSplit == true) {
       splitPerson =
           bookingVm.bookingsModel.paymentDetail?.splitPayment
-              ?.where((element) => element.userUid == appwrite.user.$id)
+              ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
               .first;
       splitPerson?.payWithWallet = splitPerson?.payWithWallet ?? 0.0;
     }
@@ -1592,7 +1592,7 @@ class _PaymentMethodsState extends State<PaymentMethods> {
         bookingVm.bookingsModel.paymentDetail?.paymentMethod = -1;
         splitPerson =
             bookingVm.bookingsModel.paymentDetail?.splitPayment
-                ?.where((element) => element.userUid == appwrite.user.$id)
+                ?.where((element) => element.userUid == firebaseAuthService.currentUserId)
                 .toList()
                 .first;
         bookingVm.selectedPaymentMethod = splitPerson?.paymentMethod ?? -1;

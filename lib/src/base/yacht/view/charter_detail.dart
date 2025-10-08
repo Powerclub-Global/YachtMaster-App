@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sizer/sizer.dart';
 import 'package:yacht_master/src/auth/view_model/auth_vm.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../constant/enums.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
@@ -204,7 +204,7 @@ class _CharterDetailState extends State<CharterDetail> {
                               ),
                             ),
                             w3,
-                            if (charter?.createdBy == appwrite.user.$id)
+                            if (charter?.createdBy == firebaseAuthService.currentUserId)
                               GestureDetector(
                                 onTap: () {
                                   Get.bottomSheet(
@@ -251,13 +251,13 @@ class _CharterDetailState extends State<CharterDetail> {
                                     yachtVm.userFavouritesList.removeAt(index);
                                     yachtVm.update();
                                     await FbCollections.user
-                                        .doc(appwrite.user.$id)
+                                        .doc(firebaseAuthService.currentUserId)
                                         .collection("favourite")
                                         .doc(charter?.id)
                                         .delete();
                                   } else {
                                     await FbCollections.user
-                                        .doc(appwrite.user.$id)
+                                        .doc(firebaseAuthService.currentUserId)
                                         .collection("favourite")
                                         .doc(charter?.id)
                                         .set(favModel.toJson());
@@ -750,7 +750,7 @@ class _CharterDetailState extends State<CharterDetail> {
                             if (settingsVm.allReviews
                                 .where(
                                   (element) =>
-                                      element.hostId == appwrite.user.$id &&
+                                      element.hostId == firebaseAuthService.currentUserId &&
                                       element.charterFleetDetail?.id ==
                                           charter?.id,
                                 )
@@ -762,7 +762,7 @@ class _CharterDetailState extends State<CharterDetail> {
                             if (settingsVm.allReviews
                                 .where(
                                   (element) =>
-                                      element.hostId == appwrite.user.$id &&
+                                      element.hostId == firebaseAuthService.currentUserId &&
                                       element.charterFleetDetail?.id ==
                                           charter?.id,
                                 )
@@ -783,7 +783,7 @@ class _CharterDetailState extends State<CharterDetail> {
                                               .where(
                                                 (element) =>
                                                     element.hostId ==
-                                                        appwrite.user.$id &&
+                                                        firebaseAuthService.currentUserId &&
                                                     element
                                                             .charterFleetDetail
                                                             ?.id ==
@@ -803,7 +803,7 @@ class _CharterDetailState extends State<CharterDetail> {
                                               .where(
                                                 (element) =>
                                                     element.hostId ==
-                                                        appwrite.user.$id &&
+                                                        firebaseAuthService.currentUserId &&
                                                     element
                                                             .charterFleetDetail
                                                             ?.id ==
@@ -817,7 +817,7 @@ class _CharterDetailState extends State<CharterDetail> {
                                           .where(
                                             (element) =>
                                                 element.hostId ==
-                                                    appwrite.user.$id &&
+                                                    firebaseAuthService.currentUserId &&
                                                 element
                                                         .charterFleetDetail
                                                         ?.id ==
@@ -831,7 +831,7 @@ class _CharterDetailState extends State<CharterDetail> {
                                             .where(
                                               (element) =>
                                                   element.hostId ==
-                                                      appwrite.user.$id &&
+                                                      firebaseAuthService.currentUserId &&
                                                   element
                                                           .charterFleetDetail
                                                           ?.id ==
@@ -1092,7 +1092,7 @@ class _CharterDetailState extends State<CharterDetail> {
               ),
             ),
             bottomNavigationBar:
-                isEdit == true || charter?.createdBy == appwrite.user.$id
+                isEdit == true || charter?.createdBy == firebaseAuthService.currentUserId
                     ? GestureDetector(
                       onTap: () {
                         Get.toNamed(
@@ -1375,13 +1375,13 @@ class _CharterDetailState extends State<CharterDetail> {
 
   Future<ChatHeadModel?> createChatHead(InboxVm chatVm) async {
     ChatHeadModel? chatHeadModel;
-    List<String> tempSort = [appwrite.user.$id ?? "", charter?.createdBy ?? ""];
+    List<String> tempSort = [firebaseAuthService.currentUserId ?? "", charter?.createdBy ?? ""];
     tempSort.sort();
     ChatHeadModel chatData = ChatHeadModel(
       createdAt: Timestamp.now(),
       lastMessageTime: Timestamp.now(),
       lastMessage: "",
-      createdBy: appwrite.user.$id,
+      createdBy: firebaseAuthService.currentUserId,
       id: tempSort.join('_'),
       status: 0,
       peerId: charter?.createdBy,

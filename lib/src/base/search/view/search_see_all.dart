@@ -13,7 +13,7 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../constant/enums.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/resources.dart';
@@ -908,13 +908,13 @@ class _SearchSeeAllState extends State<SearchSeeAll> {
                       yachtVm.userFavouritesList.removeAt(index);
                       yachtVm.update();
                       await FbCollections.user
-                          .doc(appwrite.user.$id)
+                          .doc(firebaseAuthService.currentUserId)
                           .collection("favourite")
                           .doc(charter.id)
                           .delete();
                     } else {
                       await FbCollections.user
-                          .doc(appwrite.user.$id)
+                          .doc(firebaseAuthService.currentUserId)
                           .collection("favourite")
                           .doc(charter.id)
                           .set(favModel.toJson());
@@ -973,13 +973,13 @@ class _SearchSeeAllState extends State<SearchSeeAll> {
                   yachtVm.userFavouritesList.removeAt(index);
                   yachtVm.update();
                   await FbCollections.user
-                      .doc(appwrite.user.$id)
+                      .doc(firebaseAuthService.currentUserId)
                       .collection("favourite")
                       .doc(service.id)
                       .delete();
                 } else {
                   await FbCollections.user
-                      .doc(appwrite.user.$id)
+                      .doc(firebaseAuthService.currentUserId)
                       .collection("favourite")
                       .doc(service.id)
                       .set(favModel.toJson());

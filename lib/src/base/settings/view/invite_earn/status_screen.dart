@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../../localization/app_localization.dart';
 import '../../../../../resources/decorations.dart';
 import '../../../../../resources/resources.dart';
@@ -71,7 +71,7 @@ class _StatusScreenState extends State<StatusScreen> {
                 onTap: () async {
                   ZBotToast.loadingShow();
                   var data =
-                      await db.collection("users").doc(appwrite.user.$id).get();
+                      await db.collection("users").doc(firebaseAuthService.currentUserId).get();
                   var data1 = data.data();
                   var inviteStatus = data1!["invite_status"];
                   if (inviteStatus == 2) {

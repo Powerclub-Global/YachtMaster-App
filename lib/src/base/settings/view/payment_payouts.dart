@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../constant/enums.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/resources.dart';
@@ -59,7 +59,7 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
                                   (element) =>
                                       element.bookingStatus ==
                                           BookingStatus.ongoing.index &&
-                                      element.hostUserUid == appwrite.user.$id,
+                                      element.hostUserUid == firebaseAuthService.currentUserId,
                                 )
                                 .toList()
                                 .isEmpty
@@ -76,7 +76,7 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
                                       element.bookingStatus ==
                                           BookingStatus.ongoing.index &&
                                       element.hostUserUid ==
-                                          appwrite.user.$id &&
+                                          firebaseAuthService.currentUserId &&
                                       element.paymentDetail?.remainingAmount
                                               .toStringAsFixed(1) !=
                                           "0.0",
@@ -91,7 +91,7 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
                                       element.bookingStatus ==
                                           BookingStatus.ongoing.index &&
                                       element.hostUserUid ==
-                                          appwrite.user.$id &&
+                                          firebaseAuthService.currentUserId &&
                                       element.paymentDetail?.remainingAmount
                                               .toStringAsFixed(1) !=
                                           "0.0",
@@ -106,7 +106,7 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
                                             element.bookingStatus ==
                                                 BookingStatus.ongoing.index &&
                                             element.hostUserUid ==
-                                                appwrite.user.$id &&
+                                                firebaseAuthService.currentUserId &&
                                             element
                                                     .paymentDetail
                                                     ?.remainingAmount
@@ -171,7 +171,7 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
                                   (element) =>
                                       element.bookingStatus ==
                                           BookingStatus.completed.index &&
-                                      element.createdBy == appwrite.user.$id &&
+                                      element.createdBy == firebaseAuthService.currentUserId &&
                                       element.paymentDetail?.remainingAmount
                                               .toStringAsFixed(1) ==
                                           "0.0",
@@ -189,7 +189,7 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
                                   (element) =>
                                       element.bookingStatus ==
                                           BookingStatus.completed.index &&
-                                      element.createdBy == appwrite.user.$id &&
+                                      element.createdBy == firebaseAuthService.currentUserId &&
                                       element.paymentDetail?.remainingAmount
                                               .toStringAsFixed(1) ==
                                           "0.0",
@@ -203,7 +203,7 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
                                   (element) =>
                                       element.bookingStatus ==
                                           BookingStatus.completed.index &&
-                                      element.createdBy == appwrite.user.$id &&
+                                      element.createdBy == firebaseAuthService.currentUserId &&
                                       element.paymentDetail?.remainingAmount
                                               .toStringAsFixed(1) ==
                                           "0.0",
@@ -218,7 +218,7 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
                                             element.bookingStatus ==
                                                 BookingStatus.completed.index &&
                                             element.createdBy ==
-                                                appwrite.user.$id &&
+                                                firebaseAuthService.currentUserId &&
                                             element
                                                     .paymentDetail
                                                     ?.remainingAmount
@@ -283,7 +283,7 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
                                 .where(
                                   (element) =>
                                       element.hostUserUid ==
-                                          appwrite.user.$id &&
+                                          firebaseAuthService.currentUserId &&
                                       element.paymentDetail?.remainingAmount
                                               .toStringAsFixed(1) ==
                                           "0.0",
@@ -301,7 +301,7 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
                                 .where(
                                   (element) =>
                                       element.hostUserUid ==
-                                          appwrite.user.$id &&
+                                          firebaseAuthService.currentUserId &&
                                       element.paymentDetail?.remainingAmount
                                               .toStringAsFixed(1) ==
                                           "0.0",
@@ -314,7 +314,7 @@ class _PaymentPayoutsState extends State<PaymentPayouts> {
                                       .where(
                                         (element) =>
                                             element.hostUserUid ==
-                                                appwrite.user.$id &&
+                                                firebaseAuthService.currentUserId &&
                                             element
                                                     .paymentDetail
                                                     ?.remainingAmount

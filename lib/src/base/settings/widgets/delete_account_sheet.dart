@@ -1,11 +1,8 @@
-import 'dart:developer';
-
-import 'package:appwrite/appwrite.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../auth/view/login.dart';
 
 import '../../../../../../../resources/resources.dart';
@@ -147,22 +144,20 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
 
   Future<void> deleteUserAccount() async {
     try {
-      await appwrite.deleteUser();
-      print(appwrite.deleteUserResponse.statusCode);
-      if (appwrite.deleteUserResponse.statusCode == 200) {
-        await FbCollections.user.doc(appwrite.user.$id).delete();
-        Get.offAllNamed(LoginScreen.route);
-        ZBotToast.showToastSuccess(
-          message: getTranslated(context, "user_has_been_deleted_successfully"),
-        );
+      // Delete user data from Firestore
+      await FbCollections.user.doc(firebaseAuthService.currentUserId).delete();
 
-        ZBotToast.loadingClose();
-      } else {
-        log(appwrite.deleteUserResponse.reasonPhrase!);
-        ZBotToast.showToastError(message: "An Unexpected Error Occured");
+      // Delete Firebase Auth account
+      await firebaseAuthService.deleteAccount();
+
+      if (!mounted) {
+        return;
       }
-    } on AppwriteException catch (e) {
-      log(e.toString());
+      Get.offAllNamed(LoginScreen.route);
+      ZBotToast.showToastSuccess(
+        message: getTranslated(context, "user_has_been_deleted_successfully"),
+      );
+      ZBotToast.loadingClose();
     } catch (e) {
       ZBotToast.loadingClose();
       debugPrint(e.toString());

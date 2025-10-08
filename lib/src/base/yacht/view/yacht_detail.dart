@@ -9,7 +9,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sizer/sizer.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../constant/enums.dart';
 import '../../../../localization/app_localization.dart';
 import '../../../../resources/decorations.dart';
@@ -117,7 +117,7 @@ class _YachtDetailState extends State<YachtDetail> {
                           ),
                         ),
                         w3,
-                        if (yacht?.createdBy == appwrite.user.$id)
+                        if (yacht?.createdBy == firebaseAuthService.currentUserId)
                           GestureDetector(
                             onTap: () {
                               Get.bottomSheet(
@@ -765,13 +765,13 @@ class _YachtDetailState extends State<YachtDetail> {
 
   Future<ChatHeadModel?> createChatHead(InboxVm chatVm) async {
     ChatHeadModel? chatHeadModel;
-    List<String> tempSort = [appwrite.user.$id ?? "", yacht?.createdBy ?? ""];
+    List<String> tempSort = [firebaseAuthService.currentUserId ?? "", yacht?.createdBy ?? ""];
     tempSort.sort();
     ChatHeadModel chatData = ChatHeadModel(
       createdAt: Timestamp.now(),
       lastMessageTime: Timestamp.now(),
       lastMessage: "",
-      createdBy: appwrite.user.$id,
+      createdBy: firebaseAuthService.currentUserId,
       id: tempSort.join('_'),
       status: 0,
       peerId: yacht?.createdBy ?? "",

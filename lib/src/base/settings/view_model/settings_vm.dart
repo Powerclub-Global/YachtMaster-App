@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import '../../../../appwrite.dart';
+import 'package:yacht_master/services/firebase_auth_service.dart';
 import '../../../../localization/update_locale.dart';
 import '../../../../services/firebase_collections.dart';
 import '../../../auth/model/user_model.dart';
@@ -81,7 +81,7 @@ class SettingsVm extends ChangeNotifier {
           allReviews = reviews;
           hostReviews =
               reviews
-                  .where((element) => element.hostId == appwrite.user.$id)
+                  .where((element) => element.hostId == firebaseAuthService.currentUserId)
                   .toList();
           await reviews.asyncForEach((element) async {
             log(")))))))))))))))))HOSTS:${hosts?.length}");
@@ -109,12 +109,12 @@ class SettingsVm extends ChangeNotifier {
           hosts?.sort((a, b) => b.rating!.compareTo(a.rating!));
           notifyListeners();
           // hosts?.forEach((element) {
-          //   log("_____${element.uid}=====${appwrite.user.$id}");
-          //   if(element.uid!=appwrite.user.$id)
+          //   log("_____${element.uid}=====${firebaseAuthService.currentUserId}");
+          //   if(element.uid!=firebaseAuthService.currentUserId)
           //     {
           //       yachtVm.allHosts.add(element);
           //     }
-          //   // element.uid!=appwrite.user.$id;
+          //   // element.uid!=firebaseAuthService.currentUserId;
           // });
           yachtVm.allHosts = List.from(hosts?.toList() ?? []);
           notifyListeners();
