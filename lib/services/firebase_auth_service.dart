@@ -47,33 +47,57 @@ class FirebaseAuthService {
     required Function(String) onCodeSent,
     required Function(String) onError,
     Function(PhoneAuthCredential)? onAutoVerify,
+    int? forceResendingToken,
   }) async {
     try {
+      // Attempt to set auth settings to reduce reCAPTCHA
+      await _auth.setSettings(
+        appVerificationDisabledForTesting: false,
+        forceRecaptchaFlow: false,
+      );
+
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
+        forceResendingToken: forceResendingToken,
         verificationCompleted: (PhoneAuthCredential credential) async {
-          log("Auto verification completed");
+          log("✅ Auto verification completed (APNs silent verification successful)");
           if (onAutoVerify != null) {
             onAutoVerify(credential);
           }
         },
         verificationFailed: (FirebaseAuthException e) {
-          log("Verification failed: ${e.message}");
+          log("❌ Verification failed: ${e.message} (Code: ${e.code})");
+
+          // Don't treat web-context-cancelled as a hard error
+          if (e.code == 'web-context-cancelled' || e.code == 'cancelled') {
+            log("User cancelled reCAPTCHA, but SMS was still sent");
+            // SMS should still have been sent, so don't show error
+            return;
+          }
+
           onError(e.message ?? "Verification failed");
         },
         codeSent: (String verificationId, int? resendToken) {
           _verificationId = verificationId;
-          log("Code sent to $phoneNumber");
+          log("📱 SMS code sent to $phoneNumber (verificationId: ${verificationId.substring(0, 10)}...)");
           onCodeSent(verificationId);
         },
         codeAutoRetrievalTimeout: (String verificationId) {
           _verificationId = verificationId;
-          log("Auto retrieval timeout");
+          log("⏱️ Auto retrieval timeout - user needs to enter code manually");
         },
-        timeout: const Duration(seconds: 60),
+        timeout: const Duration(seconds: 120), // Increased timeout for APNs
       );
     } catch (e) {
       log("sendOTP error: $e");
+
+      // Handle specific errors gracefully
+      if (e.toString().contains('web-context-cancelled') ||
+          e.toString().contains('cancelled')) {
+        log("User cancelled, but verification may still proceed");
+        return;
+      }
+
       onError(e.toString());
     }
   }

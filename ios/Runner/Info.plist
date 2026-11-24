@@ -39,7 +39,9 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
-	<false/>
+	<true/>
+	<key>FirebaseAuthUIURL</key>
+	<string>https://yacht-masters.firebaseapp.com/__/auth/handler</string>
 	<key>FlutterDeepLinkingEnabled</key>
 	<true/>
 	<key>LSApplicationCategoryType</key>

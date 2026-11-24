@@ -93,6 +93,10 @@ class AuthVm extends ChangeNotifier {
   }
 
   onClickLoginOTP(String countryCode, String phoneNumController) async {
+    if (isLoading) return; // Prevent multiple taps
+    startLoader();
+    ZBotToast.loadingShow();
+
     bool isUserExist = await chechUserCollectionExists(
       "$countryCode$phoneNumController",
     );
@@ -100,8 +104,10 @@ class AuthVm extends ChangeNotifier {
     if (isUserExist == false) {
       Helper.inSnackBar('Error', "This user does not exist", R.colors.themeMud);
       ZBotToast.loadingClose();
+      stopLoader();
     } else {
       await signInWithOtp(countryCode, phoneNumController);
+      stopLoader();
     }
   }
 

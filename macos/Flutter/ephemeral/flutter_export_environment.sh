@@ -1,7 +1,7 @@
 #!/bin/sh
 # This is a generated file; do not edit or check into version control.
-export "FLUTTER_ROOT=/Users/madhav/Development/flutter"
-export "FLUTTER_APPLICATION_PATH=/Users/madhav/development/GitHub/YachtMaster-App"
+export "FLUTTER_ROOT=/Users/bodhi/flutter"
+export "FLUTTER_APPLICATION_PATH=/Users/bodhi/Documents/GitHub/YachtMaster-App"
 export "COCOAPODS_PARALLEL_CODE_SIGN=true"
 export "FLUTTER_BUILD_DIR=build"
 export "FLUTTER_BUILD_NAME=1.3.6"
